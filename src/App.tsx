@@ -5,6 +5,7 @@ import { useUi } from "./store/ui";
 import { BottomNav } from "./components/BottomNav";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
+import { CameraPractice } from "./screens/CameraPractice";
 import { Stub } from "./screens/Stub";
 
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress"]);
@@ -27,7 +28,9 @@ export default function App() {
     <>
       <main>
         {screen.name === "home" && <Home />}
-        {screen.name === "camera" && <Stub title="Camera (M2)" />}
+        {screen.name === "camera" && (
+          <CameraPractice key={screen.targetSignId ?? "free"} initialSignId={screen.targetSignId} />
+        )}
         {screen.name === "firstSign" && <Stub title="First sign (M3)" />}
         {screen.name === "lesson" && <Stub title="Lesson (M4)" />}
         {screen.name === "family" && <Stub title="Family (M6)" />}
