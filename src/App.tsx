@@ -6,6 +6,7 @@ import { BottomNav } from "./components/BottomNav";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
 import { CameraPractice } from "./screens/CameraPractice";
+import { FirstSign } from "./screens/FirstSign";
 import { Stub } from "./screens/Stub";
 
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress"]);
@@ -31,7 +32,7 @@ export default function App() {
         {screen.name === "camera" && (
           <CameraPractice key={screen.targetSignId ?? "free"} initialSignId={screen.targetSignId} />
         )}
-        {screen.name === "firstSign" && <Stub title="First sign (M3)" />}
+        {screen.name === "firstSign" && <FirstSign />}
         {screen.name === "lesson" && <Stub title="Lesson (M4)" />}
         {screen.name === "family" && <Stub title="Family (M6)" />}
         {screen.name === "flagPicker" && <Stub title="Flags (M6)" />}
