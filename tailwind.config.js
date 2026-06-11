@@ -1,0 +1,63 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        // Sawiyya brand palette (LOCKED — Brand Identity §2). AA-tuned.
+        teal: { DEFAULT: "#0F6E6A", deep: "#0A4F4C", ink: "#16302E" },
+        coral: { DEFAULT: "#E8654C", soft: "#F08A75" },
+        gold: { DEFAULT: "#E6B24C", soft: "#F0C879" },
+        sand: "#F6EFE3",
+        paper: "#FBF7EF",
+        ink: "#16302E",
+        muted: "#5C726F",
+        line: "#EDE3D2",
+      },
+      fontFamily: {
+        // Readex Pro = dual-script UI/body. Rubik = display + numbers.
+        sans: ["Readex Pro", "system-ui", "sans-serif"],
+        display: ["Rubik", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        // Soft geometry — generous radii everywhere.
+        xl: "1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
+        bowl: "2.5rem",
+      },
+      boxShadow: {
+        soft: "0 18px 40px -22px rgba(15,110,106,.45)",
+        lift: "0 26px 50px -22px rgba(15,110,106,.5)",
+        gold: "0 12px 28px -10px rgba(230,178,76,.55)",
+        coral: "0 12px 24px -12px rgba(232,101,76,.6)",
+      },
+      keyframes: {
+        "pop-in": {
+          "0%": { transform: "scale(.8)", opacity: "0" },
+          "60%": { transform: "scale(1.05)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "rise": {
+          "0%": { transform: "translateY(12px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "pulse-ring": {
+          "0%": { boxShadow: "0 0 0 0 rgba(230,178,76,.45)" },
+          "100%": { boxShadow: "0 0 0 18px rgba(230,178,76,0)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+      },
+      animation: {
+        "pop-in": "pop-in .45s cubic-bezier(.2,.9,.3,1.4) both",
+        "rise": "rise .5s ease both",
+        "pulse-ring": "pulse-ring 1.4s ease-out infinite",
+        "shimmer": "shimmer 1.6s linear infinite",
+      },
+    },
+  },
+  plugins: [],
+};

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Sawiyya app icon — white Seen mark on Majlis Teal squircle (Brand Identity §1) -->
+  <rect width="512" height="512" rx="118" fill="#0F6E6A"/>
+  <g transform="translate(76 116)">
+    <path d="M95 240 V160" stroke="#FBF7EF" stroke-width="38" stroke-linecap="round"/>
+    <path d="M165 240 V116" stroke="#FBF7EF" stroke-width="38" stroke-linecap="round"/>
+    <path d="M235 240 V148" stroke="#FBF7EF" stroke-width="38" stroke-linecap="round"/>
+    <path d="M62 246 C112 318 268 324 330 254 L330 222" stroke="#FBF7EF" stroke-width="38" stroke-linecap="round" fill="none"/>
+    <circle cx="296" cy="104" r="26" fill="#E6B24C"/>
+  </g>
+</svg>
