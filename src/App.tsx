@@ -8,6 +8,8 @@ import { Onboarding } from "./screens/Onboarding";
 import { CameraPractice } from "./screens/CameraPractice";
 import { FirstSign } from "./screens/FirstSign";
 import { LessonPlayer } from "./screens/LessonPlayer";
+import { Family } from "./screens/Family";
+import { FlagPicker } from "./screens/FlagPicker";
 import { Stub } from "./screens/Stub";
 
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress"]);
@@ -37,8 +39,8 @@ export default function App() {
         {screen.name === "lesson" && (
           <LessonPlayer key={screen.lessonId} lessonId={screen.lessonId} />
         )}
-        {screen.name === "family" && <Stub title="Family (M6)" />}
-        {screen.name === "flagPicker" && <Stub title="Flags (M6)" />}
+        {screen.name === "family" && <Family />}
+        {screen.name === "flagPicker" && <FlagPicker />}
         {screen.name === "progress" && <Stub title="Progress (M7)" />}
         {screen.name === "settings" && <Stub title="Settings (M7)" />}
         {screen.name === "aiTransparency" && <Stub title="AI transparency (M7)" />}
