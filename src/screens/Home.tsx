@@ -11,6 +11,7 @@ import {
 } from "../store/app";
 import { useUi } from "../store/ui";
 import { Card, Pill, ProgressRing, Wordmark, Logo } from "../components/ui";
+import { nextMilestone } from "../lesson/milestones";
 
 export function Home() {
   const app = useApp();
@@ -153,6 +154,28 @@ export function Home() {
           </Card>
         </section>
       )}
+
+      {/* Next milestone */}
+      {(() => {
+        const ms = nextMilestone(app, profile.id, lang);
+        if (!ms) return null;
+        return (
+          <section className="mt-5">
+            <Card className="flex items-center gap-3 p-4">
+              <span className="text-3xl" aria-hidden="true">{ms.emoji}</span>
+              <div className="flex-1">
+                <p className="font-bold">{ms.label}</p>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal/10">
+                  <div
+                    className="h-full rounded-full bg-gold transition-all"
+                    style={{ width: `${Math.max(4, ms.progress * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </Card>
+          </section>
+        );
+      })()}
 
       {/* Alphabet practice */}
       <section className="mt-5">
