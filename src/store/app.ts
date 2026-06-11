@@ -66,7 +66,11 @@ export interface AppState {
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   completeOnboarding: () => void;
   /** Record a completed drill for the active profile: XP + streak + SRS + mastery. */
-  recordDrillResult: (signId: string, outcome: SrsOutcome, opts?: { selfMark?: boolean; camera?: boolean; matched?: boolean }) => void;
+  recordDrillResult: (
+    signId: string,
+    outcome: SrsOutcome,
+    opts?: { selfMark?: boolean; camera?: boolean; matched?: boolean; watch?: boolean },
+  ) => void;
   recordLessonComplete: () => void;
   markFirstSignTime: () => void;
   toggleFlag: (signId: string, raisedByProfileId: string) => void;
@@ -143,13 +147,19 @@ export const useApp = create<AppState>()(
           // 2. Mastery: 1 seen → 2 practised → 3 mastered (3+ successful reps)
           const profileProg = { ...(s.progress[activeProfileId] ?? {}) };
           const prev = profileProg[signId]?.masteryLevel ?? 0;
-          const success = outcome === "good" || outcome === "easy";
+          const success = !opts.watch && (outcome === "good" || outcome === "easy");
           const reps = profileSrs[signId].reps;
-          const mastery = success ? (reps >= 3 ? 3 : Math.max(prev, 2)) : Math.max(prev, 1);
+          const mastery = opts.watch
+            ? Math.max(prev, 1)
+            : success
+              ? reps >= 3
+                ? 3
+                : Math.max(prev, 2)
+              : Math.max(prev, 1);
           profileProg[signId] = { masteryLevel: mastery, lastSeen: new Date().toISOString() };
 
           // 3. XP + streak (no hearts, no punishment — XP even on a miss)
-          const xpGain = success ? 10 : 4;
+          const xpGain = opts.watch ? 5 : success ? 10 : 4;
           const profiles = s.profiles.map((p) => {
             if (p.id !== activeProfileId) return p;
             const newDay = p.lastActiveDay !== today;
