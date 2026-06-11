@@ -10,7 +10,10 @@ import { FirstSign } from "./screens/FirstSign";
 import { LessonPlayer } from "./screens/LessonPlayer";
 import { Family } from "./screens/Family";
 import { FlagPicker } from "./screens/FlagPicker";
-import { Stub } from "./screens/Stub";
+import { Progress } from "./screens/Progress";
+import { Settings } from "./screens/Settings";
+import { AiTransparency, Privacy } from "./screens/InfoPages";
+import { DevMetrics } from "./screens/DevMetrics";
 
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress"]);
 
@@ -41,11 +44,11 @@ export default function App() {
         )}
         {screen.name === "family" && <Family />}
         {screen.name === "flagPicker" && <FlagPicker />}
-        {screen.name === "progress" && <Stub title="Progress (M7)" />}
-        {screen.name === "settings" && <Stub title="Settings (M7)" />}
-        {screen.name === "aiTransparency" && <Stub title="AI transparency (M7)" />}
-        {screen.name === "privacy" && <Stub title="Privacy (M7)" />}
-        {screen.name === "devMetrics" && <Stub title="Dev metrics (M7)" />}
+        {screen.name === "progress" && <Progress />}
+        {screen.name === "settings" && <Settings />}
+        {screen.name === "aiTransparency" && <AiTransparency />}
+        {screen.name === "privacy" && <Privacy />}
+        {screen.name === "devMetrics" && <DevMetrics />}
       </main>
       {NAV_SCREENS.has(screen.name) && <BottomNav lang={lang} />}
     </>

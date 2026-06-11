@@ -259,8 +259,9 @@ export function CameraTrainer({
         )}
       </div>
 
-      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available) */}
-      {mode === "grade" && !matched && (
+      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available,
+          including teach mode and blocked/absent cameras) */}
+      {!matched && (
         <div className="flex flex-col gap-2">
           {showUnsure && (
             <p className="rounded-2xl bg-gold/15 px-4 py-3 text-sm font-medium text-ink">

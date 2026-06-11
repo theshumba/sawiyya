@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Sawiyya — Recognizer Spike</title>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&family=Rubik:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--teal:#0F6E6A;--teal-d:#0A4F4C;--coral:#E8654C;--gold:#E6B24C;--sand:#F6EFE3;--ink:#16302E;--muted:#5C726F;--paper:#FBF7EF}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Readex Pro',system-ui,sans-serif;background:var(--sand);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 16px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .wm{font-weight:700;font-size:26px;letter-spacing:-.02em}.wm .dot{color:var(--gold)}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px;text-align:center}
+  .stage{position:relative;width:100%;max-width:480px;aspect-ratio:3/4;background:var(--ink);border-radius:28px;overflow:hidden;box-shadow:0 26px 50px -22px rgba(15,110,106,.55)}
+  video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+  .status{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+  .pill{background:rgba(15,48,46,.62);backdrop-filter:blur(6px);color:#fff;font-size:12.5px;padding:7px 13px;border-radius:999px;display:flex;align-items:center;gap:7px}
+  .dot-live{width:8px;height:8px;border-radius:50%;background:#9aa6a4;transition:.2s}
+  .dot-live.on{background:var(--gold);box-shadow:0 0 0 4px rgba(230,178,76,.25)}
+  .fps{font-family:'Rubik';font-weight:600}
+  .hint{position:absolute;bottom:16px;left:14px;right:14px;text-align:center;z-index:3;color:#cdeae7;font-size:13px;background:rgba(10,79,76,.55);backdrop-filter:blur(6px);padding:10px;border-radius:14px}
+  .start{margin-top:20px;background:var(--coral);color:#fff;border:none;font-family:inherit;font-weight:600;font-size:16px;padding:14px 30px;border-radius:14px;cursor:pointer;box-shadow:0 12px 24px -12px rgba(232,101,76,.7)}
+  .start:disabled{opacity:.5}
+  .meta{margin-top:18px;max-width:480px;width:100%;background:var(--paper);border:1px solid #EDE3D2;border-radius:16px;padding:16px 18px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .meta b{color:var(--teal)}
+  .err{color:var(--coral);font-weight:600}
+</style>
+</head>
+<body>
+  <header>
+    <svg width="40" height="34" viewBox="0 0 150 120" aria-hidden="true">
+      <path d="M40 84 V58" stroke="#0F6E6A" stroke-width="12" stroke-linecap="round"/>
+      <path d="M62 84 V44" stroke="#0F6E6A" stroke-width="12" stroke-linecap="round"/>
+      <path d="M84 84 V54" stroke="#0F6E6A" stroke-width="12" stroke-linecap="round"/>
+      <path d="M30 86 C46 108 104 110 124 88 L124 78" stroke="#0F6E6A" stroke-width="12" stroke-linecap="round" fill="none"/>
+      <circle cx="103" cy="40" r="7.5" fill="#E6B24C"/>
+    </svg>
+    <div class="wm">sawiyya<span class="dot">.</span></div>
+  </header>
+  <div class="sub">Step 1 · on-device hand tracking — نتأكّد إن الكاميرا تشوف يدك</div>
+
+  <div class="stage">
+    <video id="cam" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+    <div class="status">
+      <div class="pill"><span id="live" class="dot-live"></span><span id="state">camera off</span></div>
+      <div class="pill fps"><span id="fps">–</span> fps</div>
+    </div>
+    <div class="hint" id="hint">Tap “Start camera”, then raise one hand into view ✋</div>
+  </div>
+
+  <button class="start" id="startBtn">Start camera</button>
+
+  <div class="meta">
+    <b>What this proves:</b> MediaPipe Hands runs <b>entirely on your device</b> — no frame ever leaves the phone. It locks onto the 21 joints of your hand in real time. Next step wires these landmarks to an Arabic-alphabet classifier so the app can grade <i>which letter</i> you're signing.
+    <div id="diag" style="margin-top:10px"></div>
+  </div>
+
+<script type="module">
+import { HandLandmarker, FilesetResolver, DrawingUtils }
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+const video = document.getElementById('cam');
+const canvas = document.getElementById('overlay');
+const ctx = canvas.getContext('2d');
+const startBtn = document.getElementById('startBtn');
+const stateEl = document.getElementById('state');
+const liveEl = document.getElementById('live');
+const fpsEl = document.getElementById('fps');
+const hintEl = document.getElementById('hint');
+const diag = document.getElementById('diag');
+
+let handLandmarker, drawUtils, running = false, lastT = 0, lastVideoTime = -1, frames = 0, fpsT = 0;
+
+async function init() {
+  stateEl.textContent = 'loading model…';
+  const fileset = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+  handLandmarker = await HandLandmarker.createFromOptions(fileset, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    numHands: 1
+  });
+  drawUtils = new DrawingUtils(ctx);
+}
+
+async function startCamera() {
+  startBtn.disabled = true;
+  try {
+    if (!handLandmarker) await init();
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    running = true;
+    stateEl.textContent = 'looking for a hand…';
+    requestAnimationFrame(loop);
+  } catch (e) {
+    startBtn.disabled = false;
+    stateEl.textContent = 'camera blocked';
+    diag.innerHTML = `<span class="err">Camera error: ${e.message}.</span> Allow camera access (and use https:// or localhost).`;
+  }
+}
+
+function loop(t) {
+  if (!running) return;
+  if (video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+    const res = handLandmarker.detectForVideo(video, t);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (res.landmarks && res.landmarks.length) {
+      liveEl.classList.add('on');
+      stateEl.textContent = 'hand detected ✋';
+      hintEl.style.display = 'none';
+      for (const lm of res.landmarks) {
+        drawUtils.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, { color:'#E6B24C', lineWidth:4 });
+        drawUtils.drawLandmarks(lm, { color:'#FBF7EF', fillColor:'#E8654C', radius:5, lineWidth:1 });
+      }
+    } else {
+      liveEl.classList.remove('on');
+      stateEl.textContent = 'looking for a hand…';
+    }
+  }
+  frames++;
+  if (t - fpsT > 500) { fpsEl.textContent = Math.round(frames * 1000 / (t - fpsT)); frames = 0; fpsT = t; }
+  requestAnimationFrame(loop);
+}
+
+startBtn.addEventListener('click', startCamera);
+</script>
+</body>
+</html>
