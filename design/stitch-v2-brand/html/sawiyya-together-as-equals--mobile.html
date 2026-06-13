@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya | Together, as Equals</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Readex+Pro:wght@300;400;500;600;700&amp;family=Lexend:wght@300;400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              'primary': '#0F6E6A',
+              'primary-dark': '#0A4F4C',
+              'ink': '#16302E',
+              'coral': '#E8654C',
+              'gold': '#E6B24C',
+              'sand': '#F6EFE3',
+              'paper': '#FBF7EF',
+            },
+            borderRadius: {
+              'DEFAULT': '0.5rem',
+              'lg': '1rem',
+              'xl': '1.5rem',
+              '2xl': '2rem',
+              '3xl': '2.5rem',
+              'full': '9999px',
+            },
+            fontFamily: {
+              headline: ['Rubik', 'sans-serif'],
+              display: ['Rubik', 'sans-serif'],
+              body: ['Lexend', 'sans-serif'],
+              label: ['Rubik', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #FBF7EF;
+            color: #16302E;
+        }
+
+        .btn-extruded-coral {
+            background-color: #E8654C;
+            box-shadow: 0 6px 0 #B54D39;
+            transition: all 0.15s ease;
+        }
+        .btn-extruded-coral:active {
+            box-shadow: 0 2px 0 #B54D39;
+            transform: translateY(4px);
+        }
+
+        .btn-extruded-gold {
+            background-color: #E6B24C;
+            box-shadow: 0 6px 0 #C2913A;
+            transition: all 0.15s ease;
+        }
+        .btn-extruded-gold:active {
+            box-shadow: 0 2px 0 #C2913A;
+            transform: translateY(4px);
+        }
+
+        .btn-extruded-teal {
+            background-color: #0F6E6A;
+            box-shadow: 0 6px 0 #0A4F4C;
+            transition: all 0.15s ease;
+        }
+        .btn-extruded-teal:active {
+            box-shadow: 0 2px 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+
+        .card-chunky {
+            border: 3px solid #E5E1D8;
+            transition: transform 0.2s ease;
+        }
+        .card-chunky:hover {
+            transform: translateY(-4px);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .meeting-curve {
+            clip-path: ellipse(150% 100% at 50% 0%);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-stack { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- Top Navigation (Shell Implementation) -->
+<header class="w-full top-0 sticky z-50 bg-[#0F6E6A] shadow-none">
+<nav class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<img alt="Sawiyya Logo" class="w-10 h-10 rounded-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLsQj_EOCbq5g42gTkchT_Cht_Uoyd5n5jA4ag0Dq4PNtvYd08U62SUtbw6H8nwZxIkvqY2uDJJBGQXCgiMbTo0gIISUMhOkqoZhxdYYQa3a1hcToJDiRBTCo4Gdyn-TdN1bFRed5zf30BZ17N_rYGceYrgJ_ogO1gKZyTXZLWB8tXBQ_p42dbvJQZRmpIeivPl_RFbKfgEhhgsi3Qn8_uNqUdNS5-0CeJ9rajPo7jeb8htNlOQOU9yIVW00"/>
+<span class="font-headline text-2xl font-bold tracking-tight text-white">Sawiyya</span>
+</div>
+<!-- Desktop Nav (Hidden on Mobile) -->
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-[#E6B24C] font-bold border-b-4 border-[#E6B24C] pb-1" href="#">Home</a>
+<a class="text-white/90 font-medium hover:text-white transition-opacity" href="#">Methodology</a>
+<a class="text-white/90 font-medium hover:text-white transition-opacity" href="#">Impact</a>
+</div>
+<!-- Mobile Menu Toggle (Ghost Style) -->
+<button class="md:hidden text-white p-2">
+<span class="material-symbols-outlined" style="font-size: 32px;">menu</span>
+</button>
+</nav>
+</header>
+<!-- Hero Section -->
+<section class="bg-primary pt-12 pb-24 px-6 relative overflow-hidden">
+<!-- Floating Sparkles (Atmospheric Decoration) -->
+<div class="absolute top-10 left-10 opacity-30 animate-pulse">
+<span class="material-symbols-outlined text-gold" style="font-size: 48px;">auto_awesome</span>
+</div>
+<div class="max-w-4xl mx-auto flex flex-col items-center text-center">
+<h1 class="font-headline text-4xl md:text-6xl text-white font-bold leading-tight mb-6">
+                Teach the world, don't fix the child · علّم العالم
+            </h1>
+<p class="font-body text-white/90 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+                Sawiyya teaches hearing families Qatari Sign Language — so a Deaf child grows up surrounded by people who already sign.
+            </p>
+<div class="flex flex-col sm:flex-row gap-6 w-full sm:w-auto mb-16">
+<button class="btn-extruded-coral px-10 py-5 rounded-2xl text-white font-bold text-xl uppercase tracking-wider">
+                    Try the demo
+                </button>
+<button class="px-10 py-5 rounded-2xl text-white font-bold text-xl hover:bg-white/10 transition-colors">
+                    For institutions
+                </button>
+</div>
+<div class="relative w-full max-w-md mx-auto">
+<img alt="Sign of Love illustration" class="w-full h-auto drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida/AP1WRLuR3o6yXmz-hqouSx7ps302JFVIh7a08yUUPJC5Y2w6SNTIeNCp0YybUgx-uLL5YohEVIVHgCVqMlB7KpF2JFJWS__bFroqyMIVBW78PMigeGpgKGI0pb5BG9z87Qtaoeo7luy_Nog7Z6n2yL2s2hBB6vq5hT-7JoSPY_h_RZA1hnGSklFAKhBFg33fmQgZXoAesp7FAy0goDsA05GM_bbg64Fd8INXLcCPx2ZF5nz2KBxBTNOgWl-9Hgr5"/>
+<!-- Decorative Motion Arcs -->
+<svg class="absolute -top-10 -right-10 w-32 h-32 text-gold/40 animate-spin-slow" style="animation: spin 10s linear infinite;" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-dasharray="10 20" stroke-width="2"></circle>
+</svg>
+</div>
+</div>
+</section>
+<!-- How it Works (Bento Grid Style) -->
+<section class="py-24 px-6 max-w-7xl mx-auto">
+<div class="mb-16 text-center">
+<span class="bg-gold/20 text-ink font-bold px-4 py-2 rounded-full text-xs uppercase tracking-widest mb-4 inline-block">The Journey</span>
+<h2 class="font-headline text-3xl md:text-5xl font-bold">How it works</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Learn Card -->
+<div class="card-chunky bg-paper p-8 rounded-3xl flex flex-col items-center text-center">
+<div class="w-48 h-48 mb-8">
+<img alt="Learn step illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLukaxk6KlDbLcMDDHpr4ptGKbINxVjaOoAk8mOJl8iI1Fao89fWOkZQfXiW2DrGSiDtyL4jo5s49nM6Ghf_bBHFOrUo8sS4jO3oomEK9Jkoiev5AifB8AL6S3sebGX7C-7jZrizcq6tFupSSXVJzXg3llq8pTSRJohih9axilrH-st9GdbsRaOn_LntL2cf1G9kNF3bxNPG-L3B9OyTTXZO-jq_DtsXL-K0HNEoHLAfcQzheMT-YYEdyeYk"/>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">1. Learn</h3>
+<p class="font-body text-ink/70">Gamified lessons designed for busy parents. Master QSL essentials in just 5 minutes a day.</p>
+</div>
+<!-- Try Card -->
+<div class="card-chunky bg-paper p-8 rounded-3xl flex flex-col items-center text-center">
+<div class="w-48 h-48 mb-8">
+<img alt="Try step illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLswvwOlVCaVoCjFtp6Ot-UKC5t6GpLzRTvc05TVwkXL5btmUdBUbKZFS-50IIEs97G4bK4sUrDjfpn8pvRgqlWUgw0HAu7zLVftivEnuFmJAH4Ke-xv2zcOtlL91sZSorVcKjjJGGYHO1hLjRtM8kwjTfZYujN_fYZ0Kguwt91aSov--1YRNMLy_YdxoHfbii1csXTrh1TuawKtaugYEACsQ8N-Whj0UDpelMQEvintaSU3Ihv3CeFxyhw8"/>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">2. Try</h3>
+<p class="font-body text-ink/70">On-device AI camera grades your signing instantly. 100% private, no video ever leaves your phone.</p>
+</div>
+<!-- Connect Card -->
+<div class="card-chunky bg-paper p-8 rounded-3xl flex flex-col items-center text-center">
+<div class="w-48 h-48 mb-8">
+<img alt="Connect step illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLs3Mg1DYgw8uUrFK2LNg2PlpTmth8t_HJE_klMJ6k7SBIMdMs390An6JqUuS6voEQUc1DQPql7RVFH3PZ1FIqdY6VTYP8BENvHgP20jwX9tsLYPSIRz_XJnWwIUTRbAbndWCiUUD_fM-fh2BrVXpnYd5Bt_sr9a3FXX5q0pW21s-pHF-PWysa0KZ2M6Td2h4o6pM_7Js9BrVWKAp3JHWj6EOKXpDniHwc_4C2cJ4-cGWLv-1kLdkektpN2M"/>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4">3. Connect</h3>
+<p class="font-body text-ink/70">Deaf family members flag the signs they want the household to learn next. A shared journey.</p>
+</div>
+</div>
+</section>
+<!-- Built in Qatar (Feature Chips) -->
+<section class="bg-primary-dark py-20 px-6 overflow-hidden">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+<div class="w-full md:w-1/2">
+<h2 class="font-headline text-4xl text-white font-bold mb-8">Built in Qatar, for Qatar</h2>
+<div class="flex flex-wrap gap-4">
+<div class="bg-primary px-6 py-3 rounded-full flex items-center gap-3 border-2 border-white/10 group hover:border-gold transition-colors">
+<span class="material-symbols-outlined text-gold">language_spark</span>
+<span class="text-white font-medium">Qatari Sign Language</span>
+</div>
+<div class="bg-primary px-6 py-3 rounded-full flex items-center gap-3 border-2 border-white/10 group hover:border-gold transition-colors">
+<span class="material-symbols-outlined text-gold">inventory_2</span>
+<span class="text-white font-medium">Jumla Corpus Aligned</span>
+</div>
+<div class="bg-primary px-6 py-3 rounded-full flex items-center gap-3 border-2 border-white/10 group hover:border-gold transition-colors">
+<span class="material-symbols-outlined text-gold">rtt</span>
+<span class="text-white font-medium">Arabic-first RTL</span>
+</div>
+<div class="bg-primary px-6 py-3 rounded-full flex items-center gap-3 border-2 border-white/10 group hover:border-gold transition-colors">
+<span class="material-symbols-outlined text-gold">accessibility_new</span>
+<span class="text-white font-medium">WCAG AA Accessible</span>
+</div>
+<div class="bg-primary px-6 py-3 rounded-full flex items-center gap-3 border-2 border-white/10 group hover:border-gold transition-colors">
+<span class="material-symbols-outlined text-gold">gavel</span>
+<span class="text-white font-medium">Law 22/2025 Ready</span>
+</div>
+</div>
+</div>
+<div class="w-full md:w-1/2 flex justify-center">
+<div class="relative">
+<div class="absolute -inset-4 bg-gold rounded-full opacity-10 animate-ping"></div>
+<span class="material-symbols-outlined text-white" style="font-size: 160px;">location_on</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Family Mode -->
+<section class="bg-sand py-24 px-6">
+<div class="max-w-4xl mx-auto text-center">
+<h2 class="font-headline text-3xl md:text-5xl font-bold mb-12">Family Mode</h2>
+<div class="bg-white/50 backdrop-blur-sm rounded-[40px] p-12 card-chunky mb-10">
+<img alt="Family honeycomb illustration" class="w-full h-auto max-w-md mx-auto" src="https://lh3.googleusercontent.com/aida/AP1WRLsY15088L9-mF9MzdefnFWYGcSZS0mNu-0iRLQm8W7dusfwClPW0MnQqBZp2vfLDvxIRu6bSY46D96frDrPKbHGu57_sHaYXGK-ZIbxBLZ2wc3X3FhUIQc7mMXd9AGUPo_Oz_2jyNxpUMiscde4tjiA8ock7Gh6-HcUNsiw5UqwIXPMfVlkp8zBQfoRVBPyNwmNZyhmcJGhJYYYy2ynjRhQCqHoAWrw8VThniI2wKmFwF9OqVAQ-np--Wo"/>
+<p class="font-display text-4xl md:text-6xl font-bold text-primary mt-12 mb-2">1,402</p>
+<p class="font-label text-ink/60 uppercase tracking-widest font-bold">Signs learned together this month</p>
+</div>
+<p class="font-headline text-2xl italic text-ink/80">"Your shared language, growing."</p>
+</div>
+</section>
+<!-- Institutional Strip -->
+<section class="bg-[#16302E] py-20 px-6 text-center">
+<div class="max-w-4xl mx-auto">
+<h2 class="font-headline text-3xl text-white font-bold mb-10 leading-tight">
+                Schools, hospitals, employers: bring Sawiyya to your people
+            </h2>
+<button class="btn-extruded-gold px-12 py-5 rounded-2xl text-ink font-bold text-xl uppercase tracking-widest">
+                Talk to us
+            </button>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full bg-[#16302E] text-[#F6EFE3] rounded-t-[40px] px-8 md:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="flex flex-col gap-6 max-w-md">
+<div class="flex items-center gap-3">
+<img alt="Sawiyya Logo" class="w-10 h-10" src="https://lh3.googleusercontent.com/aida/AP1WRLsQj_EOCbq5g42gTkchT_Cht_Uoyd5n5jA4ag0Dq4PNtvYd08U62SUtbw6H8nwZxIkvqY2uDJJBGQXCgiMbTo0gIISUMhOkqoZhxdYYQa3a1hcToJDiRBTCo4Gdyn-TdN1bFRed5zf30BZ17N_rYGceYrgJ_ogO1gKZyTXZLWB8tXBQ_p42dbvJQZRmpIeivPl_RFbKfgEhhgsi3Qn8_uNqUdNS5-0CeJ9rajPo7jeb8htNlOQOU9yIVW00"/>
+<span class="font-headline text-2xl font-bold text-[#E6B24C]">Sawiyya</span>
+</div>
+<p class="font-body text-lg leading-relaxed text-[#F6EFE3]/80">
+                    Learn to sign — together, as equals · سويّة
+                </p>
+<p class="font-body text-sm text-[#F6EFE3]/60">
+                    Built with the Deaf community, Phase 2 content by Deaf Qatari signers.
+                </p>
+</div>
+<div class="grid grid-cols-2 gap-12">
+<div class="flex flex-col gap-4">
+<span class="font-label text-xs font-bold uppercase tracking-widest text-[#E6B24C]">Explore</span>
+<a class="text-[#F6EFE3]/70 hover:text-[#E6B24C] transition-colors" href="#">Methodology</a>
+<a class="text-[#F6EFE3]/70 hover:text-[#E6B24C] transition-colors" href="#">Impact</a>
+<a class="text-[#F6EFE3]/70 hover:text-[#E6B24C] transition-colors" href="#">Schools</a>
+</div>
+<div class="flex flex-col gap-4">
+<span class="font-label text-xs font-bold uppercase tracking-widest text-[#E6B24C]">Support</span>
+<a class="text-[#F6EFE3]/70 hover:text-[#E6B24C] transition-colors" href="#">Privacy</a>
+<a class="text-[#F6EFE3]/70 hover:text-[#E6B24C] transition-colors" href="#">Contact</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body text-sm tracking-wide text-[#F6EFE3]/50">
+                © 2024 Sawiyya. Together, as equals. Built with heart in Qatar.
+            </p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-white/40 cursor-pointer hover:text-gold transition-colors">language</span>
+<span class="material-symbols-outlined text-white/40 cursor-pointer hover:text-gold transition-colors">share</span>
+</div>
+</div>
+</footer>
+<!-- RTL Support (Auto-Detection Trigger) -->
+<script>
+        // Micro-interaction: Smooth hover for cards
+        document.querySelectorAll('.card-chunky').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential for adding sparkle effects or sounds
+            });
+        });
+
+        // Detection of user's language could trigger 'dir="rtl"' on <html> and 'lang="ar"'
+        // For this demo, we maintain the bilingual structure.
+    </script>
+</body></html>

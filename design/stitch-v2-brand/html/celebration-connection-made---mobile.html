@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Celebration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Lexend:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .extruded-gold {
+            background-color: #E6B24C;
+            box-shadow: 0 6px 0 0 #B98A2D;
+            transition: all 0.1s ease;
+        }
+        
+        .extruded-gold:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B98A2D;
+        }
+
+        .extruded-coral {
+            background-color: #E8654C;
+            box-shadow: 0 6px 0 0 #B5402B;
+            transition: all 0.1s ease;
+        }
+        
+        .extruded-coral:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B5402B;
+        }
+
+        .glow-gold {
+            text-shadow: 0 0 20px rgba(230, 178, 76, 0.6);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(-1deg); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(3deg); opacity: 1; }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-pop {
+            animation: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .confetti-slow {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            opacity: 0.6;
+            animation: fall 10s linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-primary min-h-screen flex flex-col items-center justify-between overflow-hidden font-body text-white selection:bg-gold/30 selection:text-white">
+<!-- Decorative Confetti Background -->
+<div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="confetti-slow bg-gold left-[10%] top-[-5%]" style="animation-delay: 0s;"></div>
+<div class="confetti-slow bg-coral left-[25%] top-[-5%]" style="animation-delay: 2s;"></div>
+<div class="confetti-slow bg-sand left-[45%] top-[-5%]" style="animation-delay: 4s;"></div>
+<div class="confetti-slow bg-gold left-[70%] top-[-5%]" style="animation-delay: 1s;"></div>
+<div class="confetti-slow bg-coral left-[90%] top-[-5%]" style="animation-delay: 3s;"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-md px-6 flex flex-col items-center justify-center relative z-10 text-center">
+<!-- Hero Illustration Wrapper -->
+<div class="relative w-full aspect-square flex items-center justify-center mb-4 animate-float">
+<img alt="Connection Made Celebration" class="w-4/5 h-auto drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdqexM26CvNzt6EaSaQwGGXQx_qdz0LmwdSmmn8SK4DTsjpfGwH6U7atsT-bFyQH6AEi-ofYUUPwbd_TX-g6LN3zEMBcb8rgG1ljqP9o3u4HbBLabh8iNeq-qGe_4vScHIuC-OZFWnheYJdWgktW41Aa4CqCxyROAcl8qNfSsyZnwsUiDJ1ZN0MrCvCOubYCTYwKrNaEBiAnikWZxTwQkI9R1u5-j6-DGKq3QIVaqMToaTG6cc-e9k6dPZgzU-2LCuk5_KECOT1qD5"/>
+<!-- Floating +10 XP Chip -->
+<div class="absolute top-10 right-4 animate-pop bg-gold px-5 py-2 rounded-2xl extruded-gold transform rotate-12 flex items-center gap-2" style="animation-delay: 0.4s;">
+<span class="font-display text-xl text-primary-dark">+10</span>
+<span class="font-label text-[10px] font-bold text-primary-dark tracking-tighter">XP</span>
+</div>
+<!-- Day 1 Streak Flame -->
+<div class="absolute bottom-10 left-4 animate-pop bg-paper p-1 rounded-2xl shadow-xl transform -rotate-12 w-24 h-24 flex flex-col items-center justify-center border-4 border-gold" style="animation-delay: 0.6s;">
+<img alt="Streak Flame" class="w-14 h-14 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvGtBTIs5Z_s6JXXjT2DT_tazCITIyE5UKQd0dAzD3GxOKNB3vav-e1p2VLX1l6QS5_NOxNFqIps5nEUFideui-LearMfiypNVILnAEo5Gi7M_Ms7xLKQnDYdveXrvmhxXSHoFridLPIpyTdQP9lDGXzWSitFYtfULYQWgxUJBeb_1UdcaveHQ73sIn3udf16m8FxQe9rGvUCGU4HtfTgJ_T7s-z_berLRa6yhp2jvqoM1OtIrxj5R5GBRI"/>
+<span class="text-primary font-label text-[10px] font-extrabold uppercase tracking-widest mt-1">Day 1</span>
+</div>
+</div>
+<!-- Typography Cluster -->
+<div class="space-y-4 px-4">
+<h1 class="font-display text-4xl md:text-5xl lg:text-6xl text-gold glow-gold leading-tight">
+                وصلت!<br/>
+<span class="text-white opacity-95">Connection made!</span>
+</h1>
+<p class="text-sand/90 text-lg md:text-xl font-medium max-w-[280px] mx-auto leading-relaxed">
+                That's one. Your family will feel this.
+            </p>
+</div>
+</main>
+<!-- Footer Actions -->
+<footer class="w-full max-w-md px-8 pb-12 pt-8 relative z-20">
+<div class="flex flex-col items-center gap-6">
+<button class="w-full py-5 rounded-2xl extruded-gold text-primary-dark font-display text-xl flex items-center justify-center gap-3 active:scale-[0.98] transition-transform">
+                Keep going 
+                <span class="material-symbols-outlined font-bold">arrow_forward</span>
+</button>
+<a class="text-sand/60 hover:text-white font-label text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 group" href="#">
+                share this moment
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">ios_share</span>
+</a>
+</div>
+</footer>
+<script>
+        // Optional micro-interaction for celebratory effect
+        document.querySelector('.extruded-gold').addEventListener('click', function(e) {
+            const btn = e.currentTarget;
+            // Immediate feedback handled by CSS active state
+            // Logic for navigation would go here
+        });
+
+        // Simple star spark effect generator
+        function createSpark() {
+            const spark = document.createElement('div');
+            spark.innerHTML = `<span class="material-symbols-outlined text-gold opacity-40 absolute" style="font-size: ${Math.random() * 20 + 10}px; left: ${Math.random() * 100}%; top: ${Math.random() * 100}%;">sparkles</span>`;
+            document.body.appendChild(spark.firstChild);
+            
+            const element = document.body.lastChild;
+            setTimeout(() => {
+                element.style.transition = 'all 2s ease-out';
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(-50px) scale(0.5)';
+                setTimeout(() => element.remove(), 2000);
+            }, 50);
+        }
+
+        // Generate a few random sparks on load
+        for(let i=0; i<8; i++) {
+            setTimeout(createSpark, i * 300);
+        }
+    </script>
+</body></html>

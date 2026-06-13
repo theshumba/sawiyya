@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&amp;family=Lexend:wght@300;400;600&amp;family=Readex+Pro:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-coral {
+            box-shadow: 0 4px 0 #b34a36;
+        }
+        .extruded-coral:active {
+            box-shadow: 0 0px 0 #b34a36;
+            transform: translateY(4px);
+        }
+        .extruded-teal {
+            box-shadow: 0 4px 0 #0A4F4C;
+        }
+        .extruded-teal:active {
+            box-shadow: 0 0px 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(230, 178, 76, 0.6);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hand-skeleton-line {
+            stroke: #E6B24C;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+        .hand-joint {
+            fill: #E8654C;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink overflow-hidden h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-primary dark:bg-primary-dark text-paper dark:text-sand font-headline text-2xl font-bold tracking-tight shadow-xl flex justify-between items-center w-full px-6 py-4 fixed top-0 z-50 rounded-b-[32px] border-b-4 border-primary-dark">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined">menu</span>
+<h1 class="font-headline text-3xl font-black text-gold drop-shadow-sm">Sawiyya</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-white/10 px-3 py-1 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-sm font-bold">1,240 XP</span>
+</div>
+</div>
+</header>
+<main class="flex-1 mt-24 mb-24 px-4 overflow-y-auto hide-scrollbar flex flex-col items-center">
+<!-- Letter Picker Scrollable Chips -->
+<div class="w-full mb-6 overflow-x-auto flex gap-3 py-2 px-1 hide-scrollbar">
+<!-- Learned -->
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gold text-white font-headline text-2xl flex items-center justify-center shadow-md active:scale-95 transition-all">أ</button>
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gold text-white font-headline text-2xl flex items-center justify-center shadow-md active:scale-95 transition-all">ب</button>
+<!-- Active -->
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl bg-coral text-white font-headline text-3xl font-black flex items-center justify-center ring-4 ring-coral ring-offset-2 ring-offset-sand shadow-lg active:scale-95 transition-all">ت</button>
+<!-- Locked/Teal Outlines -->
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-primary text-primary font-headline text-2xl flex items-center justify-center opacity-70">ث</button>
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-primary text-primary font-headline text-2xl flex items-center justify-center opacity-70">ج</button>
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-primary text-primary font-headline text-2xl flex items-center justify-center opacity-70">ح</button>
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-primary text-primary font-headline text-2xl flex items-center justify-center opacity-70">خ</button>
+<button class="flex-shrink-0 w-14 h-14 rounded-2xl border-2 border-primary text-primary font-headline text-2xl flex items-center justify-center opacity-70">د</button>
+</div>
+<!-- Camera Section with Viewport and Reference Card -->
+<div class="relative w-full max-w-md aspect-[3/4] mb-4">
+<!-- Viewport -->
+<div class="absolute inset-0 bg-ink rounded-[40px] overflow-hidden shadow-2xl border-8 border-primary/20">
+<!-- Background Image simulating camera feed -->
+<div class="absolute inset-0 opacity-40 mix-blend-screen bg-gradient-to-t from-primary/30 to-transparent"></div>
+<!-- Skeleton Overlay (SVG) -->
+<svg class="absolute inset-0 w-full h-full p-12" viewbox="0 0 200 260">
+<!-- Palm base -->
+<circle class="hand-joint" cx="100" cy="200" r="4"></circle>
+<line class="hand-skeleton-line" x1="100" x2="140" y1="200" y2="180"></line>
+<line class="hand-skeleton-line" x1="100" x2="60" y1="200" y2="180"></line>
+<!-- Index finger -->
+<line class="hand-skeleton-line" x1="100" x2="105" y1="200" y2="120"></line>
+<line class="hand-skeleton-line" x1="105" x2="110" y1="120" y2="70"></line>
+<circle class="hand-joint" cx="105" cy="120" r="3"></circle>
+<circle class="hand-joint" cx="110" cy="70" r="3"></circle>
+<!-- Middle finger (bent) -->
+<line class="hand-skeleton-line" x1="100" x2="130" y1="200" y2="140"></line>
+<line class="hand-skeleton-line" x1="130" x2="120" y1="140" y2="160"></line>
+<circle class="hand-joint" cx="130" cy="140" r="3"></circle>
+<circle class="hand-joint" cx="120" cy="160" r="3"></circle>
+<!-- Thumb -->
+<line class="hand-skeleton-line" x1="60" x2="40" y1="180" y2="140"></line>
+<circle class="hand-joint" cx="40" cy="140" r="3"></circle>
+</svg>
+<!-- Status Overlay Text -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 bg-ink/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+<p class="text-white text-sm font-bold tracking-wide">MATCHING: 84%</p>
+</div>
+</div>
+<!-- Reference Card Overlay -->
+<div class="absolute top-6 right-6 w-24 h-32 bg-paper rounded-2xl border-4 border-gold shadow-lg flex flex-col items-center justify-between p-2">
+<div class="text-xs font-bold text-primary-dark uppercase">Reference</div>
+<div class="flex-1 flex items-center justify-center">
+<img alt="Handshape illustration for Arabic letter Ta" class="w-16 h-16 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtoICmHoZQWOnawNx0LhK4dtKvyKEdk3YG7E9145UhIQSdVXxnOqE8bvX-9AgUzhSjDyoXTqmbQSkc3bJ7nzJKoT96jdi6NHwNnPvhflcJG3VEh9ff3FoBqanWoXPB6KTu7UJ0hnBMJxbEsr_paUoih3ObSGiM-jXtIqXCFqB0ro2BZ3Yb3fyrBgZH20xwJs9I82FDl3cCjNWJ-3_qaw-nVdRMIDqrOYSlY377KU_4e5NlJv_HZ_hy7q2hb"/>
+</div>
+<div class="bg-gold text-white font-black text-lg px-3 rounded-lg leading-tight">ت</div>
+</div>
+</div>
+<!-- Confidence Meter -->
+<div class="w-full max-w-md px-2 mb-6">
+<div class="flex justify-between items-end mb-2">
+<span class="text-primary font-bold text-sm uppercase tracking-wider">Stability</span>
+<span class="text-gold font-black text-xl leading-none">EXCELLENT!</span>
+</div>
+<div class="h-6 w-full bg-paper rounded-full border-2 border-sand overflow-hidden relative shadow-inner">
+<div class="h-full bg-gold glow-gold rounded-full transition-all duration-300 relative" id="confidence-bar" style="width: 82%;">
+<div class="absolute right-0 top-0 bottom-0 w-2 bg-white/40 blur-[2px]"></div>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<div class="w-full max-w-md flex flex-col items-center gap-4 mb-6">
+<button class="w-full bg-primary text-paper font-headline text-lg font-bold py-4 rounded-3xl extruded-teal flex items-center justify-center gap-3 active:scale-95 transition-all">
+<span class="material-symbols-outlined">psychology</span>
+                Teach the camera
+                <div class="bg-primary-dark px-2 py-1 rounded-full text-xs font-black">18/24 SAMPLES</div>
+</button>
+</div>
+<!-- Privacy Chip -->
+<div class="bg-white/60 px-4 py-2 rounded-2xl flex items-center gap-3 border border-primary/10 mb-8">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+<p class="text-xs font-medium text-ink/70 leading-tight">100% on your device — no video ever leaves your phone.</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-paper dark:bg-ink fixed bottom-0 w-full rounded-t-[40px] z-50 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] border-t-4 border-sand dark:border-primary-dark">
+<div class="flex justify-around items-center w-full px-4 pt-3 pb-6">
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 hover:text-coral transition-colors active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-gold border-b-4 border-gold pb-1 hover:text-coral transition-colors active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">videocam</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Camera</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 hover:text-coral transition-colors active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">favorite</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Family</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 hover:text-coral transition-colors active:scale-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Progress</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interaction for the confidence meter
+        const bar = document.getElementById('confidence-bar');
+        setInterval(() => {
+            const randomFluctuation = Math.floor(Math.random() * 10) - 5; // -5 to +5
+            const currentWidth = parseInt(bar.style.width);
+            let nextWidth = currentWidth + randomFluctuation;
+            if (nextWidth > 98) nextWidth = 98;
+            if (nextWidth < 75) nextWidth = 75;
+            bar.style.width = nextWidth + '%';
+        }, 1200);
+
+        // Simple skeleton pulse animation
+        const joints = document.querySelectorAll('.hand-joint');
+        joints.forEach((joint, i) => {
+            joint.style.transition = 'all 0.5s ease-in-out';
+            setInterval(() => {
+                const scale = 1 + (Math.random() * 0.2);
+                joint.setAttribute('r', (3 * scale).toString());
+            }, 500 + (i * 100));
+        });
+    </script>
+</body></html>

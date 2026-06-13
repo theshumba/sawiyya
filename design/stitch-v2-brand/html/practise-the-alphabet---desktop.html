@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya Practice | Camera</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&amp;family=Lexend:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .extruded-coral {
+            box-shadow: 0 4px 0 0 #B54231;
+        }
+        .extruded-coral:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #B54231;
+        }
+        .extruded-teal {
+            box-shadow: 0 4px 0 0 #0A4F4C;
+        }
+        .extruded-teal:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #0A4F4C;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .hand-skeleton-line {
+            stroke-dasharray: 4;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 1000; }
+        }
+        .glow-gold {
+            filter: drop-shadow(0 0 8px rgba(230, 178, 76, 0.6));
+        }
+    </style>
+</head>
+<body class="bg-sand text-ink font-body selection:bg-gold/30">
+<div class="flex min-h-screen">
+<!-- SideNavBar (Shared Component Identity) -->
+<aside class="hidden md:flex flex-col gap-8 h-screen w-24 sticky left-0 z-40 bg-sand dark:bg-ink border-l-4 border-primary/10 items-center py-8">
+<div class="flex flex-col items-center gap-2 mb-4">
+<div class="w-14 h-14 bg-primary rounded-3xl flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-paper text-3xl" style="font-variation-settings: 'FILL' 1;">front_hand</span>
+</div>
+<span class="font-headline text-primary font-black text-xs">Sawiyya</span>
+</div>
+<nav class="flex flex-col gap-6 w-full px-4">
+<!-- Home -->
+<button class="text-primary/60 hover:text-primary p-3 transition-all flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">home</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Home</span>
+</button>
+<!-- Camera (ACTIVE) -->
+<button class="bg-primary text-paper rounded-xl p-3 shadow-[0_4px_0_0_#0A4F4C] transition-all translate-y-1 flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">videocam</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Practice</span>
+</button>
+<!-- Family -->
+<button class="text-primary/60 hover:text-primary p-3 transition-all flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">favorite</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Family</span>
+</button>
+<!-- Progress -->
+<button class="text-primary/60 hover:text-primary p-3 transition-all flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">leaderboard</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Stats</span>
+</button>
+</nav>
+<div class="mt-auto">
+<div class="w-10 h-10 rounded-full border-2 border-primary/20 p-1">
+<img alt="User" class="w-full h-full rounded-full object-cover" data-alt="A portrait of a cheerful young Qatari boy with warm brown skin, wearing a traditional white ghutra, smiling brightly in a high-quality 3D character style reminiscent of premium animation. The lighting is soft and warm, reflecting a sunlit indoor majlis with teal and gold accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABKCPitjnQkWorhofSfV2n_mubzJ5O_Q2wTmS6oIcsDtblVkVA8FQ_MEu-csOP7q5M1oLeOuPMgdTZoRBhBFt6lG8QxQQBclrmehMRJKKVLpqLvppvl6oniI1rcrMDGV5wLRpGEy_167KHm1j3-SRFGg-yd0nQCYxHMpw8tzXmT213n_vUs5BxxaYecvSBEvGaVB_cdKXcTRC5seONTIxwP434ZbjdOCmohgwYmGe7YpA8yNKoSk22S82VcnX0tyxb8iMSuv0Xx9CZ"/>
+</div>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col md:flex-row gap-6 p-6 overflow-y-auto">
+<!-- Left Column: Camera and Letter Grid -->
+<section class="flex-[2] flex flex-col gap-6">
+<!-- Header Info -->
+<div class="flex items-center justify-between">
+<div>
+<h1 class="font-headline font-bold text-3xl text-primary flex items-center gap-3">
+                            Alphabet Practice
+                            <span class="bg-gold/20 text-primary-dark text-sm px-3 py-1 rounded-full font-bold border border-gold/40">LEVEL 1</span>
+</h1>
+<p class="text-primary/70 mt-1">Position your hand clearly within the camera frame.</p>
+</div>
+</div>
+<!-- Webcam Viewport -->
+<div class="relative aspect-video bg-ink rounded-3xl overflow-hidden border-4 border-primary-dark shadow-2xl">
+<!-- Fake Webcam Feed Placeholder -->
+<div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]"></div>
+<!-- Landmark Overlay (SVG) -->
+<svg class="absolute inset-0 w-full h-full" viewbox="0 0 800 450">
+<!-- Hand skeleton illustration -->
+<g transform="translate(300, 150) scale(1.2)">
+<path class="hand-skeleton-line" d="M50,150 Q40,100 60,50 M60,50 Q65,40 70,50 L75,120" fill="none" stroke="#E6B24C" stroke-width="3"></path>
+<path class="hand-skeleton-line" d="M80,140 Q75,80 95,30 M95,30 Q100,20 105,30 L115,115" fill="none" stroke="#E6B24C" stroke-width="3"></path>
+<path class="hand-skeleton-line" d="M110,145 Q115,75 135,25 M135,25 Q140,15 145,25 L160,110" fill="none" stroke="#E6B24C" stroke-width="3"></path>
+<path class="hand-skeleton-line" d="M140,160 Q155,90 175,40 M175,40 Q180,30 185,40 L200,120" fill="none" stroke="#E6B24C" stroke-width="3"></path>
+<path class="hand-skeleton-line" d="M40,180 Q10,150 15,120 M15,120 Q18,110 25,120 L60,165" fill="none" stroke="#E6B24C" stroke-width="3"></path>
+<!-- Joint Dots (Coral) -->
+<circle class="glow-gold" cx="50" cy="150" fill="#E8654C" r="4"></circle>
+<circle class="glow-gold" cx="60" cy="50" fill="#E8654C" r="4"></circle>
+<circle class="glow-gold" cx="95" cy="30" fill="#E8654C" r="4"></circle>
+<circle class="glow-gold" cx="135" cy="25" fill="#E8654C" r="4"></circle>
+<circle class="glow-gold" cx="175" cy="40" fill="#E8654C" r="4"></circle>
+<circle class="glow-gold" cx="15" cy="120" fill="#E8654C" r="4"></circle>
+</g>
+</svg>
+<!-- Status Pill -->
+<div class="absolute top-6 right-6 flex items-center gap-2 bg-primary/90 text-white px-4 py-2 rounded-full backdrop-blur-md border border-white/20 animate-pulse">
+<span class="w-2 h-2 rounded-full bg-gold"></span>
+<span class="text-sm font-bold uppercase tracking-widest">Hand Detected</span>
+</div>
+<!-- Watermark -->
+<div class="absolute bottom-6 left-6 opacity-30 flex items-center gap-2 grayscale brightness-200">
+<div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">front_hand</span>
+</div>
+<span class="font-headline text-white font-bold text-sm tracking-tight">SAWIYYA AI</span>
+</div>
+</div>
+<!-- Letter Picker Grid -->
+<div class="bg-paper p-6 rounded-3xl border-4 border-primary/10">
+<div class="flex items-center justify-between mb-4 px-2">
+<h3 class="font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">grid_view</span>
+                            The Alphabet
+                        </h3>
+<span class="text-xs font-bold text-primary/50">4 / 28 COMPLETED</span>
+</div>
+<div class="grid grid-cols-7 sm:grid-cols-9 md:grid-cols-10 gap-3">
+<!-- Learned Letters (Gold) -->
+<div class="aspect-square rounded-2xl bg-gold flex items-center justify-center text-white font-headline text-2xl font-bold shadow-[0_4px_0_0_#B88E3D] hover:-translate-y-1 transition-all cursor-pointer">أ</div>
+<div class="aspect-square rounded-2xl bg-gold flex items-center justify-center text-white font-headline text-2xl font-bold shadow-[0_4px_0_0_#B88E3D] hover:-translate-y-1 transition-all cursor-pointer">ب</div>
+<!-- Current Letter (Coral) -->
+<div class="aspect-square rounded-2xl bg-coral flex items-center justify-center text-white font-headline text-3xl font-bold shadow-[0_4px_0_0_#B54231] outline outline-offset-4 outline-coral scale-110 z-10">ت</div>
+<!-- More Learned -->
+<div class="aspect-square rounded-2xl bg-gold flex items-center justify-center text-white font-headline text-2xl font-bold shadow-[0_4px_0_0_#B88E3D] hover:-translate-y-1 transition-all cursor-pointer">ث</div>
+<!-- Locked Letters -->
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">ج</div>
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">ح</div>
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">خ</div>
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">د</div>
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">ذ</div>
+<div class="aspect-square rounded-2xl border-2 border-primary/20 flex items-center justify-center text-primary/30 font-headline text-xl font-bold">ر</div>
+</div>
+</div>
+</section>
+<!-- Right Rail: Target and Metrics -->
+<section class="flex-1 flex flex-col gap-6">
+<!-- Target Letter Card -->
+<div class="bg-paper rounded-3xl border-4 border-primary/10 overflow-hidden">
+<div class="bg-primary p-4 text-center">
+<span class="text-paper/80 font-bold text-xs uppercase tracking-widest">Target Letter</span>
+</div>
+<div class="p-8 flex flex-col items-center gap-6">
+<div class="text-8xl font-headline font-bold text-primary mb-2">ت</div>
+<div class="relative group">
+<div class="w-32 h-32 rounded-3xl border-4 border-gold bg-sand p-2 overflow-hidden shadow-xl transform rotate-3 transition-transform group-hover:rotate-0">
+<img alt="Sign Reference" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtoICmHoZQWOnawNx0LhK4dtKvyKEdk3YG7E9145UhIQSdVXxnOqE8bvX-9AgUzhSjDyoXTqmbQSkc3bJ7nzJKoT96jdi6NHwNnPvhflcJG3VEh9ff3FoBqanWoXPB6KTu7UJ0hnBMJxbEsr_paUoih3ObSGiM-jXtIqXCFqB0ro2BZ3Yb3fyrBgZH20xwJs9I82FDl3cCjNWJ-3_qaw-nVdRMIDqrOYSlY377KU_4e5NlJv_HZ_hy7q2hb"/>
+</div>
+<div class="absolute -top-3 -right-3 bg-gold text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-paper">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="text-center">
+<h4 class="font-bold text-lg text-primary">"Teh"</h4>
+<p class="text-sm text-primary/60 italic">Two fingers up, touching.</p>
+</div>
+</div>
+</div>
+<!-- Confidence Meter -->
+<div class="bg-paper p-6 rounded-3xl border-4 border-primary/10">
+<div class="flex justify-between items-end mb-3">
+<label class="font-bold text-primary text-sm uppercase tracking-wider">AI Accuracy</label>
+<span class="font-display font-black text-2xl text-gold">82%</span>
+</div>
+<!-- Thick Progress Track -->
+<div class="w-full h-5 bg-primary/10 rounded-full overflow-hidden border-2 border-primary/5">
+<div class="h-full bg-gold rounded-full w-[82%] relative shadow-[0_0_15px_rgba(230,178,76,0.5)]">
+<!-- Glossy highlight -->
+<div class="absolute top-1 left-2 right-2 h-1 bg-white/20 rounded-full"></div>
+</div>
+</div>
+<p class="text-xs text-primary/50 mt-4 text-center leading-relaxed">
+                        Hold steady! The AI is almost sure you've got it right.
+                    </p>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-3">
+<button class="w-full py-5 bg-coral text-white font-headline font-bold text-xl rounded-2xl extruded-coral transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-3xl">celebration</span>
+                        GOT IT!
+                    </button>
+<button class="w-full py-4 bg-primary/10 text-primary font-bold rounded-2xl border-b-4 border-primary/20 hover:bg-primary/20 transition-all flex items-center justify-between px-6 group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">school</span>
+                            Teach the camera
+                        </div>
+<span class="bg-primary/20 text-[10px] px-2 py-1 rounded-full">18 / 24 SAMPLES</span>
+</button>
+</div>
+<!-- Privacy Reassurance -->
+<div class="mt-auto bg-primary/5 border border-primary/10 p-4 rounded-2xl flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<p class="text-[11px] font-bold text-primary/80 leading-snug">
+                            100% On-Device Processing
+                        </p>
+<p class="text-[10px] text-primary/60">
+                            No video data or images ever leave your computer. Privacy is our priority.
+                        </p>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple logic for pulse animation trigger on camera detection
+        const statusPill = document.querySelector('.animate-pulse');
+        setInterval(() => {
+            statusPill.classList.toggle('opacity-50');
+        }, 1500);
+
+        // Interaction for "Got it" button
+        const mainBtn = document.querySelector('.extruded-coral');
+        mainBtn.addEventListener('click', () => {
+            mainBtn.innerText = "EXCELLENT! +15 XP";
+            mainBtn.classList.replace('bg-coral', 'bg-gold');
+            setTimeout(() => {
+                mainBtn.innerHTML = '<span class="material-symbols-outlined text-3xl">celebration</span> GOT IT!';
+                mainBtn.classList.replace('bg-gold', 'bg-coral');
+            }, 2000);
+        });
+    </script>
+</body></html>

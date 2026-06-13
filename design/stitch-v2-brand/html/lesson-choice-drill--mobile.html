@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Lesson Drill</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Readex+Pro:wght@400;700&amp;family=Lexend:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "Readex Pro", "sans-serif"],
+                        label: ["Rubik", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #B54530;
+        }
+        .extruded-coral:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B54530;
+        }
+
+        .extruded-paper {
+            box-shadow: 0 4px 0 0 #E2DDD3;
+        }
+        .extruded-paper:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #E2DDD3;
+        }
+
+        .extruded-teal-active {
+            box-shadow: 0 0px 0 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+
+        /* 9 segments progress bar logic */
+        .progress-segment {
+            height: 14px;
+            flex: 1;
+            background: #E2DDD3;
+            margin: 0 2px;
+            border-radius: 4px;
+        }
+        .progress-segment.filled {
+            background: #E6B24C;
+        }
+        .progress-container {
+            background: #E2DDD3;
+            padding: 4px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sparkle-float {
+            animation: floating 2s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(10deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* RTL support for labels */
+        [dir="ltr"] .lang-sep { margin: 0 8px; }
+    </style>
+</head>
+<body class="bg-sand text-ink font-body min-h-screen flex flex-col selection:bg-gold/30">
+<!-- Top Navigation / Header -->
+<header class="w-full px-6 py-6 flex items-center gap-4 max-w-2xl mx-auto">
+<button aria-label="Close" class="flex items-center justify-center p-2 rounded-full hover:bg-black/5 transition-colors active:scale-90">
+<span class="material-symbols-outlined text-ink text-3xl">close</span>
+</button>
+<div class="flex-1 relative flex items-center">
+<div class="progress-container h-4 bg-[#E2DDD3] relative">
+<!-- 9 segments, 4 filled -->
+<div class="h-full w-[11.1%] bg-gold first:rounded-l-full"></div>
+<div class="h-full w-[11.1%] bg-gold"></div>
+<div class="h-full w-[11.1%] bg-gold"></div>
+<div class="h-full w-[11.1%] bg-gold relative">
+<!-- Leading Sparkle -->
+<div class="absolute right-[-8px] top-1/2 -translate-y-1/2 sparkle-float">
+<span class="material-symbols-outlined text-white text-xs" style="font-variation-settings: 'FILL' 1;">spark</span>
+</div>
+</div>
+<div class="h-full w-[11.1%] bg-transparent"></div>
+<div class="h-full w-[11.1%] bg-transparent"></div>
+<div class="h-full w-[11.1%] bg-transparent"></div>
+<div class="h-full w-[11.1%] bg-transparent"></div>
+<div class="h-full w-[11.1%] bg-transparent last:rounded-r-full border-l-2 border-sand/20"></div>
+</div>
+</div>
+<div class="relative group cursor-pointer">
+<img alt="Sawiyya mascot hint" class="w-12 h-12 object-contain hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6s4R_fCh8H-ujAm6-GJSRtTACtFoT-Cz2D9uc8k0uPwudpHiXKXrwv2o9tkWDtL3fPwXIACyUMeZbol0eZcYYapC6sgJk3L-BmGuamhjtk_cThx6Xe80_V90SS_OIFlrXG3wkAxyr9-RvOKTmZ870G17exwOmj8uXYq43wW7QgQ4dn4km00l25RYPaBcWGLJnp2Egk7lDdIiIfreEnJvsrActqtnjn6OW0B_lqmYAjzVjTcfhdxToREs2K53x7Ge0ZyQgXyY0sV6k"/>
+</div>
+</header>
+<main class="flex-1 w-full max-w-2xl mx-auto px-6 pb-32">
+<h1 class="font-headline text-3xl text-primary mt-4 mb-8 text-center">What does this sign mean?</h1>
+<!-- Question Zone -->
+<div class="relative mb-10">
+<div class="bg-paper border-[3px] border-primary rounded-[40px] p-8 aspect-square flex flex-col items-center justify-center shadow-sm relative overflow-hidden">
+<img alt="Sign Language Demonstration" class="w-full h-full max-w-[280px] object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJvH0AZPOLXK_5MbBg-dp92HTKTg27r0WdR55w5vrNAH8GZshoD2uvSVcwaNVFKyc7Gdh1fhuZqbp5B0LO6GtVXDNhH5wQ09zPlRJFxuPQxSVC1XZIEH_H4679bQotwLvDhYEJf7ad4rpx-ckdxKQAc6Qp6u_N4Dr_EsmDURDncCm3CZ5kZoT7XQlMeXkjfF2DwAKRCOWeK2i7GWkzX0pH3utvCkI93Hp8XyfM2zgeoS27wDjlomYeAeYmJ8T8ZtCvq8cj6k7cmVma"/>
+<button class="absolute bottom-6 bg-sand/80 backdrop-blur-sm px-5 py-2 rounded-full flex items-center gap-2 border-2 border-primary/10 hover:bg-sand transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-primary">Watch again</span>
+</button>
+</div>
+</div>
+<!-- Answers Column Stack -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Option 1: Selected State -->
+<button class="w-full bg-primary text-white p-5 rounded-[24px] flex items-center justify-between border-2 border-primary extruded-teal-active transition-all">
+<span class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm">1</span>
+<span class="text-xl font-bold">Yes <span class="opacity-70 mx-2">·</span> نعم</span>
+</span>
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Option 2: Standard -->
+<button class="w-full bg-paper text-ink p-5 rounded-[24px] flex items-center border-2 border-ink/5 extruded-paper hover:bg-white transition-all active:scale-[0.98]">
+<span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center font-bold text-sm mr-3">2</span>
+<span class="text-xl font-bold">No <span class="text-primary/30 mx-2">·</span> لا</span>
+</button>
+<!-- Option 3: Standard -->
+<button class="w-full bg-paper text-ink p-5 rounded-[24px] flex items-center border-2 border-ink/5 extruded-paper hover:bg-white transition-all active:scale-[0.98]">
+<span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center font-bold text-sm mr-3">3</span>
+<span class="text-xl font-bold">More <span class="text-primary/30 mx-2">·</span> زيادة</span>
+</button>
+<!-- Option 4: Standard -->
+<button class="w-full bg-paper text-ink p-5 rounded-[24px] flex items-center border-2 border-ink/5 extruded-paper hover:bg-white transition-all active:scale-[0.98]">
+<span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center font-bold text-sm mr-3">4</span>
+<span class="text-xl font-bold">Stop <span class="text-primary/30 mx-2">·</span> قف</span>
+</button>
+</div>
+</main>
+<!-- Fixed Bottom Action -->
+<footer class="fixed bottom-0 left-0 w-full bg-sand/90 backdrop-blur-md px-6 py-6 border-t-2 border-ink/5 flex justify-center z-50">
+<div class="w-full max-w-2xl">
+<button class="w-full bg-coral text-white font-headline text-xl py-5 rounded-[24px] extruded-coral active:scale-95 transition-all tracking-widest uppercase">
+                CHECK
+            </button>
+</div>
+</footer>
+<!-- Micro-interaction script -->
+<script>
+        document.querySelectorAll('.extruded-paper').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active state from current selected
+                const currentActive = document.querySelector('.extruded-teal-active');
+                if (currentActive) {
+                    currentActive.classList.remove('bg-primary', 'text-white', 'extruded-teal-active');
+                    currentActive.classList.add('bg-paper', 'text-ink', 'extruded-paper');
+                    // Reset internal structure for demo
+                    const icon = currentActive.querySelector('.material-symbols-outlined');
+                    if (icon) icon.remove();
+                    const badge = currentActive.querySelector('.bg-white\\/20');
+                    if (badge) {
+                        badge.classList.remove('bg-white/20');
+                        badge.classList.add('bg-sand');
+                    }
+                }
+
+                // Apply active state to clicked
+                this.classList.remove('bg-paper', 'text-ink', 'extruded-paper');
+                this.classList.add('bg-primary', 'text-white', 'extruded-teal-active');
+                
+                // Add checkmark icon
+                const checkmark = document.createElement('span');
+                checkmark.className = 'material-symbols-outlined text-white ml-auto';
+                checkmark.style.fontVariationSettings = "'FILL' 1";
+                checkmark.innerText = 'check_circle';
+                this.appendChild(checkmark);
+
+                const badge = this.querySelector('.bg-sand');
+                if (badge) {
+                    badge.classList.remove('bg-sand');
+                    badge.classList.add('bg-white/20');
+                }
+            });
+        });
+    </script>
+</body></html>

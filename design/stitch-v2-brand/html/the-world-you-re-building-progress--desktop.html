@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya Dashboard - The World You're Building</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&amp;family=Lexend:wght@400;700&amp;family=Readex+Pro:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Lexend', 'Readex Pro', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif']
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-button {
+            box-shadow: 0 6px 0 0 #B34D3A; /* Hard darker coral edge */
+        }
+        .extruded-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B34D3A;
+        }
+        .extruded-card {
+            box-shadow: 0 4px 0 0 rgba(15, 110, 106, 0.1);
+        }
+        .meeting-curve {
+            border-radius: 40% 40% 0 0 / 20% 20% 0 0;
+        }
+        .glow-progress {
+            box-shadow: 0 0 15px rgba(230, 178, 76, 0.4);
+        }
+        .streak-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .arabic-char {
+            font-family: 'Readex Pro', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink overflow-x-hidden">
+<!-- SideNavBar (Authority Source: JSON + Design System) -->
+<nav class="fixed left-0 top-0 h-full z-40 flex flex-col bg-primary dark:bg-primary-dark h-screen w-64 rounded-r-xl shadow-xl">
+<div class="p-8 flex flex-col items-center gap-2">
+<div class="w-16 h-16 bg-paper rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<h1 class="font-headline text-2xl font-bold text-paper mt-4 tracking-tight">Sawiyya</h1>
+<p class="text-paper/60 text-xs font-bold uppercase tracking-widest">Learning Together</p>
+</div>
+<div class="flex-1 px-2 space-y-1">
+<!-- Navigation Items (Logic: Progress is active) -->
+<a class="flex items-center gap-3 px-4 py-3 text-paper/80 hover:text-paper rounded-xl mx-2 my-1 hover:bg-primary-dark/50 transition-colors Active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-body text-body font-bold">Home</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-paper/80 hover:text-paper rounded-xl mx-2 my-1 hover:bg-primary-dark/50 transition-colors Active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="font-body text-body font-bold">Camera</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-paper/80 hover:text-paper rounded-xl mx-2 my-1 hover:bg-primary-dark/50 transition-colors Active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-body text-body font-bold">Family</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-paper text-primary rounded-xl mx-2 my-1 Active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-body text-body font-bold">Progress</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-paper/80 hover:text-paper rounded-xl mx-2 my-1 hover:bg-primary-dark/50 transition-colors Active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body text-body font-bold">Settings</span>
+</a>
+</div>
+<div class="p-6">
+<div class="bg-primary-dark rounded-2xl p-4 text-center border-2 border-paper/10">
+<p class="text-paper/60 text-[10px] font-bold uppercase tracking-widest mb-2">Today's Goal</p>
+<div class="h-3 w-full bg-paper/20 rounded-full overflow-hidden">
+<div class="h-full bg-gold w-3/4 rounded-full glow-progress"></div>
+</div>
+<p class="text-gold font-bold text-sm mt-2">15/20 XP</p>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="flex justify-end items-center h-20 w-full pl-72 pr-8 bg-sand dark:bg-ink border-b-4 border-primary/10 sticky top-0 z-30">
+<div class="flex items-center gap-8">
+<!-- Streak Calendar Strip -->
+<div class="flex items-center gap-2 bg-paper/80 p-2 rounded-2xl px-4 border-2 border-primary/5">
+<div class="flex gap-1.5">
+<div class="streak-dot bg-gold"></div>
+<div class="streak-dot bg-gold"></div>
+<div class="streak-dot bg-gold"></div>
+<div class="streak-dot bg-gold animate-pulse"></div>
+<div class="streak-dot bg-ink/10"></div>
+<div class="streak-dot bg-ink/10"></div>
+<div class="streak-dot bg-ink/10"></div>
+</div>
+<div class="h-6 w-[2px] bg-ink/10 mx-2"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-coral" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-display font-bold text-ink">4</span>
+</div>
+</div>
+<!-- Stats -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-display font-bold text-2xl text-ink">450 <span class="text-sm font-body uppercase text-ink/40 tracking-widest">XP</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">potted_plant</span>
+<span class="font-display font-bold text-2xl text-ink">12 <span class="text-sm font-body uppercase text-ink/40 tracking-widest">Signs</span></span>
+</div>
+</div>
+<!-- Profile Avatar -->
+<button class="w-12 h-12 rounded-full border-4 border-primary/10 overflow-hidden hover:scale-105 transition-transform active:scale-95">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAiosugxSF2bdvUiXdCeI5M18IrXY2m4fj-0gBKAAlorSXkp5YykH_4OTwl9q5jfyARckbaU6OS-MXvsqAnN7dWXISzDpCDOny8QUfh-_0rImAPAgIPoPBuP-21Abl6_DP-jhvhx9sDwf46UVbSHgYzcOPirvySXuOcOVSqKvhkcHZiKCIsHvmaw_-cFESQH0XJjTMf69-HI29DkAsjNwge3-BAyPu4V2nbedoPa9mdFFK16GsdsJ9Uz_tUs1GqOKjZayHFZ2iCNM9"/>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="pl-72 pr-8 pt-8 pb-12 max-w-[1600px] mx-auto">
+<div class="grid grid-cols-12 gap-8">
+<!-- Hero: Growing Oasis (Span 2 Columns) -->
+<section class="col-span-12">
+<div class="relative w-full aspect-[21/9] bg-paper rounded-[3rem] overflow-hidden border-4 border-primary/10 shadow-xl group">
+<!-- Split Hero Layout -->
+<div class="absolute inset-0 flex">
+<!-- Lush Side (Learned) -->
+<div class="w-1/2 h-full relative overflow-hidden bg-gradient-to-br from-paper to-sand/50">
+<img alt="Oasis progress" class="w-full h-full object-cover scale-110 -translate-x-1/4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMbPcSOAJm5w9UGg1BIbpZ2d_1lb3v9cPax1kp_z3OsRYVOcCX6zkXrpPm5DByWDf2yk0RDHTP128DrM8etB-aUwkIWTrjXzJAa1HXUzAGpQDO10zkgZaBZpC9l_OZRIf4RttcSO2g3suzFvL0KvzKXVBX7DA5fWrcXZKJqXv6PN4YmZ8RJ_3sg0kEpgWLAy6nz4j77h5ne84rOFVivyVPJCTVNvgRbUoldC21CJ-6dI_PabES1wJTqdbZ9xki-9OBC5meJKuqoFlK"/>
+<div class="absolute top-8 left-8">
+<span class="bg-primary text-paper px-6 py-2 rounded-full font-headline text-lg shadow-lg flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    12 signs mastered
+                                </span>
+</div>
+</div>
+<!-- Outline Side (Pending) -->
+<div class="w-1/2 h-full relative overflow-hidden bg-sand/30 border-l-4 border-dashed border-primary/20">
+<div class="absolute inset-0 opacity-20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[15rem] text-primary">potted_plant</span>
+</div>
+<div class="absolute inset-0 flex items-center justify-center flex-col text-center p-12">
+<h2 class="font-headline text-3xl text-primary/60 mb-4">A World Waiting to Bloom</h2>
+<p class="text-primary/40 font-body max-w-xs">Every lesson learned adds a palm tree, a flower, or life-giving water to your Sawiyya oasis.</p>
+<button class="mt-8 bg-coral extruded-button px-10 py-4 rounded-2xl text-paper font-headline text-xl flex items-center gap-3">
+                                    Continue Learning
+                                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Left Column: The Alphabet Starfield -->
+<section class="col-span-12 xl:col-span-8">
+<div class="bg-paper rounded-[2.5rem] p-10 border-4 border-primary/10 shadow-lg">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h3 class="font-headline text-3xl text-ink">The Alphabet Starfield</h3>
+<p class="text-ink/60 font-body mt-1">Tap a letter to review its unique handshape.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-full bg-gold"></div>
+<span class="text-xs font-bold uppercase tracking-widest text-ink/60">Mastered</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-full border-2 border-primary/20"></div>
+<span class="text-xs font-bold uppercase tracking-widest text-ink/60">Exploring</span>
+</div>
+</div>
+</div>
+<!-- 4x7 Grid -->
+<div class="grid grid-cols-4 md:grid-cols-7 gap-6">
+<!-- Learned Letters -->
+<div class="aspect-square bg-gold rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-4 border-[#C89A3D] transform hover:scale-105 transition-all cursor-pointer">
+<span class="text-4xl arabic-char text-ink font-bold">أ</span>
+<span class="material-symbols-outlined text-ink/40 text-xl mt-1">front_hand</span>
+</div>
+<div class="aspect-square bg-gold rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-4 border-[#C89A3D] transform hover:scale-105 transition-all cursor-pointer">
+<span class="text-4xl arabic-char text-ink font-bold">ب</span>
+<span class="material-symbols-outlined text-ink/40 text-xl mt-1">front_hand</span>
+</div>
+<div class="aspect-square bg-gold rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-4 border-[#C89A3D] transform hover:scale-105 transition-all cursor-pointer">
+<span class="text-4xl arabic-char text-ink font-bold">ت</span>
+<span class="material-symbols-outlined text-ink/40 text-xl mt-1">front_hand</span>
+</div>
+<div class="aspect-square bg-gold rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-4 border-[#C89A3D] transform hover:scale-105 transition-all cursor-pointer">
+<span class="text-4xl arabic-char text-ink font-bold">ث</span>
+<span class="material-symbols-outlined text-ink/40 text-xl mt-1">front_hand</span>
+</div>
+<div class="aspect-square bg-gold rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-4 border-[#C89A3D] transform hover:scale-105 transition-all cursor-pointer">
+<span class="text-4xl arabic-char text-ink font-bold">ج</span>
+<span class="material-symbols-outlined text-ink/40 text-xl mt-1">front_hand</span>
+</div>
+<!-- Unlearned Letters -->
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ح</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">خ</span>
+</div>
+<!-- Repeat for rest... simplified for mockup -->
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">د</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ذ</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ر</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ز</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">س</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ش</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ص</span>
+</div>
+<!-- Padding the grid to look complete for visual -->
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ض</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ط</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ظ</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ع</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">غ</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ف</span>
+</div>
+<div class="aspect-square border-4 border-dashed border-primary/20 rounded-3xl flex items-center justify-center hover:bg-primary/5 transition-all group cursor-pointer">
+<span class="text-4xl arabic-char text-primary/20 group-hover:text-primary/60 transition-colors">ق</span>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="text-primary font-headline text-lg flex items-center gap-2 hover:gap-4 transition-all group">
+                            Unlock more letters in World 2
+                            <span class="material-symbols-outlined">double_arrow</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Column: Coming Up Review Forecast -->
+<section class="col-span-12 xl:col-span-4 space-y-8">
+<div class="bg-paper rounded-[2.5rem] p-10 border-4 border-primary/10 shadow-lg h-full">
+<h3 class="font-headline text-3xl text-ink mb-2">Coming Up</h3>
+<p class="text-ink/60 font-body mb-8">Ready your hands for today's review session.</p>
+<div class="space-y-6">
+<!-- Review Row 1 -->
+<div class="flex items-center gap-6 p-4 rounded-3xl border-4 border-gold/10 hover:bg-gold/5 transition-colors group cursor-pointer">
+<div class="w-20 h-20 bg-sand rounded-2xl p-2 flex items-center justify-center border-2 border-gold/20 overflow-hidden">
+<img alt="Water sign instruction" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex-1">
+<h4 class="font-headline text-2xl text-ink group-hover:text-primary transition-colors">Water</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-gold/20 text-gold font-headline text-[10px] px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">hourglass_top</span>
+                                        Due Today
+                                    </span>
+</div>
+</div>
+</div>
+<!-- Review Row 2 -->
+<div class="flex items-center gap-6 p-4 rounded-3xl border-4 border-primary/5 hover:bg-primary/5 transition-colors group cursor-pointer">
+<div class="w-20 h-20 bg-sand rounded-2xl p-2 flex items-center justify-center border-2 border-primary/10 overflow-hidden">
+<img alt="Father sign instruction" class="w-full h-full object-contain scale-x-[-1]" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex-1">
+<h4 class="font-headline text-2xl text-ink group-hover:text-primary transition-colors">Father</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-ink/5 text-ink/40 font-headline text-[10px] px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 0;">hourglass_empty</span>
+                                        Due in 2d
+                                    </span>
+</div>
+</div>
+</div>
+<!-- Review Row 3 -->
+<div class="flex items-center gap-6 p-4 rounded-3xl border-4 border-primary/5 hover:bg-primary/5 transition-colors group cursor-pointer opacity-80">
+<div class="w-20 h-20 bg-sand rounded-2xl p-2 flex items-center justify-center border-2 border-primary/10 overflow-hidden">
+<img alt="Eat sign instruction" class="w-full h-full object-contain brightness-95" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex-1">
+<h4 class="font-headline text-2xl text-ink group-hover:text-primary transition-colors">Eat</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-ink/5 text-ink/40 font-headline text-[10px] px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[12px]">calendar_today</span>
+                                        Due in 5d
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 bg-sand rounded-3xl p-6 relative overflow-hidden border-2 border-primary/5">
+<div class="relative z-10">
+<h5 class="font-headline text-xl text-primary mb-2">Did you know?</h5>
+<p class="text-sm font-body text-ink/70">Qatari Sign Language (QSL) has unique signs for local traditions, including how we hold the Finjan!</p>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl text-primary/5 rotate-12">local_cafe</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action for Mobile (Hidden on Desktop but required for juice) -->
+<button class="md:hidden fixed bottom-8 right-8 bg-coral extruded-button w-16 h-16 rounded-full text-paper flex items-center justify-center z-50 shadow-2xl">
+<span class="material-symbols-outlined text-3xl">play_arrow</span>
+</button>
+<script>
+        // Simple micro-interaction for dots
+        document.querySelectorAll('.streak-dot').forEach((dot, idx) => {
+            if(dot.classList.contains('bg-gold')) {
+                dot.style.animationDelay = (idx * 0.1) + 's';
+            }
+        });
+
+        // Add 2D extrusion feel to cards on hover
+        const cards = document.querySelectorAll('.bg-paper');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+                card.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

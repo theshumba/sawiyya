@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Learn Your First Sign</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&amp;family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        'coral-dark': '#C14B35',
+                        gold: '#E6B24C',
+                        'gold-dark': '#C0933B',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Readex Pro', 'Lexend', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'extruded-coral': '0 6px 0 0 #C14B35',
+                        'extruded-teal': '0 6px 0 0 #0A4F4C',
+                        'extruded-gold': '0 6px 0 0 #C0933B',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Readex Pro', sans-serif;
+            background-color: #F6EFE3;
+            overflow-x: hidden;
+        }
+        .font-headline { font-family: 'Rubik', sans-serif; }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+
+        .active-dot {
+            background-color: #E6B24C;
+            box-shadow: 0 0 15px rgba(230, 178, 76, 0.4);
+            transform: scale(1.2);
+        }
+
+        /* Spotlight Animation */
+        @keyframes spotlight {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .spotlight-glow {
+            background: radial-gradient(circle at center, rgba(230, 178, 76, 0.2) 0%, transparent 70%);
+            animation: spotlight 4s ease-in-out infinite;
+        }
+
+        .bowl-curve {
+            border-radius: 50% 50% 20% 20% / 100% 100% 10% 10%;
+        }
+
+        .hand-float {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body class="bg-sand min-h-screen flex flex-col items-center justify-center pt-24 pb-12">
+<!-- Top Navigation Anchor -->
+<header class="bg-primary dark:bg-primary-dark text-sand dark:text-paper font-headline text-headline font-bold shadow-md h-20 w-full fixed top-0 z-50 flex justify-between items-center px-8 border-b-4 border-primary-dark">
+<div class="flex items-center gap-4">
+<div class="bg-paper p-1 rounded-xl">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">back_hand</span>
+</div>
+<span class="text-2xl font-display font-bold text-paper">Sawiyya</span>
+</div>
+<div class="hidden md:flex items-center space-y-0 space-x-8">
+<a class="text-gold font-bold transition-colors" href="#">Learn</a>
+<a class="text-sand/80 hover:bg-primary-dark/50 transition-colors px-3 py-1 rounded-lg" href="#">Practice</a>
+<a class="text-sand/80 hover:bg-primary-dark/50 transition-colors px-3 py-1 rounded-lg" href="#">Family</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">local_fire_department</span>
+<span class="font-bold text-xl">4</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">stars</span>
+<span class="font-bold text-xl">120</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-gold overflow-hidden bg-paper">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNKwnDADFEmn7Pba4cYM1ysnLSVNeYCLI0ZErVXvMSSbpFs1CcCVnOF3iFcE-7i6uHkwtGz-PkN6ZG6Uz_VeBnKSq_ZP9AXmdXdiyplhrz8_5Numg9Vbaa-j8LQ-sVMUna6onzb_UYKKaQG3r52RAZ2XLFKXAlqZUkWMzDXv0bSnNhfWDFT0zAM1rRzpgL-Cc5kgz77Pf3GpC-QvP-YnnsRzpx4friQ1cMTRiQEBChV9MuIj6tctHCbhukP7QME1dz1GaKsstmMmM-"/>
+</div>
+</div>
+</header>
+<!-- Main Learning Stage -->
+<main class="max-w-4xl w-full px-6 flex flex-col items-center text-center">
+<!-- Header Text -->
+<section class="mb-10">
+<h2 class="text-ink text-xl md:text-2xl font-medium mb-2 opacity-80">Let's learn the first thing you'll say:</h2>
+<h1 class="text-primary text-5xl md:text-7xl font-bold font-headline tracking-tight">
+                I love you · <span class="font-bold">أحبك</span>
+</h1>
+</section>
+<!-- Center Stage -->
+<section class="relative w-full max-w-lg aspect-square flex items-center justify-center">
+<!-- Background Glow/Stage -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-full rounded-full bg-gradient-to-br from-primary/10 via-gold/10 to-transparent blur-3xl opacity-50"></div>
+<div class="w-[120%] h-[120%] absolute spotlight-glow"></div>
+</div>
+<!-- Spotlight Platform -->
+<div class="absolute bottom-4 w-64 h-12 bg-primary/20 rounded-[100%] blur-md"></div>
+<div class="absolute bottom-8 w-56 h-8 bg-gold/30 rounded-[100%] blur-sm"></div>
+<!-- The Demonstration Card -->
+<div class="relative z-10 w-full aspect-square bg-paper rounded-[40px] border-[3px] border-primary/20 shadow-xl overflow-hidden p-8 flex flex-col items-center justify-center group transition-transform hover:scale-[1.02]">
+<!-- Hand Illustration Container -->
+<div class="relative w-full h-full flex items-center justify-center hand-float">
+<!-- Image Placeholder for Illustration -->
+<img alt="Hand signing I love you in Qatari Sign Language" class="w-full h-full object-contain drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida/AP1WRLsZ2bB-ahCNHFC3CKrqa_AB1KLtPr357v47Hp9-IYZi1DqBJ52rwWzm_5YI9ySWLg6763HjJOkLSP8H9e_gkxQYpe1xKfFdR2KuT7tGc6t2ZByk7DGgucpxKpCY-5lskjsOukCOsVQuZuCGr29sChKiCeuIZgHk8Z-KiGtgsN0vXT-rOAlXxZNdGoG2CWtkIFlYQCOL2Bv02Z0uC2uZYnBG_ZR0Zxymn4jNr7HtvJkTnxyeviOicIP19jU"/>
+<!-- Sparkle Accents -->
+<span class="absolute top-10 right-10 material-symbols-outlined text-gold text-4xl animate-pulse" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="absolute bottom-12 left-8 material-symbols-outlined text-gold text-2xl animate-bounce" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<!-- Replay Chip -->
+<button class="absolute bottom-6 right-6 flex items-center gap-2 bg-primary text-paper px-6 py-3 rounded-full font-bold shadow-extruded-teal active:translate-y-1 active:shadow-none transition-all group-hover:bg-primary-dark">
+<span class="material-symbols-outlined">replay</span>
+<span>Replay</span>
+</button>
+</div>
+</section>
+<!-- Elegant Tag -->
+<p class="mt-12 text-ink/40 font-medium italic text-sm tracking-wide">
+            Demo placeholder — real Deaf Qatari signer in Phase 2
+        </p>
+<!-- Progress Step-Dots -->
+<nav class="mt-8 flex items-center gap-12 relative">
+<!-- Connecting Line -->
+<div class="absolute top-1/2 left-0 w-full h-1 bg-primary/10 -translate-y-1/2 z-0 rounded-full"></div>
+<!-- Steps -->
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full active-dot flex items-center justify-center border-4 border-paper">
+<span class="material-symbols-outlined text-ink text-sm" style="font-variation-settings: 'wght' 700;">visibility</span>
+</div>
+<span class="text-primary font-bold text-sm tracking-widest uppercase">Watch</span>
+</div>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full bg-primary/10 border-4 border-paper flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-sm">front_hand</span>
+</div>
+<span class="text-ink/40 font-bold text-sm tracking-widest uppercase">Try</span>
+</div>
+<div class="flex flex-col items-center gap-3 relative z-10">
+<div class="w-10 h-10 rounded-full bg-primary/10 border-4 border-paper flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-sm">emoji_events</span>
+</div>
+<span class="text-ink/40 font-bold text-sm tracking-widest uppercase">Celebrate</span>
+</div>
+</nav>
+<!-- CTA Button -->
+<div class="mt-16 w-full max-w-sm">
+<button class="w-full bg-coral hover:bg-coral-dark text-paper text-2xl font-bold py-6 px-10 rounded-3xl shadow-extruded-coral active:translate-y-1.5 active:shadow-none transition-all flex items-center justify-center gap-4 group">
+<span>Now you try</span>
+<div class="w-10 h-10 bg-paper/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<img alt="I love you hand sign icon" class="w-7 h-7 invert brightness-0" src="https://lh3.googleusercontent.com/aida/AP1WRLsZ2bB-ahCNHFC3CKrqa_AB1KLtPr357v47Hp9-IYZi1DqBJ52rwWzm_5YI9ySWLg6763HjJOkLSP8H9e_gkxQYpe1xKfFdR2KuT7tGc6t2ZByk7DGgucpxKpCY-5lskjsOukCOsVQuZuCGr29sChKiCeuIZgHk8Z-KiGtgsN0vXT-rOAlXxZNdGoG2CWtkIFlYQCOL2Bv02Z0uC2uZYnBG_ZR0Zxymn4jNr7HtvJkTnxyeviOicIP19jU"/>
+</div>
+</button>
+</div>
+</main>
+<!-- Side Navigation (Desktop Fixed Anchor) -->
+<aside class="hidden xl:flex fixed left-0 top-20 bottom-0 w-72 flex-col p-6 space-y-4 bg-sand border-r-4 border-primary/10">
+<div class="mb-8">
+<h3 class="font-headline font-bold text-primary text-3xl">Sawiyya</h3>
+<p class="font-body text-primary/60 text-sm">Learning Together</p>
+</div>
+<nav class="flex flex-col space-y-3">
+<a class="flex items-center gap-4 bg-primary text-paper rounded-xl p-4 shadow-[0_4px_0_0_rgba(10,79,76,1)] active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-body text-lg font-medium">Home</span>
+</a>
+<a class="flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="font-body text-lg font-medium">Camera</span>
+</a>
+<a class="flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-body text-lg font-medium">Family</span>
+</a>
+<a class="flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-body text-lg font-medium">Progress</span>
+</a>
+</nav>
+<div class="mt-auto p-6 bg-gold/10 rounded-3xl border-2 border-gold/20">
+<p class="text-ink font-bold text-center mb-4">You're on fire!</p>
+<button class="w-full py-3 bg-primary text-paper rounded-xl font-bold shadow-extruded-teal hover:bg-primary-dark transition-all">
+                Start Practice
+            </button>
+</div>
+</aside>
+<!-- Mobile Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-paper border-t-4 border-primary/10 flex justify-around items-center px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-gold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Practice</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Family</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Stats</span>
+</button>
+</nav>
+<script>
+        // Simple interactivity for the replay chip
+        document.querySelector('button:has(.material-symbols-outlined:contains("replay"))')?.addEventListener('click', function() {
+            const hand = document.querySelector('.hand-float');
+            hand.style.animation = 'none';
+            void hand.offsetWidth; // trigger reflow
+            hand.style.animation = 'floating 3s ease-in-out infinite';
+            
+            // Add a little pop effect to the container
+            const card = this.closest('.bg-paper');
+            card.classList.add('scale-[1.05]');
+            setTimeout(() => card.classList.remove('scale-[1.05]'), 200);
+        });
+
+        // CTA Click interaction
+        document.querySelector('button:has(span:contains("Now you try"))')?.addEventListener('click', function() {
+            // Ripple or confetti could go here for a "win"
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => this.style.transform = '', 100);
+        });
+    </script>
+</body></html>

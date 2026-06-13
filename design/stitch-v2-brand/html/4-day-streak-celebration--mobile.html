@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Streak Celebration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;800&amp;family=Lexend:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #16302E;
+            color: #FBF7EF;
+            overflow: hidden;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .extruded-gold {
+            background-color: #E6B24C;
+            box-shadow: 0 6px 0 0 #B88E3D;
+            transition: all 0.1s ease;
+        }
+
+        .extruded-gold:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B88E3D;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            z-index: 0;
+            pointer-events: none;
+            border-radius: 2px;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.3; }
+        }
+
+        .streak-glow {
+            filter: drop-shadow(0 0 20px rgba(230, 178, 76, 0.4));
+        }
+
+        .arabic-text {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+        }
+
+        .day-dot-active {
+            box-shadow: 0 0 15px rgba(230, 178, 76, 0.6);
+        }
+
+        /* Floating Animation for Flame */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-ink min-h-screen flex flex-col items-center justify-center p-6 text-center select-none">
+<!-- Confetti Container -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none" id="confetti-cannon"></div>
+<!-- Hero Content -->
+<main class="relative z-10 w-full max-w-lg flex flex-col items-center">
+<!-- Hero Character -->
+<div class="relative w-72 h-72 md:w-80 md:h-80 mb-8 float-animation streak-glow">
+<img alt="4 Day Streak Flame" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwevr2L6y1LhVGD5REPvZNUwEpd8O0_SG1_8To6XefSYOdYV6v2K4hXRb7_pYLw9wjLZPXgy-mUmOlghQ0zo4I7fscbGvfgCx8xQEmLLLdcskQjeM1YPTBb5hpGhJRHM1iRrq-2rfroiKn4qBt2v_CZrvYG9jQnR5zYM0sf2W1t4-HWmj_n9a5RU5dE4lhoL_yBxytVxjnuCj8T1YvfBX6dl6lL47laS7uiTSH8h4xIMc5a839914wFTWbe9a6HCqobOQayhFk9HGf"/>
+</div>
+<!-- Typography Section -->
+<div class="space-y-4 mb-10">
+<h1 class="font-headline text-3xl md:text-4xl text-paper tracking-tight px-4">
+                Four days of showing up for Layla
+            </h1>
+<p class="arabic-text text-4xl md:text-5xl text-gold" dir="rtl">
+                أربعة أيام
+            </p>
+</div>
+<!-- Streak Calendar Dots -->
+<div class="flex gap-3 mb-16 justify-center">
+<!-- Monday - Thursday (Active) -->
+<div class="day-dot-active w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-ink text-xl" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="day-dot-active w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-ink text-xl" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="day-dot-active w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-ink text-xl" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="day-dot-active w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-ink text-xl" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<!-- Friday - Sunday (Inactive) -->
+<div class="w-10 h-10 rounded-full border-2 border-paper/20 bg-transparent flex items-center justify-center opacity-40">
+<span class="text-[10px] font-bold text-paper">FRI</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-paper/20 bg-transparent flex items-center justify-center opacity-40">
+<span class="text-[10px] font-bold text-paper">SAT</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-paper/20 bg-transparent flex items-center justify-center opacity-40">
+<span class="text-[10px] font-bold text-paper">SUN</span>
+</div>
+</div>
+<!-- Motivational Quote -->
+<div class="bg-primary/20 backdrop-blur-sm px-6 py-4 rounded-3xl border-2 border-primary/30 mb-12 flex items-center gap-4">
+<div class="w-12 h-12 bg-primary rounded-full flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-paper" style="font-variation-settings: 'FILL' 1;">sign_language</span>
+</div>
+<p class="text-left text-paper/90 text-sm md:text-base leading-snug">
+                You've mastered 12 new signs this week! Layla is going to be so excited.
+            </p>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<footer class="fixed bottom-12 w-full max-w-md px-6 z-20">
+<button class="extruded-gold w-full py-5 rounded-3xl text-ink font-headline text-xl uppercase tracking-widest flex items-center justify-center gap-2 group transition-all">
+            Continue
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</footer>
+<script>
+        // Confetti generation script
+        const container = document.getElementById('confetti-cannon');
+        const colors = ['#0F6E6A', '#E6B24C', '#E8654C', '#FBF7EF'];
+
+        function createConfetti() {
+            for (let i = 0; i < 60; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Randomize appearance
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const size = Math.random() * 8 + 8;
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+                
+                confetti.style.backgroundColor = color;
+                confetti.style.left = `${left}%`;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.animation = `fall ${duration}s linear ${delay}s infinite`;
+                
+                container.appendChild(confetti);
+            }
+        }
+
+        // Initialize confetti
+        createConfetti();
+
+        // Optional: Re-burst confetti on button click
+        document.querySelector('button').addEventListener('click', () => {
+            // In a real app, this would navigate. Here we just add juice.
+            const btn = document.querySelector('button');
+            btn.style.transform = "scale(0.95)";
+            setTimeout(() => {
+                btn.style.transform = "scale(1)";
+            }, 100);
+        });
+    </script>
+</body></html>

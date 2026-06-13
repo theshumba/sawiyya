@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - All Signs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;800&amp;family=Lexend:wght@400;500;600&amp;family=Readex+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "3xl": "2.5rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .extruded-coral {
+            box-shadow: 0 4px 0 #B34330;
+        }
+        .extruded-coral:active {
+            box-shadow: 0 0 0 #B34330;
+            transform: translateY(4px);
+        }
+        .extruded-teal {
+            box-shadow: 0 4px 0 #0A4F4C;
+        }
+        .extruded-teal:active {
+            box-shadow: 0 0 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+        .extruded-gold {
+            box-shadow: 0 4px 0 #C49232;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-primary dark:bg-primary-dark border-b-4 border-primary-dark shadow-md">
+<div class="flex items-center justify-between px-6 h-20 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-paper text-2xl">menu</span>
+<h1 class="font-headline text-2xl font-bold tracking-tight text-paper">Sawiyya</h1>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-paper overflow-hidden bg-white">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_FU3x9HXiRh-97g93GMyZTGUYNGWSGVCvQC_MtS7657FT7P6LjAdgDmOnEkDH7-ChjXkok3Wt3J0jnV7tT2B_QKUHc-kEmFxj3hrvt27yP7BQoKLMh6TNWj4lb2VtUOlT5oA86IHEUPqzhotwVQfiwUEy4qVY-gz6I5rpIThR2fNqzARX_YQIfzNxUM3EwTg2AaWjjxbUms8DiFx18kkhjMz0svQyTaQ6z2YYca8oYQWH7R26lcsIKZ-o2769szXNhQTwEnqo0B0K"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-5 max-w-lg mx-auto">
+<!-- Title & Subtitle Section -->
+<div class="mb-6">
+<h2 class="font-headline text-3xl font-bold mb-1">All signs · القاموس</h2>
+<div class="flex items-center gap-2">
+<p class="text-ink/70 font-medium">Qatari Sign Language · خليجي</p>
+<span class="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-primary/20">Dialect</span>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="relative mb-6">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">search</span>
+<input class="w-full bg-paper border-4 border-primary/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all font-medium text-ink placeholder:text-ink/30" placeholder="Search signs..." type="text"/>
+</div>
+<!-- Filter Chips -->
+<div class="flex overflow-x-auto gap-3 pb-4 mb-6 hide-scrollbar">
+<button class="bg-primary text-paper px-6 py-2 rounded-full font-bold whitespace-nowrap extruded-teal">All</button>
+<button class="bg-paper text-ink/70 px-6 py-2 rounded-full font-bold whitespace-nowrap border-b-4 border-black/10">Learned</button>
+<button class="bg-paper text-ink/70 px-6 py-2 rounded-full font-bold whitespace-nowrap border-b-4 border-black/10">Flagged</button>
+<button class="bg-paper text-ink/70 px-6 py-2 rounded-full font-bold whitespace-nowrap border-b-4 border-black/10">Alphabet</button>
+<button class="bg-paper text-ink/70 px-6 py-2 rounded-full font-bold whitespace-nowrap border-b-4 border-black/10">Unit 1</button>
+<button class="bg-paper text-ink/70 px-6 py-2 rounded-full font-bold whitespace-nowrap border-b-4 border-black/10">Unit 2</button>
+</div>
+<!-- Sign Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1: Milk (Active/Expanded Peek soon) -->
+<div class="bg-paper p-4 rounded-3xl border-4 border-primary/5 card-shadow flex flex-col items-center relative group active:scale-95 transition-all">
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-coral filled-icon text-lg">push_pin</span>
+</div>
+<div class="w-full aspect-square bg-sand/50 rounded-2xl mb-3 flex items-center justify-center p-2">
+<img alt="Hand signing Milk" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+</div>
+<p class="font-bold text-center text-primary">Milk · حليب</p>
+</div>
+<!-- Card 2: Water -->
+<div class="bg-paper p-4 rounded-3xl border-4 border-primary/5 card-shadow flex flex-col items-center relative group active:scale-95 transition-all">
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-gold filled-icon text-lg">check_circle</span>
+</div>
+<div class="w-full aspect-square bg-sand/50 rounded-2xl mb-3 flex items-center justify-center p-2">
+<img alt="Hand signing Water" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<p class="font-bold text-center text-primary">Water · ماء</p>
+</div>
+<!-- Card 3: Alphabet -->
+<div class="bg-paper p-4 rounded-3xl border-4 border-primary/5 card-shadow flex flex-col items-center relative group active:scale-95 transition-all">
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-gold filled-icon text-lg">hourglass_empty</span>
+</div>
+<div class="w-full aspect-square bg-sand/50 rounded-2xl mb-3 flex items-center justify-center p-2">
+<img alt="Arabic Letter Handshapes" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtoICmHoZQWOnawNx0LhK4dtKvyKEdk3YG7E9145UhIQSdVXxnOqE8bvX-9AgUzhSjDyoXTqmbQSkc3bJ7nzJKoT96jdi6NHwNnPvhflcJG3VEh9ff3FoBqanWoXPB6KTu7UJ0hnBMJxbEsr_paUoih3ObSGiM-jXtIqXCFqB0ro2BZ3Yb3fyrBgZH20xwJs9I82FDl3cCjNWJ-3_qaw-nVdRMIDqrOYSlY377KU_4e5NlJv_HZ_hy7q2hb"/>
+</div>
+<p class="font-bold text-center text-primary">A-Z · الحروف</p>
+</div>
+<!-- Card 4: Generic Family -->
+<div class="bg-paper p-4 rounded-3xl border-4 border-primary/5 card-shadow flex flex-col items-center relative group active:scale-95 transition-all">
+<div class="w-full aspect-square bg-sand/50 rounded-2xl mb-3 flex items-center justify-center p-2">
+<img alt="Hand signing Family member" class="w-full h-full object-contain transform scale-x-[-1]" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<p class="font-bold text-center text-primary">Father · أب</p>
+</div>
+</div>
+<!-- Pagination / Load More spacer -->
+<div class="py-12 flex justify-center">
+<button class="text-primary font-bold flex items-center gap-2">
+                Show more
+                <span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</main>
+<!-- Expanded Peek Overlay (Initially Visible for Demo) -->
+<div class="fixed inset-0 bg-ink/40 backdrop-blur-sm z-[60] flex items-end justify-center" id="peek-overlay">
+<div class="bg-paper w-full max-w-lg rounded-t-[3rem] p-8 shadow-2xl relative animate-in slide-in-from-bottom duration-300">
+<!-- Handle -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-ink/10 rounded-full"></div>
+<div class="flex justify-between items-start mb-6 pt-2">
+<div>
+<h3 class="font-headline text-3xl font-extrabold text-ink">Milk · حليب</h3>
+<p class="text-ink/60 font-medium">Unit 1: Essentials</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-sand flex items-center justify-center" onclick="document.getElementById('peek-overlay').style.display='none'">
+<span class="material-symbols-outlined text-ink">close</span>
+</button>
+</div>
+<!-- Big Illustration -->
+<div class="w-full aspect-video bg-sand rounded-3xl mb-8 relative flex items-center justify-center overflow-hidden border-4 border-primary/5">
+<img alt="Large sign demonstration" class="w-2/3 h-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK4zm7YhjIw2qa2BE-WaibCGIrklvgU__341oxa6XriOJPMbQo79uh8Z00iED3I4XPQoB8g1rwAfV-RwK74j5TNUCQ1N4Lq8YNIkphia8MrwG2MvLV5jvVsFj2QWhtowRtc8iPhIF0HYyqISOgPwXgnfQ92vHj4U2JBB1q5PZfWKQ8MMRY6YMIQsNMoozJf_u_vRjy0hqrc0TRBJRubaC1tq0DVAvdkK0LIeTCBT4kjjfd45f4zYr_gF4LxjpHmSjA3Nxez6KT27IL"/>
+<!-- Floating Replay Chip -->
+<button class="absolute bottom-4 right-4 bg-paper/90 backdrop-blur px-4 py-2 rounded-2xl border-2 border-gold flex items-center gap-2 font-bold text-ink shadow-lg">
+<span class="material-symbols-outlined text-gold filled-icon">replay</span>
+                    Watch Again
+                </button>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-4">
+<button class="w-full py-5 bg-coral text-white rounded-2xl font-extrabold text-lg extruded-coral flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-2xl">photo_camera</span>
+                    Practice with camera
+                </button>
+<div class="flex gap-4">
+<button class="flex-1 py-4 bg-primary text-paper rounded-2xl font-bold extruded-teal flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">push_pin</span>
+                        Flagged
+                    </button>
+<button class="flex-1 py-4 bg-sand text-primary rounded-2xl font-bold border-b-4 border-primary/20 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">share</span>
+                        Share
+                    </button>
+</div>
+</div>
+<!-- Bottom safe area padding for modal -->
+<div class="h-8"></div>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-24 flex justify-around items-center px-4 pb-4 bg-paper dark:bg-ink border-t-4 border-sand dark:border-primary-dark shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-50">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-ink/60 dark:text-paper/60 hover:text-primary transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px] mt-1">Home</span>
+</a>
+<!-- Camera -->
+<a class="flex flex-col items-center justify-center text-ink/60 dark:text-paper/60 hover:text-primary transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">photo_camera</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px] mt-1">Camera</span>
+</a>
+<!-- Dictionary (Active) -->
+<a class="flex flex-col items-center justify-center text-primary bg-sand dark:bg-primary-dark rounded-full px-5 py-1 border-b-4 border-gold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-2xl filled-icon">menu_book</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px] mt-0.5">Signs</span>
+</a>
+<!-- Family -->
+<a class="flex flex-col items-center justify-center text-ink/60 dark:text-paper/60 hover:text-primary transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">favorite</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px] mt-1">Family</span>
+</a>
+<!-- Progress -->
+<a class="flex flex-col items-center justify-center text-ink/60 dark:text-paper/60 hover:text-primary transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-2xl">leaderboard</span>
+<span class="font-label font-bold uppercase tracking-widest text-[10px] mt-1">Stats</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction: Close peek overlay on background click
+        document.getElementById('peek-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+        
+        // Add active states to filters
+        const filterButtons = document.querySelectorAll('.hide-scrollbar button');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-paper', 'extruded-teal');
+                    b.classList.add('bg-paper', 'text-ink/70', 'border-b-4', 'border-black/10');
+                });
+                btn.classList.add('bg-primary', 'text-paper', 'extruded-teal');
+                btn.classList.remove('bg-paper', 'text-ink/70', 'border-b-4', 'border-black/10');
+            });
+        });
+    </script>
+</body></html>

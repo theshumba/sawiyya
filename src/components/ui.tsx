@@ -36,13 +36,32 @@ export function Wordmark({ className = "" }: { className?: string }) {
   );
 }
 
+/** Material Symbols icon (loaded in index.html). `fill` renders the solid variant. */
+export function Icon({
+  name,
+  fill = false,
+  className = "",
+}: {
+  name: string;
+  fill?: boolean;
+  className?: string;
+}) {
+  return (
+    <span className={`material-symbols-outlined select-none ${fill ? "material-fill" : ""} ${className}`} aria-hidden="true">
+      {name}
+    </span>
+  );
+}
+
 type ButtonVariant = "primary" | "secondary" | "ghost" | "gold";
 
+// Extruded "pressable" buttons — flat top face + hard darker bottom edge,
+// depressing on :active (mirrored from the approved Stitch design).
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-coral text-white shadow-coral active:scale-[.98]",
-  secondary: "bg-teal text-white shadow-soft active:scale-[.98]",
-  gold: "bg-gold text-ink shadow-gold active:scale-[.98]",
-  ghost: "bg-transparent text-teal border-2 border-teal/30",
+  primary: "bg-coral text-white extruded-coral",
+  secondary: "bg-teal text-white extruded-teal",
+  gold: "bg-gold text-ink extruded-gold",
+  ghost: "bg-transparent text-teal border-2 border-teal/30 active:scale-[.98]",
 };
 
 export function Button({
@@ -67,7 +86,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${variantClasses[variant]} ${full ? "w-full" : ""} font-semibold text-base rounded-2xl px-6 py-4 min-h-[52px] transition disabled:opacity-40 disabled:shadow-none ${className}`}
+      className={`${variantClasses[variant]} ${full ? "w-full" : ""} font-display font-bold text-base rounded-2xl px-6 py-4 min-h-[52px] transition disabled:opacity-40 disabled:shadow-none ${className}`}
     >
       {children}
     </button>
@@ -157,12 +176,21 @@ export function ProgressRing({
 
 /** Lesson progress bar with the brand "meeting curve" fill. */
 export function MeetingBar({ progress }: { progress: number }) {
+  // Thick inset track, glossy gold fill with a leading glow (Stitch design).
   return (
-    <div className="h-3 w-full rounded-full bg-teal/10 overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+    <div
+      className="h-4 w-full rounded-full bg-ink/10 shadow-inner overflow-hidden"
+      role="progressbar"
+      aria-valuenow={Math.round(progress * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
       <div
-        className="h-full rounded-full bg-gradient-to-r from-teal to-gold transition-all duration-500"
-        style={{ width: `${Math.max(4, progress * 100)}%` }}
-      />
+        className="relative h-full rounded-full bg-gold transition-all duration-500"
+        style={{ width: `${Math.max(6, progress * 100)}%`, boxShadow: "0 0 10px rgba(230,178,76,.7)" }}
+      >
+        <span className="absolute inset-x-1.5 top-0.5 h-1 rounded-full bg-white/40" aria-hidden="true" />
+      </div>
     </div>
   );
 }

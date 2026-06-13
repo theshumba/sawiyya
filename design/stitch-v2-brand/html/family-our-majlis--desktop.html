@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Our Majlis Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;800&amp;family=Lexend:wght@400;500;600&amp;family=Readex+Pro:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #A83D2A;
+            transition: all 0.1s ease;
+        }
+        .extruded-coral:active {
+            box-shadow: 0 2px 0 0 #A83D2A;
+            transform: translateY(4px);
+        }
+        .extruded-teal {
+            box-shadow: 0 6px 0 0 #0A4F4C;
+            transition: all 0.1s ease;
+        }
+        .extruded-teal:active {
+            box-shadow: 0 2px 0 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+        .honeycomb-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .meeting-curve {
+            border-radius: 40px 40px 0 0;
+        }
+        .blobby-card {
+            border-radius: 32px;
+        }
+        .arabic-text {
+            font-family: 'Readex Pro', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                primary: '#0F6E6A',
+                'primary-dark': '#0A4F4C',
+                ink: '#16302E',
+                coral: '#E8654C',
+                gold: '#E6B24C',
+                sand: '#F6EFE3',
+                paper: '#FBF7EF',
+              },
+              borderRadius: {
+                "DEFAULT": "0.5rem",
+                "lg": "1rem",
+                "xl": "1.5rem",
+                "full": "9999px"
+              },
+              fontFamily: {
+                headline: ["Rubik", "sans-serif"],
+                display: ["Rubik", "sans-serif"],
+                body: ["Lexend", "sans-serif"],
+                label: ["Rubik", "sans-serif"]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-sand font-body text-ink overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="fixed left-0 top-0 h-screen flex flex-col py-8 px-4 h-full w-72 rounded-r-xl bg-primary dark:bg-primary-dark shadow-xl border-r-4 border-primary-dark z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-3">
+<div class="bg-paper p-2 rounded-xl">
+<span class="material-symbols-outlined text-primary text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">home</span>
+</div>
+<div>
+<h1 class="text-2xl font-headline font-bold text-paper">Sawiyya</h1>
+<p class="text-paper/60 text-xs uppercase tracking-widest font-bold">Our Majlis</p>
+</div>
+</div>
+</div>
+<div class="space-y-3 flex-1">
+<!-- Nav Item: Home -->
+<a class="flex items-center gap-3 text-paper/80 p-4 hover:text-paper hover:bg-primary-dark/50 transition-colors rounded-xl transition-all active:translate-y-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-bold">Home</span>
+</a>
+<!-- Nav Item: Camera -->
+<a class="flex items-center gap-3 text-paper/80 p-4 hover:text-paper hover:bg-primary-dark/50 transition-colors rounded-xl transition-all active:translate-y-1" href="#">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="font-bold">Camera</span>
+</a>
+<!-- Nav Item: Family (ACTIVE) -->
+<a class="flex items-center gap-3 bg-paper text-primary rounded-xl p-4 font-bold shadow-[4px_4px_0px_0px_rgba(10,79,76,1)] transition-all active:translate-y-1 active:shadow-none" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-bold">Family</span>
+</a>
+<!-- Nav Item: Progress -->
+<a class="flex items-center gap-3 text-paper/80 p-4 hover:text-paper hover:bg-primary-dark/50 transition-colors rounded-xl transition-all active:translate-y-1" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-bold">Progress</span>
+</a>
+</div>
+<div class="mt-auto px-4">
+<button class="w-full extruded-coral bg-coral text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">play_circle</span>
+                Practice Now
+            </button>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<main class="ml-72 flex flex-col h-screen">
+<!-- TopAppBar (Shared Component) -->
+<header class="flex justify-between items-center w-full px-8 py-4 bg-paper dark:bg-sand border-b-4 border-sand">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<h2 class="font-headline text-3xl font-bold text-primary">Family <span class="arabic-text font-normal opacity-40 mx-2">·</span> العائلة</h2>
+</div>
+<!-- Household Streak hearth -->
+<div class="bg-primary/5 px-4 py-2 rounded-full flex items-center gap-3 border-2 border-primary/10">
+<img alt="Streak Icon" class="w-10 h-10" src="https://lh3.googleusercontent.com/aida/AP1WRLt58fWzx1uTAa9MWK1zzcDOAqiMfTS6fKnx_J5EzGS8gsGdnz4L-eKeU5Iw_3MUnYIng8dME-XhxduIPQ3xF-32x2VxrikiseN7ySZQ4KgeQNJYEDFuZrPUUgZdE5iP8yC4yOYLzvgYQL5TQlLY8oO8VhQWVvV00G2uxLtTKIugZJB-sbj41DmJf9TEzJOGEua9upveBOkAx0Sf5VQqkqLlMJGxDlnyfdipKbThJPRLhsgSIaF4GsIPvq5-"/>
+<div>
+<p class="text-xs font-bold uppercase tracking-tighter text-primary/60 leading-none">Streak</p>
+<p class="text-primary font-bold text-sm">2/3 signed today</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3 items-center mr-4">
+<img alt="Avatar 1" class="w-10 h-10 rounded-full border-2 border-paper" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+<img alt="Avatar 2" class="w-10 h-10 rounded-full border-2 border-paper" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+<img alt="Avatar 3" class="w-10 h-10 rounded-full border-2 border-paper" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+</div>
+<div class="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-xl font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">sync_alt</span>
+<span>Switch Profile</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-ink/60 hover:text-primary transition-all"><span class="material-symbols-outlined">local_fire_department</span></button>
+<button class="p-2 text-ink/60 hover:text-primary transition-all"><span class="material-symbols-outlined">notifications</span></button>
+</div>
+</div>
+</header>
+<!-- Scrollable Dashboard Content -->
+<div class="flex-1 overflow-y-auto p-8 bg-sand">
+<!-- Profile Switcher Row -->
+<section class="mb-10">
+<div class="flex items-center justify-center gap-8 py-6">
+<!-- Active Profile -->
+<div class="relative group cursor-pointer text-center">
+<div class="w-24 h-24 rounded-full ring-8 ring-primary ring-offset-4 ring-offset-sand overflow-hidden bg-white mb-3 transition-transform group-hover:scale-105">
+<img alt="Active Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+</div>
+<div class="absolute -top-1 -right-1 bg-primary text-white rounded-full p-1 border-4 border-sand">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="font-headline font-bold text-primary">Layla</span>
+</div>
+<!-- Inactive Profiles -->
+<div class="relative group cursor-pointer text-center opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-20 h-20 rounded-full overflow-hidden bg-white mb-3 transition-transform group-hover:scale-105">
+<img alt="Avatar 2" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+</div>
+<span class="font-headline font-bold text-ink/60">Ahmed</span>
+</div>
+<div class="relative group cursor-pointer text-center opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-20 h-20 rounded-full overflow-hidden bg-white mb-3 transition-transform group-hover:scale-105">
+<img alt="Avatar 3" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+</div>
+<span class="font-headline font-bold text-ink/60">Mama</span>
+</div>
+<div class="relative group cursor-pointer text-center opacity-60 hover:opacity-100 transition-opacity">
+<div class="w-20 h-20 rounded-full overflow-hidden bg-white mb-3 transition-transform group-hover:scale-105">
+<img alt="Avatar 4" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsTmypRRHUln_EUE_FTMCsGsadKMOKoWE2Z1o_go8DEXYhyhT2TVBE5L6yUWAtRMeJdFSVRviIQAZhW3EuqhTRLJB6nU_vBnmfTQH8ThdWaF68GQmyjeO2uxRaGlx4DxcV16nZLRoigSB0cZmKtH0yF1V9_u2684WNFfKz0ybMnHmSE0x9xODM38C4wtbQHkhnvcwVITg5juWhqpWwAQg5USP9PYhIQH3vVvg0q2ieY27gSWgmYiJXAub9c"/>
+</div>
+<span class="font-headline font-bold text-ink/60">Zaid</span>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Left Column: Needs List -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<div class="flex justify-between items-center">
+<h3 class="text-2xl font-headline font-bold text-coral flex items-center gap-2">
+                            Layla needs this week <span class="material-symbols-outlined">flag</span>
+</h3>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<!-- Sign Cards -->
+<div class="blobby-card bg-white p-2 border-b-8 border-sand shadow-sm hover:translate-y-[-4px] transition-transform relative group">
+<img alt="Sign Milk" class="w-full aspect-square object-cover rounded-2xl mb-2" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+<div class="absolute top-4 right-4 bg-coral text-white p-1 rounded-lg shadow-lg">
+<span class="material-symbols-outlined text-lg">push_pin</span>
+</div>
+<div class="p-3 text-center">
+<p class="text-xl font-headline font-bold text-primary">Milk</p>
+<p class="arabic-text text-sm text-ink/40 font-medium">حليب</p>
+</div>
+</div>
+<div class="blobby-card bg-white p-2 border-b-8 border-sand shadow-sm hover:translate-y-[-4px] transition-transform relative group">
+<img alt="Sign Play" class="w-full aspect-square object-cover rounded-2xl mb-2" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+<div class="absolute top-4 right-4 bg-coral text-white p-1 rounded-lg shadow-lg">
+<span class="material-symbols-outlined text-lg">push_pin</span>
+</div>
+<div class="p-3 text-center">
+<p class="text-xl font-headline font-bold text-primary">Play</p>
+<p class="arabic-text text-sm text-ink/40 font-medium">يلعب</p>
+</div>
+</div>
+<div class="blobby-card bg-white p-2 border-b-8 border-sand shadow-sm hover:translate-y-[-4px] transition-transform relative group">
+<img alt="Sign Cookie" class="w-full aspect-square object-cover rounded-2xl mb-2" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+<div class="absolute top-4 right-4 bg-coral text-white p-1 rounded-lg shadow-lg">
+<span class="material-symbols-outlined text-lg">push_pin</span>
+</div>
+<div class="p-3 text-center">
+<p class="text-xl font-headline font-bold text-primary">Cookie</p>
+<p class="arabic-text text-sm text-ink/40 font-medium">بسكويت</p>
+</div>
+</div>
+</div>
+<button class="w-full extruded-coral bg-coral text-white font-bold py-6 rounded-3xl text-xl flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flag</span>
+                        Flag signs we need
+                    </button>
+</div>
+<!-- Right Column: Shared Progress Mosaic -->
+<div class="col-span-12 lg:col-span-5">
+<div class="bg-primary/5 rounded-[48px] p-8 border-4 border-white h-full flex flex-col items-center text-center">
+<h3 class="text-2xl font-headline font-bold text-primary mb-2">Signs we can all do</h3>
+<p class="text-ink/60 mb-8 font-medium">Your shared language, growing.</p>
+<div class="relative w-full max-w-md aspect-square flex items-center justify-center">
+<!-- Visual placeholder for the mosaic image -->
+<img alt="Honeycomb Cluster" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLsY15088L9-mF9MzdefnFWYGcSZS0mNu-0iRLQm8W7dusfwClPW0MnQqBZp2vfLDvxIRu6bSY46D96frDrPKbHGu57_sHaYXGK-ZIbxBLZ2wc3X3FhUIQc7mMXd9AGUPo_Oz_2jyNxpUMiscde4tjiA8ock7Gh6-HcUNsiw5UqwIXPMfVlkp8zBQfoRVBPyNwmNZyhmcJGhJYYYy2ynjRhQCqHoAWrw8VThniI2wKmFwF9OqVAQ-np--Wo"/>
+<!-- Floaty decorative elements to add juice -->
+<div class="absolute top-10 left-10 animate-bounce" style="animation-duration: 3s;">
+<span class="material-symbols-outlined text-gold text-3xl">star</span>
+</div>
+<div class="absolute bottom-20 right-5 animate-pulse">
+<span class="material-symbols-outlined text-coral text-4xl">favorite</span>
+</div>
+</div>
+<div class="mt-8 flex flex-col gap-4 w-full">
+<div class="bg-white/80 backdrop-blur rounded-3xl p-4 flex items-center justify-between border-2 border-gold/20">
+<div class="flex items-center gap-3 text-left">
+<div class="w-12 h-12 bg-gold/20 rounded-xl flex items-center justify-center text-gold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<div>
+<p class="text-xs uppercase font-bold tracking-wider text-ink/40">New Milestone</p>
+<p class="font-bold text-primary">25 Combined Signs!</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gold">arrow_forward_ios</span>
+</div>
+<div class="p-6 bg-paper rounded-[32px] border-4 border-dashed border-primary/20 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:border-primary/40 transition-colors">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</div>
+<p class="font-bold text-primary/60">Grow the mosaic</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating UI / Sparkles -->
+<div class="fixed bottom-10 right-10 z-40">
+<div class="bg-gold text-white p-4 rounded-full extruded-teal flex items-center gap-3 font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-xl">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">celebration</span>
+<span>Majlis Party Mode</span>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interactions for profile switcher
+        document.querySelectorAll('.group.cursor-pointer').forEach(profile => {
+            profile.addEventListener('click', () => {
+                // In a real app, this would handle state. Here we just add a visual feedback
+                console.log('Profile changed');
+            });
+        });
+
+        // Add small hover sparkle effects to images
+        const cards = document.querySelectorAll('.blobby-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const sparkle = document.createElement('span');
+                sparkle.className = 'material-symbols-outlined absolute pointer-events-none text-gold opacity-0';
+                sparkle.innerHTML = 'auto_awesome';
+                sparkle.style.top = '10px';
+                sparkle.style.left = '10px';
+                sparkle.style.transition = 'all 0.5s ease';
+                card.appendChild(sparkle);
+                setTimeout(() => {
+                    sparkle.style.opacity = '1';
+                    sparkle.style.transform = 'translate(-10px, -10px) scale(1.5)';
+                }, 50);
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            });
+        });
+    </script>
+</body></html>

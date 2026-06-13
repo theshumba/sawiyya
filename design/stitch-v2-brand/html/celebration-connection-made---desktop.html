@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Connection Made!</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;800;900&amp;family=Lexend:wght@400;500;600&amp;family=Readex+Pro:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        label: ["Rubik", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .extruded-button {
+            transition: all 0.1s ease-in-out;
+            box-shadow: 0 6px 0 0 #B88E3D; /* Darker Gold */
+        }
+        .extruded-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B88E3D;
+        }
+
+        .extruded-badge {
+            box-shadow: 0 4px 0 0 rgba(0,0,0,0.2);
+        }
+
+        .floating-xp {
+            animation: float-xp 3s ease-in-out infinite;
+        }
+
+        @keyframes float-xp {
+            0%, 100% { transform: translateY(0) rotate(-6deg); }
+            50% { transform: translateY(-10px) rotate(-4deg); }
+        }
+
+        .celebration-bg {
+            background: radial-gradient(circle at center, #148580 0%, #0F6E6A 70%);
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkle-anim 2s linear infinite;
+        }
+
+        @keyframes sparkle-anim {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(180deg); opacity: 1; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-primary font-body text-paper h-screen w-screen overflow-hidden celebration-bg flex flex-col items-center justify-center relative">
+<!-- Confetti Layer -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden" id="confetti-container"></div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex flex-col items-center text-center max-w-4xl px-6">
+<!-- Header Section -->
+<header class="mb-8">
+<h1 class="font-display font-black text-6xl md:text-8xl tracking-tight text-paper drop-shadow-[0_4px_10px_rgba(230,178,76,0.3)] mb-4">
+                وصلت!<br/>
+<span class="text-gold">Connection made!</span>
+</h1>
+<p class="font-body text-xl md:text-2xl text-paper/90 font-medium">
+                That's one. Your family will feel this.
+            </p>
+</header>
+<!-- Central Illustration Hero -->
+<div class="relative w-full max-w-lg mb-12 group">
+<!-- Background Rays -->
+<div class="absolute inset-0 flex items-center justify-center opacity-30">
+<div class="w-[150%] aspect-square bg-[radial-gradient(conic-gradient(from_0deg,#E6B24C_0deg_10deg,transparent_10deg_20deg),transparent)] animate-[spin_60s_linear_infinite]"></div>
+</div>
+<!-- The Main Illustration -->
+<img alt="Sawiyya celebratory illustration" class="relative z-20 w-full h-auto scale-110 drop-shadow-2xl transition-transform duration-700 hover:scale-125" src="https://lh3.googleusercontent.com/aida/AP1WRLuR3o6yXmz-hqouSx7ps302JFVIh7a08yUUPJC5Y2w6SNTIeNCp0YybUgx-uLL5YohEVIVHgCVqMlB7KpF2JFJWS__bFroqyMIVBW78PMigeGpgKGI0pb5BG9z87Qtaoeo7luy_Nog7Z6n2yL2s2hBB6vq5hT-7JoSPY_h_RZA1hnGSklFAKhBFg33fmQgZXoAesp7FAy0goDsA05GM_bbg64Fd8INXLcCPx2ZF5nz2KBxBTNOgWl-9Hgr5"/>
+<!-- Floating XP Badge -->
+<div class="absolute -top-4 -right-4 md:right-0 floating-xp z-30">
+<div class="bg-gold text-primary-dark font-black text-2xl px-6 py-3 rounded-2xl extruded-badge flex items-center gap-2">
+<span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">stars</span>
+                    +10 XP
+                </div>
+</div>
+<!-- Streak Badge -->
+<div class="absolute -bottom-4 -left-4 md:left-0 z-30 animate-bounce" style="animation-duration: 2s;">
+<div class="bg-paper text-ink p-1 rounded-3xl shadow-xl flex items-center gap-3 pr-6 border-4 border-gold">
+<div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-gold/10">
+<img alt="Streak flame mascot" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvGtBTIs5Z_s6JXXjT2DT_tazCITIyE5UKQd0dAzD3GxOKNB3vav-e1p2VLX1l6QS5_NOxNFqIps5nEUFideui-LearMfiypNVILnAEo5Gi7M_Ms7xLKQnDYdveXrvmhxXSHoFridLPIpyTdQP9lDGXzWSitFYtfULYQWgxUJBeb_1UdcaveHQ73sIn3udf16m8FxQe9rGvUCGU4HtfTgJ_T7s-z_berLRa6yhp2jvqoM1OtIrxj5R5GBRI"/>
+</div>
+<div class="text-left">
+<p class="font-label text-[10px] uppercase tracking-widest text-primary font-bold">New Streak</p>
+<p class="font-display text-2xl font-black -mt-1">Day 1</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Section -->
+<div class="flex flex-col items-center gap-6 w-full max-w-sm">
+<button class="extruded-button w-full bg-gold text-primary-dark font-display text-2xl font-black py-6 rounded-3xl flex items-center justify-center gap-3 group">
+                Keep going
+                <span class="material-symbols-outlined font-black transition-transform group-hover:translate-x-2">arrow_forward</span>
+</button>
+<a class="text-paper/60 hover:text-paper font-label text-sm uppercase tracking-widest font-bold underline underline-offset-8 transition-colors" href="#">
+                share this moment
+            </a>
+</div>
+</main>
+<!-- Side Graphics for Flavor -->
+<div class="absolute top-10 left-10 hidden lg:block opacity-20">
+<span class="font-display text-9xl font-black text-paper select-none">س</span>
+</div>
+<div class="absolute bottom-10 right-10 hidden lg:block opacity-20">
+<span class="font-display text-9xl font-black text-paper select-none">و</span>
+</div>
+<script>
+        // Confetti Generator
+        const container = document.getElementById('confetti-container');
+        const colors = ['#E8654C', '#E6B24C', '#FBF7EF', '#0A4F4C'];
+        
+        function createConfetti() {
+            for(let i = 0; i < 60; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.opacity = Math.random();
+                confetti.style.top = '-20px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                container.appendChild(confetti);
+
+                // Remove after animation
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // Sparkle Generator for interactive feel
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.9) {
+                const sparkle = document.createElement('span');
+                sparkle.className = 'material-symbols-outlined sparkle text-gold text-lg';
+                sparkle.textContent = 'auto_awesome';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 2000);
+            }
+        });
+
+        // Trigger on load
+        window.addEventListener('load', () => {
+            createConfetti();
+            // Optional: loop confetti occasionally
+            setInterval(createConfetti, 4000);
+        });
+    </script>
+</body></html>

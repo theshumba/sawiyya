@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                        'blob': '40px'
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Readex Pro', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-button {
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.1s ease;
+        }
+        .extruded-button:active {
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+            transform: translateY(4px);
+        }
+        .extruded-coral { box-shadow: 0 6px 0 0 #B5422D; }
+        .extruded-teal { box-shadow: 0 6px 0 0 #0A4F4C; }
+        .extruded-gold { box-shadow: 0 6px 0 0 #B3862B; }
+        .extruded-card { box-shadow: 0 6px 0 0 #D9D2C7; border: 3px solid #E5DFD4; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 0; background: transparent; }
+        body { background-color: #F6EFE3; font-family: 'Readex Pro', sans-serif; color: #16302E; }
+    </style>
+</head>
+<body class="min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 rounded-b-blob bg-[#0F6E6A] dark:bg-[#0A4F4C] text-[#FBF7EF] shadow-xl border-b-4 border-[#0A4F4C] h-20 flex items-center justify-between px-6">
+<div class="flex items-center gap-3">
+<img alt="Sawiyya Logo" class="w-10 h-10 rounded-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLsQj_EOCbq5g42gTkchT_Cht_Uoyd5n5jA4ag0Dq4PNtvYd08U62SUtbw6H8nwZxIkvqY2uDJJBGQXCgiMbTo0gIISUMhOkqoZhxdYYQa3a1hcToJDiRBTCo4Gdyn-TdN1bFRed5zf30BZ17N_rYGceYrgJ_ogO1gKZyTXZLWB8tXBQ_p42dbvJQZRmpIeivPl_RFbKfgEhhgsi3Qn8_uNqUdNS5-0CeJ9rajPo7jeb8htNlOQOU9yIVW00"/>
+<h1 class="font-headline text-xl md:text-2xl font-bold uppercase tracking-wider">Settings · الإعدادات</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-paper/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#FBF7EF]">person</span>
+</div>
+</header>
+<main class="pt-28 px-4 max-w-2xl mx-auto space-y-8">
+<!-- Language Section -->
+<section>
+<h2 class="font-headline text-lg font-bold mb-3 px-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">translate</span>
+                Language · اللغة
+            </h2>
+<div class="bg-paper p-2 rounded-3xl border-4 border-ink/5 flex gap-2">
+<button class="flex-1 py-4 rounded-2xl font-bold bg-primary text-paper shadow-inner transition-all">
+                    English
+                </button>
+<button class="flex-1 py-4 rounded-2xl font-bold text-primary/60 hover:bg-primary/5 transition-all">
+                    العربية
+                </button>
+</div>
+</section>
+<!-- Signing Hand Section -->
+<section>
+<h2 class="font-headline text-lg font-bold mb-3 px-2">Signing hand · يد الإشارة</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Right Hand Card -->
+<div class="extruded-card bg-paper p-6 rounded-3xl text-center flex flex-col items-center gap-4 border-4 border-primary/20 bg-primary/5 ring-4 ring-primary/10">
+<img alt="Right hand icon" class="w-16 h-16" src="https://lh3.googleusercontent.com/aida/AP1WRLvKRWEy1IzsfO8EkS7MI4GdJbYCX-1t0uXwZamCyeShqI2QoYPBpnwNsFfBRtzD7WPQLLQFldrD4xGR6cMyRilGZ0pA5T95UyzkVc_CfmbRXlpDTNEcvXZUERi8A4XK2tcD8pg7APcHR7CDsoci4YvriDEzjMNbJL6CEwVgXc2XixxA63hiQT4cOdDbMFoElDBLyGObGQ8Hm6pJKccpDeSekoFhK6WDxyVZ4o-VfAtdNe6Kyzv7HF5qRsM"/>
+<span class="font-bold text-primary">Right · اليمين</span>
+<div class="w-6 h-6 rounded-full border-4 border-primary bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-paper font-bold">check</span>
+</div>
+</div>
+<!-- Left Hand Card -->
+<div class="extruded-card bg-paper p-6 rounded-3xl text-center flex flex-col items-center gap-4 border-4 border-transparent opacity-60 grayscale-[0.5]">
+<img alt="Left hand icon" class="w-16 h-16 scale-x-[-1]" src="https://lh3.googleusercontent.com/aida/AP1WRLvKRWEy1IzsfO8EkS7MI4GdJbYCX-1t0uXwZamCyeShqI2QoYPBpnwNsFfBRtzD7WPQLLQFldrD4xGR6cMyRilGZ0pA5T95UyzkVc_CfmbRXlpDTNEcvXZUERi8A4XK2tcD8pg7APcHR7CDsoci4YvriDEzjMNbJL6CEwVgXc2XixxA63hiQT4cOdDbMFoElDBLyGObGQ8Hm6pJKccpDeSekoFhK6WDxyVZ4o-VfAtdNe6Kyzv7HF5qRsM"/>
+<span class="font-bold">Left · اليسار</span>
+<div class="w-6 h-6 rounded-full border-4 border-ink/20"></div>
+</div>
+</div>
+</section>
+<!-- Daily Goal Section -->
+<section>
+<div class="flex items-center justify-between mb-3 px-2">
+<h2 class="font-headline text-lg font-bold">Daily goal · الهدف اليومي</h2>
+<span class="bg-gold/20 text-gold text-xs font-bold px-3 py-1 rounded-full uppercase tracking-tighter">Streaks await!</span>
+</div>
+<div class="space-y-3">
+<div class="extruded-card bg-paper p-4 rounded-2xl flex items-center justify-between cursor-pointer group hover:bg-sand/50 transition-colors">
+<span class="font-bold">Casual · 3 min</span>
+<div class="w-6 h-6 rounded-full border-4 border-ink/10"></div>
+</div>
+<div class="bg-primary text-white p-4 rounded-2xl flex items-center justify-between cursor-pointer ring-4 ring-primary/20 shadow-[0_6px_0_0_#0A4F4C]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-bold">Regular · 7 min</span>
+</div>
+<div class="w-6 h-6 rounded-full border-4 border-paper bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-primary font-bold">check</span>
+</div>
+</div>
+<div class="extruded-card bg-paper p-4 rounded-2xl flex items-center justify-between cursor-pointer group hover:bg-sand/50 transition-colors">
+<span class="font-bold">Serious · 15 min</span>
+<div class="w-6 h-6 rounded-full border-4 border-ink/10"></div>
+</div>
+</div>
+</section>
+<!-- Profile Section -->
+<section>
+<h2 class="font-headline text-lg font-bold mb-3 px-2">Your profile · ملفك الشخصي</h2>
+<div class="extruded-card bg-paper p-4 rounded-3xl">
+<label class="block text-xs font-bold uppercase text-primary/60 mb-2 px-2">Your name · اسمك</label>
+<input class="w-full bg-sand/40 border-4 border-ink/5 rounded-2xl py-4 px-6 font-bold text-xl text-primary focus:outline-none focus:border-primary/20 transition-all placeholder:text-primary/20" placeholder="Khalid Al-Thani" type="text"/>
+</div>
+</section>
+<!-- Camera Management Card -->
+<section>
+<div class="bg-primary/5 border-4 border-primary/20 rounded-3xl p-6 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]">videocam</span>
+</div>
+<div class="relative z-10">
+<h2 class="font-headline text-xl font-bold text-primary mb-2">Your camera · الكاميرا</h2>
+<p class="text-sm font-medium text-primary/70 mb-6 leading-relaxed">
+                        The camera learns YOUR hands — erase and re-teach anytime.<br/>
+                        تتعلم الكاميرا حركات يديك - يمكنك مسح التدريب وإعادته في أي وقت.
+                    </p>
+<button class="w-full bg-primary text-paper py-4 rounded-2xl font-bold extruded-button extruded-teal mb-6 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">restart_alt</span>
+                        Reset camera training
+                    </button>
+<div class="space-y-4 border-t-2 border-primary/10 pt-4">
+<a class="flex items-center justify-between group" href="#">
+<span class="font-bold text-primary group-hover:text-coral transition-colors">How the AI works</span>
+<span class="material-symbols-outlined text-primary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</a>
+<a class="flex items-center justify-between group" href="#">
+<span class="font-bold text-primary group-hover:text-coral transition-colors">Privacy &amp; Security</span>
+<span class="material-symbols-outlined text-primary/40 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-12 flex flex-col items-center gap-4 text-center opacity-60">
+<img alt="Logo small" class="w-8 h-8 grayscale opacity-50" src="https://lh3.googleusercontent.com/aida/AP1WRLsQj_EOCbq5g42gTkchT_Cht_Uoyd5n5jA4ag0Dq4PNtvYd08U62SUtbw6H8nwZxIkvqY2uDJJBGQXCgiMbTo0gIISUMhOkqoZhxdYYQa3a1hcToJDiRBTCo4Gdyn-TdN1bFRed5zf30BZ17N_rYGceYrgJ_ogO1gKZyTXZLWB8tXBQ_p42dbvJQZRmpIeivPl_RFbKfgEhhgsi3Qn8_uNqUdNS5-0CeJ9rajPo7jeb8htNlOQOU9yIVW00"/>
+<p class="font-body text-sm font-medium text-ink">
+                Sawiyya v1.0 · سويّة<br/>
+                Together as Equals
+            </p>
+<div class="flex gap-6 mt-2">
+<a class="text-xs font-bold uppercase tracking-widest hover:text-coral transition-colors" href="#">Privacy</a>
+<a class="text-xs font-bold uppercase tracking-widest hover:text-coral transition-colors" href="#">Terms</a>
+<a class="text-xs font-bold uppercase tracking-widest hover:text-coral transition-colors" href="#">Help</a>
+</div>
+</footer>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-blob bg-paper dark:bg-[#16302E] border-t-4 border-primary/10 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] h-24 flex justify-around items-center px-4 pb-4">
+<a class="flex flex-col items-center justify-center text-ink/40 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label font-bold text-[10px] tracking-widest uppercase mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ink/40 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="font-label font-bold text-[10px] tracking-widest uppercase mt-1">Camera</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ink/40 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label font-bold text-[10px] tracking-widest uppercase mt-1">Family</span>
+</a>
+<!-- Active Tab: Settings (Mapping to nearest match in JSON "Progress" if strict, but creating active shell for Settings context) -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary/10 rounded-full px-6 py-2 border-b-4 border-gold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label font-bold text-[10px] tracking-widest uppercase mt-1">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for chips
+        document.querySelectorAll('.extruded-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'translateY(4px)';
+                card.style.boxShadow = 'none';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = card.classList.contains('extruded-card') ? '0 6px 0 0 #D9D2C7' : '';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = card.classList.contains('extruded-card') ? '0 6px 0 0 #D9D2C7' : '';
+            });
+        });
+    </script>
+</body></html>

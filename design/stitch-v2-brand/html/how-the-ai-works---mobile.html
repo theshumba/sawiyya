@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - How the AI Works</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Readex+Pro:wght@400;600;700&amp;family=Lexend:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Readex Pro', 'Lexend', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-button {
+            box-shadow: 0 4px 0 0 #C14B35; /* Darker coral */
+        }
+        .extruded-button:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .card-extruded {
+            box-shadow: 0 6px 0 0 rgba(15, 110, 106, 0.1);
+        }
+        .meeting-curve {
+            clip-path: ellipse(120% 100% at 50% 100%);
+        }
+        body {
+            background-color: #F6EFE3;
+            font-family: 'Readex Pro', 'Lexend', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="text-ink pb-32">
+<!-- Header: TopAppBar (Shared Component logic) -->
+<header class="w-full top-0 sticky z-50 bg-primary dark:bg-primary-dark shadow-[0_4px_0_0_rgba(10,79,76,1)] flex items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4 w-full">
+<button class="material-symbols-outlined text-paper dark:text-sand text-2xl hover:opacity-90 transition-opacity active:translate-y-1 transition-all" data-icon="arrow_back">
+                arrow_back
+            </button>
+<h1 class="font-headline text-2xl font-bold tracking-tight text-paper dark:text-sand">
+                How the AI works · كيف يعمل الذكاء الاصطناعي
+            </h1>
+</div>
+</header>
+<main class="max-w-md mx-auto px-6 py-8 space-y-12">
+<!-- Intro Section -->
+<section class="text-center space-y-4">
+<div class="inline-block bg-gold/20 text-primary px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest font-label mb-2">
+                Privacy First • الخصوصية أولاً
+            </div>
+<h2 class="font-headline text-3xl text-primary leading-tight">
+                Built for your family,<br/>
+<span class="text-coral">designed for trust.</span>
+</h2>
+</section>
+<!-- Storybook Cards Grid -->
+<div class="grid grid-cols-1 gap-12">
+<!-- Card 1: Everything runs on device -->
+<article class="relative flex flex-col items-center text-center p-8 bg-paper border-b-4 border-sand rounded-[40px] card-extruded overflow-hidden">
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="w-48 h-48 mb-6 flex items-center justify-center">
+<img alt="" class="w-full h-full object-contain" data-alt="A detailed flat vector illustration for the Sawiyya brand. A modern mobile phone sits at the center, displaying a clean teal shield icon on its screen to represent security. The overall aesthetic is minimalist and friendly, using warm background colors and thick teal outlines. The image is professional and uses a palette of #0F6E6A and #E6B24C on a soft neutral ground." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBoOrQrP8NWrwwihmi8yla-fgAyDrKbttQcDH1HCw56RGasOq-HaGY8p_-bUX6hsTtgiNw6hxxMtDCSILki3GHR4Qj8j6zFsHNbc6btiQQ88dHN0UsgZLMp0_oYydfKnvUKF4dpZDCjQwOBDLmrLmNwRJV5Sd31_C6Z6fZbmorZ0wYtVEVrveGw-A3Q91rW82QpCKWtZcpEEeoI5sz4PGGi83-QyI8K0riOOqzshduhNR4nEiPfQsCaRVR6CPNX9hiFT7K9TqVT1HR"/>
+</div>
+<h3 class="font-headline text-xl text-primary mb-2">Everything runs on your device</h3>
+<h4 class="font-headline text-lg text-primary-dark mb-4">كل شي يتم على جهازك</h4>
+<p class="text-ink/80 leading-relaxed">
+                    Your video never leaves your phone. The AI sees, learns, and stays right here.
+                </p>
+</article>
+<!-- Card 2: You teach it YOUR hands -->
+<article class="relative flex flex-col items-center text-center p-8 bg-paper border-b-4 border-sand rounded-[40px] card-extruded">
+<div class="w-48 h-48 mb-6 flex items-center justify-center">
+<img alt="" class="w-full h-full object-contain" data-alt="A premium flat vector illustration for Sawiyya. A warm-toned hand is depicted gently placing small gold glowing sample dots into a traditional teal Majlis-style bowl. The design is minimalist and educational, featuring clean thick teal outlines and a palette of #0F6E6A and #E6B24C. The mood is welcoming and cooperative, illustrating a person teaching an AI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3kzuL-zAY2PJDjhRxkK2nbsF9JShayVwohKc6ZJZALyi1JL4xnoLMxyJ7cGUJQjjRv9s7DFMOFgCe5zUZA9eUZC_U094SCVTmua6pXi6khxCve-vt7ym3m8A7YxHZeMmblteoZ7-CWOpYYCnb0dETcKiyd3665Knm8Ub9rC9g4g2SlQ0MDVbUlYbGUx2mLHm92H_nhiRTWGvLOGmSco1mlhgYOtvC84rTJKLBYUk9YnSJsbRbt5B6fTGNk9KK0a9wc4zC50MG0-zF"/>
+</div>
+<h3 class="font-headline text-xl text-primary mb-2">You teach it YOUR hands</h3>
+<h4 class="font-headline text-lg text-primary-dark mb-4">أنت تعلّم التطبيق يدينك</h4>
+<p class="text-ink/80 leading-relaxed">
+                    By providing samples, you help the AI recognize the unique way you sign.
+                </p>
+<div class="mt-6 flex gap-2">
+<span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+<span class="w-2 h-2 rounded-full bg-gold animate-pulse delay-75"></span>
+<span class="w-2 h-2 rounded-full bg-gold animate-pulse delay-150"></span>
+</div>
+</article>
+<!-- Card 3: It grades with kindness -->
+<article class="relative flex flex-col items-center text-center p-8 bg-paper border-b-4 border-sand rounded-[40px] card-extruded">
+<div class="w-48 h-48 mb-6 flex items-center justify-center">
+<img alt="" class="w-full h-full object-contain" data-alt="A clean vector art style for Sawiyya brand. It features a horizontal progress power-bar meter that glows with a warm, soft gold light. The meter is filled with vibrant gold and teal gradients, conveying a sense of achievement and positive encouragement. No red colors are used. The illustration is minimalist and high-quality, standing against a paper-colored background with professional teal accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeUvXEOcGm76yX8VkLbooCHRJ_j_8fMoBE_S5heWJl0wPeiDRe4sPc04sdG1sZJflFz-NZaq7ZFKCXlbgxaF-LrHz5IZ48mWlA1mlCuBpgQOB02ykYIDEdp10-nCk1L1cWIi_Iu4Rzp8zmo-Estp9pqjEKQRgoYMZza-YD-u_JPfEs3EoOP5hakDuA_skLVYMvcThvkuQRlVYTLjG6sIgwUHvn4jqzXkfYA87iy1Dncdh0gDX8jn_ejEV_vbjxc32yA6fSf_VMgZfs"/>
+</div>
+<h3 class="font-headline text-xl text-primary mb-2">It grades with kindness</h3>
+<h4 class="font-headline text-lg text-primary-dark mb-4">التقييم بلطف</h4>
+<p class="text-ink/80 leading-relaxed">
+                    The AI looks for progress, not perfection. It's here to encourage you, every step of the way.
+                </p>
+</article>
+<!-- Card 4: It knows its limits -->
+<article class="relative flex flex-col items-center text-center p-8 bg-paper border-b-4 border-sand rounded-[40px] card-extruded">
+<div class="w-48 h-48 mb-6 flex items-center justify-center">
+<img alt="" class="w-full h-full object-contain" data-alt="An educational flat vector illustration. A stylized cluster of Arabic alphabet characters is paired with individual handshape signs from Qatari Sign Language. The lines are clean and thick in a primary teal color, representing the building blocks of language. The composition is minimalist and friendly, using the brand's signature gold and teal palette to suggest learning and growth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWcdY4jTDmVzE6Yam2maIzC4ijYF9tiTCr9MKTYQjzLzpjCb0ol87W3zxeOR5kgsYjtf6UdZdIcqAD90t6d-iGvwvogqUzsLQ_1LpUnJ9P3LgKvkvla9_zytjWdgZaKVzUZVGVwJIsu1DfmNUONIjdgJSUWxvVB4Y0jsnFDRvE95ygqBZx3AB55pSPN8WEecnJpA_vK-iWupZ6Hc88yodQyMKhW4CfPYT-PwZ_ZH1stH5b42IIm9HiZWHcboK329nPUdzYxQxZsnEQ"/>
+</div>
+<h3 class="font-headline text-xl text-primary mb-2">It knows its limits</h3>
+<h4 class="font-headline text-lg text-primary-dark mb-4">يعرف حدوده</h4>
+<p class="text-ink/80 leading-relaxed">
+                    Sawiyya is built for the Arabic alphabet and individual signs. It doesn't read full sentences yet—just the building blocks of language.
+                </p>
+</article>
+<!-- Card 5: You're always right -->
+<article class="relative flex flex-col items-center text-center p-8 bg-paper border-b-4 border-sand rounded-[40px] card-extruded">
+<div class="w-48 h-48 mb-6 flex items-center justify-center">
+<img alt="" class="w-full h-full object-contain" data-alt="A cute and friendly gold illustrated hand character from the Sawiyya brand universe. The hand is giving a cheerful thumbs-up gesture, symbolizing positive reinforcement. The style is playful and vibrant with clean lines and no background. It uses a rich palette of gold and warm orange tones, fitting the joyful and premium game-like energy of the app." src="https://lh3.googleusercontent.com/aida/AP1WRLvKRWEy1IzsfO8EkS7MI4GdJbYCX-1t0uXwZamCyeShqI2QoYPBpnwNsFfBRtzD7WPQLLQFldrD4xGR6cMyRilGZ0pA5T95UyzkVc_CfmbRXlpDTNEcvXZUERi8A4XK2tcD8pg7APcHR7CDsoci4YvriDEzjMNbJL6CEwVgXc2XixxA63hiQT4cOdDbMFoElDBLyGObGQ8Hm6pJKccpDeSekoFhK6WDxyVZ4o-VfAtdNe6Kyzv7HF5qRsM"/>
+</div>
+<h3 class="font-headline text-xl text-primary mb-2">You're always right</h3>
+<h4 class="font-headline text-lg text-primary-dark mb-4">أنت دايماً على حق</h4>
+<p class="text-ink/80 leading-relaxed">
+                    You know your hands best. If you think you signed it right, you can always mark it correct.
+                </p>
+</article>
+</div>
+<!-- Footer Call to Action -->
+<div class="pt-8 pb-12 flex flex-col items-center gap-6">
+<button class="w-full py-5 px-8 bg-coral text-white font-headline text-xl rounded-3xl extruded-button flex items-center justify-center gap-3 active:scale-95 transition-transform">
+<span>Got it! • فهمت</span>
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+<button class="text-primary font-headline text-lg hover:underline decoration-2 underline-offset-4">
+                Watch tutorial video
+            </button>
+</div>
+</main>
+<!-- BottomNavBar: Shared Component logic -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-4 bg-paper dark:bg-ink rounded-t-[40px] border-t-4 border-sand dark:border-primary-dark shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 px-6 py-2 hover:text-primary transition-colors active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Home</span>
+</a>
+<!-- Camera -->
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 px-6 py-2 hover:text-primary transition-colors active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="videocam">videocam</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Camera</span>
+</a>
+<!-- Family -->
+<a class="flex flex-col items-center justify-center text-ink/40 dark:text-sand/40 px-6 py-2 hover:text-primary transition-colors active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="favorite">favorite</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Family</span>
+</a>
+<!-- Progress (Active: Closest Match for AI/learning content) -->
+<a class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-full px-6 py-2 border-b-4 border-gold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="leaderboard" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-widest">Progress</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for cards on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = "1";
+                    entry.target.style.transform = "translateY(0)";
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('article').forEach(card => {
+            card.style.opacity = "0";
+            card.style.transform = "translateY(20px)";
+            card.style.transition = "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)";
+            observer.observe(card);
+        });
+
+        // Toggle dark mode based on system preference (optional enhancement)
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // document.documentElement.classList.add('dark');
+        }
+    </script>
+</body></html>

@@ -29,6 +29,44 @@
   .safe-bottom {
     padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
   }
+  /* Extruded "pressable" depth — flat top face, hard darker bottom edge.
+     Values mirrored from the approved Stitch design (stitch-v2-brand). */
+  .extruded-coral {
+    box-shadow: 0 6px 0 0 #b54530;
+  }
+  .extruded-coral:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 #b54530;
+  }
+  .extruded-teal {
+    box-shadow: 0 6px 0 0 #0a4f4c;
+  }
+  .extruded-teal:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 #0a4f4c;
+  }
+  .extruded-gold {
+    box-shadow: 0 6px 0 0 #c9993e;
+  }
+  .extruded-gold:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 #c9993e;
+  }
+  .extruded-paper {
+    box-shadow: 0 4px 0 0 #e2ddd3;
+  }
+  .extruded-paper:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 0 #e2ddd3;
+  }
+  /* Pressed/selected state of a paper choice card (teal-filled, depressed). */
+  .extruded-teal-pressed {
+    box-shadow: 0 0 0 0 #0a4f4c;
+    transform: translateY(4px);
+  }
+  .material-fill {
+    font-variation-settings: "FILL" 1;
+  }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

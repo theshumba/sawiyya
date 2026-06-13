@@ -2,19 +2,22 @@
 // Live landmarks → normalise → KNN → confidence → match / "not sure".
 // Never hard-fails: self-mark is always one tap away (§9.5).
 // Teach mode (§9.2): record samples of a handshape → KNN learns it live.
+// Visuals mirror design/stitch-v2-brand lesson-camera-practice + practise-the-alphabet.
 import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
 import { addSample, classify, clearClass, isTrained, sampleCount, TAU } from "../recognizer/knn";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
-import { Button } from "./ui";
+import { Button, Icon } from "./ui";
 
 export type TrainerResult = "match" | "selfMark" | "skip";
 
 const HOLD_FRAMES = 10; // consecutive matching frames to confirm (~0.5 s @20fps)
 const TEACH_TARGET = 24; // samples recorded in teach mode
 const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
+
+const HOLD_RING_C = 2 * Math.PI * 36; // hold-to-confirm ring circumference
 
 export function CameraTrainer({
   sign,
@@ -112,31 +115,57 @@ export function CameraTrainer({
 
   const gloss = pick(lang, sign.glossEn, sign.glossAr);
   const target = sign.type === "alphabet" ? sign.code : gloss;
+  const meter = holdProgress > 0 ? holdProgress : confidence;
 
   return (
     <div className="flex flex-col gap-4">
-      {/* target prompt */}
-      <div className="flex items-center justify-between">
-        <p className="text-lg font-bold">
-          {t("camSign", lang)}{" "}
-          <span className="rounded-xl bg-teal/10 px-3 py-1 text-2xl text-teal">{target}</span>
-        </p>
-        {mode === "grade" && isTrained(sign.id) && (
-          <button
-            type="button"
-            onClick={() => {
-              setMode("teach");
-              setTeachPhase("intro");
-            }}
-            className="text-sm font-semibold text-muted underline"
-          >
-            {t("camResetClass", lang)}
-          </button>
-        )}
+      {/* teal prompt banner — "Sign: …" with gold-bordered reference chip */}
+      <div className="relative overflow-hidden rounded-3xl bg-teal p-5 shadow-soft">
+        <span className="pointer-events-none absolute -end-3 -top-4 opacity-10" aria-hidden="true">
+          <Icon name="videocam" fill className="text-8xl leading-none text-white" />
+        </span>
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-display text-2xl font-bold leading-tight text-white">
+              {t("camSign", lang)}: {target}
+            </h2>
+            <p className="mt-1 text-sm leading-snug text-white/80">
+              {pick(lang, sign.hintEn, sign.hintAr)}
+            </p>
+            {mode === "grade" && isTrained(sign.id) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("teach");
+                  setTeachPhase("intro");
+                }}
+                className="mt-1.5 text-xs font-semibold text-white/70 underline"
+              >
+                {t("camResetClass", lang)}
+              </button>
+            )}
+          </div>
+          {/* gold-bordered reference chip */}
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-gold bg-white/20 p-1 backdrop-blur-md">
+            {sign.id === "iloveyou" ? (
+              <img
+                src="brand/stitch-34.png"
+                alt={gloss}
+                className="h-full w-full rounded-xl object-cover"
+              />
+            ) : sign.type === "alphabet" ? (
+              <span className="font-display text-3xl font-bold text-white" aria-label={gloss}>
+                {sign.code}
+              </span>
+            ) : (
+              <Icon name="sign_language" className="text-3xl leading-none text-white" />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* camera stage */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl bg-ink shadow-lift">
+      {/* camera viewport — dark teal-ink rounded stage */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-2xl">
         <video
           ref={tracker.videoRef}
           autoPlay
@@ -148,12 +177,19 @@ export function CameraTrainer({
           ref={tracker.canvasRef}
           className="absolute inset-0 h-full w-full -scale-x-100 object-cover"
         />
+        {/* feed vignette */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[5] bg-gradient-to-t from-teal-ink/80 via-transparent to-transparent"
+          aria-hidden="true"
+        />
 
         {/* status pills */}
         <div className="absolute inset-x-3 top-3 z-10 flex items-center justify-between" dir="ltr">
-          <span className="flex items-center gap-2 rounded-full bg-teal-ink/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
-            <span
-              className={`h-2 w-2 rounded-full ${tracker.handVisible ? "bg-gold shadow-gold" : "bg-white/40"}`}
+          <span className="flex items-center gap-1.5 rounded-full bg-teal/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
+            <Icon
+              name="back_hand"
+              fill
+              className={`text-sm leading-none ${tracker.handVisible ? "text-gold" : "text-white/50"}`}
             />
             {tracker.status === "loading"
               ? t("camLoading", lang)
@@ -162,8 +198,8 @@ export function CameraTrainer({
                 : t("camLooking", lang)}
           </span>
           {tracker.status === "running" && (
-            <span className="rounded-full bg-teal-ink/60 px-3 py-1.5 font-display text-xs font-semibold text-white backdrop-blur">
-              {tracker.fps} fps
+            <span className="rounded-lg bg-black/40 px-2 py-1 font-display text-[10px] font-bold text-white/80">
+              {tracker.fps} FPS
             </span>
           )}
         </div>
@@ -171,15 +207,18 @@ export function CameraTrainer({
         {/* idle → start */}
         {tracker.status === "idle" && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 p-6 text-center">
-            <span className="text-5xl" aria-hidden="true">📷</span>
+            <Icon name="videocam" fill className="text-6xl leading-none text-white/80" />
             <Button variant="gold" onClick={() => void tracker.start()}>
               {t("camStart", lang)}
             </Button>
             <p className="text-xs text-white/70">{t("camPrivacy", lang)}</p>
           </div>
         )}
+
+        {/* camera blocked */}
         {tracker.status === "error" && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <Icon name="videocam_off" className="text-5xl leading-none text-white/70" />
             <p className="font-semibold text-white">{t("camBlocked", lang)}</p>
             <p className="text-xs text-white/60">{tracker.error}</p>
             <Button variant="gold" onClick={() => void tracker.start()}>
@@ -188,12 +227,44 @@ export function CameraTrainer({
           </div>
         )}
 
+        {/* hold-to-confirm ring */}
+        {mode === "grade" && tracker.status === "running" && !matched && (
+          <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3">
+            <div className="relative flex h-20 w-20 items-center justify-center">
+              <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
+                <circle cx="40" cy="40" r="36" fill="transparent" stroke="rgba(255,255,255,.12)" strokeWidth="8" />
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  fill="transparent"
+                  stroke="#E6B24C"
+                  strokeLinecap="round"
+                  strokeWidth="8"
+                  strokeDasharray={HOLD_RING_C}
+                  strokeDashoffset={HOLD_RING_C * (1 - holdProgress)}
+                  style={{ transition: "stroke-dashoffset .15s linear" }}
+                />
+              </svg>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
+                <Icon name="check" className="text-3xl font-bold leading-none text-teal" />
+              </div>
+            </div>
+            <span className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-md">
+              {t("camHold", lang)}
+            </span>
+          </div>
+        )}
+
         {/* teach overlay */}
         {mode === "teach" && tracker.status !== "idle" && tracker.status !== "error" && (
-          <div className="absolute inset-x-3 bottom-3 z-10 rounded-2xl bg-teal-deep/75 p-4 text-white backdrop-blur">
+          <div className="absolute inset-x-3 bottom-3 z-10 rounded-2xl bg-teal-deep/80 p-4 text-white backdrop-blur">
             {teachPhase === "intro" && (
               <>
-                <p className="font-bold">{t("camTeach", lang)} 🎓</p>
+                <p className="flex items-center gap-2 font-display font-bold">
+                  <Icon name="psychology" className="text-xl leading-none text-gold" />
+                  {t("camTeach", lang)}
+                </p>
                 <p className="mt-1 text-sm text-white/85">{t("camTeachSub", lang)}</p>
                 <Button variant="gold" className="mt-3 w-full !py-3" onClick={startTeach}>
                   {t("camStart", lang)}
@@ -202,21 +273,27 @@ export function CameraTrainer({
             )}
             {teachPhase === "capturing" && (
               <>
-                <p className="font-bold">{t("camTeachHold", lang)}</p>
-                <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/20">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-display font-bold">{t("camTeachHold", lang)}</p>
+                  {/* samples counter chip */}
+                  <span className="shrink-0 rounded-full bg-teal-deep px-2.5 py-1 font-display text-xs font-bold uppercase tracking-wide text-gold">
+                    {captured}/{TEACH_TARGET} {t("camSamples", lang)}
+                  </span>
+                </div>
+                <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-white/20">
                   <div
                     className="h-full rounded-full bg-gold transition-all"
-                    style={{ width: `${(captured / TEACH_TARGET) * 100}%` }}
+                    style={{ width: `${(captured / TEACH_TARGET) * 100}%`, boxShadow: "0 0 10px rgba(230,178,76,.6)" }}
                   />
                 </div>
-                <p className="mt-1.5 font-display text-sm">
-                  {captured} / {TEACH_TARGET} {t("camSamples", lang)}
-                </p>
               </>
             )}
             {teachPhase === "done" && (
               <>
-                <p className="font-bold text-gold">✓ {t("camTeachDone", lang)}</p>
+                <p className="flex items-center gap-1.5 font-bold text-gold">
+                  <Icon name="check_circle" fill className="text-xl leading-none" />
+                  {t("camTeachDone", lang)}
+                </p>
                 <Button
                   variant="gold"
                   className="mt-3 w-full !py-3"
@@ -234,51 +311,76 @@ export function CameraTrainer({
           </div>
         )}
 
-        {/* grade overlay: hold-progress + confidence */}
-        {mode === "grade" && tracker.status === "running" && !matched && (
-          <div className="absolute inset-x-3 bottom-3 z-10 rounded-2xl bg-teal-ink/60 p-3.5 text-white backdrop-blur">
-            <div className="flex items-center justify-between text-xs font-semibold">
-              <span>{holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}</span>
-              <span className="font-display">{Math.round(confidence * 100)}%</span>
-            </div>
-            <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/20">
-              <div
-                className={`h-full rounded-full transition-all ${holdProgress > 0 ? "bg-gold" : "bg-coral"}`}
-                style={{ width: `${(holdProgress > 0 ? holdProgress : confidence) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-
         {/* matched! */}
         {matched && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-teal-deep/70 backdrop-blur-sm">
-            <span className="animate-pop-in text-7xl" aria-hidden="true">✓</span>
-            <p className="animate-rise mt-2 text-2xl font-bold text-gold">{t("camMatch", lang)}</p>
+            <Icon name="check_circle" fill className="animate-pop-in text-7xl leading-none text-gold" />
+            <p className="animate-rise mt-2 font-display text-2xl font-bold text-gold">{t("camMatch", lang)}</p>
           </div>
         )}
       </div>
 
+      {/* confidence meter — game power-bar (inset track, gold fill, glowing tip) */}
+      {mode === "grade" && tracker.status === "running" && !matched && (
+        <div className="space-y-2 px-1">
+          <div className="flex items-end justify-between">
+            <span className="text-sm font-bold text-teal">
+              {holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}
+            </span>
+            <span className="font-display text-lg font-bold leading-none text-teal">
+              {Math.round(meter * 100)}%
+            </span>
+          </div>
+          <div
+            className="h-5 w-full overflow-hidden rounded-full border-2 border-ink/10 bg-paper p-1 shadow-inner"
+            role="progressbar"
+            aria-valuenow={Math.round(meter * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className="flex h-full items-center justify-end rounded-full bg-gold pe-1 transition-all duration-300"
+              style={{ width: `${Math.max(6, meter * 100)}%`, boxShadow: "0 0 15px rgba(230,178,76,.6)" }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-white/60 blur-[1px]" aria-hidden="true" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available,
           including teach mode and blocked/absent cameras) */}
       {!matched && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col items-center gap-3">
           {showUnsure && (
-            <p className="rounded-2xl bg-gold/15 px-4 py-3 text-sm font-medium text-ink">
+            <p className="w-full rounded-2xl bg-gold/15 px-4 py-3 text-sm font-medium text-ink">
               {t("camUnsure", lang)}
             </p>
           )}
-          <Button variant="secondary" full onClick={() => finishResult("selfMark")}>
-            ✓ {t("camSelfMark", lang)}
-            <span className="block text-xs font-normal opacity-80">{t("camSelfMarkSub", lang)}</span>
+          <Button variant="secondary" full onClick={() => finishResult("selfMark")} className="!rounded-3xl !py-5">
+            <span className="flex items-center justify-center gap-2 font-display text-lg">
+              <Icon name="check_circle" className="text-xl leading-none" />
+              {t("camSelfMark", lang)}
+            </span>
+            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-white/60">
+              {t("camSelfMarkSub", lang)}
+            </span>
           </Button>
           {allowSkip && (
-            <Button variant="ghost" full onClick={() => finishResult("skip")}>
+            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal/60">
               {t("camSkip", lang)}
             </Button>
           )}
         </div>
       )}
+
+      {/* privacy chip — rendered in every state */}
+      <div className="flex justify-center">
+        <span className="flex items-center gap-2 rounded-full border border-ink/5 bg-white/60 px-4 py-2 backdrop-blur-sm">
+          <Icon name="verified_user" className="text-base leading-none text-teal" />
+          <span className="text-[11px] font-medium leading-tight text-ink/70">{t("camPrivacy", lang)}</span>
+        </span>
+      </div>
     </div>
   );
 }

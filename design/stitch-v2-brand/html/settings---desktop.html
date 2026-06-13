@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya Settings · سويّة</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Readex Pro", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Readex Pro', sans-serif;
+            background-color: #F6EFE3;
+            color: #16302E;
+        }
+        .font-headline { font-family: 'Rubik', sans-serif; }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Duolingo-style extruded buttons */
+        .btn-primary {
+            @apply relative bg-[#E8654C] text-white font-bold py-3 px-6 rounded-2xl transition-all duration-75;
+            box-shadow: 0 4px 0 0 #b34a35;
+        }
+        .btn-primary:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #b34a35;
+        }
+
+        .btn-secondary {
+            @apply relative bg-[#e7f1f0] text-[#0F6E6A] font-bold py-3 px-6 rounded-2xl transition-all duration-75 border-2 border-[#0F6E6A]/10;
+            box-shadow: 0 4px 0 0 #cfdbda;
+        }
+        .btn-secondary:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #cfdbda;
+        }
+
+        .card-chunky {
+            @apply bg-[#FBF7EF] border-2 border-[#16302E]/5 rounded-3xl p-6 shadow-sm;
+        }
+
+        .toggle-active {
+            @apply bg-[#0F6E6A] text-white;
+        }
+        
+        .toggle-inactive {
+            @apply bg-white text-[#16302E]/60 hover:bg-[#F6EFE3];
+        }
+
+        .nav-item-active {
+            @apply flex items-center gap-4 bg-[#E6B24C] text-[#16302E] rounded-full p-4 mx-2 shadow-[0_4px_0_0_#b88a30] transition-all;
+        }
+        
+        .nav-item-inactive {
+            @apply flex items-center gap-4 text-white/80 hover:text-white p-4 mx-2 transition-all hover:bg-[#0A4F4C] hover:rounded-full;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+<!-- SideNavBar (JSON-derived Anchor) -->
+<aside class="h-screen w-64 bg-[#0F6E6A] text-white flex flex-col py-8 sticky left-0 top-0 rounded-r-[40px] shadow-xl border-r-4 border-[#0A4F4C] shrink-0">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="bg-white rounded-2xl p-2 w-12 h-12 flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[#0F6E6A] text-3xl" style="font-variation-settings: 'FILL' 1;">back_hand</span>
+</div>
+<div>
+<h1 class="font-headline font-bold text-2xl tracking-tighter leading-none">Sawiyya</h1>
+<p class="text-[10px] uppercase tracking-widest opacity-70 font-bold">Together as Equals</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Home -->
+<a class="nav-item-inactive" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-headline font-bold text-lg uppercase tracking-wider">Home</span>
+</a>
+<!-- Camera -->
+<a class="nav-item-inactive" href="#">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="font-headline font-bold text-lg uppercase tracking-wider">Camera</span>
+</a>
+<!-- Family -->
+<a class="nav-item-inactive" href="#">
+<span class="material-symbols-outlined">family_restroom</span>
+<span class="font-headline font-bold text-lg uppercase tracking-wider">Family</span>
+</a>
+<!-- Progress -->
+<a class="nav-item-inactive" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-headline font-bold text-lg uppercase tracking-wider">Progress</span>
+</a>
+<!-- Settings (ACTIVE) -->
+<a class="nav-item-active active:translate-y-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-headline font-bold text-lg uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6 opacity-40 hover:opacity-100 transition-opacity">
+<p class="text-xs font-medium">© 2024 Sawiyya</p>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Header Band -->
+<header class="bg-[#0F6E6A] px-12 py-8 flex justify-between items-center text-white">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">settings</span>
+<h2 class="font-headline font-bold text-3xl">Settings · الإعدادات</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-white/10 rounded-full px-4 py-2 flex items-center gap-2 border border-white/20">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-bold">1,240 XP</span>
+</div>
+<button class="material-symbols-outlined text-3xl hover:scale-110 transition-transform">notifications</button>
+<div class="w-12 h-12 rounded-2xl bg-gold p-0.5 shadow-md">
+<img alt="User Avatar" class="rounded-[14px] bg-white" data-alt="A stylized digital 3D avatar of a young Qatari man with a friendly smile, wearing a traditional white ghutra. The background is a vibrant solid teal color, matching the brand identity of the app. The art style is high-end 3D rendering, similar to modern tech illustrations, with soft professional lighting and warm skin tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHrvfMNf2TO7prvjKgi5ApEVCwfKrg6NpMbY7sADTbXKMs03AxzY_vULnrE0ToQmSJyi6gwPgUA1ZVwSMEpI8BBJni0oSfXQJXjhT2rARK_bhJX45qBjv6mLS9SIeiIstldl9z7xrp7Y0I2dwFzAqROImtKJELFPOZ_34Nr3VsFgxizEnxDuGb2gyjJNFDGRiEI-ZlK4c6epd8Vs2DuB9JY_UHd2ivEiAM34PLh7xXufRuCEvdqRNK4uWDo5yBqatEX6EtAW3_Wcs3"/>
+</div>
+</div>
+</header>
+<!-- Body Canvas -->
+<div class="p-12 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Column 1 -->
+<div class="space-y-8">
+<!-- Profile Card -->
+<section class="card-chunky">
+<h3 class="font-headline font-bold text-xl mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person</span>
+                        Profile · الملف الشخصي
+                    </h3>
+<div class="space-y-2">
+<label class="text-sm font-bold uppercase tracking-wider text-ink/60 px-1">Your Name · اسمك</label>
+<input class="w-full bg-white border-2 border-[#16302E]/10 rounded-2xl p-4 font-bold text-lg focus:ring-primary focus:border-primary transition-all outline-none" type="text" value="Hamad Al-Thani"/>
+</div>
+</section>
+<!-- Language Card -->
+<section class="card-chunky">
+<h3 class="font-headline font-bold text-xl mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">language</span>
+                        Language · اللغة
+                    </h3>
+<div class="grid grid-cols-2 gap-3 p-1 bg-[#16302E]/5 rounded-2xl">
+<button class="py-4 rounded-xl font-bold text-lg flex flex-col items-center justify-center toggle-inactive transition-all shadow-sm">
+<span>English</span>
+</button>
+<button class="py-4 rounded-xl font-bold text-lg flex flex-col items-center justify-center toggle-active shadow-md">
+<span class="font-body">العربية</span>
+</button>
+</div>
+</section>
+<!-- Signing Hand Selection -->
+<section class="card-chunky">
+<h3 class="font-headline font-bold text-xl mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">front_hand</span>
+                        Signing Hand · يد الإشارة
+                    </h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-primary bg-primary/5 shadow-inner transition-all group">
+<div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md border-4 border-primary">
+<span class="material-symbols-outlined text-5xl text-primary" style="font-variation-settings: 'FILL' 1;">back_hand</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-primary">Right</p>
+<p class="font-body text-sm text-primary">اليمين</p>
+</div>
+</button>
+<button class="flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-ink/10 bg-white hover:border-primary/40 transition-all group">
+<div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border-2 border-ink/5 scale-x-[-1]">
+<span class="material-symbols-outlined text-5xl text-ink/40">back_hand</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-ink/60">Left</p>
+<p class="font-body text-sm text-ink/40">اليسار</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Daily Goal Card -->
+<section class="card-chunky">
+<h3 class="font-headline font-bold text-xl mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                        Daily Goal · الهدف اليومي
+                    </h3>
+<div class="space-y-3">
+<button class="w-full flex justify-between items-center p-4 rounded-2xl bg-white border-2 border-ink/5 hover:border-gold/50 transition-all">
+<span class="font-bold">Casual · هادئ</span>
+<span class="bg-[#F6EFE3] px-3 py-1 rounded-lg text-sm font-bold">3 min</span>
+</button>
+<button class="w-full flex justify-between items-center p-4 rounded-2xl border-2 border-gold bg-gold/5 shadow-sm transition-all">
+<span class="font-bold text-ink">Regular · منتظم</span>
+<span class="bg-gold text-ink font-bold px-3 py-1 rounded-lg text-sm">7 min</span>
+</button>
+<button class="w-full flex justify-between items-center p-4 rounded-2xl bg-white border-2 border-ink/5 hover:border-gold/50 transition-all">
+<span class="font-bold">Serious · جاد</span>
+<span class="bg-[#F6EFE3] px-3 py-1 rounded-lg text-sm font-bold">15 min</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Column 2 -->
+<div class="space-y-8">
+<!-- Camera Training Card -->
+<section class="bg-primary/5 border-2 border-primary/20 rounded-[40px] p-8 shadow-sm flex flex-col items-center text-center">
+<div class="w-32 h-32 bg-primary rounded-full flex items-center justify-center mb-6 shadow-xl relative overflow-hidden">
+
+<span class="material-symbols-outlined text-6xl text-white relative z-10" style="font-variation-settings: 'FILL' 1;">videocam</span>
+</div>
+<h3 class="font-headline font-bold text-2xl text-primary mb-3">Your Camera · كاميرتك</h3>
+<p class="text-lg leading-relaxed text-ink/80 mb-8 px-4">
+                        The camera learns <strong class="text-primary">YOUR</strong> hands — erase and re-teach anytime to improve accuracy.
+                        <span class="block mt-2 font-body italic text-sm">الكاميرا تتعلم حركات يدك الخاصة بك - يمكنك إعادة التدريب في أي وقت</span>
+</p>
+<button class="btn-secondary w-full mb-6">
+                        Reset Camera Training · إعادة ضبط الكاميرا
+                    </button>
+<div class="flex flex-col gap-3 w-full">
+<a class="flex items-center justify-center gap-2 text-primary font-bold hover:underline decoration-2" href="#">
+<span class="material-symbols-outlined text-sm">info</span>
+                            How the AI works · كيف يعمل الذكاء الاصطناعي
+                        </a>
+<a class="flex items-center justify-center gap-2 text-primary font-bold hover:underline decoration-2" href="#">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+                            Privacy · الخصوصية
+                        </a>
+</div>
+<div class="mt-8 pt-8 border-t-2 border-primary/10 w-full">
+<div class="bg-white/50 p-4 rounded-2xl flex items-start gap-4 text-left">
+<span class="material-symbols-outlined text-coral">tips_and_updates</span>
+<p class="text-sm font-medium text-ink/70">
+<strong>Pro-tip:</strong> Use a plain background and good lighting for the fastest learning!
+                            </p>
+</div>
+</div>
+</section>
+<!-- Help & Support -->
+<section class="card-chunky bg-white">
+<h3 class="font-headline font-bold text-xl mb-4">Help · مساعدة</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-sand/30 rounded-2xl border border-ink/5 cursor-pointer hover:bg-sand/50 transition-colors">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">contact_support</span>
+<span class="font-bold">Contact Support</span>
+</div>
+<span class="material-symbols-outlined opacity-30">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-sand/30 rounded-2xl border border-ink/5 cursor-pointer hover:bg-sand/50 transition-colors">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="font-bold">Manual &amp; Signs Library</span>
+</div>
+<span class="material-symbols-outlined opacity-30">chevron_right</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer (JSON-derived Anchor) -->
+<footer class="bg-[#F6EFE3] py-8 px-12 mt-auto border-t-2 border-[#0F6E6A]/10 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="bg-[#0F6E6A] rounded-lg p-1 w-8 h-8 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">back_hand</span>
+</div>
+<span class="font-body text-sm font-bold text-[#0F6E6A]">Sawiyya v1.0 · سويّة</span>
+</div>
+<div class="flex gap-8">
+<a class="font-body text-sm font-medium text-[#16302E]/40 hover:text-[#E8654C] transition-colors" href="#">Privacy Policy</a>
+<a class="font-body text-sm font-medium text-[#16302E]/40 hover:text-[#E8654C] transition-colors" href="#">Terms of Service</a>
+<a class="font-body text-sm font-medium text-[#16302E]/40 hover:text-[#E8654C] transition-colors" href="#">Mada Innovation</a>
+</div>
+<p class="font-body text-xs text-[#16302E]/40">© 2024 Sawiyya. Teaching signs, growing families.</p>
+</footer>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Subtle feedback for all buttons
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 100);
+            });
+        });
+
+        // Toggle logic for Hand Selection
+        const handButtons = document.querySelectorAll('button[class*="Signing Hand"] ~ div button');
+        // (Note: Simplified demo logic for selection)
+    </script>
+</body></html>

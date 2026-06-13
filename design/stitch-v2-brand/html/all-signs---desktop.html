@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Sign Dictionary · القاموس</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&amp;family=Lexend:wght@300;400;500;600&amp;family=Readex+Pro:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Readex Pro', 'Lexend', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .extruded-button {
+            box-shadow: 0 4px 0 0 #C45039;
+            transition: all 0.1s ease;
+        }
+        .extruded-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #C45039;
+        }
+        .extruded-button-teal {
+            box-shadow: 0 4px 0 0 #0A4F4C;
+        }
+        .extruded-button-teal:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #0A4F4C;
+        }
+        .extruded-card {
+            box-shadow: 0 4px 0 0 rgba(15, 110, 106, 0.1);
+        }
+        .meeting-curve {
+            border-radius: 40px 40px 0 0;
+        }
+        /* Custom scrollbar for better aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F6EFE3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0F6E6A33;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0F6E6A66;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink overflow-hidden h-screen flex">
+<!-- 1. SideNavBar -->
+<!-- Logic: Active tab is Home (as it's a primary ecosystem screen) but we'll follow prompt requirement for All Signs. Since the JSON says Home/Camera/Family/Progress/Settings, we'll map current location. -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-8 z-40 bg-[#0F6E6A] dark:bg-[#0A4F4C] text-[#FBF7EF] font-body font-bold text-lg h-screen w-72 rounded-r-[40px] border-r-4 border-[#0A4F4C] shadow-xl">
+<div class="px-8 mb-12 flex items-center gap-3">
+<div class="w-12 h-12 bg-[#FBF7EF] rounded-2xl flex items-center justify-center p-2 shadow-inner">
+<img alt="Sawiyya Seen Logo" class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm2WkgJNgeFKlpWAwQtfYh7dFe7YHnlBTRSyCt8m5EWIzLZqX7Zf-0aQWMK9nwDWUlUmttTKg5FDxcHs5VYUaUYINxU9tKQkdPfCpQSOQT82ajgJ7HEhcp7hpX5Q6rQS39TKmDS5H8NLM5akwnnoMBJ_5ri5T-1Gqq0ua39d5j5bMBTq3Gw8tSCUw_DgZujEq90r1WC01N5aumXwAPczd65ck8R5HBx9qPQym1nGCq1W6G7o036o9u6QfcCMW-cxo44cGaAv1eMpm_"/>
+</div>
+<div>
+<h1 class="font-headline text-2xl font-bold text-[#FBF7EF] tracking-tight leading-none">Sawiyya</h1>
+<p class="text-sm opacity-80 font-normal">سويّة</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Home -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105 duration-200 active:translate-y-1" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span>Home</span>
+</a>
+<!-- Camera (Active for "Dictionary/Sign Learning") -->
+<a class="flex items-center gap-4 bg-[#F6EFE3] text-[#0F6E6A] rounded-full p-4 mx-2 shadow-[0_4px_0_0_#E6B24C] hover:scale-105 transition-transform duration-200 active:translate-y-1" href="#">
+<span class="material-symbols-outlined text-2xl filled-icon" style="font-variation-settings: 'FILL' 1;">videocam</span>
+<span>Camera</span>
+</a>
+<!-- Family -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105 duration-200 active:translate-y-1" href="#">
+<span class="material-symbols-outlined text-2xl">favorite</span>
+<span>Family</span>
+</a>
+<!-- Progress -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105 duration-200 active:translate-y-1" href="#">
+<span class="material-symbols-outlined text-2xl">leaderboard</span>
+<span>Progress</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105 duration-200 active:translate-y-1" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6">
+<div class="bg-[#0A4F4C] p-4 rounded-3xl flex items-center gap-3 border border-[#FBF7EF]/10">
+<div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl filled-icon" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div>
+<div class="text-xs opacity-70 uppercase tracking-widest font-bold">STREAK</div>
+<div class="font-display text-xl leading-none">12 DAYS</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<main class="flex-1 ml-72 flex flex-col h-full overflow-hidden">
+<!-- 2. TopAppBar -->
+<header class="flex justify-between items-center w-full pl-8 pr-8 z-30 bg-[#F6EFE3] dark:bg-[#16302E] text-[#0F6E6A] font-headline font-bold docked full-width top-0 h-20 border-b-4 border-[#0F6E6A]/10">
+<div class="flex items-center gap-4">
+<h2 class="text-[#0F6E6A] font-headline font-black text-2xl">Sign Dictionary · القاموس</h2>
+</div>
+<div class="flex-1 max-w-xl px-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary opacity-60">search</span>
+<input class="w-full bg-paper border-2 border-primary/10 rounded-full py-3 pl-12 pr-6 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all font-body" placeholder="Search for a sign..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 hover:bg-[#0F6E6A]/5 rounded-full transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl">filter_list</span>
+</button>
+<button class="p-2 hover:bg-[#0F6E6A]/5 rounded-full transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl">history</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-primary text-paper flex items-center justify-center font-display text-lg">AS</div>
+</div>
+</header>
+<!-- Filter Chips Sub-header -->
+<div class="px-8 py-4 flex gap-3 overflow-x-auto no-scrollbar bg-sand">
+<button class="px-6 py-2 rounded-full bg-primary text-paper font-bold shadow-md hover:scale-105 transition-transform active:scale-95">All</button>
+<button class="px-6 py-2 rounded-full bg-paper border-2 border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all">Learned</button>
+<button class="px-6 py-2 rounded-full bg-paper border-2 border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all">Flagged</button>
+<button class="px-6 py-2 rounded-full bg-paper border-2 border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all">Alphabet</button>
+<button class="px-6 py-2 rounded-full bg-paper border-2 border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all">Unit 1</button>
+<button class="px-6 py-2 rounded-full bg-paper border-2 border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all">Unit 2</button>
+<div class="ml-auto flex items-center">
+<button class="px-6 py-2 rounded-full bg-gold/20 border-2 border-gold/40 text-primary-dark font-bold relative group overflow-hidden">
+<span class="flex items-center gap-2">
+                        Qatari Sign Language · خليجي
+                        <span class="text-[10px] bg-gold text-ink px-2 py-0.5 rounded-full uppercase tracking-tighter">Coming Soon</span>
+</span>
+<div class="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+</button>
+</div>
+</div>
+<!-- 3. Main Content & 4. Right Detail Panel -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Signs Grid -->
+<div class="flex-1 overflow-y-auto p-8 pt-2 scroll-smooth">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Card 1 (Mastered) -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center group hover:border-primary/40 transition-all cursor-pointer relative extruded-card">
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-gold filled-icon text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<img alt="Water sign demonstration" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+<h3 class="font-headline text-xl text-ink">Water · ماء</h3>
+<p class="text-primary font-bold text-sm mt-1 uppercase tracking-widest">Mastered</p>
+</div>
+<!-- Card 2 (Flagged) -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center group hover:border-primary/40 transition-all cursor-pointer relative extruded-card">
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-coral filled-icon text-2xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<img alt="Family flagged sign" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+<h3 class="font-headline text-xl text-ink">Milk · حليب</h3>
+<p class="text-coral font-bold text-sm mt-1 uppercase tracking-widest">Family List</p>
+</div>
+<!-- Card 3 (Review Due) -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center group hover:border-primary/40 transition-all cursor-pointer relative border-b-4 border-b-gold/30">
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-gold filled-icon text-2xl" style="font-variation-settings: 'FILL' 1;">hourglass_top</span>
+</div>
+<img alt="Eat sign demonstration" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+<h3 class="font-headline text-xl text-ink">Eat · أكل</h3>
+<p class="text-gold font-bold text-sm mt-1 uppercase tracking-widest">Review Soon</p>
+</div>
+<!-- Card 4 (Alphabet Handshape) -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center group hover:border-primary/40 transition-all cursor-pointer relative extruded-card">
+<img alt="Alphabet handshape demonstration" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLtoICmHoZQWOnawNx0LhK4dtKvyKEdk3YG7E9145UhIQSdVXxnOqE8bvX-9AgUzhSjDyoXTqmbQSkc3bJ7nzJKoT96jdi6NHwNnPvhflcJG3VEh9ff3FoBqanWoXPB6KTu7UJ0hnBMJxbEsr_paUoih3ObSGiM-jXtIqXCFqB0ro2BZ3Yb3fyrBgZH20xwJs9I82FDl3cCjNWJ-3_qaw-nVdRMIDqrOYSlY377KU_4e5NlJv_HZ_hy7q2hb"/>
+<h3 class="font-headline text-xl text-ink">Alif · أ</h3>
+<p class="text-primary/40 font-bold text-sm mt-1 uppercase tracking-widest">Letter</p>
+</div>
+<!-- Card 5 (Regular) -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center group hover:border-primary/40 transition-all cursor-pointer relative extruded-card">
+<img alt="Father sign demonstration" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+<h3 class="font-headline text-xl text-ink">Father · أب</h3>
+<p class="text-primary/40 font-bold text-sm mt-1 uppercase tracking-widest">Unit 1</p>
+</div>
+<!-- Card 6 (Active Selection Visual) -->
+<div class="bg-primary/5 p-6 rounded-3xl border-2 border-primary flex flex-col items-center group hover:border-primary/60 transition-all cursor-pointer relative shadow-inner ring-4 ring-primary/10">
+<img alt="I Love You sign demonstration" class="w-32 h-32 object-contain mb-4 group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLukaxk6KlDbLcMDDHpr4ptGKbINxVjaOoAk8mOJl8iI1Fao89fWOkZQfXiW2DrGSiDtyL4jo5s49nM6Ghf_bBHFOrUo8sS4jO3oomEK9Jkoiev5AifB8AL6S3sebGX7C-7jZrizcq6tFupSSXVJzXg3llq8pTSRJohih9axilrH-st9GdbsRaOn_LntL2cf1G9kNF3bxNPG-L3B9OyTTXZO-jq_DtsXL-K0HNEoHLAfcQzheMT-YYEdyeYk"/>
+<h3 class="font-headline text-xl text-primary font-black">ILY · أحبك</h3>
+<p class="text-primary font-bold text-sm mt-1 uppercase tracking-widest">Selected</p>
+</div>
+<!-- Repeating placeholders for grid density -->
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center opacity-60">
+<div class="w-32 h-32 bg-sand rounded-full mb-4 animate-pulse"></div>
+<div class="h-6 w-24 bg-sand rounded animate-pulse"></div>
+</div>
+<div class="bg-paper p-6 rounded-3xl border-2 border-primary/10 flex flex-col items-center opacity-60">
+<div class="w-32 h-32 bg-sand rounded-full mb-4 animate-pulse"></div>
+<div class="h-6 w-24 bg-sand rounded animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- 4. Right-side Detail Panel -->
+<aside class="w-[420px] bg-paper h-full shadow-2xl z-20 flex flex-col border-l-4 border-primary/5">
+<div class="p-8 flex flex-col h-full">
+<div class="flex justify-between items-start mb-6">
+<button class="w-12 h-12 rounded-full border-2 border-primary/10 flex items-center justify-center text-primary hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+<button class="w-12 h-12 rounded-full border-2 border-primary/10 flex items-center justify-center text-coral hover:bg-coral/5 transition-colors">
+<span class="material-symbols-outlined filled-icon">favorite</span>
+</button>
+</div>
+<div class="flex-1 flex flex-col items-center text-center">
+<div class="relative w-full aspect-square bg-sand rounded-[40px] mb-8 flex items-center justify-center overflow-hidden border-4 border-white">
+<!-- Background accent -->
+<div class="absolute inset-0 bg-gradient-to-tr from-gold/10 via-transparent to-primary/5"></div>
+<!-- Main Illustration -->
+<img alt="Large instructional sign for I Love You" class="w-64 h-64 relative z-10" src="https://lh3.googleusercontent.com/aida/AP1WRLukaxk6KlDbLcMDDHpr4ptGKbINxVjaOoAk8mOJl8iI1Fao89fWOkZQfXiW2DrGSiDtyL4jo5s49nM6Ghf_bBHFOrUo8sS4jO3oomEK9Jkoiev5AifB8AL6S3sebGX7C-7jZrizcq6tFupSSXVJzXg3llq8pTSRJohih9axilrH-st9GdbsRaOn_LntL2cf1G9kNF3bxNPG-L3B9OyTTXZO-jq_DtsXL-K0HNEoHLAfcQzheMT-YYEdyeYk"/>
+<!-- Replay Chip -->
+<button class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur px-6 py-2 rounded-full flex items-center gap-2 font-bold text-primary shadow-lg hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-xl">replay</span>
+                                Watch
+                            </button>
+</div>
+<h2 class="font-headline text-4xl text-ink mb-2">I Love You · أحبك</h2>
+<div class="flex gap-2 mb-8">
+<span class="px-4 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-widest">Phrase</span>
+<span class="px-4 py-1 bg-gold/20 text-primary-dark text-xs font-bold rounded-full uppercase tracking-widest">Common</span>
+</div>
+<div class="bg-sand/50 p-6 rounded-3xl text-left w-full border-2 border-primary/5 mb-8">
+<h4 class="font-bold text-primary mb-2 text-sm uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">info</span>
+                                How to sign
+                            </h4>
+<p class="text-ink/80 leading-relaxed text-sm">
+                                Raise your thumb, index finger, and pinky finger while keeping the middle and ring fingers down. Face your palm toward the person you are signing to.
+                            </p>
+</div>
+<div class="mt-auto w-full space-y-4">
+<button class="w-full bg-coral text-white font-headline text-xl py-5 rounded-3xl flex items-center justify-center gap-3 extruded-button">
+<span class="material-symbols-outlined text-2xl">videocam</span>
+                                Practice with camera
+                            </button>
+<button class="w-full bg-primary/10 text-primary font-bold py-4 rounded-3xl hover:bg-primary/20 transition-all">
+                                Add to Daily Review
+                            </button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Interactive Elements Script -->
+<script>
+        // Simple state management for selected card
+        const cards = document.querySelectorAll('.grid > div');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                // In a real app, this would update the detail panel
+                console.log('Selected sign:', card.querySelector('h3').innerText);
+                // Highlight logic (visual only)
+                cards.forEach(c => {
+                    c.classList.remove('ring-4', 'ring-primary/10', 'border-primary', 'bg-primary/5');
+                    c.classList.add('bg-paper', 'border-primary/10');
+                });
+                card.classList.remove('bg-paper', 'border-primary/10');
+                card.classList.add('ring-4', 'ring-primary/10', 'border-primary', 'bg-primary/5');
+            });
+        });
+    </script>
+</body></html>

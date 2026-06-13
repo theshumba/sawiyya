@@ -1,5 +1,6 @@
 // Standalone camera practice — "Practise the alphabet" (PRD §7, §8).
 // Pick a letter or gradable sign → teach the camera once → live grading.
+// Visuals mirror design/stitch-v2-brand practise-the-alphabet--mobile.
 import { useState } from "react";
 import { num, pick, t } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
@@ -8,7 +9,7 @@ import { useUi } from "../store/ui";
 import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
-import { Pill } from "../components/ui";
+import { Icon, Pill } from "../components/ui";
 
 const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
@@ -45,20 +46,28 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
   return (
     <div className="mx-auto max-w-md px-5 pb-28 pt-6">
       <Confetti burst={burst} />
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t("camPractice", lang)}</h1>
-        <button
-          type="button"
-          onClick={() => go({ name: "home" })}
-          aria-label={t("back", lang)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-lg"
-        >
-          ✕
-        </button>
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-bold">{t("camPractice", lang)}</h1>
+        <div className="flex shrink-0 items-center gap-2">
+          <Pill tone="gold" className="!py-1">
+            <Icon name="stars" fill className="text-base leading-none text-gold" />
+            <span className="font-display">
+              {num(profile.xpToday, lang)} {t("xp", lang)}
+            </span>
+          </Pill>
+          <button
+            type="button"
+            onClick={() => go({ name: "home" })}
+            aria-label={t("back", lang)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-teal"
+          >
+            <Icon name="close" className="text-xl leading-none" />
+          </button>
+        </div>
       </header>
 
       {/* word signs (gradable statics) */}
-      <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-3">
+      <div className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 pb-3">
         {GRADABLE_SIGNS.map((s) => (
           <button
             key={s.id}
@@ -67,21 +76,24 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
               setSignId(s.id);
               setRound((r) => r + 1);
             }}
-            className={`flex shrink-0 items-center gap-1.5 rounded-2xl border-2 px-3.5 py-2 text-sm font-bold transition ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-2xl px-4 py-2.5 font-display text-sm font-bold transition active:scale-95 ${
               s.id === signId
-                ? "border-teal bg-teal text-white"
-                : "border-line bg-paper text-ink"
+                ? "bg-coral text-white shadow-lg ring-4 ring-coral ring-offset-2 ring-offset-sand"
+                : isTrained(s.id)
+                  ? "bg-gold text-white shadow-md"
+                  : "border-2 border-teal bg-transparent text-teal opacity-80"
             }`}
           >
-            <span aria-hidden="true">{s.emoji}</span>
             {pick(lang, s.glossEn, s.glossAr)}
-            {isTrained(s.id) && <span className="text-gold" aria-hidden="true">●</span>}
+            {isTrained(s.id) && s.id !== signId && (
+              <Icon name="star" fill className="text-sm leading-none text-white" />
+            )}
           </button>
         ))}
       </div>
 
       {/* alphabet strip */}
-      <div className="no-scrollbar -mx-5 mb-4 flex gap-1.5 overflow-x-auto px-5 pb-2" dir="rtl">
+      <div className="no-scrollbar -mx-5 mb-4 flex gap-2 overflow-x-auto px-5 py-2" dir="rtl">
         {ALPHABET.map((s) => (
           <button
             key={s.id}
@@ -90,12 +102,12 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
               setSignId(s.id);
               setRound((r) => r + 1);
             }}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 text-lg font-bold transition ${
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl font-display text-xl font-bold transition active:scale-95 ${
               s.id === signId
-                ? "border-teal bg-teal text-white"
+                ? "bg-coral text-white shadow-lg ring-4 ring-coral ring-offset-2 ring-offset-sand"
                 : isTrained(s.id)
-                  ? "border-gold/60 bg-gold/10 text-ink"
-                  : "border-line bg-paper text-ink"
+                  ? "bg-gold text-white shadow-md"
+                  : "border-2 border-teal bg-transparent text-teal opacity-70"
             }`}
             aria-label={s.glossEn}
           >
@@ -105,13 +117,6 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
       </div>
 
       <CameraTrainer key={`${signId}-${round}`} sign={sign} lang={lang} onResult={handleResult} />
-
-      <div className="mt-4 flex items-center justify-between">
-        <Pill tone="muted">{t("camPrivacy", lang)}</Pill>
-        <Pill tone="gold">
-          ⚡ {num(profile.xpToday, lang)} {t("xp", lang)}
-        </Pill>
-      </div>
     </div>
   );
 }

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Sign Flagging</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        'coral-dark': '#C54D38',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        display: ['Rubik', 'sans-serif'],
+                        headline: ['Rubik', 'sans-serif'],
+                        body: ['Readex Pro', 'sans-serif'],
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #C54D38;
+        }
+        .extruded-coral:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #C54D38;
+        }
+        .extruded-teal {
+            box-shadow: 0 6px 0 0 #0A4F4C;
+        }
+        .extruded-teal:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #0A4F4C;
+        }
+        .card-lifted {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 0 0 rgba(232, 101, 76, 0.2);
+        }
+        .meeting-curve {
+            clip-path: ellipse(80% 50% at 50% 100%);
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink min-h-screen">
+<!-- Top Navigation Anchor (Shared Component Logic) -->
+<nav class="bg-primary dark:bg-primary-dark text-sand flex justify-between items-center px-8 h-20 w-full fixed top-0 z-50 border-b-4 border-primary-dark shadow-md">
+<div class="flex items-center gap-4">
+<div class="bg-paper rounded-xl p-1.5 w-12 h-12 flex items-center justify-center">
+<img alt="Sawiyya Logo" class="w-8 h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeefrLgkBIkP-OiSjXr_8Aga9FPvf8uwx9J_Jrs4MlX5AzzxT3yUVvO1qFmhPzRPH5VyVGOm3ksVVDzjLAepSiTr9BoU8_62jlgbKsLMK1wHhmsU_gVZzUyeaEsj0DmFpEh2oDBxnSL8U5xLaYKudIVvKjEc9QSquoE-YX-MAJ4NAYw6vxO7xGm2NVSM6tmUM3PA11Hf07jEABD01LKY9LEhipFIJPpigs8ssBrcT1NVMiYoqCxYDlC4iXnUsvw1LcTyCpXyoql9-e"/>
+</div>
+<span class="font-display font-bold text-2xl text-paper tracking-tight">Sawiyya</span>
+</div>
+<div class="hidden md:flex items-center space-y-0 space-x-8">
+<a class="text-sand/80 font-medium hover:text-gold transition-colors" href="#">Home</a>
+<a class="text-gold font-bold transition-colors" href="#">Camera</a>
+<a class="text-sand/80 font-medium hover:text-gold transition-colors" href="#">Family</a>
+<a class="text-sand/80 font-medium hover:text-gold transition-colors" href="#">Progress</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-primary-dark/50 rounded-full transition-colors active:translate-y-0.5">
+<span class="material-symbols-outlined text-paper">local_fire_department</span>
+</button>
+<button class="p-2 hover:bg-primary-dark/50 rounded-full transition-colors active:translate-y-0.5">
+<span class="material-symbols-outlined text-paper">stars</span>
+</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB04qojpSCP698pDnQz4AeIZUHJe2D-PfSDC6Ul9kPVE09TkVgiz-fNkUUXqUPHtlI3elDgk9nYFYcpbdBcPqTzOtJAb-Rl0yd0HULMIFEivBuYyU8-LqAf2JTzQbCe36xGiILioU1owV1YQNmWSq51i0j3It9YNTr09n_jk1KUOoPGF2DiRec1FAIQFYkIxNYBES3QoQD9tsKfvp2WrSkiHTmcGSG_411FIKiLm9xM9tXL1gJOq0CSzqtDpajkFOXm1fZLY5mEy_4c"/>
+</div>
+</nav>
+<!-- Header Section -->
+<header class="pt-28 pb-12 bg-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-dark rounded-full -mr-20 -mt-20 opacity-50"></div>
+<div class="absolute bottom-0 left-0 w-40 h-40 bg-gold/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+<div class="max-w-7xl mx-auto px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="max-w-2xl text-center md:text-left">
+<h1 class="font-headline text-paper text-4xl md:text-5xl font-bold leading-tight mb-2">
+                    Flag signs we need · علّم الإشارات اللي نحتاجها
+                </h1>
+<p class="text-sand/90 text-xl font-medium">You direct what they learn</p>
+</div>
+<div class="w-48 h-48 md:w-56 md:h-56">
+<img alt="Hand with gold crown" class="w-full h-full object-contain drop-shadow-2xl animate-pulse" src="https://lh3.googleusercontent.com/aida/AP1WRLt_hvgdXi6kTV9crZNQ-tE0BexKjKmTHSreF_JDRgtz2U9X2xmw3g4ClyugeOflNrX32aPYWbQ0ImKw4VGPVcC_s2_TeHh9CkE8ihqhvgqwROeksJ1KPpurNnIcSVoWio8dPuaeWpBm1WL6dvSPGaH4roxE9bxNPv0q8ZojFN9VQJWpIZPLZ29Rll7dwfljblDcSw4i2WOqnl4Ozf1ET2FSObGb23ZPIH3e3H5kMWOLY6awgm174JbI56SZ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="max-w-7xl mx-auto px-8 py-12 flex flex-col lg:flex-row gap-12">
+<!-- Sidebar Navigation (Responsive Platform Pivot) -->
+<aside class="hidden lg:flex flex-col w-72 shrink-0">
+<div class="bg-paper p-8 rounded-2xl shadow-sm border-2 border-primary/10">
+<h3 class="text-sm font-bold tracking-widest text-primary/60 uppercase mb-6">Learning Groups</h3>
+<nav class="space-y-4">
+<button class="w-full flex items-center gap-4 bg-primary text-paper rounded-xl p-4 shadow-[0_4px_0_0_rgba(10,79,76,1)] transition-transform active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-bold">Home</span>
+</button>
+<button class="w-full flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="font-medium">Food</span>
+</button>
+<button class="w-full flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined">mood</span>
+<span class="font-medium">Feelings</span>
+</button>
+<button class="w-full flex items-center gap-4 text-primary p-4 rounded-xl hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined">school</span>
+<span class="font-medium">School</span>
+</button>
+</nav>
+<div class="mt-8 pt-8 border-t-2 border-primary/5">
+<button class="w-full py-4 text-primary font-bold border-2 border-primary rounded-xl hover:bg-primary hover:text-paper transition-all">
+                        + New Category
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Canvas -->
+<section class="flex-1 space-y-8">
+<!-- Search & Filter Area -->
+<div class="flex flex-col md:flex-row gap-4 items-center">
+<div class="relative flex-1 group w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-paper border-2 border-primary/10 rounded-2xl focus:ring-0 focus:border-primary transition-all text-lg font-medium outline-none" placeholder="Search for a sign..." type="text"/>
+</div>
+<div class="flex gap-2 w-full md:w-auto">
+<button class="px-6 py-4 bg-primary/5 text-primary font-bold rounded-2xl border-2 border-primary/10 hover:border-primary transition-colors whitespace-nowrap">
+                        Most Needed
+                    </button>
+<button class="px-6 py-4 bg-paper text-primary font-bold rounded-2xl border-2 border-primary/10 hover:border-primary transition-colors">
+<span class="material-symbols-outlined align-middle">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Sign Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Card: Milk (Flagged) -->
+<div class="bg-paper border-4 border-coral rounded-2xl p-6 card-lifted relative transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-coral">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="bg-sand rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Milk handshape illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Milk</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">حليب</p>
+</div>
+<div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-paper text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<!-- Card: Father (Flagged) -->
+<div class="bg-paper border-4 border-coral rounded-2xl p-6 card-lifted relative transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-coral">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="bg-sand rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Father handshape illustration" class="w-full h-full object-contain transform translate-x-4" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Father</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">أب</p>
+</div>
+</div>
+</div>
+<!-- Card: Eat (Flagged) -->
+<div class="bg-paper border-4 border-coral rounded-2xl p-6 card-lifted relative transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-coral">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="bg-sand rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Eat handshape illustration" class="w-full h-full object-contain transform translate-x-8" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Eat</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">أكل</p>
+</div>
+</div>
+</div>
+<!-- Card: Water (Not Flagged) -->
+<div class="bg-paper border-2 border-primary/10 rounded-2xl p-6 hover:border-primary/30 transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-primary/20 group-hover:text-primary/40 transition-colors">
+<span class="material-symbols-outlined text-3xl">push_pin</span>
+</div>
+<div class="bg-sand/50 rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Water handshape illustration" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida/AP1WRLslF_RW2_2e_80XgL7Va1xB-59MGRzB5xavCL046TaefyefaquHGGVlBPsmF4OJ2UL4jyzHDPgbQ1yR0anzhQxtFWWIcwfuqQvxC6osi4zu8nMir1-RyWmD7X-jnhaTGD0u_m-p5xeobR8bcVi7n8bdi5LxqZ4_6l-EfsBreQjyeeC3EMsf-7JU0_5dhm3DjFvGquAcyfPMkYAh0ixTL0VPsKGyvW9H9DvszXjnF5iHbDr_Q3JdBanK6oRm"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Water</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">ماء</p>
+</div>
+</div>
+</div>
+<!-- Card: Play (Not Flagged) -->
+<div class="bg-paper border-2 border-primary/10 rounded-2xl p-6 hover:border-primary/30 transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-primary/20 group-hover:text-primary/40 transition-colors">
+<span class="material-symbols-outlined text-3xl">push_pin</span>
+</div>
+<div class="bg-sand/50 rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Play handshape illustration" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Play</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">لعب</p>
+</div>
+</div>
+</div>
+<!-- Card: Cookie (Not Flagged) -->
+<div class="bg-paper border-2 border-primary/10 rounded-2xl p-6 hover:border-primary/30 transition-all group cursor-pointer">
+<div class="absolute top-4 right-4 text-primary/20 group-hover:text-primary/40 transition-colors">
+<span class="material-symbols-outlined text-3xl">push_pin</span>
+</div>
+<div class="bg-sand/50 rounded-xl p-4 mb-4 flex items-center justify-center h-48 overflow-hidden">
+<img alt="Cookie handshape illustration" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity transform -scale-x-100" src="https://lh3.googleusercontent.com/aida/AP1WRLu4M73YvF4pLnwhjhFibsGQGEGYhDRELGhrazrFYqA7tPZx_b21jZMEnaxaNZSflw0AJCzrCZa6D7xZoWt7qn3TMLg0YAMPaecJzm-xSLnA9woHBl_WSQqBwTf7QAf-8mxg4J8XXLj9dC1_jIBi6UVi1EK5HD-stkkpex65meLxVgwloI4phabfih43Yforg6CAFoqz37vPzNfol1kb2pkUNElj2w_lW2dlM-mIP3WJHVTdY-E6qgePQBZS"/>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline text-2xl font-bold text-primary mb-1">Cookie</h4>
+<p class="font-headline text-xl text-primary/60 font-medium">بسكويت</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Rail / Summary -->
+<aside class="w-full lg:w-80 shrink-0 space-y-6">
+<div class="bg-paper p-8 rounded-3xl border-4 border-primary/5 shadow-xl relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-2 bg-coral"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 bg-coral/10 rounded-full flex items-center justify-center text-coral">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<h3 class="font-headline text-xl font-bold text-primary leading-tight">3 signs flagged for this week</h3>
+</div>
+<div class="space-y-3 mb-8">
+<div class="flex items-center justify-between p-3 bg-sand rounded-xl border border-primary/5">
+<span class="font-bold text-primary">Milk</span>
+<span class="text-primary/60 text-sm">Priority High</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-sand rounded-xl border border-primary/5">
+<span class="font-bold text-primary">Father</span>
+<span class="text-primary/60 text-sm">Priority High</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-sand rounded-xl border border-primary/5">
+<span class="font-bold text-primary">Eat</span>
+<span class="text-primary/60 text-sm">Priority Medium</span>
+</div>
+</div>
+<div class="mb-8">
+<p class="text-sm font-bold text-primary/40 uppercase tracking-widest mb-4">Requestors</p>
+<div class="flex -space-x-3 overflow-hidden">
+<img alt="Layla avatar" class="inline-block h-12 w-12 rounded-full ring-4 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATZVGtd-yJL9hPJ091lOXDeGPEBnqpb2s9KlXwKHxsyR18qj2INp-A9XVwGbxSzWIoaq-_Lae2Krn7Z6nlKj2ZCNDIab3NVcG_Nq7t91ZYPnGmT_l8pdrJkrE-ef_hYp-RHoU7tYswKUZ7x4YeFpVB501X7DKPKXi4HPOxirFPA5iZioX7Etr_w0t_Cd4KyVP7lx8VDfCROA_OKq3uZIcIkNYUw9PwKYqqfizZjzaGK-D8fUS2voKPM652TvtqpWn6_Ft2R9xDHOR0"/>
+<img alt="Ahmed avatar" class="inline-block h-12 w-12 rounded-full ring-4 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJEGfcyqyDAai5GPiNEUzSSFrKwBZQ8dBB0RHUgcekk05lQxLLtkpv_fD-o6WqJOI3rsbfvqcfwv2adogMpmiGPCi0_GmaRcQD2KWmq0Npkkl51Etrsaeer1Pepm5E6v1S_PBEam6KKpKWhwRXvBSdenxhwJiVi-VXITZkENTv2069X2orsOZ-pd-itbB1v0eT_KZLnPrUE37G6A2-VYQNfQ4vr3FUalVG8-it24gMAec9w9GANHFC6wSADQbSj51aDUKsQ9lTqG-v"/>
+<img alt="Sara avatar" class="inline-block h-12 w-12 rounded-full ring-4 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7GnCoZaJIk44vtgv-xJtgaYaummgBlM_8sGwA0TXYsYLbtNAaWBJXa_5UlHjEf9p0ekIRc1I7QpgpgeUWydUWs0xpBGclghtuLKgvOOjQU53L4S4aqjhfBCk1lKcH2ID-BvLSPtWEw1UCqmXuZGJ_fhyAZTrdDHKxRB1TN9AXQoAuMSDh07MOoXIU3vgLzJoh-FSICasM4Zr4Dtz0-UwH9lavrIVAIo9pp-OvTtaBrt6TH1OaPuFTzvv0k5oj1y77I59g2bmgEiyf"/>
+<div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gold ring-4 ring-paper">
+<span class="text-xs font-bold text-paper">+4</span>
+</div>
+</div>
+<p class="text-xs mt-3 text-primary/60">Family members waiting for these signs</p>
+</div>
+<button class="w-full py-5 bg-coral text-paper font-headline text-xl font-bold rounded-2xl extruded-coral transition-all active:translate-y-1 mb-4">
+                        Done
+                    </button>
+<button class="w-full py-4 text-primary font-bold hover:bg-primary/5 rounded-xl transition-colors">
+                        Clear all
+                    </button>
+</div>
+</div>
+<!-- Achievement Card -->
+<div class="bg-gold p-6 rounded-3xl text-paper extruded-teal relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-paper/20 rounded-full"></div>
+<div class="relative z-10 flex items-center gap-4">
+<div class="text-4xl">🔥</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest opacity-80">Weekly Goal</p>
+<h4 class="text-2xl font-bold leading-tight">60% Complete</h4>
+</div>
+</div>
+<div class="mt-4 bg-paper/20 h-4 rounded-full overflow-hidden">
+<div class="bg-paper h-full w-[60%] rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-paper flex justify-around items-center px-4 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-primary/5">
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px] font-bold uppercase">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<div class="w-12 h-1 bg-gold rounded-full -mt-4 mb-2"></div>
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">videocam</span>
+<span class="text-[10px] font-bold uppercase">Camera</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined text-2xl">favorite</span>
+<span class="text-[10px] font-bold uppercase">Family</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary/40">
+<span class="material-symbols-outlined text-2xl">leaderboard</span>
+<span class="text-[10px] font-bold uppercase">Progress</span>
+</button>
+</nav>
+<!-- FAB (Suppressed as per rules, not needed for this flow) -->
+<script>
+        // Micro-interactions for cards
+        document.querySelectorAll('.card-lifted').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('card-lifted');
+                card.classList.toggle('border-coral');
+                card.classList.toggle('border-primary/10');
+                
+                const pin = card.querySelector('.material-symbols-outlined');
+                if (pin.style.fontVariationSettings.includes("'FILL' 1")) {
+                    pin.style.fontVariationSettings = "'FILL' 0";
+                    pin.closest('.text-coral').classList.replace('text-coral', 'text-primary/20');
+                } else {
+                    pin.style.fontVariationSettings = "'FILL' 1";
+                    pin.closest('.text-primary/20').classList.replace('text-primary/20', 'text-coral');
+                }
+            });
+        });
+    </script>
+</body></html>

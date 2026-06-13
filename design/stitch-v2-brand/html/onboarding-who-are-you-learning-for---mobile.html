@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya Onboarding - Who are you learning for?</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Lexend:wght@400;500;600&amp;family=Readex+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        'coral-dark': '#C0543D',
+                        gold: '#E6B24C',
+                        'gold-dark': '#C59840',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Lexend', 'sans-serif'],
+                        arabic: ['Readex Pro', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .extruded-button {
+            position: relative;
+            transition: all 0.1s ease;
+            top: 0;
+            box-shadow: 0 6px 0 0 var(--shadow-color);
+        }
+        .extruded-button:active {
+            top: 4px;
+            box-shadow: 0 2px 0 0 var(--shadow-color);
+        }
+
+        .extruded-card {
+            position: relative;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            top: 0;
+            border-width: 3px;
+        }
+        
+        .extruded-card-teal {
+            background-color: white;
+            border-color: rgba(15, 110, 106, 0.2);
+            box-shadow: 0 6px 0 0 rgba(15, 110, 106, 0.2);
+        }
+
+        .extruded-card-teal:active, .extruded-card-teal.pressed {
+            top: 4px;
+            box-shadow: 0 2px 0 0 rgba(15, 110, 106, 0.2);
+            border-color: #0F6E6A;
+            background-color: #F0F9F8;
+        }
+
+        .extruded-card-gold {
+            background-color: #FFFDF8;
+            border-color: #E6B24C;
+            box-shadow: 0 6px 0 0 #C59840;
+        }
+        
+        .extruded-card-gold:active {
+            top: 4px;
+            box-shadow: 0 2px 0 0 #C59840;
+        }
+
+        .meeting-curve {
+            clip-path: ellipse(120% 100% at 50% 100%);
+        }
+
+        .floating-sparkle {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .arabic-text {
+            font-family: 'Readex Pro', sans-serif;
+            letter-spacing: normal;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation Area -->
+<header class="w-full max-w-2xl mx-auto px-6 pt-8 flex items-center justify-between z-10">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-paper border-2 border-primary/10 text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<!-- Progress Dots -->
+<div class="flex gap-2">
+<div class="w-8 h-3 rounded-full bg-primary"></div>
+<div class="w-3 h-3 rounded-full bg-primary/20"></div>
+<div class="w-3 h-3 rounded-full bg-primary/20"></div>
+<div class="w-3 h-3 rounded-full bg-primary/20"></div>
+</div>
+<div class="w-12"></div> <!-- Spacer for symmetry -->
+</header>
+<main class="flex-1 w-full max-w-2xl mx-auto px-6 pt-10 pb-32 z-10">
+<!-- Header Text -->
+<div class="text-center mb-12">
+<h1 class="font-headline text-3xl md:text-4xl text-ink leading-tight mb-2">
+                Who are you learning for?
+            </h1>
+<h2 class="font-arabic text-2xl md:text-3xl text-primary font-bold mb-4">
+                لمن تتعلم الإشارة؟
+            </h2>
+<p class="text-ink/70 text-lg md:text-xl font-medium">
+                We'll start with the signs that matter most.
+            </p>
+</div>
+<!-- Selection Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<!-- My Child (Pressed State) -->
+<button class="extruded-card extruded-card-teal pressed p-6 rounded-3xl flex flex-col items-center text-center group">
+<div class="w-24 h-24 mb-4 flex items-center justify-center">
+<img alt="Parent hand holding a child's hand" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk6WQcgBmYu_EuHWG2MVEq_uSsgR0184GVp8WbABRRgq-AyBSMcIimm0h-kaD9Wt4brzFUTIJgYAKP2zuQo93KX4wjjW2HL8Yp9HymHm0lN-parasbxASnxOcUilFUiQOPDOVfUMcAUMxeX3W0bQtmW5mpjdXum6ZOntNHwE3Pa6Ea-P7TlA1nGv_8cwwCMPK7Nw8oA59r1TqQ3VCn8yLyTNVFYMISQWZja9jk7wL5sPnoX3udM46uEphQQvJGZ8XvTb7HKVH9DBcJ"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-bold text-xl text-ink">My child</span>
+<span class="font-arabic text-primary font-bold text-lg">طفلي</span>
+</div>
+<!-- Selection Indicator -->
+<div class="absolute -top-3 -right-3 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg border-4 border-sand">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+</button>
+<!-- My brother or sister -->
+<button class="extruded-card extruded-card-teal p-6 rounded-3xl flex flex-col items-center text-center group">
+<div class="w-24 h-24 mb-4 flex items-center justify-center">
+<img alt="Two hands giving a fist bump" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkv-C4QbbMyGRVgvJNA2gvKdpelmdE_FSXhZi9B2BkEyfZQvwzRJ1vyebvfQ-wiByNTdllzdEQRkcLTfCcASjbgzXNiPQiBaVkPpNvOelKGl2Bz6N_HcjkT0srwSOHmSdQXJB92vkji_1gQaQ2KrsNMzkB9E3gD7uU3MHvk5OOxFPwBMHQa9WvxphZ7Pq449254QrP9mB0-dGoUo6bZKDlpUATTOreU-xVZWq7YVwfr-TvoFcrOvSjUqtYzfokqYhS9LeSJYSA7bao"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-bold text-xl text-ink">My sibling</span>
+<span class="font-arabic text-primary font-bold text-lg">أخي أو أختي</span>
+</div>
+</button>
+<!-- My student -->
+<button class="extruded-card extruded-card-teal p-6 rounded-3xl flex flex-col items-center text-center group">
+<div class="w-24 h-24 mb-4 flex items-center justify-center">
+<img alt="Hand gesturing towards a classroom board" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJSbHlruy1Fz6o8Cra_pOrFnvbNgD3o3E5nALULXy7ek7BJqEjkZBVTXKQoT6Wx4KQ4Q76kzVz_QXh-9oDeR1GAzzBbClO0WtpReZal4waAtbMNlG1RbIPxxCqgJjItW0oJ19u11sNhXh6TfbtrKjfx8mtoEifmCMl2c8H_LZ5gny_-wgA422bzPfdwsodlu05vZMulRtuSfZ-5cM1mYpmuYHTc18tQ39NO6MhnCStgZqtrvAB7xIan6Y8egl9oG7pUgmQy-dEkS6x"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-bold text-xl text-ink">My student</span>
+<span class="font-arabic text-primary font-bold text-lg">طالبي</span>
+</div>
+</button>
+<!-- My friend -->
+<button class="extruded-card extruded-card-teal p-6 rounded-3xl flex flex-col items-center text-center group">
+<div class="w-24 h-24 mb-4 flex items-center justify-center">
+<img alt="Two hands in a high five pose" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8LHvcxI26z_2nbSrPLh4BB0Fa7RNeA32BiloF5AHZRCLO2eMSgX07VvabvxG8xce8EDF3h333TlFGW6mILuyOIhAqC-P-65wzEuG0khcdRY2ALhwOFurJ4RJT2rJS9XRjz6jjN8vRSM1IbAUpH4iD3gcSDD-BgRWeikOnddHcjmpdhU0bCf8Qfz0RFJ1NjjRUPV-RV06Ip--lS9F1mF-dZFGaYG79oDV24EjpeDBMKR4Py18UDh7_AebAMyOUFHjZTdrOTB8hZfwW"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-bold text-xl text-ink">My friend</span>
+<span class="font-arabic text-primary font-bold text-lg">صديقي</span>
+</div>
+</button>
+<!-- Leader's Choice: I'm Deaf -->
+<button class="extruded-card extruded-card-gold p-6 rounded-3xl flex items-center text-left gap-6 col-span-1 sm:col-span-2 group">
+<div class="w-24 h-24 flex-shrink-0 flex items-center justify-center relative">
+<img alt="Hand reaching for a floating gold crown" class="w-full h-full object-contain z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCQbcUBW-kWIdNDIOof9ae0AuJ-f1_BegMnOlmDfpcC0eW5AC_vX_gZCKkuuWBw59cC0JaRIrg795ZM331Psbv0dJxxnerCq6Xf7OTyM42RISZ_dmO0phljuob8wEvBUKN4nl9_9ubRzowBvs77BsizY53nW-EbphxS3D2zq0DIxii4h3pw387qhc0rqVa3rrUhqDoW8uajZhH73kTZIQ8Xfew1sFs16Xqpfp3_nR3yi9vsL4CZQ6Cug7NfxZv24D6nR0zwuCxVgyk"/>
+<div class="absolute inset-0 bg-gold/10 rounded-full blur-xl"></div>
+</div>
+<div class="flex flex-col gap-1 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-gold text-ink text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Most Popular</span>
+<span class="material-symbols-outlined text-gold text-sm" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="font-bold text-xl text-ink leading-tight">I'm Deaf — setting up my family</span>
+<span class="font-arabic text-gold-dark font-bold text-lg">أنا أصم - أهيئ عائلتي</span>
+</div>
+<div class="ml-auto w-12 h-12 flex items-center justify-center rounded-full bg-gold/20 text-gold-dark">
+<span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</button>
+</div>
+</main>
+<!-- Footer Area -->
+<footer class="fixed bottom-0 left-0 w-full z-20 pointer-events-none">
+<!-- Visual Dune Background -->
+<div class="w-full h-40 bg-sand relative overflow-hidden pointer-events-none">
+<div class="absolute bottom-0 left-0 w-full h-32 opacity-30 transform scale-x-125">
+<img alt="Stylized desert road and dunes landscape" class="w-full h-full object-cover object-top" data-alt="A stylized minimalist illustration of desert sand dunes in warm beige, orange, and teal tones. The landscape features rolling curves reminiscent of hand-drawn paper-cut art with a winding teal path leading towards a distant skyline of traditional Arabic architecture. The lighting is soft, evoking a golden hour atmosphere with a clean, light-mode background aesthetic consistent with a premium mobile game UI." src="https://lh3.googleusercontent.com/aida/AP1WRLvOQf8Np3fKjWZ_nOAboQtI9L8Ba3OrSmTaP9ZxsRB2hOdLFhPeiGQopMilfDSMAOEcc0UAYgoamHYLmKhmWSyPm7mNd_6eP5gywDSdbK_yy40s1SZFFaHOvKsFWjXWOfXM1NQiCMzg5D_GiXmqcXigW2ngr4FrNgnGdbzRa0LeoBe4H4mbzodxEwJO5x1Wj7052-ZNCxNGopjbPFGRymnaO2Lry513tzPExB5HDKAWrv8bDy2mU-JDJYDl"/>
+</div>
+<!-- Button & Link Container -->
+<div class="absolute inset-0 flex flex-col items-center justify-end pb-8 pointer-events-auto">
+<button class="extruded-button w-[85%] max-w-md h-16 bg-coral rounded-3xl flex items-center justify-center text-white font-headline text-xl uppercase tracking-widest transition-all mb-4" style="--shadow-color: #C0543D">
+                    CONTINUE · متابعة
+                </button>
+<button class="text-primary font-bold text-base hover:opacity-80 transition-opacity active:scale-95">
+                    Skip · تخطي
+                </button>
+</div>
+</div>
+</footer>
+<!-- Decorative Sparks -->
+<div class="fixed top-20 right-10 pointer-events-none opacity-20 floating-sparkle" style="animation-delay: 0.5s">
+<span class="material-symbols-outlined text-gold text-4xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="fixed bottom-40 left-10 pointer-events-none opacity-20 floating-sparkle">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">spark</span>
+</div>
+<script>
+        // Simple Interaction Logic
+        document.querySelectorAll('.extruded-card-teal').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove pressed state from all others
+                document.querySelectorAll('.extruded-card-teal').forEach(c => {
+                    c.classList.remove('pressed');
+                    // Remove checkmark indicator if exists
+                    const check = c.querySelector('.absolute.-top-3');
+                    if (check) check.remove();
+                });
+                
+                // Add pressed state to this one
+                this.classList.add('pressed');
+                
+                // Add indicator
+                const checkHTML = `
+                    <div class="absolute -top-3 -right-3 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg border-4 border-sand">
+                        <span class="material-symbols-outlined text-sm font-bold">check</span>
+                    </div>
+                `;
+                this.insertAdjacentHTML('beforeend', checkHTML);
+            });
+        });
+    </script>
+</body></html>

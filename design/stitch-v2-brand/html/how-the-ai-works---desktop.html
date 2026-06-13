@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>How the AI works · Sawiyya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;900&amp;family=Lexend:wght@400;600;800&amp;family=Readex+Pro:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Lexend', 'Readex Pro', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif']
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', 'Readex Pro', sans-serif;
+            background-color: #F6EFE3;
+            color: #16302E;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .extruded-button {
+            box-shadow: 0 6px 0 0 #0A4F4C;
+        }
+        .extruded-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #0A4F4C;
+        }
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #B64F3B;
+        }
+        .extruded-coral:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B64F3B;
+        }
+        .card-chunky {
+            border: 3px solid #0F6E6A20;
+            transition: all 0.2s ease;
+        }
+        .card-chunky:hover {
+            border-color: #0F6E6A;
+            transform: translateY(-4px);
+        }
+        .arabic-text {
+            font-family: 'Readex Pro', sans-serif;
+        }
+        .glow-gold {
+            filter: drop-shadow(0 0 12px rgba(230, 178, 76, 0.4));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-primary sticky top-0 z-50 w-full px-6 py-4 flex justify-between items-center shadow-lg border-b-4 border-primary-dark">
+<div class="flex items-center gap-4">
+<button class="text-paper hover:bg-primary-dark transition-colors p-2 rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-headline text-2xl font-bold text-white tracking-tight leading-none">How the AI works</h1>
+<p class="arabic-text text-paper/80 text-sm font-semibold">كيف يعمل الذكاء الاصطناعي</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-6 mr-6">
+<a class="text-white font-bold transition-colors" href="#">Learning Portal</a>
+<a class="text-paper/80 hover:text-white transition-colors" href="#">Family Practice</a>
+</div>
+<div class="font-headline text-3xl font-black tracking-tight text-white flex items-center gap-2">
+<div class="bg-paper rounded-xl p-1.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="front_hand" style="font-variation-settings: 'FILL' 1;">front_hand</span>
+</div>
+                Sawiyya
+            </div>
+</div>
+</header>
+<main class="flex-grow max-w-6xl mx-auto w-full px-6 py-12">
+<!-- Hero Section -->
+<div class="mb-16 text-center">
+<div class="inline-block bg-gold/20 text-primary-dark px-4 py-2 rounded-full font-label text-xs tracking-widest uppercase mb-4 border-2 border-gold/30">
+                Mada Innovation Award Winner
+            </div>
+<h2 class="font-headline text-4xl md:text-5xl text-primary-dark mb-4 leading-tight">
+                Privacy, Kindness, and Togetherness
+            </h2>
+<p class="text-lg text-ink/70 max-w-2xl mx-auto arabic-text">
+                Designed to be safe, supportive, and focused on your family connection.
+                <span class="block mt-1 font-bold">مصمم ليكون آمنًا وداعمًا ومركزًا على ترابط عائلتكم.</span>
+</p>
+</div>
+<!-- Bento Grid Cards -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Card 1: Local Device -->
+<div class="md:col-span-7 bg-paper rounded-3xl p-8 card-chunky flex flex-col md:flex-row gap-8 items-center shadow-xl">
+<div class="w-48 h-48 flex-shrink-0 relative">
+<img alt="Phone with Teal Shield" class="w-full h-full object-contain drop-shadow-md" src="https://lh3.googleusercontent.com/aida/AP1WRLswvwOlVCaVoCjFtp6Ot-UKC5t6GpLzRTvc05TVwkXL5btmUdBUbKZFS-50IIEs97G4bK4sUrDjfpn8pvRgqlWUgw0HAu7zLVftivEnuFmJAH4Ke-xv2zcOtlL91sZSorVcKjjJGGYHO1hLjRtM8kwjTfZYujN_fYZ0Kguwt91aSov--1YRNMLy_YdxoHfbii1csXTrh1TuawKtaugYEACsQ8N-Whj0UDpelMQEvintaSU3Ihv3CeFxyhw8"/>
+</div>
+<div class="flex flex-col justify-center text-center md:text-left">
+<h3 class="font-headline text-2xl text-primary mb-2">Everything runs on your device</h3>
+<p class="arabic-text font-bold text-xl text-ink mb-4">كل شي يتم على جهازك</p>
+<p class="text-ink/70 leading-relaxed">
+                        Your video never leaves your phone. Sawiyya processes your signs locally, ensuring your family's privacy is always the top priority. No cloud, no recordings, just learning.
+                    </p>
+</div>
+</div>
+<!-- Card 2: Teach Hands -->
+<div class="md:col-span-5 bg-paper rounded-3xl p-8 card-chunky flex flex-col items-center text-center shadow-xl">
+<div class="w-40 h-40 mb-6">
+<img alt="Hand placing dots into bowl" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLu45MPX0jVCFAC1lvGnms4QlUW-cvcUxXCar2lxX5bzTc9gGcog4QdqXDqCCdvmg89bCvMw_z9tkAsvft7ex3keCdEmht_1wxqN9Ko2fcJcrvjliJJPlfrfCNLjk1RdGjn2EpPZpkIF9gk77OBqDTTchLbR3Z4vFbuWow_7aL-XmAqsO9hyJxUCxgRFHwlDk6dL86l8PCd8u_dJope543Qcq0-4v4G4vsBEPyYmB-bAXB7bOr94c8gWlilk"/>
+</div>
+<h3 class="font-headline text-2xl text-primary mb-1">You teach it YOUR hands</h3>
+<p class="arabic-text font-bold text-xl text-ink mb-4">أنت اللي تعلّم الكاميرا يدك</p>
+<p class="text-ink/70">
+                    The AI adapts to you. By "dropping" your unique signs into our digital Majlis bowl, the system learns how you specifically move, making it easier for every family member to participate.
+                </p>
+</div>
+<!-- Card 3: Grade with Kindness -->
+<div class="md:col-span-5 bg-white rounded-3xl p-8 card-chunky flex flex-col items-center text-center shadow-xl border-2 border-gold/20">
+<div class="w-full h-24 mb-6 flex items-center justify-center">
+<img alt="Glowing Gold Power Bar" class="max-w-xs glow-gold" src="https://lh3.googleusercontent.com/aida/AP1WRLvQ7Ar5Bn2tdhnyi-d-9E_ZV7mfZcABmpgduMyBxjfSPKqGA-VBNj7MMegb5xgivxr1Ehrwynlk0uC2eZCTKuwA2ydbzdEpkslC7VqG2HYgehBZcJzAD1st9UKDdoSYcsnSXfbFoiecU0ETxfLHUPoOr1EMdCmuFvG1229HoPhgfkyphsMEGHIjnT6rR0UbwChqdJLnOhYwy4oWUtUSyXp2OzSByC6eKDAydPBnkp_22ifGn1Yi18KwyyIQ"/>
+</div>
+<h3 class="font-headline text-2xl text-primary mb-1">It grades with kindness</h3>
+<p class="arabic-text font-bold text-xl text-ink mb-4">يقيّمك بكل لطافة</p>
+<p class="text-ink/70">
+                    We don't use red "X" marks or negative buzzers. Sawiyya celebrates every attempt with gold glows and warm feedback, because learning together should always feel joyful.
+                </p>
+</div>
+<!-- Card 4: Knows Limits -->
+<div class="md:col-span-7 bg-paper rounded-3xl p-8 card-chunky flex flex-col md:flex-row-reverse gap-8 items-center shadow-xl">
+<div class="w-48 h-48 flex-shrink-0">
+<img alt="Arabic Alphabet Cluster" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLv6V3Z1VLdXMGDSITUJzw3k-rlX-GrSvpwVUlKDa3xF_TFOpDHRfj65AhiBBNdHZDTpjH93izOBKsqo9-vUSLA506fU8mCn_3KYCN5yY6g3zU9CGpU-9iIkGKFSxW7v_bIHr1DFvdbwfzJ4TWzB2Zb7WxGIwyFPYuE9bVP93dUo-qT22p1V79ibVtF3o-paquyqpKD8Wv85ii68DShsVxo3qbT3CASyyrKKGfOYD3COdhwxQfUQkcjqyv2U"/>
+</div>
+<div class="flex flex-col justify-center text-center md:text-left">
+<h3 class="font-headline text-2xl text-primary mb-2">It knows its limits</h3>
+<p class="arabic-text font-bold text-xl text-ink mb-4">يعرف حدوده</p>
+<p class="text-ink/70 leading-relaxed">
+                        The AI is great at spotting letters and single words. It won't try to guess complex poetry or fast sentences yet—we believe in being honest about what the tech can do today.
+                    </p>
+</div>
+</div>
+<!-- Card 5: Manual Override -->
+<div class="md:col-span-12 bg-white rounded-3xl p-10 card-chunky flex flex-col md:flex-row gap-10 items-center shadow-2xl border-4 border-gold">
+<div class="w-32 h-32 flex-shrink-0">
+<img alt="Gold Thumbs Up Character" class="w-full h-full object-contain transform hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida/AP1WRLvKRWEy1IzsfO8EkS7MI4GdJbYCX-1t0uXwZamCyeShqI2QoYPBpnwNsFfBRtzD7WPQLLQFldrD4xGR6cMyRilGZ0pA5T95UyzkVc_CfmbRXlpDTNEcvXZUERi8A4XK2tcD8pg7APcHR7CDsoci4YvriDEzjMNbJL6CEwVgXc2XixxA63hiQT4cOdDbMFoElDBLyGObGQ8Hm6pJKccpDeSekoFhK6WDxyVZ4o-VfAtdNe6Kyzv7HF5qRsM"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline text-3xl text-primary mb-2">You're always right about your hands</h3>
+<p class="arabic-text font-bold text-2xl text-ink mb-6">أنت أبخص بيدك</p>
+<p class="text-ink/70 text-lg mb-8">
+                        Technology isn't perfect, but you are the expert of your own home. If the AI misses a sign you know you did correctly, just tap the "I signed it right" button. We trust you over the computer.
+                    </p>
+<button class="bg-coral text-white font-headline px-8 py-4 rounded-2xl extruded-coral text-xl active:scale-95 transition-all">
+                        Let's Practice Together
+                    </button>
+</div>
+</div>
+</div>
+<!-- Footer Callout -->
+<div class="mt-20 text-center bg-primary-dark/5 p-12 rounded-[40px] border-2 border-dashed border-primary/20">
+<h4 class="font-headline text-2xl text-primary-dark mb-4">Building Bridges with Dignity</h4>
+<p class="text-ink/60 arabic-text mb-6">Sawiyya is a bridge between the hearing and the Deaf world, built with Gulf values of respect and family warmth.</p>
+<div class="flex justify-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="diversity_1">diversity_1</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-paper flex justify-around items-center px-4 pt-3 pb-8 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] rounded-t-[40px] border-t-4 border-sand">
+<button class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-8 after:h-1.5 after:bg-gold after:rounded-full">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-wider mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink/40 hover:text-coral transition-colors">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-wider mt-1">Camera</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink/40 hover:text-coral transition-colors">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-wider mt-1">Family</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink/40 hover:text-coral transition-colors">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label font-bold text-[10px] uppercase tracking-wider mt-1">Progress</span>
+</button>
+</nav>
+<!-- Footer -->
+<footer class="bg-sand w-full py-12 flex flex-col items-center gap-6 border-t-2 border-primary/10 mt-12 mb-20 md:mb-0">
+<div class="font-headline font-bold text-primary text-2xl flex items-center gap-2">
+             Sawiyya <span class="text-gold">2024</span>
+</div>
+<div class="flex flex-wrap justify-center gap-8 px-6">
+<a class="font-body text-sm text-ink/60 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Accessibility</a>
+<a class="font-body text-sm text-ink/60 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Privacy</a>
+<a class="font-body text-sm text-ink/60 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Terms</a>
+<a class="font-body text-sm text-ink/60 hover:text-primary transition-colors hover:underline underline-offset-4" href="#">Support</a>
+</div>
+<p class="font-body text-sm text-ink/40 px-6 text-center">Winner of Mada Innovation Award • Sawiyya 2024 • Powered by Togetherness</p>
+</footer>
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('.card-chunky').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const img = card.querySelector('img');
+                if (img) img.style.transform = 'scale(1.05) rotate(2deg)';
+            });
+            card.addEventListener('mouseleave', () => {
+                const img = card.querySelector('img');
+                if (img) img.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+    </script>
+</body></html>

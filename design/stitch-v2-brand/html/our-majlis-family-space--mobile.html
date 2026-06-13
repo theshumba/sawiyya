@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Our Majlis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;800&amp;family=Readex+Pro:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "Readex Pro", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Readex Pro', 'Lexend', sans-serif;
+            background-color: #F6EFE3;
+            color: #16302E;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .btn-extruded-coral {
+            box-shadow: 0 6px 0 0 #B24531;
+            transition: all 0.1s ease;
+        }
+        .btn-extruded-coral:active {
+            box-shadow: 0 2px 0 0 #B24531;
+            transform: translateY(4px);
+        }
+        .btn-extruded-teal {
+            box-shadow: 0 6px 0 0 #0A4F4C;
+            transition: all 0.1s ease;
+        }
+        .btn-extruded-teal:active {
+            box-shadow: 0 2px 0 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+        .card-chunky {
+            border: 3px solid rgba(15, 110, 106, 0.15);
+        }
+        .meeting-curve {
+            clip-path: ellipse(100% 100% at 50% 100%);
+        }
+        .glow-gold {
+            filter: drop-shadow(0 0 12px rgba(230, 178, 76, 0.4));
+        }
+        .active-ring {
+            box-shadow: 0 0 0 4px #0F6E6A;
+        }
+        /* Custom scrollbar for horizontal profiles */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="pb-32">
+<!-- TopAppBar from JSON Logic -->
+<header class="bg-primary dark:bg-primary-dark rounded-b-xl border-b-4 border-primary-dark shadow-md flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="text-paper hover:opacity-90 active:translate-y-0.5 transition-all">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<h1 class="font-headline text-2xl font-bold tracking-tight text-paper">Family · العائلة</h1>
+</div>
+<div class="relative group">
+<div class="w-10 h-10 rounded-xl overflow-hidden border-2 border-paper active:scale-95 transition-transform cursor-pointer">
+<img class="w-full h-auto" data-alt="Close up of a friendly illustrated woman's avatar with a modern hearing aid from the Sawiyya character set. Deep teal outlines, warm skin tones, and bright playful colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+</div>
+</header>
+<main class="max-w-md mx-auto px-6 py-8 space-y-10">
+<!-- Section 1: Household Streak Hearth -->
+<section class="relative">
+<div class="bg-paper p-8 rounded-3xl card-chunky overflow-hidden relative">
+<!-- Background decoration -->
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-gold/10 rounded-full blur-3xl"></div>
+<div class="flex flex-col items-center text-center space-y-4">
+<div class="w-48 h-48 glow-gold">
+<img alt="Streak Flame" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL4piH2Lm7Aza5YQXWecVd6Lge7DbP6n3Vpgn_eTxqXHX9WvGc7agQgSxedEwlwXP04CHxASXQve2Pfzfr0G6X9fl5r07yjHoRsIzHSdPy4Zr61hMd1dpex9g9yDuXC8LFOFjRbzo6omdaTracQxHgoY97T2oq0r1uVk-2nztQuy9Onn7C9jopLSM9-UzmFeNho8vce2m_Ojv-b1BMnygDpA5H5J4qWNq0hbxT-I3xYOeV7kesALrUjT3GqQ5eAgIr3RoK-MitE2iz"/>
+</div>
+<div class="space-y-1">
+<h2 class="font-display text-5xl font-extrabold text-primary">2</h2>
+<p class="font-headline text-lg font-bold text-primary-dark">2/3 signed today</p>
+</div>
+<div class="flex -space-x-4">
+<div class="w-12 h-12 rounded-full border-4 border-paper overflow-hidden bg-sand">
+<img class="w-full h-full object-cover -translate-x-1" data-alt="Portrait of a young smiling girl avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-paper overflow-hidden bg-sand">
+<img class="w-full h-full object-cover translate-x-1" data-alt="Portrait of a smiling man with a beard avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-paper overflow-hidden bg-sand ring-4 ring-primary/20">
+<img class="w-full h-full object-cover scale-150" data-alt="Portrait of a woman wearing a hearing aid." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Sparkle -->
+<div class="absolute -top-4 -right-2 text-gold animate-pulse">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+</section>
+<!-- Section 2: Profile Switcher -->
+<section class="space-y-4">
+<h3 class="font-headline text-xl font-bold px-1">Family Members</h3>
+<div class="flex gap-4 overflow-x-auto no-scrollbar py-2 -mx-2 px-2">
+<!-- Profile 1: Layla -->
+<div class="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-20 h-20 rounded-3xl bg-paper card-chunky p-1 group-active:scale-95 transition-all flex items-center justify-center overflow-hidden">
+<img class="w-full h-auto object-cover" data-alt="Avatar of Layla, a smiling young girl." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-ink">Layla</span>
+</div>
+<!-- Profile 2: ACTIVE (The Mom) -->
+<div class="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-20 h-20 rounded-3xl bg-paper active-ring p-1 relative transition-all flex items-center justify-center overflow-hidden">
+<img class="w-full h-auto object-cover scale-125" data-alt="Active profile: woman with a hearing aid." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+<div class="absolute -bottom-1 -right-1 bg-primary text-paper rounded-full w-6 h-6 flex items-center justify-center border-2 border-paper">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+</div>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-primary">Me</span>
+</div>
+<!-- Profile 3: Dad -->
+<div class="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-20 h-20 rounded-3xl bg-paper card-chunky p-1 group-active:scale-95 transition-all flex items-center justify-center overflow-hidden">
+<img class="w-full h-auto object-cover scale-110" data-alt="Avatar of a diverse man with a beard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-ink">Yousef</span>
+</div>
+<!-- Profile 4: Brother -->
+<div class="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-20 h-20 rounded-3xl bg-paper card-chunky p-1 group-active:scale-95 transition-all flex items-center justify-center overflow-hidden">
+<img class="w-full h-auto object-cover" data-alt="Avatar of a playful young boy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMvNIltQZNhTGNmtVg1JXeaiBoQt6m-YEWLl7pcnxpefQCIasPIeD9I7V-U1xyY8Evyih0AS6k6Y1BYUfU8Z_H_5GCScATXiZdeHZzsdVJTPXmTu-nYro8BFwOG3VTZg7TbHE6-IGPshJXRcm3137h4_Ph5oN6E16SXjyDw8sGP2gAnkH4B5o4YAShbWJvevDsQzpKekJKz_RK8QrbboY0IVGHHpFn3vwOn0OdEvb6C2HkEycuJ0FgTV0AXqFalskj5i8V3PcWl10"/>
+</div>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-ink">Ali</span>
+</div>
+<!-- Add New -->
+<div class="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-20 h-20 rounded-3xl border-4 border-dashed border-primary/20 flex items-center justify-center group-hover:border-primary/40 transition-colors">
+<span class="material-symbols-outlined text-primary/40">add</span>
+</div>
+<span class="font-label text-xs font-bold uppercase tracking-widest text-ink/40">Add</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Layla needs this week -->
+<section class="space-y-6">
+<div class="flex justify-between items-end px-1">
+<div class="space-y-1">
+<span class="bg-coral text-paper px-3 py-1 rounded-full text-[10px] font-label font-bold uppercase tracking-widest">Focus</span>
+<h3 class="font-headline text-2xl font-bold text-ink">Layla needs this week</h3>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<!-- Card 1 -->
+<div class="bg-paper p-3 rounded-2xl card-chunky relative flex flex-col items-center gap-2 group cursor-pointer hover:bg-sand transition-colors">
+<div class="absolute top-2 right-2 text-coral">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="aspect-square w-full">
+<img class="w-full h-full object-contain" data-alt="Illustrated hand signing 'Milk'." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZCmd6grWIXWIZo_6B2v6wxAOSHcuzf0_wSFeTK5Evnn3f1hjZxrFisHOZbAKa1x6Sgj-J0G7uFuQPmHu2ALuNZUwLp5mB5AHtcUmYmJVzqNA_Sn1CreCsrXcIia4G3KQiHFIF_rvMWscKNZnKw1XLuV60jnny2FHt4R-fEUqsD6kGTsNkn6lv3c9wLt61G2ac9-V7JnaSZ32YCd-0RBEeeFJhLBfoId_5u_aK_MSb29C7qVaYw9tDxiN9GpScLcr2AsBjhjFImj5m"/>
+</div>
+<span class="font-label text-xs font-bold text-primary-dark uppercase">Milk</span>
+</div>
+<!-- Card 2 -->
+<div class="bg-paper p-3 rounded-2xl card-chunky relative flex flex-col items-center gap-2 group cursor-pointer hover:bg-sand transition-colors">
+<div class="absolute top-2 right-2 text-coral">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="aspect-square w-full">
+<img class="w-full h-full object-contain" data-alt="Illustrated hand signing 'Play'." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZCmd6grWIXWIZo_6B2v6wxAOSHcuzf0_wSFeTK5Evnn3f1hjZxrFisHOZbAKa1x6Sgj-J0G7uFuQPmHu2ALuNZUwLp5mB5AHtcUmYmJVzqNA_Sn1CreCsrXcIia4G3KQiHFIF_rvMWscKNZnKw1XLuV60jnny2FHt4R-fEUqsD6kGTsNkn6lv3c9wLt61G2ac9-V7JnaSZ32YCd-0RBEeeFJhLBfoId_5u_aK_MSb29C7qVaYw9tDxiN9GpScLcr2AsBjhjFImj5m"/>
+</div>
+<span class="font-label text-xs font-bold text-primary-dark uppercase">Play</span>
+</div>
+<!-- Card 3 -->
+<div class="bg-paper p-3 rounded-2xl card-chunky relative flex flex-col items-center gap-2 group cursor-pointer hover:bg-sand transition-colors">
+<div class="absolute top-2 right-2 text-coral">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<div class="aspect-square w-full">
+<img class="w-full h-full object-contain" data-alt="Illustrated hand signing 'Cookie'." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZCmd6grWIXWIZo_6B2v6wxAOSHcuzf0_wSFeTK5Evnn3f1hjZxrFisHOZbAKa1x6Sgj-J0G7uFuQPmHu2ALuNZUwLp5mB5AHtcUmYmJVzqNA_Sn1CreCsrXcIia4G3KQiHFIF_rvMWscKNZnKw1XLuV60jnny2FHt4R-fEUqsD6kGTsNkn6lv3c9wLt61G2ac9-V7JnaSZ32YCd-0RBEeeFJhLBfoId_5u_aK_MSb29C7qVaYw9tDxiN9GpScLcr2AsBjhjFImj5m"/>
+</div>
+<span class="font-label text-xs font-bold text-primary-dark uppercase">Cookie</span>
+</div>
+</div>
+<button class="w-full py-5 bg-coral text-paper rounded-3xl font-headline text-lg font-bold btn-extruded-coral flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">flag</span>
+                Flag signs we need
+            </button>
+</section>
+<!-- Section 4: Signs we can all do -->
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold px-1">Signs we can all do</h3>
+<div class="bg-primary/5 rounded-3xl p-8 card-chunky overflow-hidden">
+<div class="flex justify-center">
+<img class="max-w-full h-auto drop-shadow-lg" data-alt="A honeycomb mosaic of gold tiles featuring various handshapes of sign language, with some empty dotted outline tiles for growth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAivi5XRhfUxn0gEfWMZhACvp-y6zPFe8Dtk7gh1sG3M-i5KEUzDQx0pXkGuPdyp3WTLxEmA0_hFMhozJxDHqWzPYGYUFbUFiDh2JKsVqYjlJqnPnKIhzoczvAplWI83oUTquIG6LQ0k-frmXJUpHzZdfD5MTXzvwgwEv_DxHb4n6WdFwc6rcF0vLoz0CPsFRjiqn7OzqaOHj3vUAMOuLVY91vdCNhZ8RTb1olIbV75bSFdbrDhS9sTumbkxP3QH0Nx_OC8KXpC4cMX"/>
+</div>
+<div class="mt-8 text-center space-y-2">
+<p class="font-body text-ink/70 italic">"Your shared language, growing."</p>
+<div class="h-2 w-full bg-sand rounded-full overflow-hidden">
+<div class="h-full w-[65%] bg-gold rounded-full relative">
+<div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+</div>
+</div>
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-primary-dark">65% to Family Milestone</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar from JSON Logic -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-paper dark:bg-ink rounded-t-3xl border-t-2 border-sand dark:border-primary-dark shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-ink/50 dark:text-sand/50 hover:text-primary transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">home</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Home</span>
+</a>
+<!-- Camera -->
+<a class="flex flex-col items-center justify-center text-ink/50 dark:text-sand/50 hover:text-primary transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">videocam</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Camera</span>
+</a>
+<!-- Family (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-3xl px-4 py-2 border-b-4 border-gold active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Family</span>
+</a>
+<!-- Progress -->
+<a class="flex flex-col items-center justify-center text-ink/50 dark:text-sand/50 hover:text-primary transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">leaderboard</span>
+<span class="font-label font-bold uppercase tracking-wider text-[10px]">Progress</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for profile selection
+        document.querySelectorAll('.group.cursor-pointer').forEach(profile => {
+            profile.addEventListener('click', function() {
+                // Remove active ring from all
+                document.querySelectorAll('.active-ring').forEach(el => {
+                    el.classList.remove('active-ring');
+                    el.classList.add('card-chunky');
+                    const check = el.querySelector('.bg-primary');
+                    if (check) check.remove();
+                });
+                
+                // Add active ring to selected
+                const inner = this.querySelector('div');
+                if (inner && !inner.classList.contains('border-dashed')) {
+                    inner.classList.add('active-ring');
+                    inner.classList.remove('card-chunky');
+                    
+                    const checkmark = document.createElement('div');
+                    checkmark.className = "absolute -bottom-1 -right-1 bg-primary text-paper rounded-full w-6 h-6 flex items-center justify-center border-2 border-paper";
+                    checkmark.innerHTML = '<span class="material-symbols-outlined text-[14px] font-bold">check</span>';
+                    inner.appendChild(checkmark);
+                }
+            });
+        });
+
+        // Add some "juice" - random sparkle animation
+        setInterval(() => {
+            const sparkles = document.querySelectorAll('.animate-pulse');
+            sparkles.forEach(s => {
+                s.style.transform = `scale(${0.8 + Math.random() * 0.4}) rotate(${Math.random() * 20}deg)`;
+            });
+        }, 2000);
+    </script>
+</body></html>

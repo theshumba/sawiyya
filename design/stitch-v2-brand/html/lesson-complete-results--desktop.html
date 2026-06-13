@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lesson Complete | Sawiyya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&amp;family=Lexend:wght@400;500;700&amp;family=Readex+Pro:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        'coral-dark': '#C04D36',
+                        gold: '#E6B24C',
+                        'gold-dark': '#C59639',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ['Rubik', 'sans-serif'],
+                        display: ['Rubik', 'sans-serif'],
+                        body: ['Lexend', 'Readex Pro', 'sans-serif'],
+                        label: ['Rubik', 'sans-serif']
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', 'Readex Pro', sans-serif;
+            background-color: #F6EFE3;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #C04D36;
+        }
+        .extruded-coral:active {
+            box-shadow: 0 2px 0 0 #C04D36;
+            transform: translateY(4px);
+        }
+        .extruded-card-gold {
+            box-shadow: 0 4px 0 0 #C59639;
+        }
+        .extruded-card-teal {
+            box-shadow: 0 4px 0 0 #0A4F4C;
+        }
+        .extruded-card-coral {
+            box-shadow: 0 4px 0 0 #C04D36;
+        }
+        .extruded-card-white {
+            box-shadow: 0 4px 0 0 #E5E1D8;
+        }
+        .glow-gold {
+            filter: drop-shadow(0 0 15px rgba(230, 178, 76, 0.4));
+        }
+        .confetti-particle {
+            position: absolute;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-ink overflow-x-hidden">
+<!-- Top Navigation (Shell Implementation) -->
+<header class="bg-primary text-paper fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="bg-paper p-1 rounded-lg">
+<div class="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+<span class="text-paper font-bold text-xl">س</span>
+</div>
+</div>
+<span class="font-headline text-2xl font-bold tracking-tight">Sawiyya</span>
+</div>
+<div class="flex gap-4 items-center">
+<button class="hover:opacity-90 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-paper text-2xl">settings</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 max-w-4xl mx-auto px-6 flex flex-col items-center">
+<!-- Hero Celebration Section -->
+<section class="relative w-full flex flex-col items-center mb-12">
+<div class="absolute inset-0 flex items-center justify-center -z-10 overflow-visible">
+<!-- Gold Gradient Burst Effect -->
+<div class="w-[500px] h-[500px] bg-gradient-radial from-gold/30 to-transparent rounded-full animate-pulse"></div>
+<div class="absolute w-[600px] h-[600px] border-[40px] border-gold/10 rounded-full"></div>
+</div>
+<!-- Achievement Illustration -->
+<div class="w-64 h-64 mb-6 relative">
+<img alt="Achievement Trophy" class="w-full h-full object-contain glow-gold drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida/AP1WRLszfU5TDhuLXNroE8RRausi4pMaRJh-u5zI-MOzcEgJqgLexk-D0LQhIT12vB6Ic_ieD1qV46UaOlJnpu_rGsrXl6Hgusv3ozZruOAcGRhhlvSGAxn2R5MGOCG29crAR2A1_aKTL3SixYQpPDxVhvmksnWV8rbqCpifjLXyodElFNVw83kum8MBNt6LBpE_DmCu5ui31u5B4k8i3KQSsVeOsz4FC1xKGPJpZU104d8UBSKdhWn_3bJeJZ4C"/>
+<!-- Sparkles -->
+<span class="material-symbols-outlined absolute -top-4 -right-4 text-gold text-4xl animate-bounce" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined absolute top-12 -left-8 text-gold text-2xl animate-pulse" style="font-variation-settings: 'FILL' 1;">spark</span>
+</div>
+<h1 class="font-headline text-4xl md:text-5xl font-bold text-center mb-2">
+                Lesson complete! · اكتمل الدرس
+            </h1>
+<p class="text-ink/60 font-body text-lg font-medium">You’re getting closer to a full conversation!</p>
+</section>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
+<!-- XP Card -->
+<div class="bg-gold text-white p-6 rounded-3xl extruded-card-gold flex flex-col items-center justify-center text-center">
+<span class="font-label text-xs uppercase tracking-widest font-bold mb-2 opacity-90">XP Earned</span>
+<span class="font-display text-5xl font-bold">+85 XP</span>
+<div class="mt-3 bg-white/20 px-3 py-1 rounded-full text-sm font-bold">New Level Close!</div>
+</div>
+<!-- Accuracy Card -->
+<div class="bg-primary text-paper p-6 rounded-3xl extruded-card-teal flex flex-col items-center justify-center text-center">
+<span class="font-label text-xs uppercase tracking-widest font-bold mb-2 opacity-90">Accuracy</span>
+<span class="font-display text-5xl font-bold">90%</span>
+<div class="mt-3 text-sm font-bold text-paper/80">Kind Accuracy</div>
+</div>
+<!-- Streak Card -->
+<div class="bg-coral text-paper p-6 rounded-3xl extruded-card-coral flex flex-col items-center justify-center text-center relative overflow-hidden">
+<img alt="Streak Flame" class="w-16 h-16 mb-1" src="https://lh3.googleusercontent.com/aida/AP1WRLvGtBTIs5Z_s6JXXjT2DT_tazCITIyE5UKQd0dAzD3GxOKNB3vav-e1p2VLX1l6QS5_NOxNFqIps5nEUFideui-LearMfiypNVILnAEo5Gi7M_Ms7xLKQnDYdveXrvmhxXSHoFridLPIpyTdQP9lDGXzWSitFYtfULYQWgxUJBeb_1UdcaveHQ73sIn3udf16m8FxQe9rGvUCGU4HtfTgJ_T7s-z_berLRa6yhp2jvqoM1OtIrxj5R5GBRI"/>
+<span class="font-display text-5xl font-bold leading-tight">4 days</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold opacity-90">Active Streak</span>
+</div>
+</div>
+<!-- Signs Learned Section -->
+<section class="w-full mb-16">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline text-2xl font-bold text-primary">Signs you learned · لغة الإشارة</h2>
+<div class="h-1 flex-grow mx-4 bg-sand border-b-2 border-ink/5"></div>
+</div>
+<div class="flex flex-nowrap md:grid md:grid-cols-4 gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<!-- Mini Card 1: I Love You -->
+<div class="min-w-[160px] bg-white p-4 rounded-3xl border-2 border-ink/5 extruded-card-white flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-3">
+<img alt="I Love You Sign" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLsZ2bB-ahCNHFC3CKrqa_AB1KLtPr357v47Hp9-IYZi1DqBJ52rwWzm_5YI9ySWLg6763HjJOkLSP8H9e_gkxQYpe1xKfFdR2KuT7tGc6t2ZByk7DGgucpxKpCY-5lskjsOukCOsVQuZuCGr29sChKiCeuIZgHk8Z-KiGtgsN0vXT-rOAlXxZNdGoG2CWtkIFlYQCOL2Bv02Z0uC2uZYnBG_ZR0Zxymn4jNr7HtvJkTnxyeviOicIP19jU"/>
+</div>
+<p class="font-bold text-primary text-sm">I Love You</p>
+<p class="text-ink/60 text-xs font-body">أحبك</p>
+</div>
+<!-- Mini Card 2: Yes -->
+<div class="min-w-[160px] bg-white p-4 rounded-3xl border-2 border-ink/5 extruded-card-white flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-3">
+<img alt="Yes Sign" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvEKKoJLqgC866tYRiKoVSaBlbSPQWWg-5XtxNJOA_8iU_GgesG8nvEMTPysrx37f2BJNk6l3AlU-xea3V2rH59IjlVfqrT7g7rlN7ZOBuhDcYrsG9S9s4VsVwe42jX8982L5H8me3AleZksDzsUvBGslXdYfmajZ37B6giDgCV_IUSvp7CDhJ-HbRcJk_d1nVbc2V8c-6ZSdN2oY1kmxAx4PjUN3mDhamZqzrp3HbgjkEByN5e-7QPrF-i"/>
+</div>
+<p class="font-bold text-primary text-sm">Yes</p>
+<p class="text-ink/60 text-xs font-body">نعم</p>
+</div>
+<!-- Mini Card 3: Sleep -->
+<div class="min-w-[160px] bg-white p-4 rounded-3xl border-2 border-ink/5 extruded-card-white flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-3 relative">
+<img alt="Sleep Sign" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLuOYavgE9owlxKQtpUDtOJyEwIKpNz6VFkuOv2igby8M9CT2HNQJKhSARameRHpJ1LZCqoYpTpjULHPTKMxx0hz_IaSZSnhfgRy1Mc_Nkxu7gxHRO_V6gJ-htXvvN7DThBS-UTKFb5-eu_mM_B4pEbXLvhseRs7gIHdzcscoRiokNyvQaIuvDVdk_GIjHx_rIB3GLqXoUJiMZxrYUt8JgkGu1VYbSzKQIJnoUQGwhuN_ee48RK30EXkVBbU"/>
+</div>
+<p class="font-bold text-primary text-sm">Sleep</p>
+<p class="text-ink/60 text-xs font-body">نوم</p>
+</div>
+<!-- Mini Card 4: Wave/Hello -->
+<div class="min-w-[160px] bg-white p-4 rounded-3xl border-2 border-ink/5 extruded-card-white flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-3">
+<img alt="Hello Sign" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLsLzgwo74_5GUG6VprrTFBScIRr_rGiLGC1SH2zhW8chZfLvQ-QBBJ27OMzAjArfypD3Oomms7lB10ytB9u3-eE6clATTfTRIYXexBOnpEQk6aWAC3_p12p-c3T_8ytbklqoGPBzWjbsSvnsD0ZRjvSqwLGwd6YVTwhwNpBaE0t0q874rN8jj0ILEpmOm7GpmFSliHS6YJpsxKjlt3krRsYMYV9pCl5u0IOEstLzGeayUv3s1nRBU5hk_o"/>
+</div>
+<p class="font-bold text-primary text-sm">Hello</p>
+<p class="text-ink/60 text-xs font-body">مرحباً</p>
+</div>
+</div>
+</section>
+<!-- CTAs -->
+<div class="flex flex-col items-center gap-4 w-full max-w-sm">
+<button class="w-full bg-coral text-white py-5 rounded-2xl font-headline text-xl font-bold extruded-coral transition-all duration-100 flex items-center justify-center gap-3">
+                Continue · استمر
+                <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">arrow_forward</span>
+</button>
+<button class="w-full py-4 text-primary font-headline font-bold hover:bg-primary/5 transition-colors rounded-2xl flex items-center justify-center gap-2 group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">videocam</span>
+                Practice with camera · تدرب بالكاميرا
+            </button>
+</div>
+</main>
+<!-- Global Decoration Elements -->
+<div class="fixed bottom-0 left-0 w-full pointer-events-none -z-10">
+<svg class="w-full" fill="none" viewbox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 120H1440V40C1440 40 1080 120 720 120C360 120 0 40 0 40V120Z" fill="#FBF7EF"></path>
+</svg>
+</div>
+<script>
+        // Simple confetti effect
+        function createConfetti() {
+            const colors = ['#E8654C', '#0F6E6A', '#E6B24C', '#F6EFE3'];
+            for(let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-particle';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '2px';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            createConfetti();
+        });
+    </script>
+</body></html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Privacy · Sawiyya</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;900&amp;family=Lexend:wght@300;400;600&amp;family=Readex+Pro:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "Readex Pro", "sans-serif"],
+                        label: ["Rubik", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Sawiyya Extruded Button Style */
+        .btn-extruded-coral {
+            @apply relative inline-flex items-center justify-center font-headline font-bold text-white bg-coral rounded-2xl px-8 py-4 transition-all duration-75 active:translate-y-1 active:shadow-none;
+            box-shadow: 0 6px 0 0 #B54D38;
+        }
+        
+        .btn-extruded-teal {
+            @apply relative inline-flex items-center justify-center font-headline font-bold text-primary bg-primary/10 rounded-2xl px-8 py-4 transition-all duration-75 active:translate-y-1 active:shadow-none border-2 border-primary;
+            box-shadow: 0 6px 0 0 #0A4F4C;
+        }
+
+        .chunky-card {
+            @apply bg-paper border-4 border-primary/10 rounded-3xl p-8 shadow-sm transition-transform hover:scale-[1.01];
+        }
+
+        .meeting-curve {
+            clip-path: ellipse(100% 100% at 50% 100%);
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 h-20 bg-sand dark:bg-[#16302E] border-b-4 border-[#0F6E6A]/10 flex justify-between items-center px-8 z-50">
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/5 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-primary text-3xl">arrow_back</span>
+</button>
+<h1 class="text-primary font-headline font-black text-2xl tracking-tight">Privacy · الخصوصية</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-4">
+<button class="material-symbols-outlined text-primary p-2 hover:bg-primary/5 rounded-full transition-transform active:scale-90">filter_list</button>
+<button class="material-symbols-outlined text-primary p-2 hover:bg-primary/5 rounded-full transition-transform active:scale-90">history</button>
+</div>
+<div class="bg-primary px-4 py-2 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-paper font-headline font-bold">Sign Dictionary</span>
+</div>
+</div>
+</header>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="bg-primary text-paper py-24 relative overflow-hidden">
+<div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
+<div class="max-w-2xl text-center md:text-left">
+<div class="inline-block bg-gold/20 text-gold px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
+                        Dignity &amp; Trust
+                    </div>
+<h2 class="font-headline text-5xl md:text-7xl font-black leading-tight mb-6">
+                        Your hands stay home <br/>
+<span class="text-gold">يداك تبقى في بيتك</span>
+</h2>
+<p class="text-xl md:text-2xl text-paper/80 font-light leading-relaxed max-w-xl">
+                        Privacy is our foundation as a <span class="text-gold font-bold">Mada Innovation Award</span> winner. We built Sawiyya to teach, not to track.
+                    </p>
+</div>
+<div class="w-full max-w-md animate-bounce-slow">
+<img alt="Privacy Shield Illustration" class="w-full h-auto drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida/AP1WRLuzxMQlM2-_H6rKIXV0FKD8SESFwcVPyEVEKiS2dNYFVy7XccvwCzWBW0IIAwOGjyl4IghjxIh98amLtVZ41GYpdLO4CnafH90F31oaKb7YscPYguwu2wkqoup5dd5_nnx5OQo2gVNanc6ZJ3428pEiMu7-Zb2ZMmwGPjyV4pNsnNr3FW3ECFEHAQ2Sp33QehcpvXQqnTWoT6BKAghEs4YoSJNOl5JactwMKK41MPGInwYNd5SY1pG0v4c"/>
+</div>
+</div>
+<!-- Abstract background shapes -->
+<div class="absolute -bottom-1 left-0 w-full overflow-hidden leading-none">
+<svg class="relative block w-full h-24 text-sand fill-current" preserveaspectratio="none" viewbox="0 0 1200 120">
+<path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5,73.84-4.36,147.54,16.88,218.2,35.26,69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+<path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5V0Z" opacity=".5">
+<path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+</path></svg>
+</div>
+</section>
+<!-- Content Section -->
+<section class="py-20 px-6 container mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Card 1 -->
+<div class="chunky-card group flex flex-col gap-6">
+<div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">videocam_off</span>
+</div>
+<div>
+<h3 class="font-headline text-2xl font-bold mb-4">No video ever leaves your device</h3>
+<p class="text-ink/70 leading-relaxed text-lg">
+                            Sawiyya uses advanced local machine learning to recognize your signs. Your camera feed is processed in real-time in temporary memory and is <span class="font-bold text-primary">never uploaded, stored, or shared</span> with any server.
+                        </p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="chunky-card group flex flex-col gap-6">
+<div class="w-16 h-16 bg-gold/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-gold text-4xl" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+<div>
+<h3 class="font-headline text-2xl font-bold mb-4">No account, no server — nothing to leak</h3>
+<p class="text-ink/70 leading-relaxed text-lg">
+                            We don't ask for your name, email, or phone number. Your progress is tied to your physical device. If we don't have your data, it can't be stolen. This is our "Privacy by Design" promise.
+                        </p>
+</div>
+</div>
+<!-- Card 3 (What we keep) -->
+<div class="chunky-card md:col-span-2 flex flex-col md:flex-row items-center gap-12 bg-white">
+<div class="flex-1 space-y-6 order-2 md:order-1">
+<h3 class="font-headline text-3xl font-black">What we keep on your device</h3>
+<p class="text-ink/70 text-lg">To provide the best learning experience, we store a tiny amount of data strictly on your phone:</p>
+<ul class="space-y-4">
+<li class="flex items-center gap-4 bg-sand/50 p-4 rounded-2xl border-2 border-primary/5">
+<span class="w-10 h-10 bg-gold rounded-full flex items-center justify-center text-white font-black">1</span>
+<span class="font-bold text-lg">Progress data:</span> <span class="text-ink/60">Unlocked signs, XP, and your daily streak.</span>
+</li>
+<li class="flex items-center gap-4 bg-sand/50 p-4 rounded-2xl border-2 border-primary/5">
+<span class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-black">2</span>
+<span class="font-bold text-lg">Local Cache:</span> <span class="text-ink/60">Temporary files to make the app run faster.</span>
+</li>
+</ul>
+</div>
+<div class="flex-1 flex gap-4 justify-center order-1 md:order-2">
+<div class="w-1/2 max-w-[200px]">
+<img alt="Device with shield" class="w-full h-auto" src="https://lh3.googleusercontent.com/aida/AP1WRLswvwOlVCaVoCjFtp6Ot-UKC5t6GpLzRTvc05TVwkXL5btmUdBUbKZFS-50IIEs97G4bK4sUrDjfpn8pvRgqlWUgw0HAu7zLVftivEnuFmJAH4Ke-xv2zcOtlL91sZSorVcKjjJGGYHO1hLjRtM8kwjTfZYujN_fYZ0Kguwt91aSov--1YRNMLy_YdxoHfbii1csXTrh1TuawKtaugYEACsQ8N-Whj0UDpelMQEvintaSU3Ihv3CeFxyhw8"/>
+</div>
+<div class="w-1/2 max-w-[200px]">
+<img alt="Arabic alphabet" class="w-full h-auto" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
+</div>
+</div>
+</div>
+<!-- Card 4 (Erase) -->
+<div class="chunky-card md:col-span-2 flex flex-col md:flex-row items-center justify-between gap-8 border-gold/30 bg-gold/5">
+<div class="max-w-xl">
+<h3 class="font-headline text-2xl font-bold mb-4">Erase everything</h3>
+<p class="text-ink/70 leading-relaxed text-lg">
+                            You are in total control. One tap clears all your progress, XP, and settings from this device. This action is permanent and cannot be undone.
+                        </p>
+</div>
+<button class="btn-extruded-teal min-w-[240px]">
+<span class="material-symbols-outlined mr-2">delete_forever</span>
+                        Clear Local Data
+                    </button>
+</div>
+</div>
+</section>
+<!-- Certifications/Awards -->
+<section class="py-12 bg-white/50 border-y-4 border-primary/5">
+<div class="container mx-auto px-6 text-center">
+<p class="font-headline font-bold uppercase tracking-widest text-primary/40 mb-8">Recognized for Excellence</p>
+<div class="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-2">award_star</span>
+<span class="font-headline font-black text-sm">MADA INNOVATION</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-2">verified_user</span>
+<span class="font-headline font-black text-sm">E2E ENCRYPTED</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-2">gavel</span>
+<span class="font-headline font-black text-sm">GDPR COMPLIANT</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary pt-20 pb-10 text-paper px-6 overflow-hidden relative">
+<div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
+<div class="md:col-span-2">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 bg-paper rounded-2xl flex items-center justify-center">
+<span class="text-primary font-headline font-black text-2xl">س</span>
+</div>
+<h3 class="font-headline text-3xl font-black tracking-tight">Sawiyya · سويّة</h3>
+</div>
+<p class="text-paper/70 text-lg leading-relaxed max-w-md">
+                    Teaching the world to sign, one family at a time. Empowering communication between hearing families and Deaf children.
+                </p>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold mb-6 text-gold uppercase tracking-widest">Resources</h4>
+<ul class="space-y-4 font-bold">
+<li><a class="hover:text-gold transition-colors" href="#">Dictionary</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Lesson Map</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Support</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline text-lg font-bold mb-6 text-gold uppercase tracking-widest">Community</h4>
+<div class="flex gap-4">
+<a class="w-12 h-12 rounded-full border-2 border-paper/20 flex items-center justify-center hover:bg-gold hover:border-gold transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="w-12 h-12 rounded-full border-2 border-paper/20 flex items-center justify-center hover:bg-gold hover:border-gold transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="container mx-auto mt-20 pt-10 border-t border-paper/10 flex flex-col md:flex-row justify-between items-center gap-6 text-paper/50 font-bold">
+<p>© 2024 Sawiyya. All rights reserved.</p>
+<div class="flex items-center gap-8">
+<span>Terms of Service</span>
+<span class="text-gold">Privacy Policy</span>
+<span>Accessibility</span>
+</div>
+</div>
+<!-- Decorative Foot Background -->
+<div class="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 opacity-10">
+<span class="font-headline font-black text-[30rem] leading-none">س</span>
+</div>
+</footer>
+<!-- SideNavBar (from JSON, adapted for page context) -->
+<nav class="fixed left-0 top-0 h-full flex flex-col py-8 z-40 bg-[#0F6E6A] dark:bg-[#0A4F4C] text-[#F6EFE3] font-body text-body font-bold text-lg h-screen w-72 rounded-r-[40px] border-r-4 border-[#0A4F4C] shadow-xl -translate-x-full lg:translate-x-0 transition-transform duration-300">
+<div class="px-8 mb-12">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-[#FBF7EF] rounded-2xl flex items-center justify-center shadow-lg">
+<span class="text-[#0F6E6A] font-headline font-black text-2xl">س</span>
+</div>
+<div>
+<h2 class="font-headline text-2xl font-bold text-[#FBF7EF] tracking-tight">Sawiyya</h2>
+<p class="text-[#F6EFE3]/60 text-sm">سويّة</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Home -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<!-- Camera -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span>Camera</span>
+</a>
+<!-- Family -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span>Family</span>
+</a>
+<!-- Progress -->
+<a class="flex items-center gap-4 text-[#FBF7EF] p-4 mx-2 hover:bg-[#0A4F4C] rounded-full transition-all hover:scale-105" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span>Progress</span>
+</a>
+<!-- Settings (Active for Privacy) -->
+<a class="flex items-center gap-4 bg-[#F6EFE3] text-[#0F6E6A] rounded-full p-4 mx-2 shadow-[0_4px_0_0_#E6B24C]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="px-8 mt-auto">
+<div class="p-4 bg-[#0A4F4C] rounded-3xl border-2 border-white/10 text-center">
+<p class="text-xs uppercase tracking-widest text-gold font-black mb-2">Daily Streak</p>
+<div class="flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="text-2xl font-headline font-black">12</span>
+</div>
+</div>
+</div>
+</nav>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.active\\:translate-y-1').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.boxShadow = 'none';
+            });
+            button.addEventListener('mouseup', () => {
+                const isTeal = button.classList.contains('btn-extruded-teal');
+                button.style.boxShadow = isTeal ? '0 6px 0 0 #0A4F4C' : '0 6px 0 0 #B54D38';
+            });
+        });
+    </script>
+</body></html>

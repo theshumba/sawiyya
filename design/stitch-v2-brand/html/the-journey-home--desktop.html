@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - The Journey</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&amp;family=Lexend:wght@400;700&amp;family=Readex+Pro:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F6E6A',
+                        'primary-dark': '#0A4F4C',
+                        ink: '#16302E',
+                        coral: '#E8654C',
+                        gold: '#E6B24C',
+                        sand: '#F6EFE3',
+                        paper: '#FBF7EF',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.5rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        headline: ["Rubik", "sans-serif"],
+                        display: ["Rubik", "sans-serif"],
+                        body: ["Lexend", "sans-serif"],
+                        arabic: ["Readex Pro", "sans-serif"],
+                        label: ["Rubik", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Lexend', sans-serif; background-color: #F6EFE3; }
+        .font-headline { font-family: 'Rubik', sans-serif; }
+        .font-arabic { font-family: 'Readex Pro', sans-serif; }
+        
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #B24632;
+        }
+        .extruded-coral:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #B24632;
+        }
+        
+        .extruded-gold {
+            box-shadow: 0 6px 0 0 #C49338;
+        }
+
+        .journey-node {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .journey-node:hover {
+            transform: scale(1.1);
+        }
+
+        .pulse-coral {
+            animation: pulse-coral 2s infinite;
+        }
+        @keyframes pulse-coral {
+            0% { box-shadow: 0 0 0 0 rgba(232, 101, 76, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(232, 101, 76, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(232, 101, 76, 0); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen text-ink overflow-hidden">
+<!-- Left Sidebar: SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 p-6 bg-sand border-r-4 border-primary/20 z-50 flex flex-col">
+<div class="mb-10 flex items-center gap-3">
+<img alt="Sawiyya Seen Logo - White on Teal Squircle" class="w-12 h-12 rounded-2xl shadow-sm" src="https://lh3.googleusercontent.com/aida/AP1WRLsQj_EOCbq5g42gTkchT_Cht_Uoyd5n5jA4ag0Dq4PNtvYd08U62SUtbw6H8nwZxIkvqY2uDJJBGQXCgiMbTo0gIISUMhOkqoZhxdYYQa3a1hcToJDiRBTCo4Gdyn-TdN1bFRed5zf30BZ17N_rYGceYrgJ_ogO1gKZyTXZLWB8tXBQ_p42dbvJQZRmpIeivPl_RFbKfgEhhgsi3Qn8_uNqUdNS5-0CeJ9rajPo7jeb8htNlOQOU9yIVW00"/>
+<div>
+<h1 class="text-2xl font-black text-primary font-headline leading-tight">Sawiyya</h1>
+<p class="text-primary font-arabic text-sm font-bold tracking-widest">سويّة</p>
+</div>
+</div>
+<nav class="flex-1 space-y-3">
+<a class="flex items-center gap-4 bg-primary text-paper rounded-xl px-4 py-3 border-b-4 border-primary-dark transition-all duration-150 scale-95 cursor-pointer" href="#">
+<img alt="Home" class="w-6 h-6 brightness-0 invert" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC2klEQVR4AexYzY7TMBCeySIkkGjPiH0DeA14AEQFSIs4sWqqbYWEeAVugEggjgQHJLitlhVXfl4BIcEr8CNu6ZbLqo0Zx7srN04bp3basoplxzP2eOb7PGkS14P/vDQEVp3AJgOzMtDa8bda/d739sD/JuRZdrbjtWSAQHfRwzeIcBkArwhZjEENxTkBCRSZjhWZnNNnbEacEmjt9HoAReDhqCCTNkeqg84ZgXa/66MHL8owCRthW2ZnOu+EQAYIvUgLylPKCPe1cbJ1dTtZE8iAECANJHA/CWOWBCwGkvV5dPKbsCKQgS+85wl8BlzCrpPEwgRMwUsKAHWRWIhAVfB1kqhMYFHwdZGoRMAWfB0kjAm4Au+ahBEB1+BdkiglcGHg34WiRyW9pOSTBaxK5oN86U6Qydj6jDoyl4DYeQ/wtbpAyvScp5eUlO2v4oVX9LITsQWGeRG8WZPZ50GNO5+POy8TEkt+hdQLCWSstc8DuUDulpRdX2f6JiwZpoKAGoFWv3cbinYeVl2QtQbdW3kU0wQ6nQ1A/jhvtC46cu8RYUFqJ3WawO7uBDkensyum4CcEyTRqJN1mgCNTbz0AXVZTYHfy4QVXlQME44P81A0AqNn8V4SRCjaQcBe5RcsWxcYBBbRRmH0Lh9fI5A3WHe9IbDqDDUZaDJguQPNLWS5gdbLmwxYb6GlgyYDlhtovfz0Z4AD/6Vu0/n72xdV3aV8rt/fVP3R1/9PVS+SyzPA4Sso5cxk46miOhXP4vjJlEPkX6b0AqWUAEf+Ul2HiDfbgx6f2xacB8AOKIVOh6GiFoqlBA6CeJ9Wfqa21ErnxvdJGH0oC1pKQDgYj2ELOP8k5GU0Av8xPUy3TWIZEfgbRb+TkF3lKb9DTvdNflxkV7HyH/Tv3J6IMQyia6M4/mPiwIjAsaPhc/aWzqbXh2F0ifrs3OyuZ5tJwG6IGMfxTPpKBEwcLtvmHwAAAP//Dnnd8gAAAAZJREFUAwBLnntwkTTwqQAAAABJRU5ErkJggg=="/>
+<span class="font-label font-bold uppercase tracking-widest text-sm">Home</span>
+</a>
+<a class="flex items-center gap-4 text-ink/70 hover:text-primary hover:bg-primary/10 rounded-xl px-4 py-3 transition-colors" href="#">
+<img alt="Camera" class="w-6 h-6" src="data:image/png;base64,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"/>
+<span class="font-label font-bold uppercase tracking-widest text-sm">Camera</span>
+</a>
+<a class="flex items-center gap-4 text-ink/70 hover:text-primary hover:bg-primary/10 rounded-xl px-4 py-3 transition-colors" href="#">
+<img alt="Family" class="w-6 h-6" src="data:image/png;base64,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"/>
+<span class="font-label font-bold uppercase tracking-widest text-sm">Family</span>
+</a>
+<a class="flex items-center gap-4 text-ink/70 hover:text-primary hover:bg-primary/10 rounded-xl px-4 py-3 transition-colors" href="#">
+<img alt="Progress" class="w-6 h-6" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAABU0lEQVR4AexX7QnCQAzNOUA7hk7kDiI4gj8coSDu4EQ6hg5g7YMGQvGa60e8FlIM90xyaV5eKdcNrfxyArkFdAVcgYkTMHuEytNxX5wOD1jZ4Il9RrebEajpcwkUtjDgaAcTA2YE0Dj3JjH75lrNCMzVoFbHCWgTso67AtYT1uq7AtqErOOugPWEtfqLUQDnpWLE2WkxBHBewpEDBqxNnuOLIYDGuSmJ2RdbBxCIlcjrdwJ550/kCqxGgbL5ri1GvKetCSY/Qng3hz984w4lnEwAzXNxidmXa00mkKtB7b5OQJuQddwVsJ6wVt8V0CZkHXcFrCes1XcFtAlZx5MVqKl+cjMSs6+7yhyJu3n8X+ZIzPHYmkwg0OaMwjBgUq5gnE/tlUzgVV3v7+q2gwG3+38vjRc5yIUBN67eH3KQCwPuTRbBZAJiz6KgE8gthyuQW4EvAAAA///p4WVoAAAABklEQVQDAN53ZmEoRUb+AAAAAElFTkSuQmCC"/>
+<span class="font-label font-bold uppercase tracking-widest text-sm">Progress</span>
+</a>
+<a class="flex items-center gap-4 text-ink/70 hover:text-primary hover:bg-primary/10 rounded-xl px-4 py-3 transition-colors" href="#">
+<img alt="Settings" class="w-6 h-6" src="data:image/png;base64,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"/>
+<span class="font-label font-bold uppercase tracking-widest text-sm">Settings</span>
+</a>
+</nav>
+<button class="mt-auto extruded-coral bg-coral text-white font-bold py-4 rounded-2xl transition-all uppercase tracking-widest text-sm">
+            Practice Now
+        </button>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 relative bg-sand overflow-y-auto">
+<!-- Top Ribbon -->
+<header class="sticky top-0 z-40 bg-primary py-4 px-8 shadow-lg">
+<div class="max-w-4xl mx-auto flex justify-between items-center text-white">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-gold">stars</span>
+<h2 class="font-headline font-bold text-lg">Unit 1 · Family &amp; First Words · <span class="font-arabic">العائلة وأول الكلمات</span></h2>
+</div>
+<div class="hidden lg:flex items-center gap-6">
+<span class="material-symbols-outlined cursor-pointer hover:text-gold transition-colors">local_fire_department</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-gold transition-colors">monetization_on</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-gold transition-colors">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Journey Path Section -->
+<div class="max-w-4xl mx-auto py-12 px-8 min-h-screen relative flex flex-col items-center">
+<div class="absolute inset-0 z-0 opacity-40 pointer-events-none">
+<img alt="The Journey Path background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLvOQf8Np3fKjWZ_nOAboQtI9L8Ba3OrSmTaP9ZxsRB2hOdLFhPeiGQopMilfDSMAOEcc0UAYgoamHYLmKhmWSyPm7mNd_6eP5gywDSdbK_yy40s1SZFFaHOvKsFWjXWOfXM1NQiCMzg5D_GiXmqcXigW2ngr4FrNgnGdbzRa0LeoBe4H4mbzodxEwJO5x1Wj7052-ZNCxNGopjbPFGRymnaO2Lry513tzPExB5HDKAWrv8bDy2mU-JDJYDl"/>
+</div>
+<!-- Interactive Map Layer (Visual Representation) -->
+<div class="relative z-10 flex flex-col items-center gap-32 w-full max-w-md py-20">
+<!-- Future Node 3 (Locked) -->
+<div class="journey-node relative group">
+<div class="w-24 h-24 rounded-full bg-sand border-4 border-primary/20 flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-primary/40 text-4xl">lock</span>
+</div>
+</div>
+<!-- Future Node 2 (Locked) -->
+<div class="journey-node relative group mr-32">
+<div class="w-24 h-24 rounded-full bg-sand border-4 border-primary/20 flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-primary/40 text-4xl">lock</span>
+</div>
+</div>
+<!-- CURRENT NODE (Coral Pulse) -->
+<div class="journey-node relative group ml-24">
+<div class="pulse-coral w-32 h-32 rounded-3xl bg-coral border-4 border-white flex flex-col items-center justify-center shadow-xl extruded-coral relative cursor-pointer">
+<span class="material-symbols-outlined text-white text-5xl mb-1">back_hand</span>
+<div class="bg-white px-4 py-1 rounded-full">
+<span class="text-coral font-bold text-xs uppercase tracking-tighter">START</span>
+</div>
+</div>
+<!-- Waving Character -->
+<div class="absolute -right-24 -top-8 floating">
+<img alt="Happy waving hand character" class="w-24 h-24 drop-shadow-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLsLzgwo74_5GUG6VprrTFBScIRr_rGiLGC1SH2zhW8chZfLvQ-QBBJ27OMzAjArfypD3Oomms7lB10ytB9u3-eE6clATTfTRIYXexBOnpEQk6aWAC3_p12p-c3T_8ytbklqoGPBzWjbsSvnsD0ZRjvSqwLGwd6YVTwhwNpBaE0t0q874rN8jj0ILEpmOm7GpmFSliHS6YJpsxKjlt3krRsYMYV9pCl5u0IOEstLzGeayUv3s1nRBU5hk_o"/>
+</div>
+</div>
+<!-- Completed Node 1 (Gold) -->
+<div class="journey-node relative group mr-12">
+<div class="w-24 h-24 rounded-full bg-gold border-4 border-white flex items-center justify-center shadow-lg extruded-gold">
+<span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Small Sparkle Badges -->
+<div class="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm">
+<span class="material-symbols-outlined text-gold text-xs">auto_awesome</span>
+</div>
+</div>
+<!-- Completed Node 0 (Gold) -->
+<div class="journey-node relative group ml-16">
+<div class="w-24 h-24 rounded-full bg-gold border-4 border-white flex items-center justify-center shadow-lg extruded-gold">
+<span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Rail: Dashboard Cluster -->
+<aside class="w-80 bg-paper border-l-4 border-primary/10 p-6 flex flex-col gap-6 overflow-y-auto">
+<!-- Stats Cluster -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Streak -->
+<div class="bg-sand rounded-3xl p-4 flex flex-col items-center justify-center border-2 border-primary/10">
+<img alt="100 Streak Champion" class="w-14 h-14 mb-2" src="https://lh3.googleusercontent.com/aida/AP1WRLvGtBTIs5Z_s6JXXjT2DT_tazCITIyE5UKQd0dAzD3GxOKNB3vav-e1p2VLX1l6QS5_NOxNFqIps5nEUFideui-LearMfiypNVILnAEo5Gi7M_Ms7xLKQnDYdveXrvmhxXSHoFridLPIpyTdQP9lDGXzWSitFYtfULYQWgxUJBeb_1UdcaveHQ73sIn3udf16m8FxQe9rGvUCGU4HtfTgJ_T7s-z_berLRa6yhp2jvqoM1OtIrxj5R5GBRI"/>
+<span class="text-3xl font-display font-black text-ink">3</span>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-primary">STREAK</span>
+</div>
+<!-- XP -->
+<div class="bg-sand rounded-3xl p-4 flex flex-col items-center justify-center border-2 border-primary/10">
+<div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="text-3xl font-display font-black text-ink">450</span>
+<span class="text-[10px] font-label font-bold uppercase tracking-widest text-primary">XP TOTAL</span>
+</div>
+</div>
+<!-- Pinned Card: Layla's Request -->
+<div class="bg-paper border-4 border-coral rounded-[2.5rem] p-6 shadow-sm flex flex-col items-center text-center relative">
+<div class="absolute -top-4 -left-4 bg-coral text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Priority</div>
+<h3 class="font-headline font-bold text-ink mb-1">Layla needs:</h3>
+<p class="text-coral font-arabic font-bold text-xl mb-4">Bedtime · نوم</p>
+<div class="w-full aspect-square bg-sand rounded-3xl mb-4 overflow-hidden border-2 border-primary/5 p-4 flex items-center justify-center">
+<img alt="Sleep Sign Illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLuOYavgE9owlxKQtpUDtOJyEwIKpNz6VFkuOv2igby8M9CT2HNQJKhSARameRHpJ1LZCqoYpTpjULHPTKMxx0hz_IaSZSnhfgRy1Mc_Nkxu7gxHRO_V6gJ-htXvvN7DThBS-UTKFb5-eu_mM_B4pEbXLvhseRs7gIHdzcscoRiokNyvQaIuvDVdk_GIjHx_rIB3GLqXoUJiMZxrYUt8JgkGu1VYbSzKQIJnoUQGwhuN_ee48RK30EXkVBbU"/>
+</div>
+<div class="flex items-center gap-2 bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+<div class="w-6 h-6 rounded-full bg-gold border border-white"></div>
+<span class="text-xs font-bold text-primary">from Layla</span>
+</div>
+</div>
+<!-- Daily Goal Card -->
+<div class="bg-sand border-4 border-primary/10 rounded-[2.5rem] p-6">
+<div class="flex justify-between items-center mb-4">
+<h4 class="font-label font-bold uppercase tracking-widest text-xs text-primary">Daily Goal</h4>
+<span class="text-xs font-bold text-ink">30/50 XP</span>
+</div>
+<!-- Progress Bar -->
+<div class="h-6 w-full bg-primary/10 rounded-full overflow-hidden p-1 shadow-inner relative">
+<div class="h-full bg-gold rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(230,178,76,0.6)]" style="width: 60%;">
+<div class="absolute right-[40%] top-1 w-4 h-4 bg-white/40 rounded-full animate-pulse"></div>
+</div>
+</div>
+<p class="mt-4 text-sm font-bold text-ink/70 text-center">
+                20 XP to go — <span class="text-primary font-arabic">yallah!</span>
+</p>
+</div>
+<!-- Quest Section -->
+<div class="mt-auto pt-6 border-t-2 border-primary/5">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-gold">emoji_events</span>
+<span class="font-label font-bold uppercase tracking-widest text-xs">Today's Challenges</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3 bg-paper p-3 rounded-2xl border-2 border-primary/5">
+<div class="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-gold">history_edu</span>
+</div>
+<div class="flex-1">
+<div class="text-[10px] font-bold text-ink/40 uppercase tracking-tighter">Review</div>
+<div class="text-xs font-bold">5 Family Signs</div>
+</div>
+<span class="material-symbols-outlined text-ink/20">check_circle</span>
+</div>
+</div>
+</div>
+</aside>
+<script>
+        // Micro-interaction for clicking nodes
+        document.querySelectorAll('.journey-node').forEach(node => {
+            node.addEventListener('click', () => {
+                const inner = node.querySelector('div');
+                inner.classList.add('scale-90');
+                setTimeout(() => {
+                    inner.classList.remove('scale-90');
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

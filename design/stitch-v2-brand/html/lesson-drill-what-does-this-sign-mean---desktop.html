@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sawiyya - Lesson Drill</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&amp;family=Lexend:wght@400;700&amp;family=Readex+Pro:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: '#0F6E6A',
+              'primary-dark': '#0A4F4C',
+              ink: '#16302E',
+              coral: '#E8654C',
+              gold: '#E6B24C',
+              sand: '#F6EFE3',
+              paper: '#FBF7EF',
+            },
+            borderRadius: {
+              'DEFAULT': '0.5rem',
+              'lg': '1rem',
+              'xl': '1.5rem',
+              '2xl': '2rem',
+              '3xl': '2.5rem',
+              'full': '9999px',
+            },
+            fontFamily: {
+              headline: ["Rubik", "sans-serif"],
+              display: ["Rubik", "sans-serif"],
+              body: ["Lexend", "sans-serif"],
+              label: ["Rubik", "sans-serif"],
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .extruded-coral {
+            box-shadow: 0 6px 0 0 #b34d3a;
+        }
+        .extruded-coral:active {
+            box-shadow: 0 0px 0 0 #b34d3a;
+            transform: translateY(6px);
+        }
+
+        .extruded-paper {
+            box-shadow: 0 4px 0 0 #E2DDD3;
+        }
+        .extruded-paper:active {
+            box-shadow: 0 0px 0 0 #E2DDD3;
+            transform: translateY(4px);
+        }
+
+        .extruded-teal-active {
+            box-shadow: 0 0px 0 0 #0A4F4C;
+            transform: translateY(4px);
+        }
+
+        .sparkle-glow {
+            filter: drop-shadow(0 0 8px #E6B24C);
+        }
+
+        @keyframes pulse-sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(15deg); opacity: 0.8; }
+        }
+        .animate-sparkle {
+            animation: pulse-sparkle 2s infinite ease-in-out;
+        }
+
+        .meeting-curve {
+            border-radius: 50% 50% 0 0 / 20% 20% 0 0;
+        }
+    </style>
+</head>
+<body class="bg-sand font-body text-ink min-h-screen flex flex-col items-center">
+<!-- Top Navigation / Progress Shell -->
+<header class="w-full max-w-5xl px-6 py-6 flex items-center justify-between gap-6">
+<!-- Close Action -->
+<button aria-label="Close lesson" class="text-ink/40 hover:text-ink transition-colors p-2">
+<span class="material-symbols-outlined text-3xl font-bold">close</span>
+</button>
+<!-- Progress Bar Container -->
+<div class="flex-1 flex items-center gap-4 relative">
+<div class="h-4 flex-1 bg-ink/10 rounded-full overflow-hidden relative border border-ink/5">
+<!-- 4 of 9 segments (approx 44.4%) -->
+<div class="h-full bg-gold rounded-full transition-all duration-700 ease-out relative" style="width: 44.4%;">
+<!-- Leading Glow/Sparkle -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-gold sparkle-glow animate-sparkle" style="font-variation-settings: 'FILL' 1;">spark</span>
+</div>
+</div>
+</div>
+<!-- Character Guide -->
+<div class="w-12 h-12 relative -mb-2">
+<img alt="Gold hand character thumbs up" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvKRWEy1IzsfO8EkS7MI4GdJbYCX-1t0uXwZamCyeShqI2QoYPBpnwNsFfBRtzD7WPQLLQFldrD4xGR6cMyRilGZ0pA5T95UyzkVc_CfmbRXlpDTNEcvXZUERi8A4XK2tcD8pg7APcHR7CDsoci4YvriDEzjMNbJL6CEwVgXc2XixxA63hiQT4cOdDbMFoElDBLyGObGQ8Hm6pJKccpDeSekoFhK6WDxyVZ4o-VfAtdNe6Kyzv7HF5qRsM"/>
+</div>
+</div>
+<!-- Spacer for centering symmetry if needed, or keep empty -->
+<div class="w-10"></div>
+</header>
+<!-- Main Drill Content -->
+<main class="w-full max-w-[900px] flex-1 flex flex-col px-6 py-4 items-center gap-8">
+<!-- Question Header -->
+<div class="text-center">
+<h1 class="font-headline text-3xl text-primary mb-2">What does this sign mean?</h1>
+<p class="text-ink/60 font-medium">Watch the movement carefully</p>
+</div>
+<!-- Question Zone (Sign Display) -->
+<div class="w-full max-w-md aspect-square bg-paper border-4 border-primary/20 rounded-3xl relative overflow-hidden flex items-center justify-center shadow-inner group">
+<img alt="Sign for Yes" class="w-4/5 h-4/5 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvEKKoJLqgC866tYRiKoVSaBlbSPQWWg-5XtxNJOA_8iU_GgesG8nvEMTPysrx37f2BJNk6l3AlU-xea3V2rH59IjlVfqrT7g7rlN7ZOBuhDcYrsG9S9s4VsVwe42jX8982L5H8me3AleZksDzsUvBGslXdYfmajZ37B6giDgCV_IUSvp7CDhJ-HbRcJk_d1nVbc2V8c-6ZSdN2oY1kmxAx4PjUN3mDhamZqzrp3HbgjkEByN5e-7QPrF-i"/>
+<!-- Replay Chip -->
+<button class="absolute bottom-4 right-4 bg-primary text-white px-4 py-2 rounded-full flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-md">
+<span class="material-symbols-outlined text-lg">replay</span>
+<span>Watch again</span>
+</button>
+</div>
+<!-- Answer Grid -->
+<div class="w-full grid grid-cols-2 gap-4 md:gap-6">
+<!-- Card 1: SELECTED ("Yes") -->
+<button class="relative bg-primary text-white rounded-2xl p-6 flex flex-col items-center justify-center gap-1 extruded-teal-active border-2 border-primary-dark transition-all">
+<span class="absolute top-3 left-3 w-6 h-6 rounded-md bg-white/20 flex items-center justify-center text-xs font-bold font-label">1</span>
+<span class="font-headline text-xl">Yes</span>
+<span class="font-body text-lg opacity-90" dir="rtl">نعم</span>
+</button>
+<!-- Card 2: "No" -->
+<button class="relative bg-paper text-ink rounded-2xl p-6 flex flex-col items-center justify-center gap-1 extruded-paper border-2 border-ink/5 hover:bg-white transition-all group">
+<span class="absolute top-3 left-3 w-6 h-6 rounded-md bg-ink/5 group-hover:bg-ink/10 flex items-center justify-center text-xs font-bold font-label text-ink/40">2</span>
+<span class="font-headline text-xl">No</span>
+<span class="font-body text-lg text-ink/60" dir="rtl">لا</span>
+</button>
+<!-- Card 3: "More" -->
+<button class="relative bg-paper text-ink rounded-2xl p-6 flex flex-col items-center justify-center gap-1 extruded-paper border-2 border-ink/5 hover:bg-white transition-all group">
+<span class="absolute top-3 left-3 w-6 h-6 rounded-md bg-ink/5 group-hover:bg-ink/10 flex items-center justify-center text-xs font-bold font-label text-ink/40">3</span>
+<span class="font-headline text-xl">More</span>
+<span class="font-body text-lg text-ink/60" dir="rtl">زيادة</span>
+</button>
+<!-- Card 4: "Stop" -->
+<button class="relative bg-paper text-ink rounded-2xl p-6 flex flex-col items-center justify-center gap-1 extruded-paper border-2 border-ink/5 hover:bg-white transition-all group">
+<span class="absolute top-3 left-3 w-6 h-6 rounded-md bg-ink/5 group-hover:bg-ink/10 flex items-center justify-center text-xs font-bold font-label text-ink/40">4</span>
+<span class="font-headline text-xl">Stop</span>
+<span class="font-body text-lg text-ink/60" dir="rtl">قف</span>
+</button>
+</div>
+</main>
+<!-- Bottom Action Shell -->
+<footer class="w-full bg-paper p-8 flex justify-center items-center mt-auto border-t-4 border-ink/5">
+<div class="w-full max-w-[900px] flex justify-end">
+<!-- CHECK Button -->
+<button class="w-full md:w-64 bg-coral text-white font-headline text-xl tracking-wider py-4 rounded-2xl extruded-coral transition-all active:scale-95">
+                CHECK
+            </button>
+</div>
+</footer>
+<!-- BottomNavBar (Hidden on drill screens as per instructions, but placeholder logic if it was a main screen) -->
+<!-- Suppressed for transactional focus -->
+<script>
+        // Simple micro-interaction for keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (['1', '2', '3', '4'].includes(e.key)) {
+                console.log('Selected option: ' + e.key);
+                // logic to visually select would go here
+            }
+            if (e.key === 'Enter') {
+                const checkBtn = document.querySelector('footer button');
+                checkBtn.click();
+            }
+        });
+
+        // Toggle selected state visual demonstration
+        const cards = document.querySelectorAll('.grid button');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                cards.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-white', 'extruded-teal-active', 'border-primary-dark');
+                    c.classList.add('bg-paper', 'text-ink', 'extruded-paper', 'border-ink/5');
+                    const hint = c.querySelector('.absolute');
+                    hint.classList.remove('bg-white/20');
+                    hint.classList.add('bg-ink/5');
+                    const labels = c.querySelectorAll('span:not(.absolute)');
+                    labels[1].classList.add('text-ink/60');
+                });
+                card.classList.add('bg-primary', 'text-white', 'extruded-teal-active', 'border-primary-dark');
+                card.classList.remove('bg-paper', 'text-ink', 'extruded-paper', 'border-ink/5');
+                const activeHint = card.querySelector('.absolute');
+                activeHint.classList.add('bg-white/20');
+                activeHint.classList.remove('bg-ink/5');
+                const activeLabels = card.querySelectorAll('span:not(.absolute)');
+                activeLabels[1].classList.remove('text-ink/60');
+            });
+        });
+    </script>
+</body></html>
