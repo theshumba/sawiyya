@@ -2,16 +2,68 @@
 // Pick a letter or gradable sign → teach the camera once → live grading.
 // Visuals mirror design/stitch-v2-brand practise-the-alphabet--mobile.
 import { useState } from "react";
-import { num, pick, t } from "../i18n";
+import { num, pick, t, type TKey } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
-import { Icon, Pill } from "../components/ui";
+import { Icon, Logo, Pill } from "../components/ui";
+import type { Lang } from "../types";
+import type { Screen } from "../store/ui";
 
 const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
+
+// Desktop-only left vertical nav rail (camera-drill-i-love-you--desktop).
+// Mobile uses the app-shell BottomNav; this rail only appears at md+.
+const RAIL_TABS: { name: Screen["name"]; icon: string; key: TKey }[] = [
+  { name: "home", icon: "home", key: "navHome" },
+  { name: "camera", icon: "videocam", key: "navCamera" },
+  { name: "family", icon: "favorite", key: "navFamily" },
+  { name: "progress", icon: "leaderboard", key: "navProgress" },
+];
+
+function SideNavBar({
+  lang,
+  active,
+  go,
+}: {
+  lang: Lang;
+  active: Screen["name"];
+  go: (s: Screen) => void;
+}) {
+  return (
+    <aside className="sticky top-0 hidden h-screen w-24 shrink-0 flex-col items-center gap-8 border-e-4 border-teal/10 bg-sand py-8 md:flex">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal shadow-lift">
+        <Logo size={28} />
+      </div>
+      <nav className="flex flex-col gap-6" aria-label="Main">
+        {RAIL_TABS.map((tab) => {
+          const isActive = tab.name === active;
+          return (
+            <button
+              key={tab.name}
+              type="button"
+              onClick={() => go({ name: tab.name } as Screen)}
+              aria-current={isActive ? "page" : undefined}
+              className={`rounded-xl p-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+                isActive
+                  ? "translate-y-1 bg-teal text-white shadow-[0_4px_0_0_#0A4F4C]"
+                  : "text-teal/60 hover:bg-teal/5 hover:text-teal"
+              }`}
+            >
+              <Icon name={tab.icon} fill={isActive} className="text-2xl leading-none" />
+              <span className="mt-1 block font-display text-[10px] font-bold uppercase tracking-wider">
+                {t(tab.key, lang)}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}
 
 export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
   const app = useApp();
@@ -44,10 +96,12 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
   };
 
   return (
-    <div className="mx-auto max-w-md px-5 pb-28 pt-6">
-      <Confetti burst={burst} />
-      <header className="mb-4 flex items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold">{t("camPractice", lang)}</h1>
+    <div className="md:flex md:items-start">
+      <SideNavBar lang={lang} active="camera" go={go} />
+      <div className="mx-auto max-w-md px-5 pb-28 pt-6 md:max-w-5xl md:flex-1 md:px-8 md:pb-12 md:pt-10">
+        <Confetti burst={burst} />
+      <header className="mb-4 flex items-center justify-between gap-3 md:mb-6">
+        <h1 className="font-display text-2xl font-bold md:text-4xl">{t("camPractice", lang)}</h1>
         <div className="flex shrink-0 items-center gap-2">
           <Pill tone="gold" className="!py-1">
             <Icon name="stars" fill className="text-base leading-none text-gold" />
@@ -116,7 +170,8 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
         ))}
       </div>
 
-      <CameraTrainer key={`${signId}-${round}`} sign={sign} lang={lang} onResult={handleResult} />
+        <CameraTrainer key={`${signId}-${round}`} sign={sign} lang={lang} onResult={handleResult} />
+      </div>
     </div>
   );
 }

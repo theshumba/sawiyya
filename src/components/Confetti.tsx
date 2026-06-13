@@ -1,5 +1,6 @@
 // Gold-confetti celebration — the "connection made" moment (PRD §6.2).
 // Dependency-free canvas burst; respects prefers-reduced-motion.
+// Brand palette mirrored from the Stitch v2 celebration mockups (teal/gold/coral/paper).
 import { useEffect, useRef } from "react";
 
 const COLORS = ["#E6B24C", "#F0C879", "#E8654C", "#0F6E6A", "#FBF7EF"];

@@ -25,12 +25,16 @@ export function CameraTrainer({
   onResult,
   allowSkip = false,
   autoStart = false,
+  exerciseLabel,
 }: {
   sign: Sign;
   lang: Lang;
   onResult: (result: TrainerResult) => void;
   allowSkip?: boolean;
   autoStart?: boolean;
+  /** Optional "EXERCISE 4 OF 12" progress label shown inside the prompt card
+   *  (lesson-camera-practice--mobile / camera-drill-i-love-you--desktop). */
+  exerciseLabel?: string;
 }) {
   const [mode, setMode] = useState<"grade" | "teach">(isTrained(sign.id) ? "grade" : "teach");
   const [teachPhase, setTeachPhase] = useState<"intro" | "capturing" | "done">("intro");
@@ -117,21 +121,51 @@ export function CameraTrainer({
   const target = sign.type === "alphabet" ? sign.code : gloss;
   const meter = holdProgress > 0 ? holdProgress : confidence;
 
-  return (
-    <div className="flex flex-col gap-4">
-      {/* teal prompt banner — "Sign: …" with gold-bordered reference chip */}
-      <div className="relative overflow-hidden rounded-3xl bg-teal p-5 shadow-soft">
-        <span className="pointer-events-none absolute -end-3 -top-4 opacity-10" aria-hidden="true">
-          <Icon name="videocam" fill className="text-8xl leading-none text-white" />
-        </span>
-        <div className="relative z-10 flex items-center justify-between gap-4">
+  // Reference chip content — reused in both layouts.
+  const referenceChip = (sizeClass: string) =>
+    sign.id === "iloveyou" ? (
+      <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-xl object-cover" />
+    ) : sign.type === "alphabet" ? (
+      <span className={`font-display font-bold text-white ${sizeClass}`} aria-label={gloss}>
+        {sign.code}
+      </span>
+    ) : (
+      <Icon name="sign_language" className={`leading-none text-white ${sizeClass}`} />
+    );
+
+  // The prompt banner (teal card) — full width on mobile, panel header on desktop.
+  // Mirrors camera-drill-i-love-you--desktop: "Current Goal" eyebrow + goal title,
+  // then a translucent white/10 panel holding the gold reference chip + helper copy.
+  // No i18n key exists for these two strings yet — documented bilingual literals.
+  const goalEyebrow = pick(lang, "Current Goal", "هدفك الآن");
+  const referenceHelper = pick(
+    lang,
+    "Follow the reference to unlock the next lesson!",
+    "اتبع المرجع لتفتح الدرس التالي!",
+  );
+  const promptBanner = (
+    <div className="relative overflow-hidden rounded-3xl bg-teal p-5 shadow-soft md:p-8">
+      <span className="pointer-events-none absolute -end-3 -top-4 opacity-10" aria-hidden="true">
+        <Icon name="videocam" fill className="text-8xl leading-none text-white" />
+      </span>
+      <div className="relative z-10">
+        <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white/70">
+          {goalEyebrow}
+        </h3>
+        <div className="mt-1.5 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="font-display text-2xl font-bold leading-tight text-white">
+            <h2 className="font-display text-2xl font-bold leading-tight text-white md:text-3xl">
               {t("camSign", lang)}: {target}
             </h2>
-            <p className="mt-1 text-sm leading-snug text-white/80">
-              {pick(lang, sign.hintEn, sign.hintAr)}
-            </p>
+            {exerciseLabel ? (
+              <p className="mt-1.5 font-display text-sm font-bold uppercase tracking-widest text-white/80">
+                {exerciseLabel}
+              </p>
+            ) : (
+              <p className="mt-1 text-sm leading-snug text-white/80">
+                {pick(lang, sign.hintEn, sign.hintAr)}
+              </p>
+            )}
             {mode === "grade" && isTrained(sign.id) && (
               <button
                 type="button"
@@ -145,27 +179,102 @@ export function CameraTrainer({
               </button>
             )}
           </div>
-          {/* gold-bordered reference chip */}
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-gold bg-white/20 p-1 backdrop-blur-md">
-            {sign.id === "iloveyou" ? (
-              <img
-                src="brand/stitch-34.png"
-                alt={gloss}
-                className="h-full w-full rounded-xl object-cover"
-              />
-            ) : sign.type === "alphabet" ? (
-              <span className="font-display text-3xl font-bold text-white" aria-label={gloss}>
-                {sign.code}
-              </span>
-            ) : (
-              <Icon name="sign_language" className="text-3xl leading-none text-white" />
-            )}
+          {/* MOBILE: standalone gold-bordered reference chip to the right. */}
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-gold bg-white/20 p-1 backdrop-blur-md md:hidden">
+            {referenceChip("text-3xl")}
           </div>
         </div>
+        {/* DESKTOP: translucent panel holding the chip alongside helper copy. */}
+        <div className="mt-5 hidden items-center gap-4 rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm md:inline-flex">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-gold bg-white/20 p-1">
+            {referenceChip("text-3xl")}
+          </div>
+          <p className="text-sm font-medium leading-snug text-white/90">{referenceHelper}</p>
+        </div>
       </div>
+    </div>
+  );
 
-      {/* camera viewport — dark teal-ink rounded stage */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-2xl">
+  // Confidence meter + never-hard-fail actions + privacy chip — shared block.
+  const controls = (
+    <>
+      {/* confidence meter — game power-bar (inset track, gold fill, glowing tip) */}
+      {mode === "grade" && tracker.status === "running" && !matched && (
+        <div className="space-y-2 px-1">
+          <div className="flex items-end justify-between">
+            <span className="text-sm font-bold uppercase text-teal/70">
+              {holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}
+            </span>
+            <div className="text-end">
+              <span className="font-display text-2xl font-black leading-none text-teal md:text-4xl">
+                {Math.round(meter * 100)}%
+              </span>
+              {/* bilingual "reached!" sublabel — mirrors desktop 'وصلت!' */}
+              <span className="mt-0.5 hidden font-display text-base font-bold leading-none text-teal-deep md:block">
+                {pick(lang, "وصلت!", "وصلت!")}
+              </span>
+            </div>
+          </div>
+          <div
+            className="h-5 w-full overflow-hidden rounded-full border-2 border-ink/10 bg-paper p-1 shadow-inner md:h-6"
+            role="progressbar"
+            aria-valuenow={Math.round(meter * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className="flex h-full items-center justify-end rounded-full bg-gold pe-1 transition-all duration-300"
+              style={{ width: `${Math.max(6, meter * 100)}%`, boxShadow: "0 0 15px rgba(230,178,76,.6)" }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-white/60 blur-[1px]" aria-hidden="true" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available,
+          including teach mode and blocked/absent cameras) */}
+      {!matched && (
+        <div className="flex flex-col items-center gap-3">
+          {showUnsure && (
+            <p className="w-full rounded-2xl bg-gold/15 px-4 py-3 text-sm font-medium text-ink">
+              {t("camUnsure", lang)}
+            </p>
+          )}
+          <Button variant="primary" full onClick={() => finishResult("selfMark")} className="!rounded-3xl !py-5">
+            <span className="flex items-center justify-center gap-2 font-display text-lg">
+              <Icon name="check_circle" className="text-xl leading-none" />
+              {t("camSelfMark", lang)}
+            </span>
+            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-white/60">
+              {t("camSelfMarkSub", lang)}
+            </span>
+          </Button>
+          {allowSkip && (
+            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal/60">
+              {t("camSkip", lang)}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* privacy chip — rendered in every state */}
+      <div className="flex justify-center">
+        <span className="flex items-center gap-2 rounded-full border border-ink/5 bg-white/60 px-4 py-2 backdrop-blur-sm">
+          <Icon name="verified_user" className="text-base leading-none text-teal" />
+          <span className="text-[11px] font-medium leading-tight text-ink/70">{t("camPrivacy", lang)}</span>
+        </span>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-4 md:grid md:grid-cols-[1fr_minmax(380px,440px)] md:items-stretch md:gap-6">
+      {/* MOBILE: prompt banner first. DESKTOP: lives in the right control panel. */}
+      <div className="md:hidden">{promptBanner}</div>
+
+      {/* camera viewport — dark teal-ink rounded stage (left column on desktop) */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-2xl md:aspect-auto md:min-h-[560px] md:rounded-3xl">
         <video
           ref={tracker.videoRef}
           autoPlay
@@ -182,6 +291,13 @@ export function CameraTrainer({
           className="pointer-events-none absolute inset-0 z-[5] bg-gradient-to-t from-teal-ink/80 via-transparent to-transparent"
           aria-hidden="true"
         />
+
+        {/* gold fit_screen corner badge (camera-drill-i-love-you--desktop) */}
+        <div className="pointer-events-none absolute bottom-4 end-4 z-10" aria-hidden="true">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border-4 border-gold/40">
+            <Icon name="fit_screen" className="text-2xl leading-none text-gold" />
+          </div>
+        </div>
 
         {/* status pills */}
         <div className="absolute inset-x-3 top-3 z-10 flex items-center justify-between" dir="ltr">
@@ -229,8 +345,9 @@ export function CameraTrainer({
 
         {/* hold-to-confirm ring */}
         {mode === "grade" && tracker.status === "running" && !matched && (
-          <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3">
-            <div className="relative flex h-20 w-20 items-center justify-center">
+          <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 md:bottom-10 md:gap-6">
+            {/* 80px ring on mobile, 128px on desktop (camera-drill-i-love-you--desktop) */}
+            <div className="relative flex h-20 w-20 items-center justify-center md:h-32 md:w-32">
               <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
                 <circle cx="40" cy="40" r="36" fill="transparent" stroke="rgba(255,255,255,.12)" strokeWidth="8" />
                 <circle
@@ -246,13 +363,17 @@ export function CameraTrainer({
                   style={{ transition: "stroke-dashoffset .15s linear" }}
                 />
               </svg>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
-                <Icon name="check" className="text-3xl font-bold leading-none text-teal" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg md:h-20 md:w-20">
+                <Icon name="check" className="text-3xl font-bold leading-none text-teal md:text-4xl" />
               </div>
             </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-md">
+            <span className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-md md:hidden">
               {t("camHold", lang)}
             </span>
+            {/* desktop: pulsing "Hold steady for 2 seconds" caption */}
+            <p className="hidden animate-pulse text-center font-bold text-gold drop-shadow-md md:block">
+              {pick(lang, "Hold steady for 2 seconds…", "ثبّت يدك ثانيتين…")}
+            </p>
           </div>
         )}
 
@@ -320,66 +441,12 @@ export function CameraTrainer({
         )}
       </div>
 
-      {/* confidence meter — game power-bar (inset track, gold fill, glowing tip) */}
-      {mode === "grade" && tracker.status === "running" && !matched && (
-        <div className="space-y-2 px-1">
-          <div className="flex items-end justify-between">
-            <span className="text-sm font-bold text-teal">
-              {holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}
-            </span>
-            <span className="font-display text-lg font-bold leading-none text-teal">
-              {Math.round(meter * 100)}%
-            </span>
-          </div>
-          <div
-            className="h-5 w-full overflow-hidden rounded-full border-2 border-ink/10 bg-paper p-1 shadow-inner"
-            role="progressbar"
-            aria-valuenow={Math.round(meter * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div
-              className="flex h-full items-center justify-end rounded-full bg-gold pe-1 transition-all duration-300"
-              style={{ width: `${Math.max(6, meter * 100)}%`, boxShadow: "0 0 15px rgba(230,178,76,.6)" }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-white/60 blur-[1px]" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available,
-          including teach mode and blocked/absent cameras) */}
-      {!matched && (
-        <div className="flex flex-col items-center gap-3">
-          {showUnsure && (
-            <p className="w-full rounded-2xl bg-gold/15 px-4 py-3 text-sm font-medium text-ink">
-              {t("camUnsure", lang)}
-            </p>
-          )}
-          <Button variant="secondary" full onClick={() => finishResult("selfMark")} className="!rounded-3xl !py-5">
-            <span className="flex items-center justify-center gap-2 font-display text-lg">
-              <Icon name="check_circle" className="text-xl leading-none" />
-              {t("camSelfMark", lang)}
-            </span>
-            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-white/60">
-              {t("camSelfMarkSub", lang)}
-            </span>
-          </Button>
-          {allowSkip && (
-            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal/60">
-              {t("camSkip", lang)}
-            </Button>
-          )}
-        </div>
-      )}
-
-      {/* privacy chip — rendered in every state */}
-      <div className="flex justify-center">
-        <span className="flex items-center gap-2 rounded-full border border-ink/5 bg-white/60 px-4 py-2 backdrop-blur-sm">
-          <Icon name="verified_user" className="text-base leading-none text-teal" />
-          <span className="text-[11px] font-medium leading-tight text-ink/70">{t("camPrivacy", lang)}</span>
-        </span>
+      {/* MOBILE: controls flow under the viewport.
+          DESKTOP: right-hand control panel mirroring camera-drill-i-love-you--desktop. */}
+      <div className="contents md:flex md:flex-col md:gap-6 md:rounded-3xl md:bg-paper/60 md:p-6 md:shadow-soft">
+        {/* prompt banner repeats here only at md+ (hidden on mobile to avoid a duplicate) */}
+        <div className="hidden md:block">{promptBanner}</div>
+        {controls}
       </div>
     </div>
   );

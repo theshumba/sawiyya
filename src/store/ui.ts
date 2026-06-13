@@ -12,7 +12,8 @@ export type Screen =
   | { name: "aiTransparency" }
   | { name: "privacy" }
   | { name: "devMetrics" }
-  | { name: "firstSign" };
+  | { name: "firstSign" }
+  | { name: "allSigns" };
 
 interface UiState {
   screen: Screen;
