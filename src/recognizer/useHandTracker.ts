@@ -16,6 +16,13 @@ const MODEL_URL =
 
 let landmarkerPromise: Promise<HandLandmarker> | null = null;
 
+// The landmarker is a module singleton, so only ONE detect loop may feed it at a
+// time — VIDEO mode requires strictly increasing timestamps, and two concurrent
+// loops (e.g. a screen transition briefly mounting two CameraTrainers) would send
+// colliding timestamps and permanently corrupt the graph. Each loop claims this
+// counter; older loops self-terminate once a newer one takes over.
+let activeLoop = 0;
+
 function getLandmarker(): Promise<HandLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = (async () => {
@@ -56,9 +63,15 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
   const running = useRef(false);
   const raf = useRef(0);
   const stream = useRef<MediaStream | null>(null);
+  // Generation token: each start() claims one; stop() (or a newer start) bumps it,
+  // cancelling any in-flight start that is still awaiting the camera/model. This is
+  // what prevents two rAF loops from feeding the singleton landmarker non-monotonic
+  // timestamps ("Packet timestamp mismatch"), which permanently corrupts the graph.
+  const startGen = useRef(0);
 
   const stop = useCallback(() => {
     running.current = false;
+    startGen.current += 1; // invalidate any start() mid-await
     cancelAnimationFrame(raf.current);
     stream.current?.getTracks().forEach((t) => t.stop());
     stream.current = null;
@@ -68,37 +81,47 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
 
   const start = useCallback(async () => {
     if (running.current) return;
+    running.current = true; // claim synchronously — closes the async-gap race
+    const gen = (startGen.current += 1);
+    const cancelled = () => gen !== startGen.current;
     setStatus("loading");
     setError(null);
     try {
       const landmarker = await getLandmarker();
+      if (cancelled()) return;
       const media = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 960 } },
         audio: false,
       });
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      if (!video || !canvas) {
+      if (cancelled() || !video || !canvas) {
         media.getTracks().forEach((t) => t.stop());
+        if (!cancelled()) running.current = false;
         return;
       }
       stream.current = media;
       video.srcObject = media;
       await video.play();
+      if (cancelled()) {
+        media.getTracks().forEach((t) => t.stop());
+        stream.current = null;
+        return;
+      }
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d")!;
       const draw = new DrawingUtils(ctx);
 
-      running.current = true;
       setStatus("running");
+      const myLoop = ++activeLoop; // claim sole ownership of the singleton landmarker
 
       let lastVideoTime = -1;
       let frames = 0;
       let fpsT = 0;
 
       const loop = (t: number) => {
-        if (!running.current) return;
+        if (!running.current || myLoop !== activeLoop) return; // superseded by a newer loop
         if (video.currentTime !== lastVideoTime) {
           lastVideoTime = video.currentTime;
           const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
@@ -134,8 +157,11 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       };
       raf.current = requestAnimationFrame(loop);
     } catch (e) {
-      setStatus("error");
-      setError(e instanceof Error ? e.message : String(e));
+      if (!cancelled()) {
+        running.current = false; // allow retry after a failed start
+        setStatus("error");
+        setError(e instanceof Error ? e.message : String(e));
+      }
     }
   }, []);
 
