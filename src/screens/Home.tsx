@@ -299,6 +299,32 @@ export function Home() {
     </Card>
   ) : null;
 
+  // Hero: camera-graded practice — the differentiator, surfaced front-and-centre.
+  const practiceHero = (
+    <button
+      type="button"
+      onClick={() => go({ name: "camera" })}
+      className="extruded-coral relative w-full overflow-hidden rounded-bowl bg-coral p-5 text-start text-white"
+    >
+      <div className="relative z-10 flex items-center gap-4">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+          <Icon name="videocam" fill className="!text-3xl text-white" />
+        </span>
+        <div className="flex-1">
+          <p className="mb-1 font-display text-[10px] font-bold uppercase tracking-[0.18em] text-white/80">
+            {t("homeHeroEyebrow", lang)}
+          </p>
+          <p className="font-display text-lg font-bold leading-tight">{t("homeHeroTitle", lang)}</p>
+          <p className="mt-1 text-sm leading-snug text-white/85">{t("homeHeroSub", lang)}</p>
+          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 font-display text-xs font-bold uppercase tracking-widest text-coral">
+            {t("homeHeroCta", lang)}
+            <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+
   const alphabetCard = (
     <Card
       className="extruded-paper flex items-center gap-4 !rounded-bowl !border-2 !border-line p-4"
@@ -428,6 +454,8 @@ export function Home() {
             </div>
           </div>
 
+          <div className="mb-6">{practiceHero}</div>
+
           <div className="mb-8">{journey}</div>
 
           <div className="space-y-5">
@@ -445,6 +473,9 @@ export function Home() {
 
       {/* ───────── Desktop right dashboard rail ───────── */}
       <aside className="hidden w-80 shrink-0 flex-col gap-6 overflow-y-auto border-s-4 border-teal/10 bg-paper p-6 md:flex">
+        {/* Camera-graded practice hero — the differentiator, top of the dashboard */}
+        {practiceHero}
+
         {/* Stats cluster */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-teal/10 bg-sand p-4">
