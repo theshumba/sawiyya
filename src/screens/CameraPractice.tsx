@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { num, pick, t, type TKey } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, useApp, xpTodayFor } from "../store/app";
 import { useUi } from "../store/ui";
 import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
@@ -106,7 +106,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
           <Pill tone="gold" className="!py-1">
             <Icon name="stars" fill className="text-base leading-none text-gold" />
             <span className="font-display">
-              {num(profile.xpToday, lang)} {t("xp", lang)}
+              {num(xpTodayFor(profile), lang)} {t("xp", lang)}
             </span>
           </Pill>
           <button

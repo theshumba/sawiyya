@@ -15,6 +15,7 @@ import {
   dueSignIds,
   pinnedFlagSigns,
   useApp,
+  xpTodayFor,
 } from "../store/app";
 import { useUi } from "../store/ui";
 import { Card, Icon, ProgressRing, Wordmark, Logo } from "../components/ui";
@@ -28,7 +29,8 @@ export function Home() {
   const lang = profile.language;
 
   const goalXp = GOAL_XP[profile.dailyGoal];
-  const goalProgress = profile.xpToday / goalXp;
+  const xpToday = xpTodayFor(profile); // today's XP, not yesterday's stale total (#5)
+  const goalProgress = xpToday / goalXp;
   const goalPct = Math.round(Math.min(1, goalProgress) * 100);
 
   // next lesson = first lesson with an unseen sign; falls back to L1 replay
@@ -65,7 +67,7 @@ export function Home() {
   const goalLabel =
     goalProgress >= 1
       ? t("homeAllDone", lang)
-      : `${num(profile.xpToday, lang)} / ${num(goalXp, lang)} ${t("xp", lang)}`;
+      : `${num(xpToday, lang)} / ${num(goalXp, lang)} ${t("xp", lang)}`;
 
   // The winding landscape + journey nodes (re-used on mobile + desktop centre).
   const journey = (
