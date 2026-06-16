@@ -72,6 +72,8 @@ export interface AppState {
     opts?: { selfMark?: boolean; camera?: boolean; matched?: boolean; watch?: boolean },
   ) => void;
   recordLessonComplete: () => void;
+  /** Seed an SRS review card for a sign without XP/mastery (Dictionary "Add to Daily Review"). */
+  addToReview: (signId: string) => void;
   markFirstSignTime: () => void;
   toggleFlag: (signId: string, raisedByProfileId: string) => void;
   bumpMetric: (key: keyof Metrics, by?: number) => void;
@@ -205,6 +207,23 @@ export const useApp = create<AppState>()(
         set((s) => ({
           metrics: { ...s.metrics, lessonsCompleted: s.metrics.lessonsCompleted + 1 },
         })),
+
+      // Explicitly schedule a sign for review (due now) without inflating mastery,
+      // XP or "Learned" counts — that's reserved for actual drills (#M5). A no-op
+      // if the sign already has a card.
+      addToReview: (signId) =>
+        set((s) => {
+          const { activeProfileId } = get();
+          if (!activeProfileId) return s;
+          const profileSrs = s.srs[activeProfileId] ?? {};
+          if (profileSrs[signId]) return s;
+          return {
+            srs: {
+              ...s.srs,
+              [activeProfileId]: { ...profileSrs, [signId]: newStoredCard() },
+            },
+          };
+        }),
 
       markFirstSignTime: () => {
         const { metrics } = get();
