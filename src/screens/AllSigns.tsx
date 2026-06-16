@@ -53,7 +53,7 @@ export function AllSigns() {
   const app = useApp();
   const go = useUi((s) => s.go);
   const toggleFlag = useApp((s) => s.toggleFlag);
-  const recordDrillResult = useApp((s) => s.recordDrillResult);
+  const addToReview = useApp((s) => s.addToReview);
   const profile = activeProfile(app);
   const lang = profile?.language ?? "en";
   const rtl = lang === "ar";
@@ -87,7 +87,6 @@ export function AllSigns() {
   const signs = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ALL_SIGNS.filter((sign) => {
-      const st = statusOf(sign);
       if (filter === "learned" && (progress[sign.id]?.masteryLevel ?? 0) === 0) return false;
       if (filter === "flagged" && !flaggedIds.has(sign.id)) return false;
       if (filter === "alphabet" && sign.tier !== "alphabet") return false;
@@ -95,7 +94,6 @@ export function AllSigns() {
       // Unit 2 is on the roadmap (Stitch shows the chip) but has no content yet →
       // resolves to the empty "coming soon" state rather than a fabricated set.
       if (filter === "unit2") return false;
-      void st;
       if (q) {
         const hay = `${sign.glossEn} ${sign.glossAr} ${sign.code ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -116,9 +114,10 @@ export function AllSigns() {
     { id: "unit2", en: "Unit 2", ar: "الوحدة ٢" },
   ];
 
-  // Replay / "Watch" — honest SRS engagement: seeds the card + marks the sign seen
-  // (watch-level XP, never a fake graded success) so the dictionary stays wired.
-  const watchSign = (id: string) => recordDrillResult(id, "good", { watch: true });
+  // Only gradable (static/alphabet) signs get a camera target. Dynamic signs can't be
+  // graded (§9.4); routing them into teach mode let the learner record bogus KNN samples
+  // that pollute the recognizer (#2). DetailPanel hides the camera CTA for those.
+  const practiceSign = (sign: Sign) => go({ name: "camera", targetSignId: sign.id });
 
   return (
     <div className="min-h-dvh bg-sand pb-28 md:pb-24">
@@ -238,10 +237,9 @@ export function AllSigns() {
                   rtl={rtl}
                   variant="panel"
                   onClose={() => setSelectedId(null)}
-                  onPractice={() => go({ name: "camera", targetSignId: selected.id })}
+                  onPractice={() => practiceSign(selected)}
                   onToggleFlag={() => profile && toggleFlag(selected.id, profile.id)}
-                  onWatch={() => watchSign(selected.id)}
-                  onAddReview={() => watchSign(selected.id)}
+                  onAddReview={() => addToReview(selected.id)}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center rounded-[40px] border-2 border-dashed border-teal/15 bg-paper/50 px-8 py-20 text-center">
@@ -275,10 +273,9 @@ export function AllSigns() {
               rtl={rtl}
               variant="sheet"
               onClose={() => setSelectedId(null)}
-              onPractice={() => go({ name: "camera", targetSignId: selected.id })}
+              onPractice={() => practiceSign(selected)}
               onToggleFlag={() => profile && toggleFlag(selected.id, profile.id)}
-              onWatch={() => watchSign(selected.id)}
-              onAddReview={() => watchSign(selected.id)}
+              onAddReview={() => addToReview(selected.id)}
             />
           </div>
         </div>
@@ -380,7 +377,6 @@ function DetailPanel({
   onClose,
   onPractice,
   onToggleFlag,
-  onWatch,
   onAddReview,
 }: {
   sign: Sign;
@@ -392,7 +388,6 @@ function DetailPanel({
   onClose: () => void;
   onPractice: () => void;
   onToggleFlag: () => void;
-  onWatch: () => void;
   onAddReview: () => void;
 }) {
   const [watched, setWatched] = useState(false);
@@ -401,10 +396,9 @@ function DetailPanel({
   const isPanel = variant === "panel";
   const tags = categoryTags(sign, lang);
 
-  const handleWatch = () => {
-    onWatch();
-    setWatched(true);
-  };
+  // Watch is a pure preview of the reference — browsing a sign must not seed SRS
+  // cards or inflate "Learned" counts (#M5); only drills and Add-to-Review do that.
+  const handleWatch = () => setWatched(true);
 
   const handleShare = async () => {
     const text = `${pick(lang, sign.glossEn, sign.glossAr)} · ${sign.code ?? sign.glossAr}`;
@@ -557,14 +551,22 @@ function DetailPanel({
 
       {/* actions */}
       <div className="mt-auto flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={onPractice}
-          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-coral px-6 py-4 font-display text-lg font-bold text-white extruded-coral transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-        >
-          <Icon name="videocam" className="text-2xl" />
-          {pick(lang, "Practise with camera", "تدرّب بالكاميرا")}
-        </button>
+        {sign.cameraGradable ? (
+          <button
+            type="button"
+            onClick={onPractice}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-coral px-6 py-4 font-display text-lg font-bold text-white extruded-coral transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          >
+            <Icon name="videocam" className="text-2xl" />
+            {t("practiceCamera", lang)}
+          </button>
+        ) : (
+          // Non-gradable (moving) sign — camera can't grade it, so steer to Watch (§9.4).
+          <p className="flex items-center justify-center gap-2 rounded-2xl bg-sand px-6 py-4 text-center font-display text-sm font-semibold text-ink/70">
+            <Icon name="info" className="text-lg text-teal" />
+            {pick(lang, "Watch the reference — this sign moves, so the camera can't grade it yet.", "شاهد المرجع — هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.")}
+          </p>
+        )}
 
         {/* desktop: Add to Daily Review (SRS). mobile: Flagged + Share row (Stitch sheet). */}
         <button
