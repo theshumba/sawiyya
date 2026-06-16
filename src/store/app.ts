@@ -144,15 +144,18 @@ export const useApp = create<AppState>()(
           const card = profileSrs[signId] ?? newStoredCard();
           profileSrs[signId] = rateCard(card, outcome);
 
-          // 2. Mastery: 1 seen → 2 practised → 3 mastered (3+ successful reps)
+          // 2. Mastery: 1 seen → 2 practised → 3 mastered (3+ *successful* reps)
           const profileProg = { ...(s.progress[activeProfileId] ?? {}) };
           const prev = profileProg[signId]?.masteryLevel ?? 0;
           const success = !opts.watch && (outcome === "good" || outcome === "easy");
-          const reps = profileSrs[signId].reps;
+          // ts-fsrs `reps` counts every review including "again"/lapses; subtract
+          // lapses so mastery reflects successful recall, not raw attempts (#6).
+          const ratedCard = profileSrs[signId];
+          const successfulReps = ratedCard.reps - ratedCard.lapses;
           const mastery = opts.watch
             ? Math.max(prev, 1)
             : success
-              ? reps >= 3
+              ? successfulReps >= 3
                 ? 3
                 : Math.max(prev, 2)
               : Math.max(prev, 1);
@@ -244,6 +247,16 @@ export const useApp = create<AppState>()(
 // ── selectors ────────────────────────────────────────────────────────────────
 export function activeProfile(s: AppState): Profile | null {
   return s.profiles.find((p) => p.id === s.activeProfileId) ?? null;
+}
+
+/**
+ * Today's XP, derived at read time (#5). `xpToday` is only reset inside
+ * recordDrillResult on the first drill of a new day, so on a fresh morning —
+ * before that drill — the stored value is yesterday's total. Reading it through
+ * here keeps the daily-goal ring honest from the moment the app opens.
+ */
+export function xpTodayFor(p: Profile): number {
+  return p.lastActiveDay === todayKey() ? p.xpToday : 0;
 }
 
 /** Signs flagged by Deaf family members, newest first (PRD §6.7). */
