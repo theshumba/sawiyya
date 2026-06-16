@@ -90,6 +90,7 @@ export function CameraTrainer({
     setHoldProgress(Math.min(1, consecutive.current / HOLD_FRAMES));
     if (consecutive.current >= HOLD_FRAMES) {
       finished.current = true;
+      tracker.stop(); // release the camera the moment the match confirms
       setMatched(true);
       setTimeout(() => onResult("match"), 900);
     }
