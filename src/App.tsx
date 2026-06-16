@@ -15,6 +15,7 @@ import { Settings } from "./screens/Settings";
 import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
+import { PractiseChooser } from "./screens/PractiseChooser";
 
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress", "allSigns"]);
 
@@ -49,6 +50,7 @@ export default function App() {
         {screen.name === "flagPicker" && <FlagPicker />}
         {screen.name === "progress" && <Progress />}
         {screen.name === "allSigns" && <AllSigns />}
+        {screen.name === "practiseChooser" && <PractiseChooser />}
         {screen.name === "settings" && <Settings />}
         {screen.name === "aiTransparency" && <AiTransparency />}
         {screen.name === "privacy" && <Privacy />}

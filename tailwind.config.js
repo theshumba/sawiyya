@@ -6,8 +6,8 @@ export default {
       colors: {
         // Sawiyya brand palette (LOCKED — Brand Identity §2). AA-tuned.
         teal: { DEFAULT: "#0F6E6A", deep: "#0A4F4C", ink: "#16302E" },
-        coral: { DEFAULT: "#E8654C", soft: "#F08A75" },
-        gold: { DEFAULT: "#E6B24C", soft: "#F0C879" },
+        coral: { DEFAULT: "#E8654C", soft: "#F08A75", deep: "#C54F3A" },
+        gold: { DEFAULT: "#E6B24C", soft: "#F0C879", deep: "#C89A3D" },
         sand: "#F6EFE3",
         paper: "#FBF7EF",
         ink: "#16302E",
@@ -31,6 +31,8 @@ export default {
         lift: "0 26px 50px -22px rgba(15,110,106,.5)",
         gold: "0 12px 28px -10px rgba(230,178,76,.55)",
         coral: "0 12px 24px -12px rgba(232,101,76,.6)",
+        // skeuomorphic card edge — one token for the chunky bottom border (was inline #D9D2C7)
+        chunky: "0 6px 0 0 #D9D2C7",
       },
       keyframes: {
         "pop-in": {

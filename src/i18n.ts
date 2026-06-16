@@ -13,6 +13,10 @@ const dict = {
   navCamera: { en: "Camera", ar: "الكاميرا" },
   navFamily: { en: "Family", ar: "العائلة" },
   navProgress: { en: "Progress", ar: "التقدم" },
+  navLearn: { en: "Learn", ar: "تعلّم" },
+  navPractise: { en: "Practise", ar: "تدرّب" },
+  navDictionary: { en: "Signs", ar: "القاموس" },
+  navProfile: { en: "Profile", ar: "حسابي" },
 
   // onboarding
   obChooseLang: { en: "اختر لغتك · Choose your language", ar: "اختر لغتك · Choose your language" },

@@ -54,6 +54,7 @@ export function Icon({
 }
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "gold";
+type ButtonSize = "sm" | "md" | "lg";
 
 // Extruded "pressable" buttons — flat top face + hard darker bottom edge,
 // depressing on :active (mirrored from the approved Stitch design).
@@ -64,48 +65,83 @@ const variantClasses: Record<ButtonVariant, string> = {
   ghost: "bg-transparent text-teal border-2 border-teal/30 active:scale-[.98]",
 };
 
+// One button size scale (spec §4.2) — stop overriding px/py per call-site.
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: "text-sm rounded-xl px-4 py-2.5 min-h-[40px]",
+  md: "text-base rounded-2xl px-6 py-3.5 min-h-[48px]",
+  lg: "text-lg rounded-2xl px-7 py-4 min-h-[56px]",
+};
+
 export function Button({
   children,
   onClick,
   variant = "primary",
+  size = "md",
   disabled,
   full,
   className = "",
   type = "button",
+  ariaLabel,
+  ariaBusy,
 }: {
   children: ReactNode;
   onClick?: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   full?: boolean;
   className?: string;
   type?: "button" | "submit";
+  ariaLabel?: string;
+  ariaBusy?: boolean;
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${variantClasses[variant]} ${full ? "w-full" : ""} font-display font-bold text-base rounded-2xl px-6 py-4 min-h-[52px] transition disabled:opacity-40 disabled:shadow-none ${className}`}
+      aria-label={ariaLabel}
+      aria-busy={ariaBusy}
+      className={`${variantClasses[variant]} ${sizeClasses[size]} ${full ? "w-full" : ""} font-display font-bold transition disabled:opacity-40 disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${className}`}
     >
       {children}
     </button>
   );
 }
 
+type CardVariant = "flat" | "elevated" | "selected";
+
+const cardVariants: Record<CardVariant, string> = {
+  flat: "bg-paper border border-line",
+  elevated: "bg-paper border border-line shadow-soft",
+  selected: "bg-teal/5 border-2 border-teal ring-4 ring-teal/10",
+};
+
 export function Card({
   children,
   className = "",
   onClick,
+  variant = "flat",
+  ariaPressed,
+  ariaLabel,
 }: {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
+  variant?: CardVariant;
+  ariaPressed?: boolean;
+  ariaLabel?: string;
 }) {
-  const base = `bg-paper border border-line rounded-3xl ${className}`;
+  const base = `${cardVariants[variant]} rounded-3xl ${className}`;
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={`${base} text-start w-full transition active:scale-[.99]`}>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={ariaPressed}
+        aria-label={ariaLabel}
+        className={`${base} text-start w-full transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal`}
+      >
         {children}
       </button>
     );
@@ -193,4 +229,73 @@ export function MeetingBar({ progress }: { progress: number }) {
       </div>
     </div>
   );
+}
+
+// ── Added for the redesign (spec §3/§4) — additive primitives ────────────────
+
+/** Profile avatar — emoji glyph in a brand chip. Used by the shared header. */
+export function Avatar({
+  emoji,
+  size = "md",
+  className = "",
+}: {
+  emoji: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  const dims = { sm: "h-8 w-8 text-base", md: "h-10 w-10 text-lg", lg: "h-14 w-14 text-2xl" }[size];
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-full border-2 border-paper bg-sand ${dims} ${className}`}
+      aria-hidden="true"
+    >
+      {emoji}
+    </span>
+  );
+}
+
+/** Notification dot / count bubble — e.g. family-request count on the profile button. */
+export function Badge({
+  count,
+  className = "",
+}: {
+  count?: number;
+  className?: string;
+}) {
+  if (count !== undefined && count <= 0) return null;
+  return (
+    <span
+      className={`inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-coral px-1 font-display text-[10px] font-bold leading-none text-white ${className}`}
+      aria-hidden="true"
+    >
+      {count !== undefined ? (count > 9 ? "9+" : count) : ""}
+    </span>
+  );
+}
+
+/** Typed text primitives (spec §4.2) — one type ramp instead of per-screen ad-hoc sizes.
+ *  Eyebrow drops uppercase/tracking in Arabic (uppercasing Arabic is wrong). */
+export function Title({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <h2 className={`font-display text-2xl font-bold leading-tight text-ink md:text-3xl ${className}`}>{children}</h2>;
+}
+export function Subtitle({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <p className={`font-display text-lg font-semibold text-ink ${className}`}>{children}</p>;
+}
+export function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <p className={`font-sans text-base leading-relaxed text-ink/80 ${className}`}>{children}</p>;
+}
+export function Caption({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <p className={`text-sm text-muted ${className}`}>{children}</p>;
+}
+export function Eyebrow({
+  children,
+  lang,
+  className = "",
+}: {
+  children: ReactNode;
+  lang?: "en" | "ar";
+  className?: string;
+}) {
+  const latin = lang !== "ar" ? "uppercase tracking-wide" : "";
+  return <p className={`font-display text-xs font-bold text-teal ${latin} ${className}`}>{children}</p>;
 }
