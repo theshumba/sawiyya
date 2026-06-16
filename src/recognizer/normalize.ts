@@ -9,6 +9,7 @@ export interface LM {
 
 /** 21 landmarks → 42-dim normalised feature vector (x,y pairs). */
 export function normalizeLandmarks(lms: LM[], mirror: boolean): number[] {
+  if (lms.length === 0) return []; // defensive — no landmarks → no feature vector
   const wrist = lms[0];
   const rel: [number, number][] = [];
   let scale = 0;
