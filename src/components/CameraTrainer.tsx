@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
-import { addSample, classify, clearClass, isTrained, sampleCount, TAU } from "../recognizer/knn";
+import { addSample, classifyAgainst, clearClass, isTrained, sampleCount } from "../recognizer/knn";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
 
@@ -82,10 +82,11 @@ export function CameraTrainer({
     // grade mode
     attemptFrames.current += 1;
     if (attemptFrames.current > UNSURE_AFTER_FRAMES) setShowUnsure(true);
-    const result = classify(vec);
-    const isTarget = result.classId === sign.id && result.confidence >= TAU;
-    setConfidence(result.classId === sign.id ? result.confidence : 0);
-    consecutive.current = isTarget ? consecutive.current + 1 : 0;
+    // Grade against THIS sign's class specifically — never the global argmax,
+    // which sticks the meter at 0% once another class is trained (knn.ts).
+    const result = classifyAgainst(vec, sign.id);
+    setConfidence(result.confidence);
+    consecutive.current = result.matched ? consecutive.current + 1 : 0;
     setHoldProgress(Math.min(1, consecutive.current / HOLD_FRAMES));
     if (consecutive.current >= HOLD_FRAMES) {
       finished.current = true;
