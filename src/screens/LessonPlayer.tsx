@@ -595,8 +595,7 @@ function ResultsCard({
         />
         <StatCard
           tone="teal"
-          // No i18n key exists for "Accuracy" — bilingual literal (documented new string).
-          label={lang === "ar" ? "الدقة" : "Accuracy"}
+          label={t("accuracy", lang)}
           value={`${num(accuracy, lang)}%`}
         />
         <StatCard
@@ -658,8 +657,7 @@ function ResultsCard({
           className="flex items-center justify-center gap-2 py-2 font-display font-bold text-teal transition hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
         >
           <Icon name="videocam" className="text-xl" />
-          {/* No i18n key for "Practice with camera" — bilingual literal (documented new string). */}
-          <span>{lang === "ar" ? "تدرب بالكاميرا" : "Practice with camera"}</span>
+          <span>{t("practiceCamera", lang)}</span>
         </button>
       </section>
     </div>

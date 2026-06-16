@@ -288,12 +288,24 @@ export function Family() {
           {t("homeFlagged", lang)}
         </span>
         <h3 className="flex items-center gap-2 font-display text-2xl font-bold text-coral">
-          {flagger ? `${flagger.displayName} ${t("famFlagged", lang)}` : t("famFlagTitle", lang)}
+          {flagger ? (
+            <span>
+              <bdi>{flagger.displayName}</bdi> {t("famFlagged", lang)}
+            </span>
+          ) : (
+            t("famFlagTitle", lang)
+          )}
           <Icon name="flag" className="text-xl" />
         </h3>
         {deafMembers.length > 0 && (
           <p className="text-sm text-muted">
-            {deafMembers.map((d) => d.displayName).join("، ")} {t("famOnlyDeafFlags", lang)}
+            {deafMembers.map((d, i) => (
+              <span key={d.id}>
+                <bdi>{d.displayName}</bdi>
+                {i < deafMembers.length - 1 ? "، " : ""}
+              </span>
+            ))}{" "}
+            {t("famOnlyDeafFlags", lang)}
           </p>
         )}
       </div>

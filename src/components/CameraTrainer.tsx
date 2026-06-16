@@ -211,9 +211,9 @@ export function CameraTrainer({
               <span className="font-display text-2xl font-black leading-none text-teal md:text-4xl">
                 {Math.round(meter * 100)}%
               </span>
-              {/* bilingual "reached!" sublabel — mirrors desktop 'وصلت!' */}
+              {/* "reached!" sublabel — localised (was hard-coded Arabic for both langs) */}
               <span className="mt-0.5 hidden font-display text-base font-bold leading-none text-teal-deep md:block">
-                {pick(lang, "وصلت!", "وصلت!")}
+                {t("camReached", lang)}
               </span>
             </div>
           </div>
