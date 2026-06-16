@@ -11,7 +11,7 @@
 // and the actual requestors.
 import { useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS } from "../content/signs";
+import { A1_SIGNS, signById } from "../content/signs";
 import { activeFlags, activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { Button, Icon } from "../components/ui";
@@ -88,9 +88,11 @@ export function FlagPicker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group, q, query, mostNeeded, flags.length]);
 
-  // Flagged signs, in flag order, for the summary rail.
+  // Flagged signs, in flag order, for the summary rail. Resolve via signById (the
+  // single source of truth) so flagged ALPHABET signs resolve too — A1_SIGNS.find
+  // silently dropped them (#M3).
   const flaggedSigns = flags
-    .map((f) => A1_SIGNS.find((s) => s.id === f.signId))
+    .map((f) => signById(f.signId))
     .filter((s): s is Sign => Boolean(s));
 
   // Priority labels (Stitch summary rail) — first two flags High, rest Medium.
@@ -148,7 +150,7 @@ export function FlagPicker() {
         <div className="mb-2 flex items-center justify-between md:hidden">
           <div className="flex items-center gap-3">
             <span className="rounded-xl bg-paper/10 p-2 text-paper">
-              <Icon name="crown" fill />
+              <Icon name="family_star" fill />
             </span>
             <h1 className="font-display text-xl font-bold uppercase tracking-wider text-paper">
               {t("famFlagTitle", lang)}
