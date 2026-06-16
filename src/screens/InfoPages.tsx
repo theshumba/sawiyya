@@ -241,8 +241,8 @@ export function AiTransparency() {
       title: T("Everything runs on your device", "كل شي يتم على جهازك"),
       subtitle: T("كل شي يتم على جهازك", "Everything runs on your device"),
       body: T(
-        "It tracks the 21 joints of one hand in real time and recognises static handshapes — all on this phone. No camera frame, hand landmark, or recording is ever uploaded. There is no server to upload to.",
-        "تتبّع ٢١ مفصلًا في يد واحدة لحظيًا وتتعرف على أشكال اليد الثابتة — كل ذلك على هذا الجهاز. لا تُرفع أي لقطة كاميرا أو نقطة يد أو تسجيل. ولا يوجد خادم أصلًا للرفع إليه."
+        "It tracks the 21 joints of one hand in real time and recognises static handshapes — all on this phone. No camera frame, hand landmark, or recording is ever uploaded. The only network use is a one-time download of the AI model and fonts on first open; after that it works offline.",
+        "تتبّع ٢١ مفصلًا في يد واحدة لحظيًا وتتعرف على أشكال اليد الثابتة — كل ذلك على هذا الجهاز. لا تُرفع أي لقطة كاميرا أو نقطة يد أو تسجيل. الاستخدام الوحيد للشبكة هو تنزيل نموذج الذكاء الاصطناعي والخطوط لمرة واحدة عند أول فتح؛ بعدها يعمل دون اتصال."
       ),
     },
     {
@@ -483,8 +483,8 @@ export function Privacy() {
             </h3>
             <p className="text-[15px] leading-relaxed text-ink/80">
               {T(
-                "All hand tracking and recognition runs 100% on this device. No camera frame, no hand landmark, no recording is ever uploaded — there is no server to upload to.",
-                "كل تتبّع اليد والتعرف يعمل ١٠٠٪ على هذا الجهاز. لا تُرفع أي لقطة كاميرا ولا أي نقطة يد ولا أي تسجيل — ولا يوجد خادم أصلًا للرفع إليه."
+                "All hand tracking and recognition runs 100% on this device. Your camera images and hand-landmark data never leave your phone — no video is ever uploaded. The app only reaches the network once, on first open, to download the AI model and fonts; then it runs offline.",
+                "كل تتبّع اليد والتعرف يعمل ١٠٠٪ على هذا الجهاز. صور الكاميرا وبيانات نقاط اليد لا تغادر هاتفك أبدًا — ولا يُرفع أي فيديو. يتصل التطبيق بالشبكة مرة واحدة فقط عند أول فتح لتنزيل نموذج الذكاء الاصطناعي والخطوط؛ ثم يعمل دون اتصال."
               )}
             </p>
           </PrivacyCard>
