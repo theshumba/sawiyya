@@ -23,7 +23,10 @@ export default defineConfig({
             options: {
               cacheName: "mediapipe-assets",
               expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 60 },
-              cacheableResponse: { statuses: [0, 200] },
+              // Only cache real 200s. Caching opaque/zero-byte responses (status 0)
+              // let one bad CDN response brick the recognizer for 60 days, since
+              // CacheFirst would keep serving it without revalidating (M1).
+              cacheableResponse: { statuses: [200] },
             },
           },
           {
