@@ -19,16 +19,18 @@ import { AllSigns } from "./screens/AllSigns";
 const NAV_SCREENS = new Set(["home", "camera", "family", "progress", "allSigns"]);
 
 export default function App() {
-  const app = useApp();
+  // Scope the root subscription so an unrelated metric/SRS write doesn't re-render
+  // the whole screen tree (Q4) — App only needs onboarding state + the active profile.
+  const onboarded = useApp((s) => s.onboarded);
+  const profile = useApp(activeProfile);
   const { screen } = useUi();
-  const profile = activeProfile(app);
   const lang = profile?.language ?? "en";
 
   useEffect(() => {
     applyDir(lang);
   }, [lang]);
 
-  if (!app.onboarded || !profile) {
+  if (!onboarded || !profile) {
     return <Onboarding />;
   }
 
