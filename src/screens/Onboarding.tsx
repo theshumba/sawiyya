@@ -14,7 +14,7 @@ import { useUi } from "../store/ui";
 import type { DailyGoal, Hand, Lang, Persona } from "../types";
 import { Button, Icon, Logo, Wordmark } from "../components/ui";
 
-type Step = "splash" | "lang" | "why" | "hand" | "goal" | "name";
+type Step = "splash" | "lang" | "learn" | "why" | "hand" | "goal" | "name";
 
 // Brand illustrations from the approved Stitch screen (public/brand/mapping.tsv).
 // `ar` = the Arabic persona label Stitch renders beneath each card title.
@@ -107,10 +107,10 @@ export function Onboarding() {
   const chooseLang = (l: Lang) => {
     setLang(l);
     applyDir(l);
-    setStep("why");
+    setStep("learn");
   };
 
-  const STEP_ORDER: Step[] = ["splash", "lang", "why", "hand", "goal", "name"];
+  const STEP_ORDER: Step[] = ["splash", "lang", "learn", "why", "hand", "goal", "name"];
   const stepIndex = STEP_ORDER.indexOf(step);
   const back = () => {
     if (stepIndex > 0) setStep(STEP_ORDER[stepIndex - 1]);
@@ -148,21 +148,20 @@ export function Onboarding() {
               >
                 <Icon name="arrow_back" className="rtl:-scale-x-100" />
               </button>
-              {/* Progress dots — Stitch shows 4 on mobile, 3 on desktop.
-                  We map the live step index onto that fixed-pip track. */}
-              <div className="flex gap-2 lg:hidden" aria-hidden="true">
-                {[1, 2, 3, 4].map((i) => (
+              {/* Honest step indicator — one pip per real step (excluding splash),
+                  filled up to the current step. */}
+              <div
+                className="flex flex-1 justify-center gap-2"
+                role="progressbar"
+                aria-valuenow={stepIndex}
+                aria-valuemin={1}
+                aria-valuemax={STEP_ORDER.length - 1}
+                aria-label={pick(lang, "Setup progress", "تقدّم الإعداد")}
+              >
+                {STEP_ORDER.slice(1).map((s, i) => (
                   <span
-                    key={i}
-                    className={`h-3 rounded-full transition-all ${i <= Math.min(stepIndex, 4) ? "w-8 bg-teal" : "w-3 bg-teal/20"}`}
-                  />
-                ))}
-              </div>
-              <div className="hidden gap-3 lg:flex" aria-hidden="true">
-                {[1, 2, 3].map((i) => (
-                  <span
-                    key={i}
-                    className={`h-3 rounded-full transition-all ${i <= Math.min(stepIndex, 3) ? "w-12 bg-teal" : "w-12 bg-ink/10"}`}
+                    key={s}
+                    className={`h-2.5 rounded-full transition-all ${i + 1 <= stepIndex ? "w-8 bg-teal" : "w-2.5 bg-teal/20"}`}
                   />
                 ))}
               </div>
@@ -205,6 +204,55 @@ export function Onboarding() {
                 <span className="text-2xl font-bold">English</span>
                 <p className="mt-1 text-sm font-medium text-muted">الإنجليزية</p>
               </button>
+            </div>
+          )}
+
+          {step === "learn" && (
+            <div className="flex flex-1 flex-col justify-center gap-4 pb-24">
+              <div className="mb-2 text-center">
+                <h1 className="font-display text-3xl font-bold leading-tight">
+                  {pick(lang, "What do you want to learn?", "ماذا تريد أن تتعلّم؟")}
+                </h1>
+                <p className="mt-2 text-muted">
+                  {pick(lang, "Qatari Sign Language — start here, on your device.", "لغة الإشارة القطرية — ابدأ هنا، على جهازك.")}
+                </p>
+              </div>
+
+              {/* Arabic alphabet — the ready, fully-gradable path */}
+              <div className={`${cardBase} flex items-center gap-4 p-5`}>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-black text-teal" dir="rtl">ا ب</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-lg font-bold text-ink">{pick(lang, "Arabic Alphabet", "الحروف العربية")}</span>
+                    <span className="rounded-full bg-teal px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{pick(lang, "Ready", "جاهز")}</span>
+                  </div>
+                  <p className="text-sm text-muted">{pick(lang, "All 32 letters, camera-graded", "كل الحروف الـ32، بتقييم الكاميرا")}</p>
+                </div>
+                <Icon name="check_circle" fill className="text-2xl text-teal" />
+              </div>
+
+              {/* Everyday QSL signs — teach-mode */}
+              <div className={`${cardBase} flex items-center gap-4 p-5`}>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-2xl">👋</span>
+                <div className="min-w-0 flex-1">
+                  <span className="font-display text-lg font-bold text-ink">{pick(lang, "Everyday signs", "إشارات يومية")}</span>
+                  <p className="text-sm text-muted">{pick(lang, "Hello, milk, more, thank you…", "مرحبا، حليب، المزيد، شكرًا…")}</p>
+                </div>
+                <Icon name="check_circle" fill className="text-2xl text-teal" />
+              </div>
+
+              {/* Other dialects — honest coming-soon, no fabricated data */}
+              <div className="flex items-center gap-4 rounded-3xl border-2 border-dashed border-teal/20 p-5 opacity-80">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ink/5 text-teal/40"><Icon name="public" className="text-2xl" /></span>
+                <div className="min-w-0 flex-1">
+                  <span className="font-display text-lg font-bold text-ink/70">{pick(lang, "Other Gulf dialects", "لهجات خليجية أخرى")}</span>
+                  <p className="text-sm text-muted">{pick(lang, "Emirati, Saudi & more — coming soon", "الإماراتية والسعودية وغيرها — قريبًا")}</p>
+                </div>
+              </div>
+
+              <Button full className="mt-2 !rounded-3xl" onClick={() => setStep("why")}>
+                {t("obContinue", lang)}
+              </Button>
             </div>
           )}
 
