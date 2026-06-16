@@ -51,12 +51,32 @@ function save() {
   }
 }
 
+// Teach mode adds ~7 samples/sec; serialising the whole growing store on every
+// one stalls the capture path (Q3). Debounce writes and expose flushSamples()
+// so callers force a durable write at teach "done" / when leaving the screen.
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleSave() {
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    save();
+  }, 400);
+}
+
+export function flushSamples() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  save();
+}
+
 export function addSample(classId: string, vec: number[]) {
   const s = store();
   const arr = s[classId] ?? (s[classId] = []);
   arr.push(vec.map((v) => Math.round(v * 1000) / 1000)); // 3dp — compact storage
   if (arr.length > MAX_SAMPLES_PER_CLASS) arr.splice(0, arr.length - MAX_SAMPLES_PER_CLASS);
-  save();
+  scheduleSave();
 }
 
 export function clearClass(classId: string) {
@@ -92,17 +112,36 @@ export function isTrained(classId: string): boolean {
  * sample can no longer wave an out-of-distribution handshape through.
  */
 export function classifyAgainst(vec: number[], targetId: string): TargetClassification {
+  if (vec.length === 0) return { confidence: 0, matched: false }; // empty/degenerate frame (Q8)
   const s = store();
-  const neighbours: { classId: string; d: number }[] = [];
+
+  // Maintain just the K nearest neighbours via bounded insertion — avoids
+  // allocating + full-sorting an array of every sample each frame (Q2).
+  const top: { classId: string; d: number }[] = [];
+  let worst = Infinity;
   for (const [classId, samples] of Object.entries(s)) {
     for (const sample of samples) {
-      neighbours.push({ classId, d: euclidean(vec, sample) });
+      const d = euclidean(vec, sample);
+      if (top.length < K) {
+        top.push({ classId, d });
+        if (top.length === K) {
+          top.sort((a, b) => a.d - b.d);
+          worst = top[K - 1].d;
+        }
+      } else if (d < worst) {
+        top[K - 1] = { classId, d };
+        let i = K - 1;
+        while (i > 0 && top[i].d < top[i - 1].d) {
+          [top[i - 1], top[i]] = [top[i], top[i - 1]];
+          i -= 1;
+        }
+        worst = top[K - 1].d;
+      }
     }
   }
-  if (neighbours.length === 0) return { confidence: 0, matched: false };
+  if (top.length === 0) return { confidence: 0, matched: false };
+  if (top.length < K) top.sort((a, b) => a.d - b.d); // fewer than K samples total
 
-  neighbours.sort((a, b) => a.d - b.d);
-  const top = neighbours.slice(0, Math.min(K, neighbours.length));
   const meanTopD = top.reduce((sum, n) => sum + n.d, 0) / top.length;
 
   const weights = new Map<string, number>();
