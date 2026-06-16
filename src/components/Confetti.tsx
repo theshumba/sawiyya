@@ -35,6 +35,11 @@ export function Confetti({ burst }: { burst: number }) {
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
 
+    // A re-burst within the previous animation window must start clean — otherwise
+    // leftover particles accumulate and can freeze on the full-screen canvas (M7).
+    cancelAnimationFrame(raf.current);
+    particles.current = [];
+
     for (let i = 0; i < 90; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 4 + Math.random() * 9;
