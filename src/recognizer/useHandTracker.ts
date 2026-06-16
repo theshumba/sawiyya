@@ -120,14 +120,29 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       let frames = 0;
       let fpsT = 0;
 
+      // setHandVisible fires per frame; only push when it actually flips (Q1).
+      let handVisibleNow = false;
+      const setHandVisibleIfChanged = (v: boolean) => {
+        if (v !== handVisibleNow) {
+          handVisibleNow = v;
+          setHandVisible(v);
+        }
+      };
+
       const loop = (t: number) => {
         if (!running.current || myLoop !== activeLoop) return; // superseded by a newer loop
+        // Some mobile Safari builds report videoWidth 0 until metadata fires, leaving
+        // the overlay canvas 0×0 all session; lazily size it once dimensions exist (M4).
+        if ((canvas.width === 0 || canvas.height === 0) && video.videoWidth > 0) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
         if (video.currentTime !== lastVideoTime) {
           lastVideoTime = video.currentTime;
           const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           if (res.landmarks && res.landmarks.length > 0) {
-            setHandVisible(true);
+            setHandVisibleIfChanged(true);
             const lm = res.landmarks[0];
             draw.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, {
               color: "#E6B24C",
@@ -143,7 +158,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
               (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
             onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
           } else {
-            setHandVisible(false);
+            setHandVisibleIfChanged(false);
             onFrameRef.current(null);
           }
         }
