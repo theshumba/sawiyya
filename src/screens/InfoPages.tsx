@@ -1,201 +1,14 @@
 // AI transparency + privacy pages (PRD §6.10, §9.6).
 // Responsible-AI signal: state plainly what the AI does and does NOT do.
-// Restyled to Google Stitch v2 brand (how-the-ai-works--*, privacy--*).
+// Both pages live behind the profile button and render inside the global
+// ScreenShell takeover chrome (close → settings). No self-hosted nav.
 import type { ReactNode } from "react";
-import { pick, t } from "../i18n";
+import { pick } from "../i18n";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import type { Screen } from "../store/ui";
 import type { Lang } from "../types";
-import { Button, Icon } from "../components/ui";
-
-/* ------------------------------------------------------------------ *
- * Shared chrome — teal top app bar that matches the Stitch TopAppBar. *
- * On desktop the Stitch comps add a "Learning Portal / Family         *
- * Practice" portal bar, a left sidebar nav, and a rich footer; those  *
- * live in DesktopChrome below and are layered around this bar.        *
- * ------------------------------------------------------------------ */
-
-function TopBar({ title, lang }: { title: string; lang: Lang }) {
-  const { go } = useUi();
-  return (
-    <header className="sticky top-0 z-30 flex w-full items-center gap-4 bg-teal px-5 py-4 text-paper shadow-[0_4px_0_0_theme(colors.teal.deep)] md:px-10">
-      <button
-        type="button"
-        onClick={() => go({ name: "settings" })}
-        aria-label={pick(lang, "Back", "رجوع")}
-        className="flex h-10 w-10 items-center justify-center rounded-full text-paper transition active:translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-      >
-        <Icon name="arrow_back" className="text-2xl" />
-      </button>
-      <h1 className="flex-1 font-display text-xl font-bold tracking-tight text-paper md:text-2xl">{title}</h1>
-      {/* Portal links — desktop only (Stitch "Learning Portal / Family Practice"). */}
-      <nav aria-hidden="true" className="hidden items-center gap-6 md:flex">
-        <span className="font-display text-sm font-bold text-paper">{pick(lang, "Learning Portal", "بوابة التعلّم")}</span>
-        <span className="font-display text-sm font-bold text-paper/70">{pick(lang, "Family Practice", "تدريب العائلة")}</span>
-      </nav>
-      <span
-        aria-hidden="true"
-        className="flex h-8 w-8 items-center justify-center rounded-lg bg-paper font-display text-lg font-bold text-teal"
-      >
-        س
-      </span>
-    </header>
-  );
-}
-
-/* ------------------------------------------------------------------ *
- * Desktop sidebar nav + footer — mirrors the marketing-style chrome   *
- * shown in privacy---desktop / how-the-ai-works---desktop. Hidden on  *
- * mobile, where the app's own BottomNav handles navigation.           *
- * ------------------------------------------------------------------ */
-
-function SidebarNav({ lang, active }: { lang: Lang; active: Screen["name"] }) {
-  const { go } = useUi();
-  const items: { name: Screen["name"]; icon: string; label: string; screen: Screen }[] = [
-    { name: "home", icon: "home", label: t("navHome", lang), screen: { name: "home" } },
-    { name: "camera", icon: "videocam", label: t("navCamera", lang), screen: { name: "camera" } },
-    { name: "family", icon: "favorite", label: t("navFamily", lang), screen: { name: "family" } },
-    { name: "progress", icon: "leaderboard", label: t("navProgress", lang), screen: { name: "progress" } },
-    { name: "settings", icon: "settings", label: t("setTitle", lang), screen: { name: "settings" } },
-  ];
-  return (
-    <aside className="hidden w-64 shrink-0 flex-col bg-teal px-4 py-8 text-paper lg:flex">
-      <div className="mb-10 flex items-center gap-3 px-4">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-paper font-display text-2xl font-bold text-teal">
-          س
-        </span>
-        <div>
-          <p className="font-display text-xl font-bold leading-none text-paper">Sawiyya</p>
-          <p className="text-sm text-paper/60" dir="auto">
-            سويّة
-          </p>
-        </div>
-      </div>
-      <nav className="flex flex-col gap-2">
-        {items.map((it) => {
-          const isActive = it.name === active;
-          return (
-            <button
-              key={it.name}
-              type="button"
-              onClick={() => go(it.screen)}
-              className={`flex items-center gap-4 rounded-full px-4 py-3 text-start font-display text-base font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${
-                isActive
-                  ? "bg-sand text-teal shadow-[0_4px_0_0_theme(colors.gold.DEFAULT)]"
-                  : "text-paper hover:bg-teal-deep"
-              }`}
-            >
-              <Icon name={it.icon} fill={isActive} className="text-2xl" />
-              <span>{it.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-    </aside>
-  );
-}
-
-function DesktopFooter({ lang }: { lang: Lang }) {
-  const { go } = useUi();
-  return (
-    <footer className="hidden bg-teal px-10 pb-10 pt-14 text-paper md:block">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 md:grid-cols-4">
-        <div className="md:col-span-2">
-          <div className="mb-5 flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-paper font-display text-2xl font-bold text-teal">
-              س
-            </span>
-            <h3 className="font-display text-2xl font-bold tracking-tight" dir="auto">
-              Sawiyya · سويّة
-            </h3>
-          </div>
-          <p className="max-w-md text-base leading-relaxed text-paper/70">
-            {pick(
-              lang,
-              "Teaching the world to sign, one family at a time. Empowering communication between hearing families and Deaf children.",
-              "نعلّم العالم لغة الإشارة، عائلةً تلو الأخرى. نمكّن التواصل بين العائلات السامعة والأطفال الصُّم."
-            )}
-          </p>
-        </div>
-        <div>
-          <h4 className="mb-5 font-display text-sm font-bold uppercase tracking-widest text-gold">
-            {pick(lang, "Resources", "المصادر")}
-          </h4>
-          <ul className="space-y-3 font-display text-base font-bold">
-            <li>
-              <button type="button" onClick={() => go({ name: "allSigns" })} className="transition hover:text-gold">
-                {pick(lang, "Dictionary", "القاموس")}
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={() => go({ name: "home" })} className="transition hover:text-gold">
-                {pick(lang, "Lesson Map", "خريطة الدروس")}
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={() => go({ name: "privacy" })} className="transition hover:text-gold">
-                {pick(lang, "Privacy Policy", "سياسة الخصوصية")}
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={() => go({ name: "settings" })} className="transition hover:text-gold">
-                {pick(lang, "Support", "الدعم")}
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="mb-5 font-display text-sm font-bold uppercase tracking-widest text-gold">
-            {pick(lang, "Community", "المجتمع")}
-          </h4>
-          <div className="flex gap-4" aria-hidden="true">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper/20 text-paper">
-              <Icon name="share" />
-            </span>
-            <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-paper/20 text-paper">
-              <Icon name="mail" />
-            </span>
-          </div>
-        </div>
-      </div>
-      {/* Building Bridges with Dignity band */}
-      <div className="mx-auto mt-12 max-w-6xl border-t border-paper/10 pt-8 text-center">
-        <h4 className="font-display text-lg font-bold text-paper">
-          {pick(lang, "Building Bridges with Dignity", "نبني الجسور بكرامة")}
-        </h4>
-        <p className="mx-auto mt-2 max-w-2xl text-sm text-paper/60">
-          {pick(
-            lang,
-            "Sawiyya is a bridge between the hearing and the Deaf world, built with Gulf values of respect and family warmth.",
-            "سويّة جسر بين عالم السامعين وعالم الصُّم، مبنيّ على قيم الخليج في الاحترام ودفء العائلة."
-          )}
-        </p>
-      </div>
-    </footer>
-  );
-}
-
-/** Wraps an info page in the desktop sidebar + footer shell. */
-function PageShell({
-  lang,
-  active,
-  children,
-}: {
-  lang: Lang;
-  active: Screen["name"];
-  children: ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-sand md:flex">
-      <SidebarNav lang={lang} active={active} />
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        {children}
-        <DesktopFooter lang={lang} />
-      </div>
-    </div>
-  );
-}
+import { Button, Card, Icon } from "../components/ui";
+import { ScreenShell } from "../components/ScreenShell";
 
 /* ----------------------------------------------------------------- *
  * How the AI works — storybook cards, illustration-led (stitch v2). *
@@ -213,8 +26,7 @@ function AiCard({
   body: string;
 }) {
   return (
-    <article className="relative flex flex-col items-center overflow-hidden rounded-bowl border border-line border-b-4 border-b-sand bg-paper p-7 text-center shadow-[0_6px_0_0_rgba(15,110,106,0.10)] motion-safe:animate-pop-in">
-      <div aria-hidden="true" className="pointer-events-none absolute -end-10 -top-10 h-32 w-32 rounded-full bg-teal/5 blur-2xl" />
+    <Card variant="elevated" className="flex h-full flex-col items-center p-6 text-center motion-safe:animate-pop-in">
       <div className="mb-5 flex h-40 w-40 items-center justify-center md:h-44 md:w-44">
         <img src={img} alt="" className="h-full w-full object-contain" loading="lazy" />
       </div>
@@ -223,7 +35,7 @@ function AiCard({
         {subtitle}
       </h4>
       <p className="mt-3 text-[15px] leading-relaxed text-ink/80">{body}</p>
-    </article>
+    </Card>
   );
 }
 
@@ -266,7 +78,7 @@ export function AiTransparency() {
     {
       img: "/brand/stitch-28.png",
       title: T("It knows its limits", "يعرف حدوده"),
-      subtitle: T("يعرف حدوده", "It knows its limits"),
+      subtitle: T("يعرف حدوده", "يعرف حدوده"),
       body: T(
         "It cannot grade moving signs, full sentences, or facial grammar — those are open research problems. Sawiyya is built for the Arabic alphabet and individual signs: the building blocks of language.",
         "لا تستطيع تقييم الإشارات المتحركة أو الجمل الكاملة أو تعابير الوجه النحوية — تلك مسائل بحثية مفتوحة. سويّة مبنية للحروف العربية والإشارات المفردة: لبنات اللغة."
@@ -274,8 +86,8 @@ export function AiTransparency() {
     },
   ];
 
-  // The 5th "You're always right" card is the desktop hero band; it uses a
-  // distinct gold thumbs-up illustration (stitch-19) and a coral CTA.
+  // The 5th "You're always right" card is the hero band; it uses a distinct
+  // gold thumbs-up illustration (stitch-19) and carries the one dominant CTA.
   const proudCard = {
     img: "/brand/stitch-19.png",
     title: T("You're always right about your hands", "أنت دايماً على حق"),
@@ -287,42 +99,43 @@ export function AiTransparency() {
   };
 
   return (
-    <PageShell lang={lang} active="settings">
-      <TopBar lang={lang} title={T("How the AI works", "كيف يعمل الذكاء الاصطناعي")} />
-
-      <main className="mx-auto w-full max-w-md px-5 py-8 md:max-w-6xl md:px-10 md:py-12">
-        {/* Intro */}
+    <ScreenShell
+      lang={lang}
+      chrome="takeover"
+      title={T("How the AI works", "كيف يعمل الذكاء الاصطناعي")}
+      onClose={() => go({ name: "settings" })}
+    >
+      <main className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8 md:py-12">
+        {/* Intro — one reconciled bilingual heading story */}
         <section className="space-y-4 text-center">
           <span className="font-label inline-block rounded-full border-2 border-gold/30 bg-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-teal-deep">
             {T("Mada Innovation Award Winner", "الفائز بجائزة مدى للابتكار")}
           </span>
-          {/* Mobile heading matches the mobile comp; desktop swaps to the
-              "Privacy, Kindness, and Togetherness" comp heading. */}
-          <h2 className="font-display text-3xl font-bold leading-tight text-teal md:hidden">
+          <h2 className="font-display text-3xl font-bold leading-tight text-teal md:text-4xl">
             {T("Built for your family,", "مصمّم لعائلتك،")}
             <br />
             <span className="text-coral">{T("designed for trust.", "مصمّم على الثقة.")}</span>
           </h2>
-          <h2 className="hidden font-display text-4xl font-bold leading-tight text-teal-deep md:block lg:text-5xl">
-            {T("Privacy, Kindness, and Togetherness", "خصوصية ولطف وترابط")}
-          </h2>
-          <p className="mx-auto hidden max-w-2xl text-lg text-ink/70 md:block" dir="auto">
+          <p className="mx-auto max-w-2xl text-base text-ink/70 md:text-lg" dir="auto">
             {T(
-              "Designed to be safe, supportive, and focused on your family connection.",
-              "مصمّم ليكون آمنًا وداعمًا ومركزًا على ترابط عائلتكم."
+              "Privacy, kindness, and togetherness — safe, supportive, and focused on your family connection.",
+              "خصوصية ولطف وترابط — آمن وداعم ومركّز على ترابط عائلتكم."
             )}
           </p>
         </section>
 
         {/* Storybook cards */}
-        <div className="mt-10 grid grid-cols-1 gap-8 md:mt-12 md:grid-cols-2 md:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {cards.map((c, i) => (
             <AiCard key={i} {...c} />
           ))}
         </div>
 
-        {/* "You're always right" — full-width hero band with the coral CTA. */}
-        <section className="mt-8 flex flex-col items-center gap-8 overflow-hidden rounded-bowl border-4 border-gold bg-white p-8 text-center shadow-lift motion-safe:animate-pop-in md:mt-8 md:flex-row md:p-10 md:text-start rtl:md:flex-row-reverse">
+        {/* "You're always right" — hero band carrying the ONE dominant CTA. */}
+        <Card
+          variant="elevated"
+          className="flex flex-col items-center gap-6 border-4 border-gold p-8 text-center motion-safe:animate-pop-in md:flex-row md:p-8 md:text-start rtl:md:flex-row-reverse"
+        >
           <div className="flex h-32 w-32 shrink-0 items-center justify-center">
             <img src={proudCard.img} alt="" className="h-full w-full object-contain" loading="lazy" />
           </div>
@@ -333,30 +146,30 @@ export function AiTransparency() {
             </h4>
             <p className="mt-3 text-[15px] leading-relaxed text-ink/80 md:text-base">{proudCard.body}</p>
             <div className="mt-6 flex justify-center md:justify-start">
-              <Button variant="primary" onClick={() => go({ name: "home" })}>
+              <Button variant="primary" size="lg" onClick={() => go({ name: "home" })}>
                 {T("Let's Practice Together", "لنتدرّب معًا")}
               </Button>
             </div>
           </div>
-        </section>
+        </Card>
 
-        {/* Secondary link to the privacy promise */}
-        <div className="mt-10 flex justify-center">
+        {/* Secondary link to the privacy promise (demoted). */}
+        <div className="flex justify-center">
           <button
             type="button"
             onClick={() => go({ name: "privacy" })}
-            className="font-display text-base font-bold text-teal underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            className="font-display text-base font-bold text-teal underline-offset-4 transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             {T("Read the privacy promise", "اقرأ وعد الخصوصية")}
           </button>
         </div>
       </main>
-    </PageShell>
+    </ScreenShell>
   );
 }
 
 /* --------------------------------------------------- *
- * Privacy — teal hero + meeting curve + card grid.     *
+ * Privacy — teal hero + card grid (no clip-path).      *
  * --------------------------------------------------- */
 
 function PrivacyCard({
@@ -364,31 +177,23 @@ function PrivacyCard({
   className = "",
   icon,
   iconTone = "sand",
-  img,
 }: {
   children: ReactNode;
   className?: string;
   icon?: string;
   iconTone?: "sand" | "gold";
-  img?: string;
 }) {
   return (
-    <div
-      className={`flex flex-col gap-4 rounded-bowl border border-line border-b-[6px] border-b-ink/10 bg-paper p-7 ${className}`}
-    >
+    <Card variant="elevated" className={`flex flex-col gap-4 p-6 ${className}`}>
       <div
         className={`flex h-16 w-16 items-center justify-center rounded-2xl border-2 ${
           iconTone === "gold" ? "border-gold/20 bg-gold/10 text-gold" : "border-teal/10 bg-sand text-teal"
         }`}
       >
-        {img ? (
-          <img src={img} alt="" className="h-10 w-10 object-contain" loading="lazy" />
-        ) : (
-          <Icon name={icon ?? "shield"} fill className="text-4xl" />
-        )}
+        <Icon name={icon ?? "shield"} fill className="text-4xl" />
       </div>
       {children}
-    </div>
+    </Card>
   );
 }
 
@@ -438,19 +243,17 @@ export function Privacy() {
   };
 
   return (
-    <PageShell lang={lang} active="settings">
-      <TopBar lang={lang} title={T("Privacy", "الخصوصية")} />
-
+    <ScreenShell
+      lang={lang}
+      chrome="takeover"
+      title={T("Privacy", "الخصوصية")}
+      onClose={() => go({ name: "settings" })}
+    >
       {/* Hero */}
-      <section className="relative overflow-hidden bg-teal px-6 pb-12 pt-10 text-center text-paper">
+      <section className="bg-teal px-6 pb-12 pt-10 text-center text-paper">
         <div className="mx-auto max-w-md md:max-w-3xl">
           <div className="relative mx-auto mb-6 h-52 w-52 md:h-60 md:w-60">
-            <img
-              src="/brand/stitch-14.png"
-              alt=""
-              className="h-full w-full object-contain"
-              loading="eager"
-            />
+            <img src="/brand/stitch-14.png" alt="" className="h-full w-full object-contain" loading="eager" />
             <span aria-hidden="true" className="absolute -end-2 -top-2 text-gold motion-safe:animate-pulse">
               <Icon name="auto_awesome" fill className="text-4xl" />
             </span>
@@ -467,15 +270,8 @@ export function Privacy() {
         </div>
       </section>
 
-      {/* Meeting-curve transition */}
-      <div
-        aria-hidden="true"
-        className="h-12 w-full bg-teal"
-        style={{ clipPath: "ellipse(60% 100% at 50% 100%)", marginTop: "-1px" }}
-      />
-
       {/* Cards */}
-      <main className="mx-auto -mt-2 w-full max-w-md px-5 pb-8 md:max-w-6xl md:px-10">
+      <main className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <PrivacyCard icon="videocam_off" iconTone="sand">
             <h3 className="font-display text-xl font-bold text-ink">
@@ -501,9 +297,8 @@ export function Privacy() {
             </p>
           </PrivacyCard>
 
-          {/* What we keep on your device — itemised storage detail (Stitch
-              desktop comp): labelled Progress Data + Local Cache rows. */}
-          <div className="flex flex-col gap-6 rounded-bowl border border-line border-b-[6px] border-b-ink/10 bg-white p-7 md:col-span-2 md:flex-row md:items-center md:gap-12">
+          {/* What we keep on your device — itemised storage detail. */}
+          <Card variant="elevated" className="flex flex-col gap-6 p-6 md:col-span-2 md:flex-row md:items-center md:gap-12">
             <div className="flex-1 space-y-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal/10 bg-sand text-teal">
@@ -536,45 +331,41 @@ export function Privacy() {
                   )}
                 />
               </ul>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={eraseEverything}
-                  className="inline-flex items-center gap-2 font-display text-sm font-bold text-coral underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-                >
-                  <Icon name="delete_forever" className="text-lg" />
-                  {T("Clear Local Data", "حذف البيانات المحلية")}
-                </button>
-              </div>
             </div>
-          </div>
+          </Card>
 
-          {/* Erase everything — destructive, coral-bordered */}
-          <div className="flex flex-col items-center gap-5 rounded-bowl border-4 border-coral/20 bg-white p-7 text-center md:col-span-2 md:flex-row md:justify-between md:text-start">
+          {/* Erase everything — the ONE clearly-destructive control. */}
+          <Card variant="flat" className="flex flex-col items-center gap-5 border-4 border-coral/20 p-6 text-center md:col-span-2 md:flex-row md:justify-between md:text-start">
             <div>
               <h3 className="font-display text-xl font-bold text-ink">{T("Erase everything", "امسح كل شيء")}</h3>
               <p className="mt-1 text-[15px] text-ink/60">
-                {T("One tap to wipe all progress and local data forever.", "ضغطة واحدة لمحو كل التقدم والبيانات المحلية إلى الأبد.")}
+                {T(
+                  "One tap to wipe all progress and local data forever.",
+                  "ضغطة واحدة لمحو كل التقدم والبيانات المحلية إلى الأبد."
+                )}
               </p>
             </div>
-            <Button variant="primary" onClick={eraseEverything} className="shrink-0">
-              {T("Delete Local Data", "حذف البيانات المحلية")}
+            <Button variant="primary" size="lg" onClick={eraseEverything} className="shrink-0">
+              <span className="inline-flex items-center gap-2">
+                <Icon name="delete_forever" className="text-xl" />
+                {T("Delete Local Data", "حذف البيانات المحلية")}
+              </span>
             </Button>
-          </div>
+          </Card>
         </div>
 
-        {/* Secondary link */}
-        <div className="mt-12 text-center">
+        {/* Secondary link (demoted). */}
+        <div className="text-center">
           <button
             type="button"
             onClick={() => go({ name: "aiTransparency" })}
-            className="mx-auto flex items-center justify-center gap-2 font-display text-base font-bold text-teal opacity-80 transition hover:underline hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            className="mx-auto flex items-center justify-center gap-2 font-display text-base font-bold text-teal opacity-80 transition hover:underline hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             {T("How the AI works", "كيف يعمل الذكاء الاصطناعي")}
             <Icon name="open_in_new" className="text-lg" />
           </button>
         </div>
       </main>
-    </PageShell>
+    </ScreenShell>
   );
 }

@@ -1,12 +1,13 @@
-// All signs · القاموس — the Library / Sign Dictionary (Stitch v2 "all-signs--*").
+// All signs · القاموس — the Dictionary tab (Stitch v2 "all-signs--*").
 // Browse every sign (A1 vocabulary + the Arabic alphabet) from the frozen content
 // layer, see live mastery / flag / review status from the stores, and tap a sign to
 // open its detail (mobile bottom-sheet, desktop right panel) → practise it on camera.
 //
-// Faithful to: design/stitch-v2-brand/all-signs--mobile.png + all-signs--desktop.png
-// and the matching html/ files. The global BottomNav (App.tsx) provides nav on both
-// breakpoints, so this screen owns only the dictionary chrome (top bar, filters,
-// search, grid, detail panel) and leaves room for that nav.
+// Redesign: the global AppNav (via ScreenShell chrome="tabs") owns all navigation, so
+// the in-screen Home button is gone and search reclaims that space at every breakpoint.
+// The dialect "Coming Soon" affordance has moved to the onboarding / Practise picker —
+// the filter row carries only live chips now. One dominant action ("Practise your N
+// flagged signs") sits above the grid; the never-hard-fail fallbacks stay but quiet.
 import { useMemo, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Sign } from "../types";
@@ -14,7 +15,9 @@ import { ALL_SIGNS } from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { isDue } from "../store/srs";
 import { useUi } from "../store/ui";
-import { Icon } from "../components/ui";
+import { Button, Card, Icon, Title } from "../components/ui";
+import { ScreenShell } from "../components/ScreenShell";
+import { Chip } from "../components/Tile";
 
 type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit1" | "unit2";
 
@@ -24,12 +27,12 @@ const STATUS_META: Record<
   Status,
   { en: string; ar: string; icon: string | null; tone: string }
 > = {
-  mastered: { en: "Mastered", ar: "متقنة", icon: "check_circle", tone: "text-gold" },
-  flagged: { en: "Family list", ar: "قائمة العائلة", icon: "push_pin", tone: "text-coral" },
-  review: { en: "Review soon", ar: "للمراجعة", icon: "hourglass_top", tone: "text-gold" },
-  letter: { en: "Letter", ar: "حرف", icon: null, tone: "text-teal/40" },
-  unit: { en: "Unit 1", ar: "الوحدة ١", icon: null, tone: "text-teal/40" },
-  new: { en: "New", ar: "جديدة", icon: null, tone: "text-teal/40" },
+  mastered: { en: "Mastered", ar: "متقنة", icon: "check_circle", tone: "text-gold-deep" },
+  flagged: { en: "Family list", ar: "قائمة العائلة", icon: "push_pin", tone: "text-coral-deep" },
+  review: { en: "Review soon", ar: "للمراجعة", icon: "hourglass_top", tone: "text-gold-deep" },
+  letter: { en: "Letter", ar: "حرف", icon: null, tone: "text-teal-deep/60" },
+  unit: { en: "Unit 1", ar: "الوحدة ١", icon: null, tone: "text-teal-deep/60" },
+  new: { en: "New", ar: "جديدة", icon: null, tone: "text-teal-deep/60" },
 };
 
 // Semantic category tags for the detail panel (Stitch shows "Phrase / Common"
@@ -91,8 +94,10 @@ export function AllSigns() {
       if (filter === "flagged" && !flaggedIds.has(sign.id)) return false;
       if (filter === "alphabet" && sign.tier !== "alphabet") return false;
       if (filter === "unit1" && sign.tier !== "A1") return false;
-      // Unit 2 is on the roadmap (Stitch shows the chip) but has no content yet →
-      // resolves to the empty "coming soon" state rather than a fabricated set.
+      // Unit 2 is on the roadmap but has no content yet → resolves to the empty
+      // "coming soon" state rather than a fabricated set. The chip no longer
+      // surfaces this filter (dialect framing moved to the picker), but the rule
+      // stays so any deep-link / future chip still gets the honest empty state.
       if (filter === "unit2") return false;
       if (q) {
         const hay = `${sign.glossEn} ${sign.glossAr} ${sign.code ?? ""}`.toLowerCase();
@@ -105,13 +110,14 @@ export function AllSigns() {
 
   const selected = selectedId ? ALL_SIGNS.find((s) => s.id === selectedId) ?? null : null;
 
+  // Live filter chips only — the dialect "Coming Soon" pill moved to onboarding /
+  // PractiseChooser, and Unit 2 (empty) is no longer offered here.
   const FILTERS: { id: Filter; en: string; ar: string }[] = [
     { id: "all", en: "All", ar: "الكل" },
     { id: "learned", en: "Learned", ar: "المتعلمة" },
     { id: "flagged", en: "Flagged", ar: "المحددة" },
     { id: "alphabet", en: t("prAlphabet", "en"), ar: t("prAlphabet", "ar") },
     { id: "unit1", en: "Unit 1", ar: "الوحدة ١" },
-    { id: "unit2", en: "Unit 2", ar: "الوحدة ٢" },
   ];
 
   // Only gradable (static/alphabet) signs get a camera target. Dynamic signs can't be
@@ -119,46 +125,29 @@ export function AllSigns() {
   // that pollute the recognizer (#2). DetailPanel hides the camera CTA for those.
   const practiceSign = (sign: Sign) => go({ name: "camera", targetSignId: sign.id });
 
-  return (
-    <div className="min-h-dvh bg-sand pb-28 md:pb-24">
-      {/* ── Top app bar ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b-4 border-teal/10 bg-sand/95 backdrop-blur md:px-8">
-        <div className="mx-auto flex h-20 max-w-6xl items-center gap-4 px-5">
-          <h1 className="font-display text-2xl font-black tracking-tight text-teal md:text-3xl">
-            {pick(lang, "Sign Dictionary", "القاموس")}
-            <span className="hidden text-teal/40 md:inline"> · {pick(lang, "القاموس", "Sign Dictionary")}</span>
-          </h1>
+  // ── ONE dominant action above the grid: practise the family-flagged signs ──────
+  // Targets the first gradable flagged sign (dynamic flags can't be graded). Demoted
+  // to nothing else fights it; falls back silently when no gradable flag exists.
+  const flaggedCount = flaggedIds.size;
+  const firstGradableFlag = ALL_SIGNS.find((s) => flaggedIds.has(s.id) && s.cameraGradable);
 
-          {/* desktop search lives in the bar */}
-          <div className="ms-auto hidden max-w-md flex-1 md:block">
+  return (
+    <ScreenShell lang={lang} chrome="tabs">
+      <div className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
+        {/* ── Page header: title + search (search reclaims the old Home-btn space) ── */}
+        <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
+          <div className="min-w-0">
+            <Title>{pick(lang, "Sign Dictionary", "القاموس")}</Title>
+            <p className="mt-1 font-display text-sm font-semibold text-ink/60">
+              {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
+            </p>
+          </div>
+          <div className="md:ms-auto md:w-full md:max-w-md">
             <SearchInput lang={lang} value={query} onChange={setQuery} />
           </div>
+        </header>
 
-          <button
-            type="button"
-            onClick={() => go({ name: "home" })}
-            className="ms-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-teal transition hover:bg-teal/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:ms-3"
-            aria-label={t("navHome", lang)}
-          >
-            <Icon name="home" className="text-2xl" />
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-6xl px-5 pt-5 md:px-8 md:pt-6">
-        {/* mobile subtitle line (desktop carries the dialect pill inline in the filter row) */}
-        <div className="mb-5 md:hidden">
-          <p className="flex flex-wrap items-center gap-2 font-display text-sm font-semibold text-ink/70">
-            {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
-          </p>
-        </div>
-
-        {/* mobile search */}
-        <div className="mb-5 md:hidden">
-          <SearchInput lang={lang} value={query} onChange={setQuery} />
-        </div>
-
-        {/* ── Filter chips ────────────────────────────────────────────────── */}
+        {/* ── Filter chips (live only) ──────────────────────────────────────────── */}
         <div
           className="no-scrollbar -mx-5 mb-6 flex items-center gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:px-0"
           role="tablist"
@@ -167,47 +156,53 @@ export function AllSigns() {
           {FILTERS.map((f) => {
             const active = filter === f.id;
             return (
-              <button
+              <Chip
                 key={f.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
+                selected={active}
                 onClick={() => setFilter(f.id)}
-                className={`whitespace-nowrap rounded-full px-6 py-2 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
-                  active
-                    ? "bg-teal text-paper extruded-teal"
-                    : "border-2 border-teal/10 bg-paper text-ink/70 hover:bg-teal/5"
-                }`}
+                ariaLabel={pick(lang, f.en, f.ar)}
+                className="px-6"
               >
-                {pick(lang, f.en, f.ar)}
-                {f.id === "learned" && learnedCount > 0 ? (
-                  <span className={active ? " text-paper/70" : " text-teal/50"}> · {learnedCount}</span>
-                ) : null}
-              </button>
+                <span role="tab" aria-selected={active}>
+                  {pick(lang, f.en, f.ar)}
+                  {f.id === "learned" && learnedCount > 0 ? (
+                    <span className={active ? " text-white/70" : " text-teal/60"}> · {learnedCount}</span>
+                  ) : null}
+                </span>
+              </Chip>
             );
           })}
-
-          {/* Dialect "Coming Soon" pill — right-aligned, inline in the filter row (desktop). */}
-          <div className="ms-auto hidden shrink-0 ps-3 md:flex md:items-center">
-            <span className="group relative inline-flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-full border-2 border-gold/40 bg-gold/20 px-6 py-2 font-display font-bold text-teal-deep">
-              {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
-              <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-tighter text-ink">
-                {pick(lang, "Coming Soon", "قريباً")}
-              </span>
-              <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-1000 group-hover:translate-x-full" aria-hidden="true" />
-            </span>
-          </div>
         </div>
 
-        {/* ── Grid + detail panel ─────────────────────────────────────────── */}
+        {/* ── ONE dominant action: practise the flagged signs ───────────────────── */}
+        {flaggedCount > 0 && firstGradableFlag && (
+          <Button
+            variant="primary"
+            size="lg"
+            full
+            onClick={() => practiceSign(firstGradableFlag)}
+            className="mb-6 flex items-center justify-center gap-3"
+          >
+            <Icon name="videocam" className="text-2xl" />
+            {pick(
+              lang,
+              `Practise your ${flaggedCount} flagged ${flaggedCount === 1 ? "sign" : "signs"}`,
+              `تدرّب على ${flaggedCount} إشارة محدّدة`,
+            )}
+          </Button>
+        )}
+
+        {/* ── Grid + detail panel ─────────────────────────────────────────────── */}
         <div className="md:flex md:gap-8">
           <div className="md:flex-1">
             {signs.length === 0 ? (
-              <p className="rounded-3xl border-2 border-teal/10 bg-paper p-10 text-center font-display font-semibold text-muted">
-                {filter === "unit2"
-                  ? pick(lang, "Unit 2 is coming soon.", "الوحدة ٢ قريباً.")
-                  : pick(lang, "No signs match.", "لا توجد إشارات مطابقة.")}
-              </p>
+              <Card variant="flat" className="p-8 text-center md:p-10">
+                <p className="font-display font-semibold text-muted">
+                  {filter === "unit2"
+                    ? pick(lang, "Unit 2 is coming soon.", "الوحدة ٢ قريباً.")
+                    : pick(lang, "No signs match.", "لا توجد إشارات مطابقة.")}
+                </p>
+              </Card>
             ) : (
               <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
                 {signs.map((sign) => (
@@ -227,7 +222,7 @@ export function AllSigns() {
 
           {/* desktop detail panel (docked) */}
           <aside className="hidden md:block md:w-[380px] md:shrink-0">
-            <div className="sticky top-28">
+            <div className="sticky top-8">
               {selected ? (
                 <DetailPanel
                   sign={selected}
@@ -242,12 +237,12 @@ export function AllSigns() {
                   onAddReview={() => addToReview(selected.id)}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center rounded-[40px] border-2 border-dashed border-teal/15 bg-paper/50 px-8 py-20 text-center">
+                <Card variant="flat" className="flex flex-col items-center justify-center border-dashed bg-paper/50 px-8 py-20 text-center">
                   <Icon name="touch_app" className="mb-3 text-4xl text-teal/40" />
                   <p className="font-display font-semibold text-muted">
                     {pick(lang, "Pick a sign to see how it's made.", "اختر إشارة لترى كيف تُؤدّى.")}
                   </p>
-                </div>
+                </Card>
               )}
             </div>
           </aside>
@@ -263,7 +258,7 @@ export function AllSigns() {
             onClick={() => setSelectedId(null)}
             className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm"
           />
-          <div className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-[2.5rem] bg-paper p-6 pb-10 shadow-lift">
+          <div className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift">
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink/10" aria-hidden="true" />
             <DetailPanel
               sign={selected}
@@ -280,7 +275,7 @@ export function AllSigns() {
           </div>
         </div>
       )}
-    </div>
+    </ScreenShell>
   );
 }
 
@@ -306,7 +301,7 @@ function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={pick(lang, "Search signs…", "ابحث عن إشارة…")}
         aria-label={pick(lang, "Search signs", "ابحث عن إشارة")}
-        className="w-full rounded-2xl border-4 border-teal/10 bg-paper py-4 ps-12 pe-4 font-sans font-medium text-ink transition placeholder:text-ink/30 focus-visible:border-teal focus-visible:outline-none md:rounded-full md:border-2 md:py-3"
+        className="w-full rounded-2xl border-2 border-line bg-paper py-3.5 ps-12 pe-4 font-sans font-medium text-ink transition placeholder:text-ink/30 focus-visible:border-teal focus-visible:outline-none"
       />
     </div>
   );
@@ -329,15 +324,11 @@ function SignCard({
   const meta = STATUS_META[status];
   const label = pick(lang, sign.glossEn, sign.glossAr);
   return (
-    <button
-      type="button"
+    <Card
+      variant={selected ? "selected" : "elevated"}
       onClick={onSelect}
-      aria-pressed={selected}
-      className={`group relative flex w-full flex-col items-center rounded-3xl border-2 p-4 text-center transition active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:p-6 ${
-        selected
-          ? "border-teal bg-teal/5 ring-4 ring-teal/10"
-          : "border-teal/10 bg-paper extruded-paper hover:border-teal/40"
-      }`}
+      ariaPressed={selected}
+      className="group relative flex flex-col items-center p-5 text-center md:p-6"
     >
       {meta.icon && (
         <span className={`absolute end-3 top-3 ${meta.tone}`}>
@@ -362,7 +353,7 @@ function SignCard({
       <p className={`mt-1 text-[11px] font-bold uppercase tracking-widest md:text-xs ${meta.tone}`}>
         {pick(lang, meta.en, meta.ar)}
       </p>
-    </button>
+    </Card>
   );
 }
 
@@ -417,30 +408,12 @@ function DetailPanel({
     <div
       className={
         isPanel
-          ? "flex flex-col rounded-[40px] border-2 border-teal/5 bg-paper p-6 shadow-lift"
+          ? "flex flex-col rounded-3xl border border-line bg-paper p-6 shadow-lift"
           : "flex flex-col"
       }
     >
-      {/* header row */}
+      {/* header row — favorite (desktop) + close, mobile-first single tree */}
       <div className="mb-5 flex items-start justify-between gap-3">
-        {/* desktop: close on the left, heart/favorite on the right (Stitch frame) */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t("close", lang)}
-          className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal/10 text-teal transition hover:bg-teal/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:flex"
-        >
-          <Icon name="close" />
-        </button>
-
-        <div className="md:hidden">
-          <h2 className="font-display text-2xl font-black text-ink">
-            {title}
-            <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
-          </h2>
-        </div>
-
-        {/* mobile close (right) / desktop favorite (right) */}
         <button
           type="button"
           onClick={onToggleFlag}
@@ -452,8 +425,8 @@ function DetailPanel({
           }
           className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral md:flex ${
             flagged
-              ? "border-coral/30 bg-coral/10 text-coral"
-              : "border-teal/10 text-coral hover:bg-coral/5"
+              ? "border-coral/30 bg-coral/10 text-coral-deep"
+              : "border-line text-coral-deep hover:bg-coral/5"
           }`}
         >
           <Icon name="favorite" fill={flagged} />
@@ -463,16 +436,15 @@ function DetailPanel({
           type="button"
           onClick={onClose}
           aria-label={t("close", lang)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-teal/10 text-teal transition hover:bg-teal/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:hidden"
+          className="ms-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-line text-teal transition hover:bg-teal/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
           <Icon name="close" />
         </button>
       </div>
 
-      {/* desktop title + semantic tags (centred under the illustration in Stitch; here above it for panel flow) */}
-
-      {/* big demo illustration (honest placeholder asset from the content layer) */}
-      <div className="relative mb-6 flex aspect-square w-full items-center justify-center overflow-hidden rounded-[2rem] border-4 border-white bg-sand">
+      {/* big demo illustration (honest placeholder asset from the content layer).
+          The reference-clip slot lives behind the Watch chip (SRS-safe). */}
+      <div className="relative mb-6 flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-sand">
         <div className="absolute inset-0 bg-gradient-to-tr from-gold/10 via-transparent to-teal/5" aria-hidden="true" />
         {sign.code ? (
           <span className="relative z-10 font-display text-8xl font-black text-teal" dir="rtl">
@@ -484,64 +456,45 @@ function DetailPanel({
           </span>
         )}
 
-        {/* Watch / Watch Again replay chip — the central affordance in both Stitch frames. */}
+        {/* Watch / Watch Again replay chip — central preview affordance (NO store write). */}
         <button
           type="button"
           onClick={handleWatch}
-          className={`absolute z-20 inline-flex items-center gap-2 rounded-full bg-paper/90 px-6 py-2 font-display font-bold text-teal shadow-lift backdrop-blur transition hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
-            isPanel ? "bottom-6 left-1/2 -translate-x-1/2" : "bottom-4 end-4 border-2 border-gold text-ink"
-          }`}
+          className="absolute bottom-6 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-paper/90 px-6 py-2 font-display font-bold text-teal shadow-lift backdrop-blur transition hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
-          <Icon
-            name="replay"
-            fill={!isPanel}
-            className={isPanel ? "text-xl" : "text-xl text-gold"}
-          />
+          <Icon name="replay" className="text-xl" />
           {watched
             ? pick(lang, "Watch Again", "شاهد مجدداً")
             : pick(lang, "Watch", "شاهد")}
         </button>
       </div>
 
-      {/* desktop title + semantic category tags */}
-      <div className="mb-6 hidden flex-col items-center text-center md:flex">
-        <h2 className="font-display text-3xl font-black text-ink">
+      {/* title + semantic category tags — ONE responsive block (de-twinned) */}
+      <div className="mb-6 flex flex-col text-start md:items-center md:text-center">
+        <h2 className="font-display text-2xl font-black text-ink md:text-3xl">
           {title}
           <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
         </h2>
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
+        <div className="mt-3 flex flex-wrap gap-2 md:justify-center">
           {tags.map((tag) => (
             <span
               key={tag.label}
-              className={`rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest ${
+              className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest md:px-4 ${
                 tag.tone === "teal" ? "bg-teal/10 text-teal" : "bg-gold/20 text-teal-deep"
               }`}
             >
               {tag.label}
             </span>
           ))}
+          {/* mobile carries the live status chip; desktop panel keeps it tag-only */}
+          <span className={`rounded-full bg-ink/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest md:hidden ${STATUS_META[status].tone}`}>
+            {pick(lang, STATUS_META[status].en, STATUS_META[status].ar)}
+          </span>
         </div>
       </div>
 
-      {/* mobile semantic category tags */}
-      <div className="mb-6 flex flex-wrap gap-2 md:hidden">
-        {tags.map((tag) => (
-          <span
-            key={tag.label}
-            className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${
-              tag.tone === "teal" ? "bg-teal/10 text-teal" : "bg-gold/20 text-teal-deep"
-            }`}
-          >
-            {tag.label}
-          </span>
-        ))}
-        <span className={`rounded-full bg-ink/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${STATUS_META[status].tone}`}>
-          {pick(lang, STATUS_META[status].en, STATUS_META[status].ar)}
-        </span>
-      </div>
-
       {/* how to sign */}
-      <div className="mb-6 rounded-3xl border-2 border-teal/5 bg-sand/50 p-5" dir={rtl ? "rtl" : "ltr"}>
+      <div className="mb-6 rounded-3xl border border-line bg-sand/50 p-5" dir={rtl ? "rtl" : "ltr"}>
         <h3 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal">
           <Icon name="info" className="text-base" />
           {pick(lang, "How to sign", "كيف تُؤدّى")}
@@ -549,17 +502,20 @@ function DetailPanel({
         <p className="text-sm leading-relaxed text-ink/80">{hint}</p>
       </div>
 
-      {/* actions */}
+      {/* actions — 3-tier hierarchy: primary coral camera, secondary teal review/flag,
+          tertiary share. cameraGradable gate keeps the camera off dynamic signs (§9.4). */}
       <div className="mt-auto flex flex-col gap-3">
         {sign.cameraGradable ? (
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="lg"
+            full
             onClick={onPractice}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-coral px-6 py-4 font-display text-lg font-bold text-white extruded-coral transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="flex items-center justify-center gap-3"
           >
             <Icon name="videocam" className="text-2xl" />
             {t("practiceCamera", lang)}
-          </button>
+          </Button>
         ) : (
           // Non-gradable (moving) sign — camera can't grade it, so steer to Watch (§9.4).
           <p className="flex items-center justify-center gap-2 rounded-2xl bg-sand px-6 py-4 text-center font-display text-sm font-semibold text-ink/70">
@@ -568,25 +524,28 @@ function DetailPanel({
           </p>
         )}
 
-        {/* desktop: Add to Daily Review (SRS). mobile: Flagged + Share row (Stitch sheet). */}
-        <button
-          type="button"
+        {/* desktop: Add to Daily Review (SRS) — secondary teal. */}
+        <Button
+          variant="secondary"
+          size="md"
+          full
           onClick={onAddReview}
-          className="hidden w-full items-center justify-center gap-2 rounded-2xl border-b-4 border-teal/20 bg-teal/10 px-6 py-3.5 font-display font-bold text-teal transition hover:bg-teal/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:flex"
+          className="hidden items-center justify-center gap-2 md:flex"
         >
           <Icon name="event_repeat" />
           {pick(lang, "Add to Daily Review", "أضِف للمراجعة اليومية")}
-        </button>
+        </Button>
 
+        {/* mobile: Flag (secondary teal, aria-pressed) + Share (tertiary ghost) row. */}
         <div className="flex gap-3 md:hidden">
           <button
             type="button"
             onClick={onToggleFlag}
             aria-pressed={flagged}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+            className={`flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
               flagged
-                ? "bg-teal text-paper extruded-teal"
-                : "border-b-4 border-teal/20 bg-teal/10 text-teal hover:bg-teal/20"
+                ? "bg-teal text-white extruded-teal"
+                : "border-2 border-teal/30 bg-transparent text-teal active:scale-[.98]"
             }`}
           >
             <Icon name="push_pin" fill={flagged} />
@@ -594,14 +553,16 @@ function DetailPanel({
               ? pick(lang, "Flagged", "محدّدة")
               : pick(lang, "Flag", "حدّد")}
           </button>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="md"
+            full
             onClick={handleShare}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-b-4 border-teal/20 bg-sand px-4 py-3.5 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex flex-1 items-center justify-center gap-2"
           >
             <Icon name="share" />
             {pick(lang, "Share", "شارك")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

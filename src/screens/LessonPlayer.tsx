@@ -1,7 +1,7 @@
 // Lesson player — one drill at a time, soft feedback, end card (PRD §6.3, §8).
 // Never hard-fail: misses get encouragement + the answer, and still earn XP.
-// Visual target: Stitch v2 (lesson-choice-drill / lesson-drill-…--desktop /
-// lesson-camera-practice / lesson-complete-results).
+// Redesign: full-screen takeover via ScreenShell (chrome="takeover"); one spacing
+// scale, one answer-grid strategy, unified card treatment, aria-live soft feedback.
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { num, pick, t } from "../i18n";
@@ -13,6 +13,7 @@ import { buildChoices, buildDrillQueue } from "../lesson/engine";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { SignDemo } from "../components/SignDemo";
+import { ScreenShell } from "../components/ScreenShell";
 import { Button, Card, Icon, MeetingBar } from "../components/ui";
 
 /** A scored drill outcome flows back up so the end card can show accuracy. */
@@ -73,59 +74,81 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         ? 100
         : Math.round((correctCount.current / scored.current) * 100);
     return (
-      <ResultsCard
-        lang={lang}
-        lesson={lesson}
-        signIds={signIds}
-        xp={xpEarned.current}
-        accuracy={accuracy}
-        streak={profile.streak}
-        burst={burst}
-        onContinue={() => go({ name: "home" })}
-        onCamera={() => go({ name: "camera" })}
-      />
+      <ScreenShell lang={lang} chrome="takeover">
+        <ResultsCard
+          lang={lang}
+          lesson={lesson}
+          signIds={signIds}
+          xp={xpEarned.current}
+          accuracy={accuracy}
+          streak={profile.streak}
+          burst={burst}
+          onContinue={() => go({ name: "home" })}
+          onCamera={() => go({ name: "camera" })}
+        />
+      </ScreenShell>
     );
   }
 
   const isCamera = drill!.type === "camera";
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col bg-sand px-5 pb-8 pt-5 md:max-w-3xl md:px-8">
-      {/* header: close + meeting-curve progress + mascot hint */}
-      <header className="mb-6 flex items-center gap-3 md:mb-8 md:gap-5">
-        <button
-          type="button"
-          onClick={() => go({ name: "home" })}
-          aria-label={t("close", lang)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink/50 transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 active:scale-90 md:h-11 md:w-11"
-        >
-          <Icon name="close" className="text-3xl" />
-        </button>
-        <div className="flex-1">
+    <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
+      <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col px-5 pb-8 pt-5 md:max-w-3xl md:px-8">
+        {/* meeting-curve progress */}
+        <div className="mb-6 md:mb-8">
           <MeetingBar progress={index / queue.length} />
         </div>
-        <Logo3D />
-      </header>
 
-      <Drill
-        key={`${drill!.type}-${drill!.signId}-${index}`}
-        drill={drill!}
-        lang={lang}
-        onDone={advance}
-        compact={isCamera}
-      />
+        <Drill
+          key={`${drill!.type}-${drill!.signId}-${index}`}
+          drill={drill!}
+          lang={lang}
+          onDone={advance}
+          compact={isCamera}
+        />
+      </div>
+    </ScreenShell>
+  );
+}
+
+// ── shared drill primitives ──────────────────────────────────────────────────
+
+/** Centered drill question heading — Rubik, teal (Stitch). */
+function DrillTitle({ children }: { children: ReactNode }) {
+  return (
+    <div className="mb-6 text-center md:mb-8">
+      <h2 className="font-display text-2xl font-bold text-teal md:text-3xl">{children}</h2>
     </div>
   );
 }
 
-/** Small gold mascot-hint coin in the progress header (Stitch character guide). */
-function Logo3D() {
+/** A fixed-feel coral primary action that mirrors the Stitch CHECK / CONTINUE footer. */
+function DrillFooter({ children }: { children: ReactNode }) {
   return (
-    <span
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gold/20 text-gold shadow-gold md:h-12 md:w-12"
-      aria-hidden="true"
-    >
-      <Icon name="auto_awesome" fill className="text-2xl" />
+    <div className="mt-auto pt-6 md:flex md:justify-end">
+      <div className="md:w-72">{children}</div>
+    </div>
+  );
+}
+
+/** Bilingual gloss pair — primary in the active lang, secondary script after a dot. */
+function BilingualGloss({
+  lang,
+  sign,
+  className = "",
+  dotClassName = "text-muted",
+}: {
+  lang: Lang;
+  sign: Sign;
+  className?: string;
+  dotClassName?: string;
+}) {
+  return (
+    <span className={className}>
+      {pick("en", sign.glossEn, sign.glossAr)}
+      <span className={`mx-2 ${dotClassName}`}>·</span>
+      <span dir="rtl">{pick("ar", sign.glossEn, sign.glossAr)}</span>
     </span>
   );
 }
@@ -165,24 +188,6 @@ function Drill({
     case "recall":
       return <ChoiceDrill sign={sign} lang={lang} mode="recall" onDone={onDone} />;
   }
-}
-
-/** A fixed-feel coral primary action that mirrors the Stitch CHECK / CONTINUE footer. */
-function DrillFooter({ children }: { children: ReactNode }) {
-  return (
-    <div className="mt-auto pt-6 md:flex md:justify-end">
-      <div className="md:w-72">{children}</div>
-    </div>
-  );
-}
-
-/** Centered drill question heading — Rubik, teal (Stitch). */
-function DrillTitle({ children }: { children: ReactNode }) {
-  return (
-    <div className="mb-6 text-center md:mb-8">
-      <h2 className="font-display text-2xl font-bold text-teal md:text-3xl">{children}</h2>
-    </div>
-  );
 }
 
 function WatchDrill({
@@ -282,32 +287,24 @@ function ChoiceDrill({
     <div className="flex flex-1 flex-col">
       <DrillTitle>{title}</DrillTitle>
 
-      {/* question zone — bordered paper card holding the sign demo (Stitch) */}
+      {/* question zone — one elevated paper card holding the sign demo (Stitch) */}
       {mode === "recognise" ? (
-        <div className="mx-auto w-full max-w-md">
-          <div className="relative overflow-hidden rounded-3xl border-[3px] border-teal/20 bg-paper p-3 shadow-soft md:p-5">
-            <DemoFace sign={sign} lang={lang} compact={compact} />
-          </div>
-        </div>
+        <Card variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-5">
+          <DemoFace sign={sign} lang={lang} compact={compact} />
+        </Card>
       ) : (
-        <div className="mx-auto w-full max-w-md rounded-3xl border-[3px] border-teal/15 bg-teal/5 px-6 py-6 text-center md:py-8">
+        <Card variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
           <p className="font-display text-3xl font-bold text-teal">
             {pick(lang, sign.glossEn, sign.glossAr)}
           </p>
           <p className="mt-1 text-lg font-medium text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
             {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
           </p>
-        </div>
+        </Card>
       )}
 
-      {/* answers — recall: 2-col grid; recognise: stacked on mobile, 2-col on desktop (Stitch desktop) */}
-      <div
-        className={`mx-auto mt-6 w-full ${
-          mode === "recall"
-            ? "max-w-md grid grid-cols-2 gap-4"
-            : "max-w-md md:max-w-2xl flex flex-col gap-3.5 md:grid md:grid-cols-2 md:gap-4"
-        }`}
-      >
+      {/* answers — one grid strategy: mobile single column, 2-col on desktop */}
+      <div className="mx-auto mt-6 grid w-full max-w-md grid-cols-1 gap-3 md:max-w-2xl md:grid-cols-2 md:gap-4">
         {choices.map((id, i) => {
           const choice = signById(id);
           if (!choice) return null;
@@ -344,26 +341,28 @@ function ChoiceDrill({
       </div>
 
       {/* soft feedback band — never a hard fail (PRD §8) */}
-      {picked !== null && (
-        <div className="animate-rise mx-auto mt-5 w-full max-w-md">
-          <p
-            className={`flex items-center gap-2 rounded-2xl px-4 py-3 font-semibold ${
-              correct ? "bg-gold/20 text-ink" : "bg-teal/10 text-teal"
-            }`}
-          >
-            <Icon name={correct ? "check_circle" : "favorite"} fill className="text-xl" />
-            {correct ? t("lsCorrect", lang) : t("lsSoftMiss", lang)}
-          </p>
-          {!correct && (
-            <Card className="mt-2 flex items-center gap-3 p-3">
-              <span className="text-3xl" aria-hidden="true">
-                {sign.type === "alphabet" ? sign.code : sign.emoji}
-              </span>
-              <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
-            </Card>
-          )}
-        </div>
-      )}
+      <div aria-live="polite" className="mx-auto w-full max-w-md">
+        {picked !== null && (
+          <div className="animate-rise mt-5">
+            <p
+              className={`flex items-center gap-2 rounded-2xl px-4 py-3 font-semibold ${
+                correct ? "bg-gold/20 text-ink" : "bg-teal/10 text-teal"
+              }`}
+            >
+              <Icon name={correct ? "check_circle" : "favorite"} fill className="text-xl" />
+              {correct ? t("lsCorrect", lang) : t("lsSoftMiss", lang)}
+            </p>
+            {!correct && (
+              <Card className="mt-2 flex items-center gap-3 p-3">
+                <span className="text-3xl" aria-hidden="true">
+                  {sign.type === "alphabet" ? sign.code : sign.emoji}
+                </span>
+                <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
+              </Card>
+            )}
+          </div>
+        )}
+      </div>
 
       <DrillFooter>
         <Button
@@ -412,6 +411,7 @@ function ChoiceRow({
     <button
       type="button"
       disabled={disabled}
+      aria-pressed={selected}
       onClick={onClick}
       className={`flex w-full items-center justify-between rounded-3xl border-2 p-5 text-start transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
@@ -448,6 +448,7 @@ function ChoiceTile({
   disabled: boolean;
   onClick: () => void;
 }) {
+  const selected = state === "correct" || state === "wrong";
   const shell = {
     idle: "border-ink/5 bg-paper extruded-paper",
     correct: "border-teal-deep bg-teal text-white",
@@ -464,6 +465,7 @@ function ChoiceTile({
     <button
       type="button"
       disabled={disabled}
+      aria-pressed={selected}
       onClick={onClick}
       className={`relative flex flex-col items-center justify-center gap-1.5 rounded-3xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
@@ -557,7 +559,7 @@ function ResultsCard({
 }) {
   const learned = signIds.map(signById).filter((s): s is Sign => Boolean(s));
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center bg-sand px-6 pb-10 pt-10 md:pt-14">
+    <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col items-center px-6 pb-10 pt-10 md:pt-14">
       <Confetti burst={burst} />
 
       {/* celebratory hero */}
@@ -636,9 +638,7 @@ function ResultsCard({
                   )}
                 </div>
                 <p className="text-center font-display text-sm font-bold text-ink">
-                  {pick("en", s.glossEn, s.glossAr)}
-                  <span className="text-muted"> · </span>
-                  <span dir="rtl">{pick("ar", s.glossEn, s.glossAr)}</span>
+                  <BilingualGloss lang={lang} sign={s} />
                 </p>
               </div>
             ))}
@@ -646,10 +646,10 @@ function ResultsCard({
         </section>
       )}
 
-      {/* actions */}
+      {/* actions — one dominant next action (Continue), camera demoted */}
       <section className="mt-auto flex w-full max-w-md flex-col gap-3 pt-8">
-        <Button full variant="primary" onClick={onContinue}>
-          {t("lsBackHome", lang)} →
+        <Button full size="lg" variant="primary" onClick={onContinue}>
+          {pick(lang, "Continue", "متابعة")} →
         </Button>
         <button
           type="button"

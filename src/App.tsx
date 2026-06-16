@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { applyDir } from "./i18n";
 import { activeProfile, useApp } from "./store/app";
 import { useUi } from "./store/ui";
-import { BottomNav } from "./components/BottomNav";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
 import { CameraPractice } from "./screens/CameraPractice";
@@ -16,8 +15,6 @@ import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
-
-const NAV_SCREENS = new Set(["home", "camera", "family", "progress", "allSigns"]);
 
 export default function App() {
   // Scope the root subscription so an unrelated metric/SRS write doesn't re-render
@@ -56,7 +53,6 @@ export default function App() {
         {screen.name === "privacy" && <Privacy />}
         {screen.name === "devMetrics" && <DevMetrics />}
       </main>
-      {NAV_SCREENS.has(screen.name) && <BottomNav lang={lang} />}
     </>
   );
 }

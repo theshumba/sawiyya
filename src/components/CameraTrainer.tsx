@@ -145,10 +145,10 @@ export function CameraTrainer({
   const target = sign.type === "alphabet" ? sign.code : gloss;
   const meter = holdProgress > 0 ? holdProgress : confidence;
 
-  // Reference chip content — reused in both layouts.
+  // Reference chip content — the gold hero chip in the prompt banner.
   const referenceChip = (sizeClass: string) =>
     sign.id === "iloveyou" ? (
-      <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-xl object-cover" />
+      <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-2xl object-cover" />
     ) : sign.type === "alphabet" ? (
       <span className={`font-display font-bold text-white ${sizeClass}`} aria-label={gloss}>
         {sign.code}
@@ -157,63 +157,54 @@ export function CameraTrainer({
       <Icon name="sign_language" className={`leading-none text-white ${sizeClass}`} />
     );
 
-  // The prompt banner (teal card) — full width on mobile, panel header on desktop.
-  // Mirrors camera-drill-i-love-you--desktop: "Current Goal" eyebrow + goal title,
-  // then a translucent white/10 panel holding the gold reference chip + helper copy.
-  // No i18n key exists for these two strings yet — documented bilingual literals.
+  // The prompt banner (teal hero card) — ONE reflowing banner used in every layout.
+  // "Sign the target" is the visual hero: big goal title + gold reference chip.
+  // No i18n key exists for these strings yet — documented bilingual literals.
   const goalEyebrow = pick(lang, "Current Goal", "هدفك الآن");
   const referenceHelper = pick(
     lang,
-    "Follow the reference to unlock the next lesson!",
-    "اتبع المرجع لتفتح الدرس التالي!",
+    "Follow the reference and copy the handshape.",
+    "اتبع المرجع وقلّد شكل اليد.",
   );
   const promptBanner = (
-    <div className="relative overflow-hidden rounded-3xl bg-teal p-5 shadow-soft md:p-8">
+    <div className="relative overflow-hidden rounded-3xl bg-teal p-6 shadow-chunky">
       <span className="pointer-events-none absolute -end-3 -top-4 opacity-10" aria-hidden="true">
         <Icon name="videocam" fill className="text-8xl leading-none text-white" />
       </span>
-      <div className="relative z-10">
-        <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white/70">
-          {goalEyebrow}
-        </h3>
-        <div className="mt-1.5 flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <h2 className="font-display text-2xl font-bold leading-tight text-white md:text-3xl">
-              {t("camSign", lang)}: {target}
-            </h2>
-            {exerciseLabel ? (
-              <p className="mt-1.5 font-display text-sm font-bold uppercase tracking-widest text-white/80">
-                {exerciseLabel}
-              </p>
-            ) : (
-              <p className="mt-1 text-sm leading-snug text-white/80">
-                {pick(lang, sign.hintEn, sign.hintAr)}
-              </p>
-            )}
-            {mode === "grade" && isTrained(sign.id) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("teach");
-                  setTeachPhase("intro");
-                }}
-                className="mt-1.5 text-xs font-semibold text-white/70 underline"
-              >
-                {t("camResetClass", lang)}
-              </button>
-            )}
-          </div>
-          {/* MOBILE: standalone gold-bordered reference chip to the right. */}
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-gold bg-white/20 p-1 backdrop-blur-md md:hidden">
-            {referenceChip("text-3xl")}
-          </div>
+      <div className="relative z-10 flex items-start gap-4">
+        {/* HERO reference chip — the thing to copy, dominant on every width. */}
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-4 border-gold bg-white/20 p-1 backdrop-blur-md">
+          {referenceChip("text-4xl")}
         </div>
-        {/* DESKTOP: translucent panel holding the chip alongside helper copy. */}
-        <div className="mt-5 hidden items-center gap-4 rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm md:inline-flex">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-gold bg-white/20 p-1">
-            {referenceChip("text-3xl")}
-          </div>
-          <p className="text-sm font-medium leading-snug text-white/90">{referenceHelper}</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white/70">
+            {goalEyebrow}
+          </h3>
+          <h2 className="mt-1 font-display text-2xl font-bold leading-tight text-white md:text-3xl">
+            {t("camSign", lang)}: {target}
+          </h2>
+          {exerciseLabel ? (
+            <p className="mt-1.5 font-display text-sm font-bold uppercase tracking-widest text-white/80">
+              {exerciseLabel}
+            </p>
+          ) : (
+            <p className="mt-1 text-sm leading-snug text-white/80">
+              {pick(lang, sign.hintEn, sign.hintAr)}
+            </p>
+          )}
+          <p className="mt-2 text-sm font-medium leading-snug text-white/90">{referenceHelper}</p>
+          {mode === "grade" && isTrained(sign.id) && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode("teach");
+                setTeachPhase("intro");
+              }}
+              className="mt-2 text-xs font-semibold text-white/70 underline"
+            >
+              {t("camResetClass", lang)}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -256,8 +247,9 @@ export function CameraTrainer({
         </div>
       )}
 
-      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available,
-          including teach mode and blocked/absent cameras) */}
+      {/* never-hard-fail controls (§6.4 — self-mark ALWAYS available, including
+          teach mode and blocked/absent cameras) — demoted to a quiet secondary
+          fallback so signing the target stays the dominant action (§5.13). */}
       {!matched && (
         <div className="flex flex-col items-center gap-3">
           {showUnsure && (
@@ -265,12 +257,12 @@ export function CameraTrainer({
               {t("camUnsure", lang)}
             </p>
           )}
-          <Button variant="primary" full onClick={() => finishResult("selfMark")} className="!rounded-3xl !py-5">
-            <span className="flex items-center justify-center gap-2 font-display text-lg">
-              <Icon name="check_circle" className="text-xl leading-none" />
+          <Button variant="ghost" full onClick={() => finishResult("selfMark")} className="!py-3">
+            <span className="flex items-center justify-center gap-2 font-display text-sm">
+              <Icon name="check_circle" className="text-base leading-none" />
               {t("camSelfMark", lang)}
             </span>
-            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-white/60">
+            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-teal/50">
               {t("camSelfMarkSub", lang)}
             </span>
           </Button>
@@ -292,13 +284,29 @@ export function CameraTrainer({
     </>
   );
 
+  // One aria-live region announces the screen-reader-relevant state changes
+  // (match / teach progress / unsure / blocked) without forking the visuals.
+  const liveMessage = matched
+    ? t("camMatch", lang)
+    : tracker.status === "error"
+      ? t("camBlocked", lang)
+      : mode === "teach" && teachPhase === "done"
+        ? t("camTeachDone", lang)
+        : showUnsure
+          ? t("camUnsure", lang)
+          : "";
+
   return (
-    <div className="flex flex-col gap-4 md:grid md:grid-cols-[1fr_minmax(380px,440px)] md:items-stretch md:gap-6">
-      {/* MOBILE: prompt banner first. DESKTOP: lives in the right control panel. */}
-      <div className="md:hidden">{promptBanner}</div>
+    <div className="flex flex-col gap-6 md:grid md:grid-cols-[1fr_minmax(380px,440px)] md:items-start md:gap-6">
+      <span role="status" aria-live="polite" className="sr-only">
+        {liveMessage}
+      </span>
+
+      {/* ONE reflowing prompt banner — top on mobile, top of the panel on desktop. */}
+      <div className="md:order-2">{promptBanner}</div>
 
       {/* camera viewport — dark teal-ink rounded stage (left column on desktop) */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-2xl md:aspect-auto md:min-h-[560px] md:rounded-3xl">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[560px] md:rounded-3xl">
         <video
           ref={tracker.videoRef}
           autoPlay
@@ -465,11 +473,11 @@ export function CameraTrainer({
         )}
       </div>
 
-      {/* MOBILE: controls flow under the viewport.
-          DESKTOP: right-hand control panel mirroring camera-drill-i-love-you--desktop. */}
-      <div className="contents md:flex md:flex-col md:gap-6 md:rounded-3xl md:bg-paper/60 md:p-6 md:shadow-soft">
-        {/* prompt banner repeats here only at md+ (hidden on mobile to avoid a duplicate) */}
-        <div className="hidden md:block">{promptBanner}</div>
+      {/* Controls — one block, no twin. Flows under the viewport on mobile;
+          sits beneath the banner in the right column on desktop. The `contents`
+          wrapper keeps the children flat in the mobile flex column; at md+ it
+          becomes a real panel pinned to grid row 2 / col 2. */}
+      <div className="contents md:order-3 md:flex md:flex-col md:gap-5 md:rounded-3xl md:bg-paper/60 md:p-6 md:shadow-soft">
         {controls}
       </div>
     </div>

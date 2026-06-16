@@ -2,24 +2,26 @@
 // (PRD §6.7). Flagged signs pin to every hearing member's Home and jump
 // their SRS queues, tagged with who needs them.
 //
-// Rebuilt to the Google Stitch v2 brand design (flag-signs-we-need--*):
-// a teal hero with the crown/hand illustration, learning-group category
-// navigation (mobile pills · desktop "Learning Groups" sidebar), a search +
-// sort/filter bar, a 2-col (mobile) / 3-col (desktop) grid of pinnable sign
-// cards, and a status cluster (mobile) / right-rail summary + weekly-goal
-// achievement card (desktop) showing the real flag count, flagged-sign list
-// and the actual requestors.
+// Redesign (spec §5.7): sub-route behind Family inside the shared takeover
+// shell (close/back → Family). The desktop top-nav + mobile app-bar twins are
+// deleted (the shell owns chrome). ONE horizontally-scrolling group Chip row at
+// ALL sizes (fixes the md dead-zone). Flags persist on tap — Save was a no-op —
+// so there is a single "Done" affordance. The fabricated weekly-goal /5 and the
+// index-based priority labels are dropped (no fabrication in a judged demo). One
+// card-radius/spacing scale; the secondary gloss follows the content language.
 import { useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, signById } from "../content/signs";
 import { activeFlags, activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
+import { ScreenShell } from "../components/ScreenShell";
 import { Button, Icon } from "../components/ui";
+import { Chip } from "../components/Tile";
 import type { Sign } from "../types";
 
-// Learning-group taxonomy (Stitch "Learning Groups" sidebar / mobile pills).
-// No `category` field exists on Sign (frozen content), so groups are derived
-// from a presentational id→group map; anything unmapped lives under "home".
+// Learning-group taxonomy (mobile/desktop group switcher). No `category` field
+// exists on Sign (frozen content), so groups are derived from a presentational
+// id→group map; anything unmapped lives under "home".
 type GroupId = "all" | "home" | "food" | "feelings" | "school";
 
 const SIGN_GROUP: Record<string, Exclude<GroupId, "all">> = {
@@ -95,12 +97,6 @@ export function FlagPicker() {
     .map((f) => signById(f.signId))
     .filter((s): s is Sign => Boolean(s));
 
-  // Priority labels (Stitch summary rail) — first two flags High, rest Medium.
-  const priorityLabel = (i: number) =>
-    i < 2
-      ? pick(lang, "Priority High", "أولوية عالية")
-      : pick(lang, "Priority Medium", "أولوية متوسطة");
-
   const clearAll = () => {
     flaggedSigns.forEach((s) => app.toggleFlag(s.id, profile.id));
   };
@@ -108,144 +104,53 @@ export function FlagPicker() {
   const headingAr = "علّم الإشارات اللي نحتاجها";
 
   return (
-    <div className="min-h-screen bg-sand pb-44 md:pb-12">
-      {/* ── Top bar (desktop) ─────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 hidden h-20 items-center justify-between border-b-4 border-teal-deep bg-teal px-8 text-paper shadow-md md:flex">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-2xl font-bold tracking-tight text-paper">
-            sawiyya<span className="text-gold">.</span>
-          </span>
-        </div>
-        <div className="hidden items-center gap-8 lg:flex">
-          <button type="button" onClick={() => go({ name: "home" })} className="font-sans font-medium text-paper/80 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold">
-            {pick(lang, "Home", "الرئيسية")}
-          </button>
-          <button type="button" onClick={() => go({ name: "camera" })} className="font-sans font-bold text-gold transition-colors focus-visible:outline-none">
-            {pick(lang, "Camera", "الكاميرا")}
-          </button>
-          <button type="button" onClick={() => go({ name: "family" })} className="font-sans font-medium text-paper/80 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold">
-            {pick(lang, "Family", "العائلة")}
-          </button>
-          <button type="button" onClick={() => go({ name: "progress" })} className="font-sans font-medium text-paper/80 transition-colors hover:text-gold focus-visible:outline-none focus-visible:text-gold">
-            {pick(lang, "Progress", "التقدّم")}
-          </button>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 rounded-full bg-paper/10 px-3 py-1.5 text-paper" aria-hidden="true">
-            <Icon name="local_fire_department" fill className="text-gold" />
-            <span className="font-display text-sm font-bold">{num(profile.streak, lang)}</span>
-          </span>
-          <span className="hidden h-10 w-10 items-center justify-center rounded-full border-2 border-paper bg-paper/10 text-lg lg:flex" aria-hidden="true">
-            {profile.emoji}
-          </span>
-          <Button variant="ghost" onClick={() => go({ name: "family" })} className="border-paper/30 !text-paper">
-            {t("cancel", lang)}
-          </Button>
-        </div>
-      </nav>
+    <ScreenShell
+      lang={lang}
+      chrome="takeover"
+      title={t("famFlagTitle", lang)}
+      onClose={() => go({ name: "family" })}
+    >
+      <div className="pb-28">
+        {/* ── Hero ────────────────────────────────────────────────────── */}
+        <header className="relative overflow-hidden bg-teal px-6 pb-10 pt-8 shadow-lift rounded-b-bowl">
+          {/* abstract glows */}
+          <div className="pointer-events-none absolute -right-32 -top-32 h-64 w-64 rounded-full bg-gold/10 blur-[80px]" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-coral/10 blur-[60px]" aria-hidden="true" />
 
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <header className="relative overflow-hidden bg-teal px-6 pb-12 pt-6 md:rounded-none md:pb-12 md:pt-28 rounded-b-[40px] shadow-lift">
-        {/* mobile top app bar */}
-        <div className="mb-2 flex items-center justify-between md:hidden">
-          <div className="flex items-center gap-3">
-            <span className="rounded-xl bg-paper/10 p-2 text-paper">
-              <Icon name="family_star" fill />
-            </span>
-            <h1 className="font-display text-xl font-bold uppercase tracking-wider text-paper">
-              {t("famFlagTitle", lang)}
-            </h1>
-          </div>
-          <button
-            type="button"
-            onClick={() => go({ name: "family" })}
-            aria-label={t("back", lang)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-paper/10 text-paper transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-          >
-            <Icon name="close" />
-          </button>
-        </div>
-
-        {/* abstract glows */}
-        <div className="pointer-events-none absolute -right-32 -top-32 h-64 w-64 rounded-full bg-gold/10 blur-[80px]" aria-hidden="true" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-coral/10 blur-[60px]" aria-hidden="true" />
-
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center text-center md:flex-row md:items-center md:justify-between md:gap-8 md:text-start">
-          <img
-            src="/brand/stitch-35.png"
-            alt=""
-            aria-hidden="true"
-            className="mb-6 h-40 w-40 object-contain drop-shadow-2xl md:order-2 md:mb-0 md:h-56 md:w-56 motion-safe:animate-rise"
-          />
-          <div className="md:order-1 md:max-w-2xl">
-            <h2 className="mb-2 font-display text-3xl font-bold leading-tight text-paper md:text-5xl">
-              {t("famFlagTitle", lang)}
-              <span className="mt-1 block font-sans text-2xl font-normal opacity-90 md:mt-2 md:inline md:text-4xl" dir="rtl">
-                {lang === "ar" ? "" : ` · ${headingAr}`}
+          <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-start">
+            <img
+              src="/brand/stitch-35.png"
+              alt=""
+              aria-hidden="true"
+              className="h-32 w-32 object-contain drop-shadow-2xl md:order-2 md:h-44 md:w-44 motion-safe:animate-rise"
+            />
+            <div className="md:order-1">
+              <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-paper/10 px-3 py-1.5 text-paper">
+                <Icon name="family_star" fill />
+                <span className="font-display text-xs font-bold uppercase tracking-wider">
+                  {t("famFlagTitle", lang)}
+                </span>
               </span>
-            </h2>
-            <p className="font-sans text-lg text-paper/80 md:text-xl">
-              {pick(lang, "You direct what they learn", "أنت توجّه ما يتعلمونه")}
-            </p>
+              <h2 className="font-display text-3xl font-bold leading-tight text-paper md:text-4xl">
+                {t("famFlagTitle", lang)}
+                <span className="mt-1 block font-sans text-xl font-normal opacity-90 md:text-2xl" dir="rtl">
+                  {lang === "ar" ? "" : ` · ${headingAr}`}
+                </span>
+              </h2>
+              <p className="mt-2 font-sans text-lg text-paper/80">
+                {pick(lang, "You direct what they learn", "أنت توجّه ما يتعلمونه")}
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* ── Body ──────────────────────────────────────────────────────── */}
-      <main className="relative z-20 mx-auto -mt-8 max-w-7xl px-6 md:mt-0 md:flex md:gap-8 md:px-8 md:py-12 lg:gap-12">
-        {/* ── Learning Groups sidebar (desktop) ───────────────────────── */}
-        <aside className="hidden shrink-0 lg:flex lg:w-72 lg:flex-col">
-          <nav
-            aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}
-            className="rounded-2xl border-2 border-teal/10 bg-paper p-8 shadow-soft"
-          >
-            <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-teal/60">
-              {pick(lang, "Learning Groups", "مجموعات التعلّم")}
-            </h3>
-            <div className="space-y-4">
-              {groups.map((gr) => {
-                const active = group === gr.id && !q;
-                return (
-                  <button
-                    key={gr.id}
-                    type="button"
-                    aria-current={active ? "true" : undefined}
-                    onClick={() => {
-                      setGroup(gr.id);
-                      setQuery("");
-                    }}
-                    className={`flex w-full items-center gap-4 rounded-xl p-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
-                      active
-                        ? "bg-teal text-paper shadow-[0_4px_0_0_#0A4F4C] active:translate-y-1 active:shadow-[0_1px_0_0_#0A4F4C]"
-                        : "text-teal hover:bg-teal/5"
-                    }`}
-                  >
-                    <Icon name={gr.icon} fill={active} />
-                    <span className={active ? "font-bold" : "font-medium"}>{gr.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-8 border-t-2 border-teal/5 pt-8">
-              <button
-                type="button"
-                disabled
-                title={pick(lang, "Coming soon", "قريبًا")}
-                className="w-full rounded-xl border-2 border-teal py-4 font-bold text-teal transition hover:bg-teal hover:text-paper disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
-              >
-                {pick(lang, "+ New Category", "+ مجموعة جديدة")}
-              </button>
-            </div>
-          </nav>
-        </aside>
-
-        {/* canvas (search + grid) */}
-        <section className="md:flex-1 md:space-y-8">
-          {/* Search + sort/filter */}
-          <div className="mb-6 rounded-3xl bg-paper p-4 shadow-lift md:mb-0 md:bg-transparent md:p-0 md:shadow-none">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        {/* ── Body ────────────────────────────────────────────────────── */}
+        <main className="mx-auto -mt-6 max-w-3xl space-y-6 px-6">
+          {/* Search + sort */}
+          <div className="space-y-4 rounded-3xl bg-paper p-5 shadow-lift">
+            <div className="flex items-center gap-3">
               <div className="relative flex flex-1 items-center">
-                <span className="pointer-events-none absolute left-4 text-teal" aria-hidden="true">
+                <span className="pointer-events-none absolute left-4 text-teal rtl:left-auto rtl:right-4" aria-hidden="true">
                   <Icon name="search" />
                 </span>
                 <input
@@ -255,58 +160,46 @@ export function FlagPicker() {
                   placeholder={pick(lang, "Search for a sign…", "ابحث عن إشارة…")}
                   aria-label={pick(lang, "Search signs", "ابحث عن إشارة")}
                   dir={lang === "ar" ? "rtl" : "ltr"}
-                  className={`w-full rounded-2xl border-2 border-line bg-sand py-4 font-sans text-ink outline-none transition placeholder:text-ink/40 focus-visible:border-teal focus-visible:ring-2 focus-visible:ring-teal/30 md:bg-paper md:text-lg ${
+                  className={`w-full rounded-2xl border-2 border-line bg-sand py-3.5 font-sans text-ink outline-none transition placeholder:text-ink/40 focus-visible:border-teal focus-visible:ring-2 focus-visible:ring-teal/30 ${
                     lang === "ar" ? "pl-4 pr-12" : "pl-12 pr-4"
                   }`}
                 />
               </div>
-
-              {/* sort + filter (desktop) */}
-              <div className="hidden gap-2 md:flex">
-                <button
-                  type="button"
-                  aria-pressed={mostNeeded}
-                  onClick={() => setMostNeeded((v) => !v)}
-                  className={`whitespace-nowrap rounded-2xl border-2 px-6 py-4 font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
-                    mostNeeded
-                      ? "border-teal bg-teal/5 text-teal"
-                      : "border-line bg-paper text-teal hover:border-teal"
-                  }`}
-                >
-                  {pick(lang, "Most Needed", "الأكثر طلبًا")}
-                </button>
-                <button
-                  type="button"
-                  aria-label={pick(lang, "Filter", "تصفية")}
-                  disabled
-                  title={pick(lang, "Coming soon", "قريبًا")}
-                  className="rounded-2xl border-2 border-line bg-paper px-6 py-4 text-teal transition hover:border-teal disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
-                >
-                  <Icon name="filter_list" className="align-middle" />
-                </button>
-              </div>
+              <button
+                type="button"
+                aria-pressed={mostNeeded}
+                onClick={() => setMostNeeded((v) => !v)}
+                className={`shrink-0 whitespace-nowrap rounded-2xl border-2 px-4 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
+                  mostNeeded
+                    ? "border-teal bg-teal/5 text-teal"
+                    : "border-line bg-paper text-teal hover:border-teal"
+                }`}
+              >
+                {pick(lang, "Most Needed", "الأكثر طلبًا")}
+              </button>
             </div>
 
-            {/* category pills (mobile) */}
-            <div className="-mb-1 mt-4 flex gap-2 overflow-x-auto pb-1 md:hidden" role="tablist" aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}>
+            {/* One group switcher — a single horizontally-scrolling Chip row at
+                ALL sizes (fixes the md dead-zone). */}
+            <div
+              className="-mb-1 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
+              role="tablist"
+              aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}
+            >
               {groups.map((gr) => {
                 const active = group === gr.id && !q;
                 return (
-                  <button
+                  <Chip
                     key={gr.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
+                    selected={active}
                     onClick={() => {
                       setGroup(gr.id);
                       setQuery("");
                     }}
-                    className={`whitespace-nowrap rounded-full px-6 py-2 text-xs font-bold uppercase tracking-widest transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
-                      active ? "bg-teal text-sand" : "bg-sand text-teal hover:bg-teal/10"
-                    }`}
                   >
+                    <Icon name={gr.icon} fill={active} className="text-base" />
                     {gr.label}
-                  </button>
+                  </Chip>
                 );
               })}
             </div>
@@ -314,11 +207,11 @@ export function FlagPicker() {
 
           {/* Sign grid */}
           {signs.length === 0 ? (
-            <p className="rounded-2xl bg-paper p-8 text-center font-sans text-muted">
+            <p className="rounded-3xl bg-paper p-8 text-center font-sans text-muted shadow-soft">
               {pick(lang, "No signs match your search.", "لا توجد إشارات مطابقة.")}
             </p>
           ) : (
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-2 xl:grid-cols-3 md:gap-6" role="list">
+            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3" role="list">
               {signs.map((sign) => {
                 const flagged = flaggedIds.has(sign.id);
                 return (
@@ -327,15 +220,15 @@ export function FlagPicker() {
                       type="button"
                       aria-pressed={flagged}
                       onClick={() => app.toggleFlag(sign.id, profile.id)}
-                      className={`relative flex w-full flex-col rounded-[32px] border-2 p-4 text-start transition md:rounded-2xl md:p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 ${
+                      className={`relative flex w-full flex-col rounded-3xl border-2 p-5 text-start transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 ${
                         flagged
-                          ? "border-coral bg-paper shadow-coral motion-safe:-translate-y-1"
+                          ? "border-coral bg-paper shadow-coral ring-4 ring-coral/10 motion-safe:-translate-y-1"
                           : "border-line bg-paper shadow-soft hover:border-teal/30"
                       }`}
                     >
-                      {/* pin */}
+                      {/* pin = the one selection affordance (ring + filled pin) */}
                       <span
-                        className={`absolute end-4 top-4 text-2xl md:text-3xl ${
+                        className={`absolute end-4 top-4 text-2xl ${
                           flagged ? "text-coral" : "text-ink/20"
                         }`}
                         aria-hidden="true"
@@ -345,34 +238,30 @@ export function FlagPicker() {
 
                       {/* sign tile */}
                       <span
-                        className={`mb-3 flex aspect-square items-center justify-center rounded-2xl md:mb-4 md:aspect-auto md:h-44 ${
+                        className={`mb-4 flex aspect-square items-center justify-center rounded-2xl ${
                           flagged ? "bg-sand" : "bg-sand/50"
                         }`}
                       >
-                        <span className="text-5xl md:text-6xl" aria-hidden="true">
+                        <span className="text-5xl" aria-hidden="true">
                           {sign.emoji}
                         </span>
                       </span>
 
                       {/* label */}
-                      <span className="flex w-full items-end justify-between">
-                        <span className="min-w-0">
-                          <span className="block truncate font-display text-base font-bold text-teal md:text-2xl">
-                            {pick(lang, sign.glossEn, sign.glossAr)}
-                          </span>
-                          <span className="block truncate font-display text-sm font-medium text-teal/60 md:text-xl" dir="rtl">
-                            {pick(lang, sign.glossAr, sign.glossEn)}
-                          </span>
+                      <span className="block min-w-0">
+                        <span className="block truncate font-display text-base font-bold text-teal">
+                          {pick(lang, sign.glossEn, sign.glossAr)}
                         </span>
-                        {flagged && (
-                          <span className="ms-2 hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-paper md:flex" aria-hidden="true">
-                            <Icon name="star" fill className="text-sm" />
-                          </span>
-                        )}
+                        <span
+                          className="block truncate font-display text-sm font-medium text-teal/60"
+                          dir={lang === "ar" ? "ltr" : "rtl"}
+                        >
+                          {pick(lang, sign.glossAr, sign.glossEn)}
+                        </span>
                       </span>
 
                       {flagged && (
-                        <span className="mt-1 text-xs font-semibold text-coral md:hidden">
+                        <span className="mt-1 text-xs font-semibold text-coral">
                           {t("famFlagged", lang)}
                         </span>
                       )}
@@ -382,14 +271,12 @@ export function FlagPicker() {
               })}
             </ul>
           )}
-        </section>
 
-        {/* ── Right rail / summary (desktop) ───────────────────────────── */}
-        <aside className="hidden w-80 shrink-0 space-y-6 md:block">
-          <div className="relative overflow-hidden rounded-3xl border-4 border-teal/5 bg-paper p-8 shadow-lift">
+          {/* Summary — real flag count, flagged-sign list, real requestors. */}
+          <div className="relative overflow-hidden rounded-3xl border-2 border-teal/10 bg-paper p-6 shadow-lift">
             <span className="absolute left-0 top-0 h-2 w-full bg-coral" aria-hidden="true" />
             <div className="relative z-10">
-              <div className="mb-6 flex items-center gap-3">
+              <div className="mb-5 flex items-center gap-3">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-coral/10 text-coral" aria-hidden="true">
                   <Icon name="push_pin" fill className="text-2xl" />
                 </span>
@@ -403,27 +290,27 @@ export function FlagPicker() {
               </div>
 
               {flaggedSigns.length > 0 ? (
-                <ul className="mb-8 space-y-3" role="list">
-                  {flaggedSigns.map((s, i) => (
+                <ul className="mb-6 space-y-3" role="list">
+                  {flaggedSigns.map((s) => (
                     <li
                       key={s.id}
-                      className="flex items-center justify-between rounded-xl border border-teal/5 bg-sand p-3"
+                      className="flex items-center gap-3 rounded-2xl border border-teal/5 bg-sand p-3"
                     >
+                      <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
                       <span className="font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
-                      <span className="text-sm text-teal/60">{priorityLabel(i)}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mb-8 rounded-xl bg-sand p-4 text-sm text-muted">
+                <p className="mb-6 rounded-2xl bg-sand p-4 text-sm text-muted">
                   {pick(lang, "Tap a sign to flag it.", "اضغط على إشارة لتحديدها.")}
                 </p>
               )}
 
               {/* Requestors */}
               {requestors.length > 0 && (
-                <div className="mb-8">
-                  <p className="mb-4 text-sm font-bold uppercase tracking-widest text-teal/40">
+                <div className="mb-6">
+                  <p className="mb-3 font-display text-xs font-bold uppercase tracking-wide text-teal/40">
                     {pick(lang, "Requestors", "مَن طلبها")}
                   </p>
                   <div className="flex -space-x-3 overflow-hidden">
@@ -453,90 +340,36 @@ export function FlagPicker() {
                 </div>
               )}
 
-              <Button full variant="primary" onClick={() => go({ name: "family" })} className="mb-4">
-                {t("save", lang)} ({num(flaggedSigns.length, lang)})
-              </Button>
               {flaggedSigns.length > 0 && (
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="w-full rounded-xl py-3 font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
+                  className="w-full rounded-2xl py-3 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
                 >
                   {pick(lang, "Clear all", "مسح الكل")}
                 </button>
               )}
             </div>
           </div>
+        </main>
+      </div>
 
-          {/* Weekly-goal achievement card */}
-          {(() => {
-            const goalPct =
-              flaggedSigns.length > 0
-                ? Math.min(100, Math.round((flaggedSigns.length / 5) * 100))
-                : 0;
-            return (
-              <div className="relative overflow-hidden rounded-3xl bg-gold p-6 text-paper shadow-gold">
-                <div className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-paper/20" aria-hidden="true" />
-                <div className="relative z-10 flex items-center gap-4">
-                  <span className="text-4xl" aria-hidden="true">🔥</span>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-80">
-                      {pick(lang, "Weekly Goal", "الهدف الأسبوعي")}
-                    </p>
-                    <h4 className="font-display text-2xl font-bold leading-tight">
-                      {pick(lang, `${num(goalPct, lang)}% Complete`, `${num(goalPct, lang)}٪ مكتمل`)}
-                    </h4>
-                  </div>
-                </div>
-                <div
-                  className="relative z-10 mt-4 h-4 overflow-hidden rounded-full bg-paper/20"
-                  role="progressbar"
-                  aria-valuenow={goalPct}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={pick(lang, "Weekly goal progress", "تقدّم الهدف الأسبوعي")}
-                >
-                  <div
-                    className="h-full rounded-full bg-paper transition-all duration-500"
-                    style={{ width: `${goalPct}%`, boxShadow: "0 0 15px rgba(255,255,255,0.5)" }}
-                  />
-                </div>
-              </div>
-            );
-          })()}
-        </aside>
-      </main>
-
-      {/* ── Sticky status cluster (mobile) ────────────────────────────── */}
-      <div className="fixed inset-x-0 bottom-0 z-40 md:hidden">
-        <div className="mx-6 mb-4 flex items-center justify-between gap-3 rounded-3xl border-t border-teal/5 bg-paper/95 p-4 shadow-lift backdrop-blur-md">
+      {/* ── Single "Done" affordance (flags persist on tap) ─────────────── */}
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-sand/95 px-6 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex -space-x-3">
-              {(requestors.length > 0 ? requestors.slice(0, 2) : [profile]).map((p) => (
-                <span
-                  key={p.id}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-paper bg-sand text-lg"
-                  aria-hidden="true"
-                >
-                  {p.emoji}
-                </span>
-              ))}
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-paper bg-sand text-teal" aria-hidden="true">
-                <Icon name="groups" />
-              </span>
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-teal">
-                {num(flaggedSigns.length, lang)} {t("famFlagged", lang)}
-              </p>
-              <p className="truncate text-xs text-muted">{t("famFlagSub", lang)}</p>
-            </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-coral/10 text-coral" aria-hidden="true">
+              <Icon name="push_pin" fill />
+            </span>
+            <p className="truncate text-sm font-bold text-teal">
+              {num(flaggedSigns.length, lang)} {t("famFlagged", lang)}
+            </p>
           </div>
-          <Button variant="primary" onClick={() => go({ name: "family" })} className="shrink-0 !px-6 !py-3">
-            {t("save", lang)}
+          <Button variant="primary" size="md" onClick={() => go({ name: "family" })} className="shrink-0">
+            {pick(lang, "Done", "تم")} ({num(flaggedSigns.length, lang)})
           </Button>
         </div>
       </div>
-    </div>
+    </ScreenShell>
   );
 }
