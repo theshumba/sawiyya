@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
-import { addSample, classifyAgainst, clearClass, isTrained, sampleCount } from "../recognizer/knn";
+import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount } from "../recognizer/knn";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
 
@@ -54,11 +54,31 @@ export function CameraTrainer({
   const modeRef = useRef(mode);
   modeRef.current = mode;
 
+  // The frame loop runs ~20fps; only push a state update when the displayed
+  // (rounded) percentage actually changes, so the ~120-line prompt/controls JSX
+  // isn't rebuilt every frame (Q1).
+  const lastConfPct = useRef(-1);
+  const lastHoldPct = useRef(-1);
+  const pushConfidence = (v: number) => {
+    const pct = Math.round(v * 100);
+    if (pct !== lastConfPct.current) {
+      lastConfPct.current = pct;
+      setConfidence(v);
+    }
+  };
+  const pushHold = (v: number) => {
+    const pct = Math.round(v * 100);
+    if (pct !== lastHoldPct.current) {
+      lastHoldPct.current = pct;
+      setHoldProgress(v);
+    }
+  };
+
   const onFrame = (frame: FrameInfo | null) => {
     if (finished.current) return;
     if (!frame) {
-      setConfidence(0);
-      setHoldProgress(0);
+      pushConfidence(0);
+      pushHold(0);
       consecutive.current = 0;
       return;
     }
@@ -74,6 +94,7 @@ export function CameraTrainer({
       setCaptured(n);
       if (n >= TEACH_TARGET) {
         teaching.current = false;
+        flushSamples(); // force a durable write now that capture is done (Q3)
         setTeachPhase("done");
       }
       return;
@@ -85,9 +106,9 @@ export function CameraTrainer({
     // Grade against THIS sign's class specifically — never the global argmax,
     // which sticks the meter at 0% once another class is trained (knn.ts).
     const result = classifyAgainst(vec, sign.id);
-    setConfidence(result.confidence);
+    pushConfidence(result.confidence);
     consecutive.current = result.matched ? consecutive.current + 1 : 0;
-    setHoldProgress(Math.min(1, consecutive.current / HOLD_FRAMES));
+    pushHold(Math.min(1, consecutive.current / HOLD_FRAMES));
     if (consecutive.current >= HOLD_FRAMES) {
       finished.current = true;
       tracker.stop(); // release the camera the moment the match confirms
@@ -115,6 +136,7 @@ export function CameraTrainer({
   const finishResult = (r: TrainerResult) => {
     if (finished.current) return;
     finished.current = true;
+    flushSamples(); // persist any debounced teach samples before leaving (Q3)
     tracker.stop();
     onResult(r);
   };
