@@ -65,7 +65,10 @@ function StepDots({ step, lang }: { step: Step; lang: "en" | "ar" }) {
 export function FirstSign() {
   const app = useApp();
   const { go } = useUi();
-  const [step, setStep] = useState<Step>("watch");
+  // Onboarding hands users straight into camera practice with their real hand.
+  // CameraTrainer shows the I-love-you reference chip ("the thing to copy") so
+  // they still see the sign — but the very first thing they do is sign it.
+  const [step, setStep] = useState<Step>("try");
   const [burst, setBurst] = useState(0);
   const profile = activeProfile(app);
   const sign = signById("iloveyou");
@@ -201,7 +204,7 @@ export function FirstSign() {
   // Chrome-light takeover: a minimal close to home + brand only (NO tab bar).
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
-      <main className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col px-5 pb-32 pt-8 md:items-center md:justify-center md:px-6 md:text-center">
+      <main className={`mx-auto flex min-h-[calc(100dvh-57px)] w-full flex-col px-5 pb-32 pt-8 md:items-center md:justify-center md:px-6 md:text-center ${step === "try" ? "max-w-5xl" : "max-w-2xl"}`}>
         {step === "watch" ? (
           <>
             <p className="font-display text-xl font-bold text-ink/80 md:text-2xl">{t("fsIntro", lang)}</p>
