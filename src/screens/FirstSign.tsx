@@ -1,5 +1,6 @@
 // First-sign-in-3-min — the hook and the demo open (PRD §6.2, G1).
-// Learn ONE sign ("I love you / أحبك") → film it → gold celebration.
+// First graded sign is the real-graded letter Alif (ا) — has ground-truth seeds,
+// so CameraTrainer opens straight into grade mode (no teach step) and grades genuinely.
 // Visuals mirror first-sign-watch-i-love-you / -demo + celebration-connection-made (stitch-v2-brand).
 //
 // Redesign (§5.4): chrome-light onboarding takeover — NO global tab bar / profile button.
@@ -66,12 +67,12 @@ export function FirstSign() {
   const app = useApp();
   const { go } = useUi();
   // Onboarding hands users straight into camera practice with their real hand.
-  // CameraTrainer shows the I-love-you reference chip ("the thing to copy") so
-  // they still see the sign — but the very first thing they do is sign it.
+  // Alif has real ground-truth seeds (Tasks 2–4) so it opens in grade mode —
+  // CameraTrainer shows the ا glyph reference chip and grades genuinely (no teach step).
   const [step, setStep] = useState<Step>("try");
   const [burst, setBurst] = useState(0);
   const profile = activeProfile(app);
-  const sign = signById("iloveyou");
+  const sign = signById("alpha-alif");
   if (!profile || !sign) return null;
   const lang = profile.language;
 
