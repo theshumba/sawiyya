@@ -225,7 +225,7 @@ export function Onboarding() {
                     <span className="font-display text-lg font-bold text-ink">{pick(lang, "Arabic Alphabet", "الحروف العربية")}</span>
                     <span className="rounded-full bg-teal px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{pick(lang, "Ready", "جاهز")}</span>
                   </div>
-                  <p className="text-sm text-muted">{pick(lang, "All 32 letters, camera-graded", "كل الحروف الـ32، بتقييم الكاميرا")}</p>
+                  <p className="text-sm text-muted">{pick(lang, "28 core letters, camera-graded", "٢٨ حرفًا أساسيًا، بتقييم الكاميرا")}</p>
                 </div>
                 <Icon name="check_circle" fill className="text-2xl text-teal" />
               </div>
