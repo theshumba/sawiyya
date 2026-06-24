@@ -131,3 +131,40 @@ RUNTIME:
 - `scripts/extract-alphabet-seeds.*` + `src/recognizer/seeds/alphabet.json` + `seeds/SOURCES.md` (Part C.1, new)
 - `src/components/CameraTrainer.tsx` (Part C.3 hold, C.4 copy)
 - i18n strings as needed for relabels.
+
+---
+
+## Calibration result
+
+**Date:** 2026-06-24
+**Dataset:** Zenodo ArSL landmark CSV (`tools/extract-seeds/dataset/ArSL_dataset.csv`, 7,010 rows)
+**Method:** Held-out split — shipped seeds (`src/recognizer/seeds/alphabet.json`, ≤40 vectors/class) as train; all CSV rows whose rounded vector is NOT in the seed set as test pool. Up to 15 positives + 15 negatives per class (420+420=840 items total). Negatives = correct-class samples graded as the next class (rotated). k=7 (matches production knn.ts).
+
+| DISTANCE_GATE | TAU  | trueAccept | falseAccept | n   |
+|--------------|------|-----------|-------------|-----|
+| 0.45         | 0.70 | 98.8%     | 0.2%        | 840 |
+| 0.45         | 0.78 | 98.8%     | 0.2%        | 840 |
+| 0.45         | 0.85 | 98.8%     | 0.2%        | 840 |
+| 0.50         | 0.70 | 98.8%     | 0.2%        | 840 |
+| 0.50         | 0.78 | 98.8%     | 0.2%        | 840 |
+| 0.50         | 0.85 | 98.8%     | 0.2%        | 840 |
+| 0.55         | 0.70 | 98.8%     | 0.2%        | 840 |
+| 0.55         | 0.78 | 98.8%     | 0.2%        | 840 |
+| 0.55         | 0.85 | 98.8%     | 0.2%        | 840 |
+| 0.60         | 0.70 | 98.8%     | 0.2%        | 840 |
+| 0.60         | 0.78 | 98.8%     | 0.2%        | 840 |
+| 0.60         | 0.85 | 98.8%     | 0.2%        | 840 |
+| **0.65**     | **0.70** | **99.5%** | **0.2%** | **840** |
+| **0.65**     | **0.78** | **99.5%** | **0.2%** | **840** |
+| **0.65**     | **0.85** | **99.5%** | **0.2%** | **840** |
+
+**Chosen:** `DISTANCE_GATE=0.65`, `TAU=0.85`, `MARGIN_GATE=0.15`, `HOLD_FRAMES=24`
+
+**Evidence:**
+- trueAccept = **99.5%** (unseen hands signing the correct letter pass)
+- falseAccept = **0.2%** (well under the 2% hard cap — wrong signs are rejected)
+- "Instant yes" is gone: HOLD_FRAMES raised from 10→24 (>1s at ~20fps)
+- TAU raised from 0.78→0.85 (harder to hit; stricter vote-share required)
+- DISTANCE_GATE widened from 0.55→0.65 to accommodate cross-person intra-class spread
+
+**Limitation (disclosed):** All 15 gate×tau combos returned the same 0.2% false-accept — the held-out negatives are drawn from the *same* dataset (and likely overlapping subjects/sessions) as the seeds, so their distance distribution is tight. This validates that the recognizer separates these classes cleanly, but real-world false-accepts on genuinely novel hands/lighting may be higher than 0.2%. The chosen thresholds favour strictness (TAU=0.85, hold >1s) precisely to keep real-world false-accepts low; on-device per-letter teach-mode remains available as a fallback if a real hand is consistently rejected.
