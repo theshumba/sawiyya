@@ -279,6 +279,8 @@ git commit -m "feat(recognizer): read-only seed base layer for alphabet grading"
 
 ### Task 3: Build real ground-truth seeds from a real dataset
 
+> **DEVIATION (authorised 2026-06-24):** Implemented from the **Zenodo ArSL landmark CSV** (record 18363162, CC-BY-4.0) instead of the 5GB image dataset + browser harness. The CSV already carries raw 21-point landmark coordinates, so a pure Node script feeds them through the SAME `normalizeLandmarks()` — identical 42-dim feature space, no browser, no large download, cleaner license. 28 letter classes get real seeds; the 3 edge forms (ة/لا/ال) aren't in the dataset and stay teach-mode. See `.superpowers/sdd/task-3-brief.md` for the label→id mapping. The original browser-harness text below is retained for context only.
+
 A one-time **browser** harness extracts landmarks from real Arabic-alphabet photos through the same `normalizeLandmarks()`, then writes `alphabet.json`. Browser-based because `@mediapipe/tasks-vision` is browser-only — and it guarantees the seed feature space matches the live camera path exactly.
 
 **Files:**

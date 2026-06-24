@@ -166,3 +166,5 @@ RUNTIME:
 - "Instant yes" is gone: HOLD_FRAMES raised from 10→24 (>1s at ~20fps)
 - TAU raised from 0.78→0.85 (harder to hit; stricter vote-share required)
 - DISTANCE_GATE widened from 0.55→0.65 to accommodate cross-person intra-class spread
+
+**Limitation (disclosed):** All 15 gate×tau combos returned the same 0.2% false-accept — the held-out negatives are drawn from the *same* dataset (and likely overlapping subjects/sessions) as the seeds, so their distance distribution is tight. This validates that the recognizer separates these classes cleanly, but real-world false-accepts on genuinely novel hands/lighting may be higher than 0.2%. The chosen thresholds favour strictness (TAU=0.85, hold >1s) precisely to keep real-world false-accepts low; on-device per-letter teach-mode remains available as a fallback if a real hand is consistently rejected.
