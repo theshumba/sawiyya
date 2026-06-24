@@ -2,6 +2,7 @@
 // kinivi-style: record N samples of a handshape → classify live.
 // Samples live in localStorage; nothing ever leaves the device.
 import { euclidean } from "./normalize";
+import seedData from "./seeds/alphabet.json";
 
 const STORE_KEY = "sawiyya.knn.v1";
 const K = 7;
@@ -19,6 +20,17 @@ export interface TargetClassification {
 }
 
 type SampleStore = Record<string, number[][]>;
+
+// Bundled, read-only ground-truth vectors (alphabet). Never written to localStorage.
+let seeds: SampleStore = seedData as SampleStore;
+/** TEST-ONLY: replace the bundled seeds with a fixture. */
+export function __setSeedsForTest(s: SampleStore) {
+  seeds = s;
+}
+/** All stores read paths must span — seeds first, then the user's localStorage store. */
+function readStores(): SampleStore[] {
+  return [seeds, store()];
+}
 
 function load(): SampleStore {
   try {
@@ -86,11 +98,13 @@ export function clearClass(classId: string) {
 }
 
 export function sampleCount(classId: string): number {
-  return store()[classId]?.length ?? 0;
+  return readStores().reduce((n, s) => n + (s[classId]?.length ?? 0), 0);
 }
 
 export function trainedClassIds(): string[] {
-  return Object.keys(store()).filter((id) => store()[id].length >= 4);
+  const ids = new Set<string>();
+  for (const s of readStores()) for (const id of Object.keys(s)) ids.add(id);
+  return [...ids].filter((id) => sampleCount(id) >= 4);
 }
 
 export function isTrained(classId: string): boolean {
@@ -113,29 +127,30 @@ export function isTrained(classId: string): boolean {
  */
 export function classifyAgainst(vec: number[], targetId: string): TargetClassification {
   if (vec.length === 0) return { confidence: 0, matched: false }; // empty/degenerate frame (Q8)
-  const s = store();
 
   // Maintain just the K nearest neighbours via bounded insertion — avoids
   // allocating + full-sorting an array of every sample each frame (Q2).
   const top: { classId: string; d: number }[] = [];
   let worst = Infinity;
-  for (const [classId, samples] of Object.entries(s)) {
-    for (const sample of samples) {
-      const d = euclidean(vec, sample);
-      if (top.length < K) {
-        top.push({ classId, d });
-        if (top.length === K) {
-          top.sort((a, b) => a.d - b.d);
+  for (const layer of readStores()) {
+    for (const [classId, samples] of Object.entries(layer)) {
+      for (const sample of samples) {
+        const d = euclidean(vec, sample);
+        if (top.length < K) {
+          top.push({ classId, d });
+          if (top.length === K) {
+            top.sort((a, b) => a.d - b.d);
+            worst = top[K - 1].d;
+          }
+        } else if (d < worst) {
+          top[K - 1] = { classId, d };
+          let i = K - 1;
+          while (i > 0 && top[i].d < top[i - 1].d) {
+            [top[i - 1], top[i]] = [top[i], top[i - 1]];
+            i -= 1;
+          }
           worst = top[K - 1].d;
         }
-      } else if (d < worst) {
-        top[K - 1] = { classId, d };
-        let i = K - 1;
-        while (i > 0 && top[i].d < top[i - 1].d) {
-          [top[i - 1], top[i]] = [top[i], top[i - 1]];
-          i -= 1;
-        }
-        worst = top[K - 1].d;
       }
     }
   }
