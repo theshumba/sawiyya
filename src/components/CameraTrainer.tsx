@@ -13,7 +13,7 @@ import { Button, Icon } from "./ui";
 
 export type TrainerResult = "match" | "selfMark" | "skip";
 
-const HOLD_FRAMES = 10; // consecutive matching frames to confirm (~0.5 s @20fps)
+const HOLD_FRAMES = 24; // consecutive matching frames to confirm (>1 s @20fps — no insta-pass)
 const TEACH_TARGET = 24; // samples recorded in teach mode
 const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
 
@@ -297,7 +297,7 @@ export function CameraTrainer({
           : "";
 
   return (
-    <div className="flex flex-col gap-6 md:grid md:grid-cols-[1fr_minmax(380px,440px)] md:items-start md:gap-6">
+    <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(300px,360px)] md:items-start md:gap-8">
       <span role="status" aria-live="polite" className="sr-only">
         {liveMessage}
       </span>
@@ -306,7 +306,7 @@ export function CameraTrainer({
       <div className="md:order-2">{promptBanner}</div>
 
       {/* camera viewport — dark teal-ink rounded stage (left column on desktop) */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[560px] md:rounded-3xl">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[620px] md:rounded-3xl">
         <video
           ref={tracker.videoRef}
           autoPlay
