@@ -16,20 +16,19 @@ import { Button, Icon, Logo, Wordmark } from "../components/ui";
 
 type Step = "splash" | "lang" | "learn" | "why" | "hand" | "goal" | "name";
 
-// Brand illustrations from the approved Stitch screen (public/brand/mapping.tsv).
-// `ar` = the Arabic persona label Stitch renders beneath each card title.
+// Brand-glyph persona cards — Material Symbols instead of AI-generated illustrations.
+// `ar` = the Arabic persona label rendered beneath each card title.
 const PERSONAS: {
   value: Persona;
-  img: string;
+  icon: string;
   key: "obParent" | "obSibling" | "obTeacher" | "obFriend" | "obDeaf";
-  subKey: "obParentSub" | "obSiblingSub" | "obTeacherSub" | "obFriendSub" | "obDeafSub";
   ar: string;
 }[] = [
-  { value: "parent", img: "brand/stitch-35.png", key: "obParent", subKey: "obParentSub", ar: "طفلي" },
-  { value: "sibling", img: "brand/stitch-37.png", key: "obSibling", subKey: "obSiblingSub", ar: "أخي أو أختي" },
-  { value: "teacher", img: "brand/stitch-33.png", key: "obTeacher", subKey: "obTeacherSub", ar: "طالبي" },
-  { value: "friend", img: "brand/stitch-05.png", key: "obFriend", subKey: "obFriendSub", ar: "صديقي" },
-  { value: "deaf", img: "brand/stitch-41.png", key: "obDeaf", subKey: "obDeafSub", ar: "أنا أصم — أهيّئ عائلتي" },
+  { value: "parent", icon: "family_restroom", key: "obParent", ar: "طفلي" },
+  { value: "sibling", icon: "diversity_3", key: "obSibling", ar: "أخي أو أختي" },
+  { value: "teacher", icon: "school", key: "obTeacher", ar: "طالبي" },
+  { value: "friend", icon: "group", key: "obFriend", ar: "صديقي" },
+  { value: "deaf", icon: "sign_language", key: "obDeaf", ar: "أنا أصم — أهيّئ عائلتي" },
 ];
 
 const GOALS: { value: DailyGoal; key: "obCasual" | "obRegular" | "obSerious"; icon: string }[] = [
@@ -231,14 +230,18 @@ export function Onboarding() {
                 <Icon name="check_circle" fill className="text-2xl text-teal" />
               </div>
 
-              {/* Everyday QSL signs — teach-mode */}
+              {/* Everyday QSL signs — teach-mode (not pre-graded, badge is neutral) */}
               <div className={`${cardBase} flex items-center gap-4 p-5`}>
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15 text-2xl">👋</span>
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
+                  <Icon name="waving_hand" fill className="!text-2xl text-gold" />
+                </span>
                 <div className="min-w-0 flex-1">
                   <span className="font-display text-lg font-bold text-ink">{pick(lang, "Everyday signs", "إشارات يومية")}</span>
                   <p className="text-sm text-muted">{pick(lang, "Hello, milk, more, thank you…", "مرحبا، حليب، المزيد، شكرًا…")}</p>
                 </div>
-                <Icon name="check_circle" fill className="text-2xl text-teal" />
+                <span className="shrink-0 rounded-full bg-ink/8 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ink/60">
+                  {pick(lang, "Teach & practise", "علّم وتدرّب")}
+                </span>
               </div>
 
               {/* Other dialects — honest coming-soon, no fabricated data */}
@@ -282,8 +285,8 @@ export function Onboarding() {
                       className={`extruded-gold relative col-span-1 flex items-center gap-5 rounded-3xl border-[3px] bg-[#FFFDF8] p-5 text-start transition sm:col-span-2 ${selected ? "border-gold ring-4 ring-gold/30" : "border-gold/70"}`}
                       onClick={() => setPersona(p.value)}
                     >
-                      <span className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gold/10 p-2">
-                        <img alt="" aria-hidden="true" className="z-10 h-full w-full object-contain" src={p.img} />
+                      <span className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gold/10">
+                        <Icon name={p.icon} fill className="!text-4xl text-gold" />
                         <span aria-hidden="true" className="absolute inset-0 rounded-full bg-gold/10 blur-xl" />
                       </span>
                       <span className="flex flex-1 flex-col gap-1">
@@ -311,8 +314,8 @@ export function Onboarding() {
                       }`}
                       onClick={() => setPersona(p.value)}
                     >
-                      <span className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-sand/60 p-2">
-                        <img alt="" aria-hidden="true" className="h-full w-full object-contain" src={p.img} />
+                      <span className="mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-sand/60">
+                        <Icon name={p.icon} fill className="!text-4xl text-teal" />
                       </span>
                       <span className={`text-xl font-bold ${selected ? "text-coral" : "text-ink"}`}>{t(p.key, lang)}</span>
                       <span className={`mt-1 text-lg font-bold ${selected ? "text-coral/80" : "text-teal"}`} dir="rtl">
