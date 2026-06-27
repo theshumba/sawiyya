@@ -4,7 +4,13 @@
 import { euclidean } from "./normalize";
 import seedData from "./seeds/alphabet.json";
 
-const STORE_KEY = "sawiyya.knn.v1";
+// v2 (2026-06-27): the normaliser became rotation-invariant (normalize.ts), which
+// changed the feature space. Teach samples recorded under v1 are in the OLD space and
+// no longer match the live hand (measured ~1–6 units away, gate is 0.65) — they'd sit
+// there silently breaking grading forever. Bumping the key discards them so the user
+// re-teaches once in the current space. The old key is purged on load to free storage.
+const STORE_KEY = "sawiyya.knn.v2";
+const LEGACY_KEYS = ["sawiyya.knn.v1"];
 const K = 7;
 const MAX_SAMPLES_PER_CLASS = 48;
 /** Distance gate — beyond this (mean of the top-K) the neighbours aren't credible. */
@@ -22,6 +28,14 @@ export interface TargetClassification {
   confidence: number;
   /** True iff the target is the winning class, confident, and clear of the runner-up. */
   matched: boolean;
+  /** Optional decision internals — surfaced behind ?debug to diagnose stuck grading. */
+  debug?: {
+    bestClass: string | null;
+    meanTopD: number;
+    targetShare: number;
+    targetSamples: number;
+    gated: boolean;
+  };
 }
 
 type SampleStore = Record<string, number[][]>;
@@ -39,6 +53,8 @@ function readStores(): SampleStore[] {
 
 function load(): SampleStore {
   try {
+    // Purge superseded-space teach data so it can't haunt grading (see STORE_KEY note).
+    for (const k of LEGACY_KEYS) localStorage.removeItem(k);
     const raw = localStorage.getItem(STORE_KEY);
     return raw ? (JSON.parse(raw) as SampleStore) : {};
   } catch {
@@ -194,7 +210,17 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
 
   // Surface the target's share (zeroed when not credible) so the meter tracks the
   // learner's progress toward *this* sign, never a competing class.
-  return { confidence: gated ? targetShare : 0, matched };
+  return {
+    confidence: gated ? targetShare : 0,
+    matched,
+    debug: {
+      bestClass,
+      meanTopD,
+      targetShare,
+      targetSamples: sampleCount(targetId),
+      gated,
+    },
+  };
 }
 
 /** Conservative match threshold (PRD §9.5 — favour encouragement). */

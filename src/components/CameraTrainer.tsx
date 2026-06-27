@@ -19,6 +19,11 @@ const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
 
 const HOLD_RING_C = 2 * Math.PI * 36; // hold-to-confirm ring circumference
 
+// Opt-in grading diagnostics (?debug in the URL) — surfaces the KNN decision
+// internals on-screen so a single screenshot tells us WHY a sign won't confirm.
+const DEBUG =
+  typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
+
 export function CameraTrainer({
   sign,
   lang,
@@ -43,6 +48,8 @@ export function CameraTrainer({
   const [holdProgress, setHoldProgress] = useState(0);
   const [matched, setMatched] = useState(false);
   const [showUnsure, setShowUnsure] = useState(false);
+  const [dbg, setDbg] = useState("");
+  const lastDbg = useRef("");
 
   const consecutive = useRef(0);
   const attemptFrames = useRef(0);
@@ -106,6 +113,14 @@ export function CameraTrainer({
     // Grade against THIS sign's class specifically — never the global argmax,
     // which sticks the meter at 0% once another class is trained (knn.ts).
     const result = classifyAgainst(vec, sign.id);
+    if (DEBUG && result.debug) {
+      const d = result.debug;
+      const s = `n=${d.targetSamples} best=${d.bestClass ?? "—"} share=${Math.round(d.targetShare * 100)}% meanD=${d.meanTopD.toFixed(2)} ${d.gated ? "gate✓" : "GATE✗"}`;
+      if (s !== lastDbg.current) {
+        lastDbg.current = s;
+        setDbg(s);
+      }
+    }
     pushConfidence(result.confidence);
     consecutive.current = result.matched ? consecutive.current + 1 : 0;
     pushHold(Math.min(1, consecutive.current / HOLD_FRAMES));
@@ -351,6 +366,16 @@ export function CameraTrainer({
             </span>
           )}
         </div>
+
+        {/* ?debug grading readout — opt-in, intentionally unstyled/mono */}
+        {DEBUG && dbg && mode === "grade" && (
+          <div
+            className="absolute inset-x-2 top-12 z-20 rounded-md bg-black/70 px-2 py-1 font-mono text-[10px] leading-tight text-lime-300"
+            dir="ltr"
+          >
+            {dbg}
+          </div>
+        )}
 
         {/* idle → start */}
         {tracker.status === "idle" && (
