@@ -137,8 +137,8 @@ export function isTrained(classId: string): boolean {
  *
  * The grader must answer "is the learner signing *this* sign?", not "which of all
  * trained classes is nearest?". The global-argmax form silently failed once more
- * than one class was trained (the alphabet alone is 32): another class could win
- * the vote and the target's meter would stick at 0% even when signed correctly.
+ * than one class was trained (the seeded alphabet alone is 28): another class could
+ * win the vote and the target's meter would stick at 0% even when signed correctly.
  *
  * Here `confidence` is the target's own vote share within the top-K, and a match
  * requires the target to be the *winning* class, confident (≥ TAU), and clear of

@@ -153,10 +153,15 @@ export function Pill({
   children,
   tone = "teal",
   className = "",
+  onClick,
+  ariaLabel,
 }: {
   children: ReactNode;
   tone?: "teal" | "gold" | "coral" | "muted";
   className?: string;
+  /** optional tap target — renders the pill as a button when provided */
+  onClick?: () => void;
+  ariaLabel?: string;
 }) {
   const tones = {
     teal: "bg-teal/10 text-teal",
@@ -164,13 +169,20 @@ export function Pill({
     coral: "bg-coral/10 text-coral",
     muted: "bg-ink/5 text-muted",
   };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 ${tones[tone]} ${className}`}
-    >
-      {children}
-    </span>
-  );
+  const base = `inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 ${tones[tone]} ${className}`;
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel}
+        className={`${base} transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal`}
+      >
+        {children}
+      </button>
+    );
+  }
+  return <span className={base}>{children}</span>;
 }
 
 /** Daily-goal / progress ring (SVG, brand gold on teal track). */
@@ -187,7 +199,9 @@ export function ProgressRing({
 }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const clamped = Math.max(0, Math.min(1, progress));
+  // Guard NaN (e.g. a 0/0 daily-goal ratio for a brand-new user) → empty ring,
+  // never a NaN strokeDashoffset (React warns + the arc fails to render).
+  const clamped = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">

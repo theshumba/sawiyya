@@ -5,6 +5,7 @@ import { useState } from "react";
 import { t, pick } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { Icon } from "./ui";
+import { HandSkeleton, hasHandShape } from "./HandSkeleton";
 
 export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: Lang; compact?: boolean }) {
   const gloss = pick(lang, sign.glossEn, sign.glossAr);
@@ -47,6 +48,19 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
               className="animate-pop-in relative z-10 hidden h-full w-full object-contain p-4 drop-shadow-2xl md:block"
             />
           </>
+        ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
+          // REAL averaged handshape (Zenodo ArSL geometry) — the hand, not the glyph.
+          // The Arabic letter rides along as a small gold label for context.
+          <div key={replayKey} className="animate-pop-in relative z-10 flex h-full w-full items-center justify-center p-3">
+            <HandSkeleton signId={sign.id} className={`text-teal ${compact ? "h-4/5 w-4/5" : "h-full w-full"}`} />
+            <span
+              className="absolute bottom-2 end-2 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/70 font-display text-xl font-black text-teal backdrop-blur-sm"
+              dir="rtl"
+              aria-hidden="true"
+            >
+              {sign.code}
+            </span>
+          </div>
         ) : sign.type === "alphabet" ? (
           <span
             key={replayKey}
@@ -78,17 +92,36 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
 
       {/* footnote — honest placeholder (PRD §11). Tag pill + italic line. */}
       {!compact ? (
-        <div className="mt-5 flex flex-col items-center gap-2 text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
-            <Icon name="info" className="text-xs leading-none text-ink/60" />
-            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/60">
-              {pick(lang, "Demo placeholder", "عرض مؤقت")}
+        hasHandShape(sign.id) ? (
+          // Honest: this IS real data — the averaged handshape from real signers.
+          <div className="mt-5 flex flex-col items-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
+              <Icon name="back_hand" fill className="text-xs leading-none text-teal" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-teal">
+                {pick(lang, "Real signer handshape", "شكل يد حقيقي")}
+              </span>
             </span>
-          </span>
-          <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
-            {t("lsDemoPlaceholder", lang)}
-          </p>
-        </div>
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
+              {pick(
+                lang,
+                "Average hand from real signers (Zenodo ArSL). Deaf-signer video lands in Phase 2.",
+                "متوسط اليد من توقيعات حقيقية (Zenodo ArSL). فيديو من شخص أصمّ في المرحلة 2.",
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-col items-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
+              <Icon name="info" className="text-xs leading-none text-ink/60" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/60">
+                {pick(lang, "Demo placeholder", "عرض مؤقت")}
+              </span>
+            </span>
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
+              {t("lsDemoPlaceholder", lang)}
+            </p>
+          </div>
+        )
       ) : (
         <div className="mt-3 w-full px-1">
           <div className="flex items-baseline justify-between gap-3">

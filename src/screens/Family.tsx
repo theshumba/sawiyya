@@ -20,7 +20,13 @@ import { useUi } from "../store/ui";
 import type { Persona } from "../types";
 import { Button, Card, Eyebrow, Icon, Pill, Subtitle, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
+
+/** Practice-first deep-link target for a sign id — gated so non-gradable/dynamic
+ *  signs open the generic camera instead of polluting the recognizer. */
+const cameraTargetFor = (sign: { id: string; cameraGradable: boolean }): string | undefined =>
+  sign.cameraGradable ? sign.id : undefined;
 
 const ROLES: { value: Persona; emoji: string }[] = [
   { value: "parent", emoji: "👨‍👩‍👧" },
@@ -45,7 +51,7 @@ export function Family() {
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState<Persona>("sibling");
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
   const flags = activeFlags(app);
@@ -228,9 +234,12 @@ export function Family() {
         const sign = signById(f.signId);
         if (!sign) return null;
         return (
-          <div
+          <button
             key={f.id}
-            className="group relative rounded-2xl bg-paper p-2 border border-line transition-transform hover:-translate-y-1"
+            type="button"
+            onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
+            aria-label={`${pick(lang, sign.glossEn, sign.glossAr)} — ${t("practiceCamera", lang)}`}
+            className="group relative rounded-2xl bg-paper p-2 border border-line text-start transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             <span className="absolute end-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-coral text-white shadow-coral" aria-hidden="true">
               <Icon name="push_pin" fill className="text-base" />
@@ -248,7 +257,7 @@ export function Family() {
                 {lang === "en" ? sign.glossAr : sign.glossEn}
               </p>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>
@@ -307,20 +316,29 @@ export function Family() {
         const signId = board[i];
         const sign = signId ? signById(signId) : null;
         const filled = !!sign;
+        const cellClass = `flex aspect-square items-center justify-center text-lg ${HEX} ${
+          filled
+            ? "bg-gold text-ink shadow-gold motion-safe:animate-pop-in"
+            : "border-2 border-dashed border-teal/15 bg-paper/40 text-transparent"
+        } ${i % 2 === 1 ? "translate-y-1/4" : ""}`;
+        if (filled) {
+          return (
+            <button
+              key={signId}
+              type="button"
+              onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign!) })}
+              aria-label={`${pick(lang, sign!.glossEn, sign!.glossAr)} — ${t("practiceCamera", lang)}`}
+              className={`${cellClass} transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal`}
+              style={{ animationDelay: `${i * 40}ms` }}
+              title={pick(lang, sign!.glossEn, sign!.glossAr)}
+            >
+              <span aria-hidden="true">{sign!.type === "alphabet" ? sign!.code : sign!.emoji}</span>
+            </button>
+          );
+        }
         return (
-          <div
-            key={signId ?? `empty-${i}`}
-            className={`flex aspect-square items-center justify-center text-lg ${HEX} ${
-              filled
-                ? "bg-gold text-ink shadow-gold motion-safe:animate-pop-in"
-                : "border-2 border-dashed border-teal/15 bg-paper/40 text-transparent"
-            } ${i % 2 === 1 ? "translate-y-1/4" : ""}`}
-            style={filled ? { animationDelay: `${i * 40}ms` } : undefined}
-            title={filled ? pick(lang, sign!.glossEn, sign!.glossAr) : undefined}
-          >
-            <span aria-hidden="true">
-              {filled ? (sign!.type === "alphabet" ? sign!.code : sign!.emoji) : ""}
-            </span>
+          <div key={`empty-${i}`} className={cellClass}>
+            <span aria-hidden="true" />
           </div>
         );
       })}
@@ -366,7 +384,12 @@ export function Family() {
                 const sign = signById(signId);
                 if (!sign) return null;
                 return (
-                  <Pill key={signId} tone="gold">
+                  <Pill
+                    key={signId}
+                    tone="gold"
+                    onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
+                    ariaLabel={`${pick(lang, sign.glossEn, sign.glossAr)} — ${t("practiceCamera", lang)}`}
+                  >
                     <span aria-hidden="true">
                       {sign.type === "alphabet" ? sign.code : sign.emoji}
                     </span>
@@ -402,7 +425,8 @@ export function Family() {
       <div className="mx-auto max-w-md space-y-8 px-5 pt-6 lg:max-w-5xl">
         <header className="px-1">
           <Title>
-            {t("famTitle", lang)} <span className="font-normal text-muted">· العائلة</span>
+            {t("famTitle", lang)}
+            {lang === "en" && <span className="font-normal text-muted"> · العائلة</span>}
           </Title>
         </header>
 

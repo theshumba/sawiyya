@@ -15,6 +15,7 @@ import { useUi } from "../store/ui";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { SignDemo } from "../components/SignDemo";
 
@@ -73,7 +74,8 @@ export function FirstSign() {
   const [burst, setBurst] = useState(0);
   const profile = activeProfile(app);
   const sign = signById("alpha-alif");
-  if (!profile || !sign) return null;
+  if (!profile) return <NoProfileFallback />;
+  if (!sign) return null;
   const lang = profile.language;
 
   const handleResult = (result: TrainerResult) => {

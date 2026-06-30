@@ -8,6 +8,7 @@ export function GoalCard({
   caption,
   progress,
   done = false,
+  onClick,
 }: {
   label: string;
   caption: string;
@@ -15,10 +16,12 @@ export function GoalCard({
   progress: number;
   /** show the "all done" gold state */
   done?: boolean;
+  /** optional tap target (practice-first: routes to camera) */
+  onClick?: () => void;
 }) {
   const pct = Math.round(Math.min(1, progress) * 100);
   return (
-    <Card variant="elevated" className="flex items-center gap-4 p-5">
+    <Card variant="elevated" onClick={onClick} className="flex items-center gap-4 p-5">
       <ProgressRing progress={progress} size={64} stroke={7}>
         <span className={`font-display text-sm font-black ${done ? "text-gold" : "text-teal"}`}>{pct}%</span>
       </ProgressRing>

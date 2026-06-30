@@ -13,12 +13,13 @@
 // growth/forecast micro-labels, and the streak-celebration lines.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS, ALPHABET, LESSONS, signById, UNIT_A1_U1 } from "../content/signs";
+import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
 import { activeProfile, dueSignIds, GOAL_XP, useApp } from "../store/app";
 import { isTrained } from "../recognizer/knn";
 import { useUi } from "../store/ui";
 import { Icon, Title, Subtitle, Eyebrow } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Confetti, celebrate } from "../components/Confetti";
 import type { Sign } from "../types";
 
@@ -36,7 +37,7 @@ export function Progress() {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const rtl = lang === "ar";
   const prog = app.progress[profile.id] ?? {};
@@ -87,13 +88,11 @@ export function Progress() {
   }, [profile.streak]);
 
   const reviewCount = due.length;
+  // Practice-first: the review session opens the camera on the first due gradable
+  // sign (falls back to a generic camera open when none is gradable).
   function startReview() {
-    const firstLesson = LESSONS.find((l) => l.unitId === UNIT_A1_U1.id) ?? LESSONS[0];
-    if (firstLesson) {
-      go({ name: "lesson", lessonId: firstLesson.id, reviewOnly: true });
-    } else {
-      go({ name: "camera" });
-    }
+    const firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id;
+    go({ name: "camera", targetSignId: firstDueGradable });
   }
 
   const headerTitle = pick(lang, "The World You're Building", "العالم الذي تبنيه");
@@ -223,11 +222,11 @@ export function Progress() {
           ) : (
             <button
               type="button"
-              onClick={() => go({ name: "home" })}
+              onClick={() => go({ name: "camera" })}
               className="extruded-teal flex w-full items-center justify-center gap-3 rounded-2xl bg-teal py-5 font-display text-lg font-bold text-white transition active:translate-y-1"
             >
               <span>{pick(lang, "Keep building", "واصل البناء")}</span>
-              <Icon name="arrow_forward" className={rtl ? "rotate-180" : ""} />
+              <Icon name="videocam" className={rtl ? "rotate-180" : ""} />
             </button>
           )}
         </section>
@@ -248,6 +247,14 @@ export function Progress() {
               <p className="text-sm text-muted">
                 {pick(lang, "Nothing due right now — your oasis is thriving.", "لا شيء مستحق الآن — واحتك مزدهرة.")}
               </p>
+              <button
+                type="button"
+                onClick={() => go({ name: "camera" })}
+                className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              >
+                <Icon name="videocam" className="text-lg" />
+                {t("practiceCamera", lang)}
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -418,10 +425,12 @@ function StreakCelebration({
   }, []);
 
   const n = profile.streak;
-  const headline = pick(
+  // Latin display names interpolated into RTL strings get a bidi isolate (<bdi>)
+  // so they don't visually reorder the surrounding Arabic.
+  const headlinePrefix = pick(
     lang,
-    `${n} ${n === 1 ? "day" : "days"} of showing up for ${profile.displayName}`,
-    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة لأجل ${profile.displayName}`
+    `${n} ${n === 1 ? "day" : "days"} of showing up for `,
+    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة لأجل `
   );
   const arNumber = pick(lang, `${n} ${n === 1 ? "day" : "days"}`, `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"}`);
 
@@ -450,7 +459,10 @@ function StreakCelebration({
         </div>
 
         <div className="mb-10 space-y-4">
-          <h1 className="px-4 font-display text-3xl tracking-tight text-paper md:text-4xl">{headline}</h1>
+          <h1 className="px-4 font-display text-3xl tracking-tight text-paper md:text-4xl">
+            {headlinePrefix}
+            <bdi>{profile.displayName}</bdi>
+          </h1>
           <p className="font-display text-4xl font-bold text-gold md:text-5xl" dir="rtl">
             {arNumber}
           </p>
@@ -485,9 +497,11 @@ function StreakCelebration({
           <p className="text-start text-sm leading-snug text-paper/90 md:text-base">
             {pick(
               lang,
-              `You've mastered ${mastered} signs so far. ${profile.displayName} is going to be so proud.`,
-              `لقد أتقنت ${num(mastered, lang)} إشارة حتى الآن. سيكون ${profile.displayName} فخوراً جداً بك.`
+              `You've mastered ${mastered} signs so far. `,
+              `لقد أتقنت ${num(mastered, lang)} إشارة حتى الآن. سيكون `
             )}
+            <bdi>{profile.displayName}</bdi>
+            {pick(lang, " is going to be so proud.", " فخوراً جداً بك.")}
           </p>
         </div>
       </main>

@@ -78,7 +78,7 @@ export function AiTransparency() {
     {
       img: "/brand/stitch-28.png",
       title: T("It knows its limits", "يعرف حدوده"),
-      subtitle: T("يعرف حدوده", "يعرف حدوده"),
+      subtitle: T("يعرف حدوده", "It knows its limits"),
       body: T(
         "It cannot grade moving signs, full sentences, or facial grammar — those are open research problems. Sawiyya is built for the Arabic alphabet and individual signs: the building blocks of language.",
         "لا تستطيع تقييم الإشارات المتحركة أو الجمل الكاملة أو تعابير الوجه النحوية — تلك مسائل بحثية مفتوحة. سويّة مبنية للحروف العربية والإشارات المفردة: لبنات اللغة."
@@ -91,7 +91,7 @@ export function AiTransparency() {
   const proudCard = {
     img: "/brand/stitch-19.png",
     title: T("You're always right about your hands", "أنت دايماً على حق"),
-    subtitle: T("أنت أبخص بيدك", "أنت أبخص بيدك"),
+    subtitle: T("أنت أبخص بيدك", "You're always right about your hands"),
     body: T(
       "You know your hands best. Signs with motion are taught by watching and self-marking — if you think you signed it right, you can always mark it correct.",
       "أنت أعرف بيديك. الإشارات المتحركة تُتعلم بالمشاهدة والتقييم الذاتي — وإن رأيت أنك أديتها صح، يمكنك دائمًا تقييمها صحيحة."
@@ -146,7 +146,7 @@ export function AiTransparency() {
             </h4>
             <p className="mt-3 text-[15px] leading-relaxed text-ink/80 md:text-base">{proudCard.body}</p>
             <div className="mt-6 flex justify-center md:justify-start">
-              <Button variant="primary" size="lg" onClick={() => go({ name: "home" })}>
+              <Button variant="primary" size="lg" onClick={() => go({ name: "camera" })}>
                 {T("Let's Practice Together", "لنتدرّب معًا")}
               </Button>
             </div>

@@ -88,7 +88,7 @@ export function Onboarding() {
   const [goal, setGoal] = useState<DailyGoal>("regular");
   const [name, setName] = useState("");
 
-  const finish = (overrides?: { skipAll?: boolean }) => {
+  const finish = (overrides?: { skipAll?: boolean; destination?: { name: "camera"; targetSignId?: string } }) => {
     const displayName =
       name.trim() ||
       (lang === "ar" ? "أنا" : "Me");
@@ -100,7 +100,9 @@ export function Onboarding() {
       dailyGoal: overrides?.skipAll ? "regular" : goal,
     });
     completeOnboarding();
-    go({ name: "firstSign" });
+    // Practice-first: the Alphabet learn card finishes straight into camera on
+    // alpha-alif; every other path keeps firstSign as the default landing.
+    go(overrides?.destination ?? { name: "firstSign" });
   };
 
   const chooseLang = (l: Lang) => {
@@ -217,8 +219,13 @@ export function Onboarding() {
                 </p>
               </div>
 
-              {/* Arabic alphabet — the ready, fully-gradable path */}
-              <div className={`${cardBase} flex items-center gap-4 p-5`}>
+              {/* Arabic alphabet — the ready, fully-gradable path. Practice-first:
+                  picking it finishes onboarding straight into camera on alpha-alif. */}
+              <button
+                type="button"
+                onClick={() => finish({ destination: { name: "camera", targetSignId: "alpha-alif" } })}
+                className={`${cardBase} flex w-full items-center gap-4 p-5`}
+              >
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-black text-teal" dir="rtl">ا ب</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -227,11 +234,16 @@ export function Onboarding() {
                   </div>
                   <p className="text-sm text-muted">{pick(lang, "28 core letters, camera-graded", "٢٨ حرفًا أساسيًا، بتقييم الكاميرا")}</p>
                 </div>
-                <Icon name="check_circle" fill className="text-2xl text-teal" />
-              </div>
+                <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+              </button>
 
-              {/* Everyday QSL signs — teach-mode (not pre-graded, badge is neutral) */}
-              <div className={`${cardBase} flex items-center gap-4 p-5`}>
+              {/* Everyday QSL signs — teach-mode (not pre-graded). Continues the
+                  normal flow, finishing on firstSign (the default landing). */}
+              <button
+                type="button"
+                onClick={() => setStep("why")}
+                className={`${cardBase} flex w-full items-center gap-4 p-5`}
+              >
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
                   <Icon name="waving_hand" fill className="!text-2xl text-gold" />
                 </span>
@@ -242,16 +254,21 @@ export function Onboarding() {
                 <span className="shrink-0 rounded-full bg-ink/8 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ink/60">
                   {pick(lang, "Teach & practise", "علّم وتدرّب")}
                 </span>
-              </div>
+              </button>
 
-              {/* Other dialects — honest coming-soon, no fabricated data */}
-              <div className="flex items-center gap-4 rounded-3xl border-2 border-dashed border-teal/20 p-5 opacity-80">
+              {/* Other dialects — honest coming-soon. Still a real button so the card
+                  isn't dead; it just continues the default flow for now. */}
+              <button
+                type="button"
+                onClick={() => setStep("why")}
+                className="flex w-full items-center gap-4 rounded-3xl border-2 border-dashed border-teal/20 p-5 text-start opacity-80 transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              >
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ink/5 text-teal/40"><Icon name="public" className="text-2xl" /></span>
                 <div className="min-w-0 flex-1">
                   <span className="font-display text-lg font-bold text-ink/70">{pick(lang, "Other Gulf dialects", "لهجات خليجية أخرى")}</span>
                   <p className="text-sm text-muted">{pick(lang, "Emirati, Saudi & more — coming soon", "الإماراتية والسعودية وغيرها — قريبًا")}</p>
                 </div>
-              </div>
+              </button>
 
               <Button full className="mt-2 !rounded-3xl" onClick={() => setStep("why")}>
                 {t("obContinue", lang)}
@@ -338,7 +355,7 @@ export function Onboarding() {
                   className="!rounded-3xl font-display uppercase tracking-widest sm:max-w-sm"
                   onClick={() => setStep("hand")}
                 >
-                  {t("obContinue", lang)} · استمر
+                  {pick(lang, `${t("obContinue", "en")} · استمر`, t("obContinue", "ar"))}
                 </Button>
               </div>
             </div>

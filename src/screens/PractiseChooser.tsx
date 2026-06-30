@@ -7,8 +7,9 @@
 import { pick, t } from "../i18n";
 import { activeProfile, dueSignIds, useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import { A1_SIGNS } from "../content/signs";
+import { A1_SIGNS, signById } from "../content/signs";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Card, Icon, Title, Eyebrow, Body } from "../components/ui";
 import { SignGlyph } from "../components/SignGlyph";
 
@@ -18,9 +19,10 @@ export function PractiseChooser() {
   const app = useApp();
   const go = useUi((s) => s.go);
   const profile = activeProfile(app);
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const due = dueSignIds(app, profile.id);
+  const firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id;
 
   return (
     <ScreenShell lang={lang}>
@@ -52,16 +54,17 @@ export function PractiseChooser() {
                   {pick(lang, "Ready", "جاهز")}
                 </span>
               </div>
-              <p className="text-sm text-muted">{pick(lang, "Fingerspell all 32 letters", "تهجئة الحروف الـ32")}</p>
+              <p className="text-sm text-muted">{pick(lang, "Fingerspell all 28 letters", "تهجئة الحروف الـ28")}</p>
             </div>
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
           </Card>
 
-          {/* Review what's due */}
+          {/* Review what's due — practice-first: straight into the camera on the
+              first due gradable sign instead of the review-lesson drill flow. */}
           {due.length > 0 && (
             <Card
               variant="elevated"
-              onClick={() => go({ name: "lesson", lessonId: "review", reviewOnly: true })}
+              onClick={() => go({ name: "camera", targetSignId: firstDueGradable })}
               className="flex items-center gap-4 p-5"
             >
               <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gold/20 text-gold">

@@ -5,7 +5,9 @@
 
 import type { Lesson, Sign, Unit } from "../types";
 
-// ── Arabic alphabet (ArASL 32-class set; edge forms flagged) ─────────────────
+// ── Arabic alphabet — 28 letters camera-graded from real signers (Zenodo ArSL,
+// CC-BY-4.0), plus 3 edge forms (taMarbuta/laa/al) that have NO ground-truth seeds
+// and are reference-only (cameraGradable=false) until a signer records them. ─────
 const L = (
   id: string,
   code: string,
@@ -19,11 +21,13 @@ const L = (
   glossAr: code,
   emoji: "✋",
   hintEn: edge
-    ? "Edge form — handshape reference being validated against Jumla."
+    ? "Edge form — reference only; no camera grading yet (awaiting a recorded signer)."
     : `Static handshape for the letter ${code}.`,
   hintAr: `شكل اليد الثابت لحرف ${code}`,
   type: "alphabet",
-  cameraGradable: true,
+  // Only the 28 seeded letters have a real trained model behind them. The edge
+  // forms stay visible as reference but never pretend to auto-grade (honest [A]).
+  cameraGradable: !edge,
 });
 
 export const ALPHABET: Sign[] = [

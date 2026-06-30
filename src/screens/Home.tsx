@@ -24,13 +24,20 @@ import { Card, Icon, Eyebrow, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { GoalCard } from "../components/GoalCard";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { nextMilestone } from "../lesson/milestones";
+import type { Lesson } from "../types";
+
+/** First camera-gradable sign in a lesson, gated so non-gradable lessons open the
+ *  generic camera (practice-first) rather than dropping into a stale lesson. */
+const lessonCameraTarget = (lesson: Lesson): string | undefined =>
+  lesson.signIds.map(signById).find((s) => s?.cameraGradable)?.id;
 
 export function Home() {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
   const goalXp = GOAL_XP[profile.dailyGoal];
@@ -85,7 +92,8 @@ export function Home() {
                 {pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)}
               </h1>
               <p className="mt-0.5 text-sm text-white/70">
-                {pick(lang, `Ahlan, ${profile.displayName}`, `أهلًا، ${profile.displayName}`)}
+                {pick(lang, "Ahlan, ", "أهلًا، ")}
+                <bdi>{profile.displayName}</bdi>
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -175,7 +183,13 @@ export function Home() {
                     <button
                       type="button"
                       aria-label={`${startLabel} — ${title}`}
-                      onClick={() => go({ name: "lesson", lessonId: lesson.id })}
+                      onClick={() => {
+                        // Practice-first: open camera on the lesson's first gradable
+                        // sign; fall back to the lesson only when none is gradable.
+                        const target = lessonCameraTarget(lesson);
+                        if (target) go({ name: "camera", targetSignId: target });
+                        else go({ name: "lesson", lessonId: lesson.id });
+                      }}
                       className="extruded-coral mt-4 rounded-2xl border-2 border-coral-deep bg-coral px-8 py-3 font-display text-xl font-bold uppercase tracking-wide text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
                     >
                       {startLabel}
@@ -193,12 +207,15 @@ export function Home() {
                   </div>
                 );
               }
+              const nodeTarget = lessonCameraTarget(lesson);
               if (status === "done") {
                 return (
-                  <div
+                  <button
                     key={lesson.id}
-                    aria-label={title}
-                    className={`relative ${offsets[i % offsets.length]}`}
+                    type="button"
+                    aria-label={`${title} — ${t("practiceCamera", lang)}`}
+                    onClick={() => go({ name: "camera", targetSignId: nodeTarget })}
+                    className={`relative transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 rounded-full ${offsets[i % offsets.length]}`}
                   >
                     <div className="extruded-gold flex h-16 w-16 items-center justify-center rounded-full border-4 border-gold-deep bg-gold shadow-gold">
                       <Icon name="check" className="!text-3xl font-bold text-white" />
@@ -208,19 +225,21 @@ export function Home() {
                       fill
                       className="absolute -end-3 -top-2 !text-xl text-gold-deep"
                     />
-                  </div>
+                  </button>
                 );
               }
               return (
-                <div
+                <button
                   key={lesson.id}
-                  aria-label={title}
-                  className={`relative ${offsets[i % offsets.length]}`}
+                  type="button"
+                  aria-label={`${title} — ${t("practiceCamera", lang)}`}
+                  onClick={() => go({ name: "camera", targetSignId: nodeTarget })}
+                  className={`relative transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 rounded-full ${offsets[i % offsets.length]}`}
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-teal/20 bg-sand shadow-sm">
                     <Icon name="lock" fill className="!text-3xl text-teal/30" />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -290,12 +309,16 @@ export function Home() {
               );
             })()}
 
-          {/* Review-due — lightweight secondary card. */}
+          {/* Review-due — lightweight secondary card. Routes straight to the camera
+              on the first due sign (practice-first) instead of the review lesson. */}
           {due.length > 0 && (
             <Card
               variant="elevated"
               className="flex items-center gap-4 p-5"
-              onClick={() => go({ name: "lesson", lessonId: "review", reviewOnly: true })}
+              onClick={() => {
+                const first = due.map(signById).find((s) => s?.cameraGradable)?.id;
+                go({ name: "camera", targetSignId: first });
+              }}
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
                 <Icon name="history" className="!text-3xl text-gold-deep" />
@@ -310,6 +333,29 @@ export function Home() {
             </Card>
           )}
 
+          {/* Empty state — when there's nothing flagged AND nothing due, the secondary
+              area would render blank. Offer a warm bilingual practice-first nudge. */}
+          {flags.length === 0 && due.length === 0 && (
+            <Card
+              variant="elevated"
+              className="flex items-center gap-4 p-5"
+              onClick={() => go({ name: "camera" })}
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-coral/10">
+                <Icon name="videocam" fill className="!text-2xl text-coral" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold text-ink">
+                  {pick(lang, "All caught up — keep your hands warm", "كل شيء مكتمل — أبقِ يديك جاهزتين")}
+                </p>
+                <p className="text-sm text-muted">
+                  {pick(lang, "Practise any sign on camera", "تدرّب على أي إشارة بالكاميرا")}
+                </p>
+              </div>
+              <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+            </Card>
+          )}
+
           {/* Daily goal — the single GoalCard widget. */}
           <div className="space-y-3">
             <Title className="!text-2xl">{t("homeDailyGoal", lang)}</Title>
@@ -318,12 +364,17 @@ export function Home() {
               caption={`${num(goalPct, lang)}${lang === "ar" ? "٪" : "%"}`}
               progress={goalProgress}
               done={goalProgress >= 1}
+              onClick={() => go({ name: "camera" })}
             />
           </div>
 
-          {/* Milestone — lightweight secondary card. */}
+          {/* Milestone — lightweight secondary card (tappable → camera practice). */}
           {ms && (
-            <Card variant="elevated" className="flex items-center gap-4 p-5">
+            <Card
+              variant="elevated"
+              className="flex items-center gap-4 p-5"
+              onClick={() => go({ name: "camera" })}
+            >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
                 <Icon name="emoji_events" fill className="!text-3xl text-gold-deep" />
               </span>

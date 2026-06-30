@@ -2,7 +2,7 @@
 // Never hard-fail: misses get encouragement + the answer, and still earn XP.
 // Redesign: full-screen takeover via ScreenShell (chrome="takeover"); one spacing
 // scale, one answer-grid strategy, unified card treatment, aria-live soft feedback.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
@@ -13,7 +13,9 @@ import { buildChoices, buildDrillQueue } from "../lesson/engine";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { SignDemo } from "../components/SignDemo";
+import { SignGlyph } from "../components/SignGlyph";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Card, Icon, MeetingBar } from "../components/ui";
 
 /** A scored drill outcome flows back up so the end card can show accuracy. */
@@ -36,15 +38,43 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const correctCount = useRef(0);
   const [burst, setBurst] = useState(0);
 
-  // nothing to do (e.g. review with no due cards) — bounce home
   const empty = queue.length === 0;
-  useEffect(() => {
-    if (empty) go({ name: "home" });
-  }, [empty, go]);
 
-  if (!profile || empty) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const lesson = lessonById(lessonId);
+
+  // Nothing to do (e.g. a review lesson with no due cards). Instead of bouncing
+  // to a blank takeover with no escape, keep the close-to-home chrome and offer a
+  // practice-first camera CTA so the screen is never a dead end (§5.1/§5.4).
+  if (empty) {
+    return (
+      <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
+        <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center justify-center gap-5 px-6 pb-10 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-teal/10 text-teal">
+            <Icon name="task_alt" fill className="text-4xl" />
+          </span>
+          <div className="space-y-1.5">
+            <h1 className="font-display text-2xl font-bold text-teal">
+              {pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
+            </h1>
+            <p className="text-muted">
+              {pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
+            </p>
+          </div>
+          <Button full size="lg" variant="primary" onClick={() => go({ name: "camera" })}>
+            <span className="flex items-center justify-center gap-2">
+              <Icon name="videocam" className="text-xl" />
+              {t("practiceCamera", lang)}
+            </span>
+          </Button>
+          <Button variant="ghost" onClick={() => go({ name: "home" })}>
+            {t("lsBackHome", lang)}
+          </Button>
+        </div>
+      </ScreenShell>
+    );
+  }
 
   const done = index >= queue.length;
   const drill = done ? null : queue[index];
@@ -84,7 +114,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           streak={profile.streak}
           burst={burst}
           onContinue={() => go({ name: "home" })}
-          onCamera={() => go({ name: "camera" })}
+          onPractice={(targetSignId) => go({ name: "camera", targetSignId })}
         />
       </ScreenShell>
     );
@@ -354,8 +384,8 @@ function ChoiceDrill({
             </p>
             {!correct && (
               <Card className="mt-2 flex items-center gap-3 p-3">
-                <span className="text-3xl" aria-hidden="true">
-                  {sign.type === "alphabet" ? sign.code : sign.emoji}
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center" aria-hidden="true">
+                  <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-full w-full rounded-lg object-cover" />
                 </span>
                 <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
               </Card>
@@ -545,7 +575,7 @@ function ResultsCard({
   streak,
   burst,
   onContinue,
-  onCamera,
+  onPractice,
 }: {
   lang: Lang;
   lesson: ReturnType<typeof lessonById>;
@@ -555,9 +585,13 @@ function ResultsCard({
   streak: number;
   burst: number;
   onContinue: () => void;
-  onCamera: () => void;
+  /** practice-first: open the camera, optionally pre-targeted to a just-learned sign */
+  onPractice: (targetSignId?: string) => void;
 }) {
   const learned = signIds.map(signById).filter((s): s is Sign => Boolean(s));
+  // The just-learned sign the camera button pre-targets (gradable gate; falls back
+  // to a generic camera open when the lesson held only non-gradable/dynamic signs).
+  const firstGradable = learned.find((s) => s.cameraGradable);
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col items-center px-6 pb-10 pt-10 md:pt-14">
       <Confetti burst={burst} />
@@ -616,49 +650,37 @@ function ResultsCard({
           </h3>
           <div className="flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {learned.map((s) => (
-              <div
+              <button
                 key={s.id}
-                className="flex min-w-[8.5rem] snap-center flex-col items-center rounded-3xl border-2 border-line bg-paper p-3 extruded-paper"
+                type="button"
+                onClick={() => onPractice(s.cameraGradable ? s.id : undefined)}
+                aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
+                className="flex min-w-[8.5rem] snap-center flex-col items-center rounded-3xl border-2 border-line bg-paper p-3 extruded-paper transition active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
-                <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-sand/60">
-                  {s.id === "iloveyou" ? (
-                    <img
-                      src="brand/stitch-30.png"
-                      alt={pick(lang, s.glossEn, s.glossAr)}
-                      className="h-16 w-16 rounded-xl object-cover"
-                    />
-                  ) : s.type === "alphabet" ? (
-                    <span className="font-display text-4xl font-bold text-teal" aria-hidden="true">
-                      {s.code}
-                    </span>
-                  ) : (
-                    <span className="text-4xl" aria-hidden="true">
-                      {s.emoji}
-                    </span>
-                  )}
+                <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-sand/60 p-2">
+                  <SignGlyph sign={s} lang={lang} className="text-4xl" imgClassName="h-16 w-16 rounded-xl object-cover" />
                 </div>
                 <p className="text-center font-display text-sm font-bold text-ink">
                   <BilingualGloss lang={lang} sign={s} />
                 </p>
-              </div>
+              </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* actions — one dominant next action (Continue), camera demoted */}
+      {/* actions — practice-first: the camera is the dominant action (just-learned
+          sign pre-targeted), Continue → home is the secondary affordance. */}
       <section className="mt-auto flex w-full max-w-md flex-col gap-3 pt-8">
-        <Button full size="lg" variant="primary" onClick={onContinue}>
+        <Button full size="lg" variant="primary" onClick={() => onPractice(firstGradable?.id)}>
+          <span className="flex items-center justify-center gap-2">
+            <Icon name="videocam" className="text-xl" />
+            {t("practiceCamera", lang)}
+          </span>
+        </Button>
+        <Button full size="lg" variant="secondary" onClick={onContinue}>
           {pick(lang, "Continue", "متابعة")} →
         </Button>
-        <button
-          type="button"
-          onClick={onCamera}
-          className="flex items-center justify-center gap-2 py-2 font-display font-bold text-teal transition hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
-        >
-          <Icon name="videocam" className="text-xl" />
-          <span>{t("practiceCamera", lang)}</span>
-        </button>
       </section>
     </div>
   );

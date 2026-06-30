@@ -15,6 +15,7 @@ import { A1_SIGNS, signById } from "../content/signs";
 import { activeFlags, activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { Chip } from "../components/Tile";
 import type { Sign } from "../types";
@@ -52,7 +53,7 @@ export function FlagPicker() {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState<GroupId>("home");
   const [mostNeeded, setMostNeeded] = useState(true);
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
   const flags = activeFlags(app);
@@ -100,6 +101,9 @@ export function FlagPicker() {
   const clearAll = () => {
     flaggedSigns.forEach((s) => app.toggleFlag(s.id, profile.id));
   };
+
+  // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
+  const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
 
   const headingAr = "علّم الإشارات اللي نحتاجها";
 
@@ -207,9 +211,16 @@ export function FlagPicker() {
 
           {/* Sign grid */}
           {signs.length === 0 ? (
-            <p className="rounded-3xl bg-paper p-8 text-center font-sans text-muted shadow-soft">
-              {pick(lang, "No signs match your search.", "لا توجد إشارات مطابقة.")}
-            </p>
+            <div className="flex flex-col items-center gap-4 rounded-3xl bg-paper p-8 text-center shadow-soft">
+              <p className="font-sans text-muted">
+                {pick(lang, "No signs match your search.", "لا توجد إشارات مطابقة.")}
+              </p>
+              {query && (
+                <Button variant="secondary" size="md" onClick={() => setQuery("")}>
+                  {pick(lang, "Clear search", "مسح البحث")}
+                </Button>
+              )}
+            </div>
           ) : (
             <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3" role="list">
               {signs.map((sign) => {
@@ -292,12 +303,19 @@ export function FlagPicker() {
               {flaggedSigns.length > 0 ? (
                 <ul className="mb-6 space-y-3" role="list">
                   {flaggedSigns.map((s) => (
-                    <li
-                      key={s.id}
-                      className="flex items-center gap-3 rounded-2xl border border-teal/5 bg-sand p-3"
-                    >
-                      <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
-                      <span className="font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
+                    <li key={s.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          go({ name: "camera", targetSignId: s.cameraGradable ? s.id : undefined })
+                        }
+                        aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
+                        className="flex w-full items-center gap-3 rounded-2xl border border-teal/5 bg-sand p-3 text-start transition hover:border-teal/20 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                      >
+                        <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
+                        <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
+                        <Icon name="videocam" className="text-xl text-coral" />
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -341,13 +359,26 @@ export function FlagPicker() {
               )}
 
               {flaggedSigns.length > 0 && (
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  className="w-full rounded-2xl py-3 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
-                >
-                  {pick(lang, "Clear all", "مسح الكل")}
-                </button>
+                <div className="space-y-2">
+                  {/* Practice-first: take the family straight into the camera on the
+                      first gradable flagged sign (generic open when none gradable). */}
+                  <Button
+                    variant="primary"
+                    full
+                    onClick={() => go({ name: "camera", targetSignId: firstFlaggedGradable })}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Icon name="videocam" />
+                    {pick(lang, "Practise these", "تدرّب على هذه")}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="w-full rounded-2xl py-3 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
+                  >
+                    {pick(lang, "Clear all", "مسح الكل")}
+                  </button>
+                </div>
               )}
             </div>
           </div>

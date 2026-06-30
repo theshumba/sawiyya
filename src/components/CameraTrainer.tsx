@@ -8,6 +8,8 @@ import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
 import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount } from "../recognizer/knn";
+import { gradeWithModel, modelKnows } from "../recognizer/classifier";
+import { HandSkeleton } from "./HandSkeleton";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
 
@@ -41,7 +43,13 @@ export function CameraTrainer({
    *  (lesson-camera-practice--mobile / camera-drill-i-love-you--desktop). */
   exerciseLabel?: string;
 }) {
-  const [mode, setMode] = useState<"grade" | "teach">(isTrained(sign.id) ? "grade" : "teach");
+  // The trained MLP knows the 28 seeded alphabet letters from real signers, so
+  // those open straight into grade mode and never need teaching. Everything else
+  // (un-seeded word signs) starts in teach mode unless the learner already taught it.
+  const knowsModel = modelKnows(sign.id);
+  const [mode, setMode] = useState<"grade" | "teach">(
+    knowsModel || isTrained(sign.id) ? "grade" : "teach",
+  );
   const [teachPhase, setTeachPhase] = useState<"intro" | "capturing" | "done">("intro");
   const [captured, setCaptured] = useState(0);
   const [confidence, setConfidence] = useState(0);
@@ -110,19 +118,33 @@ export function CameraTrainer({
     // grade mode
     attemptFrames.current += 1;
     if (attemptFrames.current > UNSURE_AFTER_FRAMES) setShowUnsure(true);
-    // Grade against THIS sign's class specifically — never the global argmax,
-    // which sticks the meter at 0% once another class is trained (knn.ts).
-    const result = classifyAgainst(vec, sign.id);
-    if (DEBUG && result.debug) {
-      const d = result.debug;
-      const s = `n=${d.targetSamples} best=${d.bestClass ?? "—"} share=${Math.round(d.targetShare * 100)}% meanD=${d.meanTopD.toFixed(2)} ${d.gated ? "gate✓" : "GATE✗"}`;
-      if (s !== lastDbg.current) {
-        lastDbg.current = s;
-        setDbg(s);
+    // The real engine: for the 28 seeded alphabet letters the trained MLP
+    // (ground truth from real signers, ~98.7% held-out) is the primary grader.
+    // For teach-mode / un-seeded signs we fall back to the live KNN over the
+    // learner's own samples. Both grade against THIS sign specifically — never the
+    // global argmax, which sticks the meter at 0% once another class is trained.
+    let confidence: number;
+    let matched: boolean;
+    if (knowsModel) {
+      const r = gradeWithModel(vec, sign.id);
+      confidence = r.confidence;
+      matched = r.matched;
+      if (DEBUG && r.debug) {
+        const s = `MLP best=${r.debug.bestClass} p=${Math.round(r.debug.bestP * 100)}% targetP=${Math.round(r.debug.targetP * 100)}% tau✓${matched ? "✓" : "✗"}`;
+        if (s !== lastDbg.current) { lastDbg.current = s; setDbg(s); }
+      }
+    } else {
+      const r = classifyAgainst(vec, sign.id);
+      confidence = r.confidence;
+      matched = r.matched;
+      if (DEBUG && r.debug) {
+        const d = r.debug;
+        const s = `KNN n=${d.targetSamples} best=${d.bestClass ?? "—"} share=${Math.round(d.targetShare * 100)}% meanD=${d.meanTopD.toFixed(2)} ${d.gated ? "gate✓" : "GATE✗"}`;
+        if (s !== lastDbg.current) { lastDbg.current = s; setDbg(s); }
       }
     }
-    pushConfidence(result.confidence);
-    consecutive.current = result.matched ? consecutive.current + 1 : 0;
+    pushConfidence(confidence);
+    consecutive.current = matched ? consecutive.current + 1 : 0;
     pushHold(Math.min(1, consecutive.current / HOLD_FRAMES));
     if (consecutive.current >= HOLD_FRAMES) {
       finished.current = true;
@@ -160,10 +182,19 @@ export function CameraTrainer({
   const target = sign.type === "alphabet" ? sign.code : gloss;
   const meter = holdProgress > 0 ? holdProgress : confidence;
 
-  // Reference chip content — the gold hero chip in the prompt banner.
+  // Reference chip content — the gold hero chip in the prompt banner. For seeded
+  // letters this is the REAL handshape to copy (averaged real-signer geometry),
+  // not just the written letter — so the learner sees the hand they're aiming for.
   const referenceChip = (sizeClass: string) =>
     sign.id === "iloveyou" ? (
       <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-2xl object-cover" />
+    ) : sign.type === "alphabet" && knowsModel ? (
+      <span className="relative flex h-full w-full items-center justify-center" role="img" aria-label={gloss}>
+        <HandSkeleton signId={sign.id} className="h-[88%] w-[88%] text-white" />
+        <span className="absolute bottom-0 end-0 font-display text-sm font-black text-gold" dir="rtl" aria-hidden="true">
+          {sign.code}
+        </span>
+      </span>
     ) : sign.type === "alphabet" ? (
       <span className={`font-display font-bold text-white ${sizeClass}`} aria-label={gloss}>
         {sign.code}
@@ -208,7 +239,9 @@ export function CameraTrainer({
             </p>
           )}
           <p className="mt-2 text-sm font-medium leading-snug text-white/90">{referenceHelper}</p>
-          {mode === "grade" && isTrained(sign.id) && (
+          {/* Teach/reset only for un-seeded signs the learner taught themselves —
+              the 28 model letters are graded against real signers, not self-samples. */}
+          {mode === "grade" && !knowsModel && isTrained(sign.id) && (
             <button
               type="button"
               onClick={() => {

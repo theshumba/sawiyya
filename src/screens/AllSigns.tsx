@@ -17,6 +17,8 @@ import { isDue } from "../store/srs";
 import { useUi } from "../store/ui";
 import { Button, Card, Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
+import { SignGlyph } from "../components/SignGlyph";
 import { Chip } from "../components/Tile";
 
 type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit1" | "unit2";
@@ -131,6 +133,8 @@ export function AllSigns() {
   const flaggedCount = flaggedIds.size;
   const firstGradableFlag = ALL_SIGNS.find((s) => flaggedIds.has(s.id) && s.cameraGradable);
 
+  if (!profile) return <NoProfileFallback />;
+
   return (
     <ScreenShell lang={lang} chrome="tabs">
       <div className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
@@ -175,12 +179,14 @@ export function AllSigns() {
         </div>
 
         {/* ── ONE dominant action: practise the flagged signs ───────────────────── */}
-        {flaggedCount > 0 && firstGradableFlag && (
+        {flaggedCount > 0 && (
           <Button
             variant="primary"
             size="lg"
             full
-            onClick={() => practiceSign(firstGradableFlag)}
+            // Target the first gradable flagged sign; when none is gradable, still
+            // open the camera (generic) so flagged-but-non-gradable isn't a dead end.
+            onClick={() => (firstGradableFlag ? practiceSign(firstGradableFlag) : go({ name: "camera" }))}
             className="mb-6 flex items-center justify-center gap-3"
           >
             <Icon name="videocam" className="text-2xl" />
@@ -196,12 +202,31 @@ export function AllSigns() {
         <div className="md:flex md:gap-8">
           <div className="md:flex-1">
             {signs.length === 0 ? (
-              <Card variant="flat" className="p-8 text-center md:p-10">
+              <Card variant="flat" className="flex flex-col items-center gap-4 p-8 text-center md:p-10">
                 <p className="font-display font-semibold text-muted">
                   {filter === "unit2"
                     ? pick(lang, "Unit 2 is coming soon.", "الوحدة ٢ قريباً.")
                     : pick(lang, "No signs match.", "لا توجد إشارات مطابقة.")}
                 </p>
+                {filter !== "unit2" && (
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    {query && (
+                      <Button variant="secondary" size="md" onClick={() => setQuery("")}>
+                        {pick(lang, "Clear search", "مسح البحث")}
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      onClick={() => {
+                        setFilter("all");
+                        setQuery("");
+                      }}
+                    >
+                      {pick(lang, "Browse all signs", "تصفّح كل الإشارات")}
+                    </Button>
+                  </div>
+                )}
               </Card>
             ) : (
               <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
@@ -335,16 +360,10 @@ function SignCard({
           <Icon name={meta.icon} fill className="text-lg md:text-2xl" />
         </span>
       )}
-      <div className="mb-3 flex aspect-square w-full items-center justify-center rounded-2xl bg-sand/60">
-        {sign.code ? (
-          <span className="font-display text-4xl font-black text-teal md:text-5xl" dir="rtl">
-            {sign.code}
-          </span>
-        ) : (
-          <span className="text-5xl md:text-6xl" aria-hidden="true">
-            {sign.emoji}
-          </span>
-        )}
+      <div className="mb-3 flex aspect-square w-full items-center justify-center rounded-2xl bg-sand/60 p-3">
+        {/* Real hand (alphabet skeleton) / brand image (iloveyou) / honest sign icon
+            for un-recorded words — via SignGlyph, the one source of truth. No emoji. */}
+        <SignGlyph sign={sign} lang={lang} className="text-4xl md:text-5xl" imgClassName="h-4/5 w-4/5 rounded-2xl object-cover" />
       </div>
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
@@ -446,15 +465,10 @@ function DetailPanel({
           The reference-clip slot lives behind the Watch chip (SRS-safe). */}
       <div className="relative mb-6 flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-sand">
         <div className="absolute inset-0 bg-gradient-to-tr from-gold/10 via-transparent to-teal/5" aria-hidden="true" />
-        {sign.code ? (
-          <span className="relative z-10 font-display text-8xl font-black text-teal" dir="rtl">
-            {sign.code}
-          </span>
-        ) : (
-          <span className="relative z-10 text-8xl" aria-hidden="true">
-            {sign.emoji}
-          </span>
-        )}
+        {/* Real handshape / brand image / honest icon via SignGlyph — never an emoji. */}
+        <span className="relative z-10 flex h-4/5 w-4/5 items-center justify-center">
+          <SignGlyph sign={sign} lang={lang} className="text-8xl" imgClassName="h-full w-full rounded-3xl object-contain" />
+        </span>
 
         {/* Watch / Watch Again replay chip — central preview affordance (NO store write). */}
         <button

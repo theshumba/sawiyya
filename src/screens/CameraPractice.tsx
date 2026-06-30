@@ -13,6 +13,7 @@ import { Confetti, celebrate } from "../components/Confetti";
 import { Icon, Title } from "../components/ui";
 import { Chip } from "../components/Tile";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 
 const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
@@ -24,7 +25,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
   const [burst, setBurst] = useState(0);
   // remount the trainer when the target (or a completed round) changes
   const [round, setRound] = useState(0);
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const sign = signById(signId);
   if (!sign) return null;
@@ -54,7 +55,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
 
   return (
     <ScreenShell lang={lang} chrome="tabs">
-      <div className="mx-auto max-w-md px-5 pt-6 md:max-w-3xl md:px-8 md:pt-10">
+      <div className="mx-auto max-w-md px-5 pt-6 md:max-w-5xl md:px-8 md:pt-10">
         <Confetti burst={burst} />
 
         <header className="mb-5 flex items-center justify-between gap-3">

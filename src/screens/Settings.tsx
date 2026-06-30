@@ -12,6 +12,7 @@ import { clearClass, trainedClassIds } from "../recognizer/knn";
 import type { DailyGoal, Hand, Lang } from "../types";
 import { Body, Caption, Eyebrow, Icon, Logo } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
+import { NoProfileFallback } from "../components/NoProfileFallback";
 
 // Grouped settings section — paper card with chunky edge (shadow-chunky token).
 function Group({
@@ -57,7 +58,7 @@ export function Settings() {
     };
   }, []);
 
-  if (!profile) return null;
+  if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
   const set = (patch: Partial<{ language: Lang; dominantHand: Hand; dailyGoal: DailyGoal; displayName: string }>) =>
@@ -157,8 +158,7 @@ export function Settings() {
               <Icon name="back_hand" fill={on} className={`text-4xl ${on ? "text-teal" : "text-ink/40"}`} />
             </div>
             <div className="text-center leading-tight">
-              <p className={`font-bold ${on ? "text-teal" : "text-ink/60"}`}>{o.en}</p>
-              <p className={`text-sm ${on ? "text-teal" : "text-ink/40"}`}>{o.ar}</p>
+              <p className={`font-bold ${on ? "text-teal" : "text-ink/60"}`}>{pick(lang, o.en, o.ar)}</p>
             </div>
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full border-4 ${
@@ -215,7 +215,7 @@ export function Settings() {
     <ScreenShell
       lang={lang}
       chrome="takeover"
-      title={`${t("setTitle", lang)} · الإعدادات`}
+      title={pick(lang, `${t("setTitle", "en")} · الإعدادات`, t("setTitle", "ar"))}
       onClose={() => go({ name: "home" })}
     >
       <div className="mx-auto w-full max-w-3xl space-y-6 px-4 pb-16 pt-6 md:px-8 md:pt-8">
@@ -266,11 +266,22 @@ export function Settings() {
               )}
             </Body>
 
-            {/* Live permission status */}
+            {/* Live permission status. When not yet granted, offer a direct route
+                into camera practice — that's where the real getUserMedia prompt
+                fires (the browser won't grant from a passive settings row). */}
             <Row label={t("setCameraPermission", lang)}>
-              <span className={`text-sm font-bold ${camState === "granted" ? "text-teal" : "text-muted"}`}>
-                {camState === "granted" ? `✓ ${t("setGranted", lang)}` : t("setNotGranted", lang)}
-              </span>
+              {camState === "granted" ? (
+                <span className="text-sm font-bold text-teal">✓ {t("setGranted", lang)}</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => go({ name: "camera" })}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-teal/10 px-3 py-1.5 text-sm font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                >
+                  <Icon name="videocam" className="text-base" />
+                  {t("setNotGranted", lang)}
+                </button>
+              )}
             </Row>
 
             {/* Transparency / privacy links */}

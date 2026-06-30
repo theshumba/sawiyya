@@ -27,7 +27,10 @@ interface Tab {
 const TABS: Tab[] = [
   { name: "home", active: ["home"], icon: "home", label: (l) => t("navLearn", l) },
   {
-    name: "practiseChooser",
+    // Practice-first: the hero tab drops you STRAIGHT into the camera (real-graded
+    // alphabet on alpha-alif, with the full letter switcher) — no chooser detour.
+    // PractiseChooser still exists as a reachable screen, just not the tab target.
+    name: "camera",
     active: ["practiseChooser", "camera"],
     icon: "videocam",
     label: (l) => t("navPractise", l),
