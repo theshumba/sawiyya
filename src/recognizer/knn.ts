@@ -122,6 +122,14 @@ export function sampleCount(classId: string): number {
   return readStores().reduce((n, s) => n + (s[classId]?.length ?? 0), 0);
 }
 
+/** Samples the LEARNER personally taught (their localStorage store only, not the
+ *  bundled seeds). Lets the grader honour "it works for MY hands" — when someone
+ *  has taught their own version of a letter, we can confirm against it even if the
+ *  dataset MLP is strict cross-person. */
+export function userTaughtCount(classId: string): number {
+  return store()[classId]?.length ?? 0;
+}
+
 export function trainedClassIds(): string[] {
   const ids = new Set<string>();
   for (const s of readStores()) for (const id of Object.keys(s)) ids.add(id);

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
-import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount } from "../recognizer/knn";
+import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows } from "../recognizer/classifier";
 import { HandSkeleton } from "./HandSkeleton";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
@@ -126,12 +126,23 @@ export function CameraTrainer({
     let confidence: number;
     let matched: boolean;
     if (knowsModel) {
+      // Primary: the dataset MLP (honest, geometry-only → skin-tone independent).
       const r = gradeWithModel(vec, sign.id);
       confidence = r.confidence;
       matched = r.matched;
-      if (DEBUG && r.debug) {
-        const s = `MLP best=${r.debug.bestClass} p=${Math.round(r.debug.bestP * 100)}% targetP=${Math.round(r.debug.targetP * 100)}% tau✓${matched ? "✓" : "✗"}`;
-        if (s !== lastDbg.current) { lastDbg.current = s; setDbg(s); }
+      let dbg = `MLP best=${r.debug?.bestClass ?? "—"} p=${Math.round((r.debug?.bestP ?? 0) * 100)}% targetP=${Math.round((r.debug?.targetP ?? 0) * 100)}%`;
+      // Fallback: if the learner taught THEIR OWN version of this letter, let the
+      // KNN over their samples confirm too — so it "works for my hands" even when
+      // the dataset model is strict cross-person. Take whichever is more confident.
+      if (userTaughtCount(sign.id) >= 8) {
+        const k = classifyAgainst(vec, sign.id);
+        if (k.confidence > confidence) confidence = k.confidence;
+        matched = matched || k.matched;
+        dbg += ` | KNN share=${Math.round((k.debug?.targetShare ?? 0) * 100)}%${k.matched ? "✓" : ""}`;
+      }
+      if (DEBUG) {
+        dbg += ` ${matched ? "MATCH✓" : "✗"}`;
+        if (dbg !== lastDbg.current) { lastDbg.current = dbg; setDbg(dbg); }
       }
     } else {
       const r = classifyAgainst(vec, sign.id);
@@ -239,9 +250,10 @@ export function CameraTrainer({
             </p>
           )}
           <p className="mt-2 text-sm font-medium leading-snug text-white/90">{referenceHelper}</p>
-          {/* Teach/reset only for un-seeded signs the learner taught themselves —
-              the 28 model letters are graded against real signers, not self-samples. */}
-          {mode === "grade" && !knowsModel && isTrained(sign.id) && (
+          {/* "Teach my hand": the MLP grades the 28 letters from real signers, but a
+              learner can always teach their OWN version as a fallback (it then helps
+              confirm alongside the model — see the grade loop). Shown in grade mode. */}
+          {mode === "grade" && (
             <button
               type="button"
               onClick={() => {
@@ -326,7 +338,9 @@ export function CameraTrainer({
       <div className="flex justify-center">
         <span className="flex items-center gap-2 rounded-full border border-ink/5 bg-white/60 px-4 py-2 backdrop-blur-sm">
           <Icon name="verified_user" className="text-base leading-none text-teal" />
-          <span className="text-[11px] font-medium leading-tight text-ink/70">{t("camPrivacy", lang)}</span>
+          <span className="text-[11px] font-medium leading-tight text-ink/70">
+            {t("camPrivacy", lang)} <span className="text-ink/30">· build {__BUILD__}</span>
+          </span>
         </span>
       </div>
     </>

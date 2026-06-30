@@ -6,6 +6,11 @@ import { VitePWA } from "vite-plugin-pwa";
 // build works both at the repo root (custom domain) and under the project path.
 export default defineConfig({
   base: "./",
+  // Inject a human-readable build stamp (UTC, to the minute) so the app can show
+  // which build is live — makes stale-cache vs fresh-deploy diagnosable on-screen.
+  define: {
+    __BUILD__: JSON.stringify(new Date().toISOString().slice(0, 16).replace("T", " ")),
+  },
   plugins: [
     react(),
     VitePWA({
