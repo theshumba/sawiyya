@@ -21,6 +21,12 @@ const FINGERS: number[][] = [
 ];
 // Palm outline: wrist → index/middle/ring/pinky knuckles → back to wrist.
 const PALM = [0, 5, 9, 13, 17];
+// Draw fingers back→front (pinky last-behind, index/thumb in front) so the front
+// fingers' dark edges visually separate the ones behind them.
+const DRAW_ORDER = [4, 3, 2, 0, 1]; // pinky, ring, middle, thumb, index
+// Fixed translucent-dark edge — reads as a separating outline on a light card and
+// as a soft shadow under the white hand on the teal camera chip.
+const EDGE = "rgba(7, 33, 31, 0.30)";
 
 /** True when we have a real averaged handshape for this sign id. */
 export function hasHandShape(signId: string): boolean {
@@ -63,32 +69,45 @@ export function HandSkeleton({
       aria-hidden="true"
       fill="none"
     >
-      {/* Palm — filled so the hand reads as a solid shape, not floating lines. */}
+      {/* Each part is drawn EDGE-then-CORE: a darker, wider outline under the
+          coloured fill. Where fingers overlap, the edge shows as a separating line,
+          so a folded hand reads clearly instead of fusing into one blob. The edge
+          colour is a fixed translucent dark so it works on light cards AND the teal
+          camera chip (where the hand is white). */}
+      {/* palm edge + fill */}
+      <polygon points={path(PALM)} fill="none" stroke={EDGE} strokeWidth={14} strokeLinejoin="round" />
       <polygon
         points={path(PALM)}
         fill="currentColor"
-        fillOpacity={0.18}
+        fillOpacity={0.16}
         stroke="currentColor"
-        strokeWidth={10}
+        strokeWidth={9}
         strokeLinejoin="round"
       />
-      {/* Fingers — thick rounded tubes from each knuckle to the tip. The round caps
-          give readable fingertips; overlap with the palm fuses them into a hand. */}
-      {FINGERS.map((finger, i) => (
+      {/* fingers — back (pinky) to front (thumb/index) so the front edges separate
+          the fingers behind them. Edge pass first, then the coloured core. */}
+      {DRAW_ORDER.map((fi) => (
         <polyline
-          key={i}
-          points={path(finger)}
-          stroke="currentColor"
-          strokeWidth={9}
+          key={`e${fi}`}
+          points={path(FINGERS[fi])}
+          fill="none"
+          stroke={EDGE}
+          strokeWidth={14}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       ))}
-      {/* tip caps — a touch brighter so fingertips pop */}
-      {FINGERS.map((finger, i) => {
-        const tip = finger[finger.length - 1];
-        return <circle key={`t${i}`} cx={P[tip][0]} cy={P[tip][1]} r={5} fill="currentColor" />;
-      })}
+      {DRAW_ORDER.map((fi) => (
+        <polyline
+          key={`c${fi}`}
+          points={path(FINGERS[fi])}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={8.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ))}
     </svg>
   );
 }
