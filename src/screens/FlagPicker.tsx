@@ -17,8 +17,11 @@ import { useUi } from "../store/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
+import { SpringButton } from "../components/dc";
 import { Chip } from "../components/Tile";
 import type { Sign } from "../types";
+
+const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
 
 // Learning-group taxonomy (mobile/desktop group switcher). No `category` field
 // exists on Sign (frozen content), so groups are derived from a presentational
@@ -105,7 +108,8 @@ export function FlagPicker() {
   // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
   const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
 
-  const headingAr = "علّم الإشارات اللي نحتاجها";
+  // The household member behind an incoming flag — powers the STATE-C pulse badge.
+  const heroRequestor = requestors.find((p) => p.id !== profile.id) ?? requestors[0];
 
   return (
     <ScreenShell
@@ -115,41 +119,37 @@ export function FlagPicker() {
       onClose={() => go({ name: "family" })}
     >
       <div className="pb-28">
-        {/* ── Hero ────────────────────────────────────────────────────── */}
-        <header className="relative overflow-hidden bg-teal px-6 pb-10 pt-8 shadow-lift rounded-b-bowl">
-          {/* abstract glows */}
-          <div className="pointer-events-none absolute -right-32 -top-32 h-64 w-64 rounded-full bg-gold/10 blur-[80px]" aria-hidden="true" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-coral/10 blur-[60px]" aria-hidden="true" />
-
-          <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-start">
-            <img
-              src="/brand/stitch-35.png"
-              alt=""
-              aria-hidden="true"
-              className="h-32 w-32 object-contain drop-shadow-2xl md:order-2 md:h-44 md:w-44 motion-safe:animate-rise"
-            />
-            <div className="md:order-1">
-              <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-paper/10 px-3 py-1.5 text-paper">
-                <Icon name="family_star" fill />
-                <span className="font-display text-xs font-bold uppercase tracking-wider">
-                  {t("famFlagTitle", lang)}
-                </span>
+        {/* ── Hero (STATE C · warm "a flag for you" language) ──────────── */}
+        <header className="relative mx-auto max-w-3xl px-6 pb-2 pt-4 text-center">
+          {/* B11 · pulse badge — the warm tap on the shoulder from a household member */}
+          {heroRequestor && (
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-line bg-paper py-[7px] pe-2 ps-[14px] motion-safe:animate-pulse-ring">
+              <span className="font-sans text-[12px] font-bold text-ink">
+                {`${heroRequestor.displayName} ${t("famFlagFrom", lang)}`}
               </span>
-              <h2 className="font-display text-3xl font-bold leading-tight text-paper md:text-4xl">
-                {t("famFlagTitle", lang)}
-                <span className="mt-1 block font-sans text-xl font-normal opacity-90 md:text-2xl" dir="rtl">
-                  {lang === "ar" ? "" : ` · ${headingAr}`}
-                </span>
-              </h2>
-              <p className="mt-2 font-sans text-lg text-paper/80">
-                {pick(lang, "You direct what they learn", "أنت توجّه ما يتعلمونه")}
-              </p>
+              <span
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-coral font-display text-[13px] font-bold text-paper"
+                aria-hidden="true"
+              >
+                {initialOf(heroRequestor.displayName)}
+              </span>
             </div>
-          </div>
+          )}
+          {/* B12 · title typography */}
+          <h2 className="mx-auto mt-4 max-w-[300px] font-display text-[26px] font-extrabold leading-[1.15] text-ink motion-safe:animate-rise">
+            {pick(lang, "You direct what they learn", "أنت توجّه ما يتعلمونه")}
+          </h2>
+          <p className="mx-auto mt-2 max-w-[300px] font-sans text-[14px] leading-[1.5] text-muted">
+            {pick(
+              lang,
+              "Flag the signs your family needs — everyone's queue follows.",
+              "حدّد الإشارات التي تحتاجها عائلتك — وقوائم الجميع تتبعها.",
+            )}
+          </p>
         </header>
 
         {/* ── Body ────────────────────────────────────────────────────── */}
-        <main className="mx-auto -mt-6 max-w-3xl space-y-6 px-6">
+        <main className="mx-auto mt-4 max-w-3xl space-y-6 px-6">
           {/* Search + sort */}
           <div className="space-y-4 rounded-3xl bg-paper p-5 shadow-lift">
             <div className="flex items-center gap-3">
@@ -310,7 +310,7 @@ export function FlagPicker() {
                           go({ name: "camera", targetSignId: s.cameraGradable ? s.id : undefined })
                         }
                         aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
-                        className="flex w-full items-center gap-3 rounded-2xl border border-teal/5 bg-sand p-3 text-start transition hover:border-teal/20 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                        className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
                         <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
                         <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
@@ -361,16 +361,18 @@ export function FlagPicker() {
               {flaggedSigns.length > 0 && (
                 <div className="space-y-2">
                   {/* Practice-first: take the family straight into the camera on the
-                      first gradable flagged sign (generic open when none gradable). */}
-                  <Button
-                    variant="primary"
+                      first gradable flagged sign (generic open when none gradable).
+                      B15 · coral spring CTA — "learn it together". */}
+                  <SpringButton
+                    variant="coral"
+                    size="lg"
                     full
                     onClick={() => go({ name: "camera", targetSignId: firstFlaggedGradable })}
-                    className="flex items-center justify-center gap-2"
+                    className="gap-2"
                   >
                     <Icon name="videocam" />
                     {pick(lang, "Practise these", "تدرّب على هذه")}
-                  </Button>
+                  </SpringButton>
                   <button
                     type="button"
                     onClick={clearAll}

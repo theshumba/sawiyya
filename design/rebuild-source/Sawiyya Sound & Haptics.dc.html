@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes cardpop{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
+  @keyframes eq{0%,100%{transform:scaleY(.55)}50%{transform:scaleY(1)}}
+</style>
+</helmet>
+
+<div style="min-width:1080px;padding:44px 52px 96px;">
+  <div style="max-width:860px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Sound &amp; haptics language
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">How Sawiyya feels &amp; sounds</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:720px;">A small, warm sound vocabulary — never a game-show buzzer. Every cue pairs an audio shape with a haptic pattern so the feedback lands even in silence. <b style="color:#0F6E6A;">Tap any card to play it</b> (and feel it, on a phone that supports vibration).</p>
+  </div>
+
+  <!-- principles strip -->
+  <div style="margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;">
+    <sc-for list="{{ principles }}" as="p" hint-placeholder-count="4">
+      <div style="flex:1;min-width:210px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:15px 17px;box-shadow:0 2px 0 #EDE3D2;">
+        <div style="font:700 13px/1.2 Rubik;color:#0F6E6A;">{{ p.h }}</div>
+        <div style="font:400 12.5px/1.45 'Readex Pro';color:#5C726F;margin-top:6px;">{{ p.b }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- event grid -->
+  <div style="margin-top:26px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1040px;">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+      <button onClick="{{ c.play }}" style="{{ c.cardStyle }}">
+        <div style="display:flex;align-items:center;gap:11px;">
+          <span style="flex:none;width:38px;height:38px;border-radius:12px;background:{{ c.tint }};color:{{ c.color }};font:800 18px/1 Rubik;display:flex;align-items:center;justify-content:center;">{{ c.glyph }}</span>
+          <div style="text-align:start;"><div style="font:800 17px/1.1 Rubik;color:#16302E;">{{ c.label }}</div><div style="font:500 11.5px/1.2 'Readex Pro';color:#94A5A2;margin-top:2px;">{{ c.when }}</div></div>
+          <div style="flex:1;"></div>
+          <span style="flex:none;width:30px;height:30px;border-radius:50%;background:{{ c.color }};color:#FBF7EF;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(0,0,0,.12);">▶</span>
+        </div>
+
+        <!-- audio signature -->
+        <div style="margin-top:16px;">
+          <div style="font:700 9px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#94A5A2;">Sound</div>
+          <div style="margin-top:8px;height:64px;display:flex;align-items:flex-end;gap:4px;">
+            <sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="4">
+              <div style="{{ b.style }}"></div>
+            </sc-for>
+          </div>
+          <div style="font:500 12px/1.4 'Readex Pro';color:#5C726F;margin-top:9px;">{{ c.sound }}</div>
+        </div>
+
+        <!-- haptic signature -->
+        <div style="margin-top:14px;padding-top:13px;border-top:1px solid #EDE3D2;">
+          <div style="font:700 9px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#94A5A2;">Haptic</div>
+          <div style="margin-top:9px;height:16px;display:flex;align-items:center;">
+            <sc-for list="{{ c.haptic }}" as="h" hint-placeholder-count="3">
+              <div style="{{ h.style }}"></div>
+            </sc-for>
+          </div>
+          <div style="font:500 12px/1.4 'Readex Pro';color:#5C726F;margin-top:9px;">{{ c.hapticDesc }}</div>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:26px;max-width:1040px;display:flex;gap:14px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:300px;background:#16302E;border-radius:18px;padding:20px 22px;color:#F6EFE3;">
+      <div style="font:800 15px/1.2 Rubik;color:#F0C879;">Respects the system, always</div>
+      <div style="font:400 13px/1.55 'Readex Pro';color:rgba(246,239,227,.82);margin-top:8px;">Silent-mode mutes all audio but haptics stay on — feedback never disappears. <b style="color:#F6EFE3;">Reduce Motion</b> also softens sound to a single quiet tick, and a dedicated <b style="color:#F6EFE3;">Sound &amp; Haptics</b> toggle in Settings lets learners turn either off independently.</div>
+    </div>
+    <div style="flex:1;min-width:300px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:20px 22px;">
+      <div style="font:800 15px/1.2 Rubik;color:#16302E;">Built for a Deaf-first audience</div>
+      <div style="font:400 13px/1.55 'Readex Pro';color:#5C726F;margin-top:8px;">Because many users won't hear the cues, <b style="color:#16302E;">haptics and on-screen motion carry the full message on their own</b> — sound is an enhancement, never the only signal. Every audio event has a matching vibration and a visible animation.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { playingId:null };
+
+  PRINCIPLES=[
+    { h:'Warm, never punishing', b:'Even a miss gets a soft, low note — encouragement, not a buzzer.' },
+    { h:'Short & unobtrusive', b:'Nothing over ~0.4s. Cues punctuate; they never interrupt.' },
+    { h:'One family of tones', b:'All cues share a rounded sine/triangle timbre so the app sounds coherent.' },
+    { h:'Paired with haptics', b:'Every sound has a vibration twin, so feedback works in silence.' }
+  ];
+
+  // bars: normalized heights (0..1) describing the pitch/energy contour
+  CARDS=[
+    { id:'correct', label:'Correct', when:'Sign graded above threshold', glyph:'\u2713', color:'#1F8A5B', tint:'#E4F3EA',
+      bars:[.4,.66,1], sound:'Two rising notes (E5\u2192A5), bright & clean.', hapticDesc:'One crisp light tap.' },
+    { id:'almost', label:'Almost', when:'Close, but under threshold', glyph:'\u2248', color:'#E6B24C', tint:'#FBEFD1',
+      bars:[.62,.62,.62], sound:'One warm, level mid-tone (C5) \u2014 \u201ctry again\u201d.', hapticDesc:'Two very light taps.' },
+    { id:'incorrect', label:'Not yet', when:'Sign not recognised', glyph:'\u2013', color:'#E8654C', tint:'#FBE2DB',
+      bars:[1,.6,.42], sound:'Two gently falling notes \u2014 soft, low, never harsh.', hapticDesc:'One soft medium tap.' },
+    { id:'celebrate', label:'Celebrate', when:'Lesson complete', glyph:'\u2726', color:'#0F6E6A', tint:'#DDEFEE',
+      bars:[.36,.55,.74,1], sound:'Rising 4-note arpeggio (C-E-G-C) \u2014 a little fanfare.', hapticDesc:'Building tap-tap-TAP.' },
+    { id:'streak', label:'Streak / milestone', when:'Streak extended, goal hit', glyph:'\u25B2', color:'#E6B24C', tint:'#FBEFD1',
+      bars:[.5,1,.7,.5,.34], sound:'A warm bell with a shimmering overtone.', hapticDesc:'Two confident taps.' },
+    { id:'tap', label:'Tap / select', when:'Buttons, toggles, nav', glyph:'\u2022', color:'#5C726F', tint:'#E9EDEC',
+      bars:[.3], sound:'A tiny high tick \u2014 barely there.', hapticDesc:'A micro tick.' },
+    { id:'lock', label:'Hand locked', when:'Live grader finds your hand', glyph:'\u25CE', color:'#0F6E6A', tint:'#DDEFEE',
+      bars:[.34,.62], sound:'A subtle two-part confirming pop.', hapticDesc:'A micro tick.' },
+    { id:'levelup', label:'Level up', when:'New level / rank unlocked', glyph:'\u2191', color:'#1F8A5B', tint:'#E4F3EA',
+      bars:[.4,.6,.8,.7,1], sound:'Arpeggio + a bright resolving chord.', hapticDesc:'Escalating triple tap.' },
+    { id:'connect', label:'Family connect', when:'A loved one joins / reacts', glyph:'\u2665', color:'#E8654C', tint:'#FBE2DB',
+      bars:[.5,.78,.6], sound:'A soft, heart-warm two-note chime.', hapticDesc:'Two gentle taps, like a pat.' }
+  ];
+
+  HAP={ correct:[18], almost:[12,60,12], incorrect:[30], celebrate:[15,45,15,45,55], streak:[22,55,22],
+    tap:[8], lock:[10], levelup:[15,40,15,40,60], connect:[16,70,16] };
+
+  _ctx(){ if(!this.actx){ const AC=window.AudioContext||window.webkitAudioContext; this.actx=new AC(); } if(this.actx.state==='suspended') this.actx.resume(); return this.actx; }
+  _tone(freq,start,dur,type,gain){
+    const ctx=this._ctx(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type||'sine'; o.frequency.value=freq; o.connect(g); g.connect(ctx.destination);
+    const t=ctx.currentTime+start;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(gain||0.18, t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.start(t); o.stop(t+dur+0.03);
+  }
+  _sound(id){
+    const T=(f,s,d,ty,g)=>this._tone(f,s,d,ty,g);
+    switch(id){
+      case 'correct': T(659,0,0.16,'sine',.2); T(880,0.10,0.30,'sine',.2); break;
+      case 'almost': T(523,0,0.24,'sine',.16); break;
+      case 'incorrect': T(330,0,0.17,'sine',.16); T(247,0.12,0.28,'sine',.15); break;
+      case 'celebrate': [523,659,784,1047].forEach((f,i)=>T(f,i*0.085,0.30,'triangle',.17)); break;
+      case 'streak': T(784,0,0.42,'sine',.18); T(1568,0.01,0.42,'sine',.06); break;
+      case 'tap': T(1250,0,0.05,'sine',.12); break;
+      case 'lock': T(880,0,0.06,'square',.07); T(1320,0.035,0.08,'sine',.11); break;
+      case 'levelup': [523,659,784,1047].forEach((f,i)=>T(f,i*0.07,0.26,'triangle',.16)); T(1047,0.34,0.5,'sine',.14); T(1318,0.34,0.5,'sine',.09); break;
+      case 'connect': T(587,0,0.22,'sine',.17); T(880,0.10,0.34,'sine',.15); break;
+    }
+  }
+  play(id){
+    try{ this._sound(id); }catch(e){}
+    if(navigator.vibrate){ try{ navigator.vibrate(this.HAP[id]||[15]); }catch(e){} }
+    this.setState({ playingId:id });
+    clearTimeout(this._pt); this._pt=setTimeout(()=>this.setState({ playingId:null }),460);
+  }
+  componentWillUnmount(){ clearTimeout(this._pt); }
+
+  renderVals(){
+    const playing=this.state.playingId;
+    const cards=this.CARDS.map(c=>{
+      const on=playing===c.id;
+      const bars=c.bars.map((h,i)=>({ style:{
+        flex:'1', minWidth:'5px', maxWidth:'16px', height:Math.round(10+h*54)+'px',
+        background:c.color, borderRadius:'3px', opacity: on?1:0.9,
+        transformOrigin:'bottom', animation: on ? ('eq .4s ease '+(i*0.05)+'s') : '' } }));
+      // haptic timeline: alternate tap(color pill) / gap(spacer) from ms pattern
+      const pat=this.HAP[c.id]||[15];
+      const haptic=pat.map((ms,i)=>{
+        const isTap=i%2===0;
+        return { style: isTap
+          ? { height:'10px', width:Math.max(10,Math.min(46,ms*1.4))+'px', background:c.color, borderRadius:'99px' }
+          : { width:Math.max(8,Math.min(44,ms*0.7))+'px', height:'2px', background:'transparent' } };
+      });
+      return { ...c, play:()=>this.play(c.id), bars, haptic,
+        cardStyle:{ appearance:'none', textAlign:'start', cursor:'pointer', display:'block', width:'100%',
+          background:'#FBF7EF', border:'1px solid '+(on?c.color:'#EDE3D2'), borderRadius:'20px',
+          padding:'18px 18px 20px', boxShadow: on?('0 4px 0 '+c.color+', 0 10px 24px rgba(22,48,46,.12)'):'0 2px 0 #EDE3D2',
+          animation: on?'cardpop .45s ease':'', transition:'border-color .15s ease, box-shadow .15s ease' } };
+    });
+    return { principles:this.PRINCIPLES, cards };
+  }
+}
+</script>
+</body>
+</html>

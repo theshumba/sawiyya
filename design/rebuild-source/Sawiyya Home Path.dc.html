@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .sw-scroll::-webkit-scrollbar{width:0;height:0}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(232,101,76,.5)}70%{box-shadow:0 0 0 16px rgba(232,101,76,0)}100%{box-shadow:0 0 0 0 rgba(232,101,76,0)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes rise{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+</style>
+</helmet>
+
+<div style="min-width:1100px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 2
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Home learning path</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:660px;">The world you build, one sign at a time — a winding trail of nodes with done / current / locked states, unit banners, treasure milestones, and Fanan cheering you along. <b style="color:#16302E">Scroll each phone</b>; <b style="color:#16302E">tap any node</b> for its start popover.</p>
+  </div>
+
+  <div style="margin-top:30px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="sc" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ sc.langLabel }}</div>
+        <div dir="{{ sc.dir }}" style="position:relative;width:326px;height:686px;background:#16302E;border-radius:48px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;background:#FBF7EF;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;">
+
+            <!-- status bar -->
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;z-index:5;background:#0F6E6A;">
+              <span style="font:700 13px/1 Rubik;color:#FBF7EF;">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid #FBF7EF;border-radius:3px;"></div>
+            </div>
+
+            <!-- app bar -->
+            <div style="flex:none;background:#0F6E6A;padding:8px 20px 18px;border-radius:0 0 24px 24px;box-shadow:0 6px 16px rgba(15,110,106,.25);z-index:4;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div>
+                  <div style="font:800 21px/1.1 Rubik;color:#FBF7EF;">{{ sc.greeting }}</div>
+                  <div style="font:500 12px/1.2 'Readex Pro';color:rgba(251,247,239,.72);margin-top:3px;">{{ sc.greetSub }}</div>
+                </div>
+                <div style="width:44px;height:44px;border-radius:50%;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 18px Rubik;color:#16302E;flex:none;box-shadow:0 4px 0 #C89A3D;">{{ sc.avatar }}</div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <div style="flex:1;background:rgba(255,255,255,.12);border-radius:13px;padding:8px 10px;display:flex;align-items:center;gap:7px;">
+                  <span style="width:18px;height:18px;border-radius:50%;background:#E8654C;flex:none;"></span>
+                  <div><div style="font:800 15px/1 Rubik;color:#FBF7EF;">{{ sc.streak }}</div><div style="font:500 9px/1 'Readex Pro';color:rgba(251,247,239,.7);margin-top:2px;">{{ sc.streakLbl }}</div></div>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,.12);border-radius:13px;padding:8px 10px;display:flex;align-items:center;gap:7px;">
+                  <span style="width:18px;height:18px;border-radius:50%;background:#F0C879;flex:none;"></span>
+                  <div><div style="font:800 15px/1 Rubik;color:#FBF7EF;">{{ sc.gold }}</div><div style="font:500 9px/1 'Readex Pro';color:rgba(251,247,239,.7);margin-top:2px;">{{ sc.goldLbl }}</div></div>
+                </div>
+                <div style="flex:1;background:rgba(255,255,255,.12);border-radius:13px;padding:8px 10px;display:flex;align-items:center;gap:7px;">
+                  <span style="width:18px;height:18px;border-radius:6px;background:#F08A75;flex:none;"></span>
+                  <div><div style="font:800 15px/1 Rubik;color:#FBF7EF;">{{ sc.family }}</div><div style="font:500 9px/1 'Readex Pro';color:rgba(251,247,239,.7);margin-top:2px;">{{ sc.familyLbl }}</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- scrollable path -->
+            <div class="sw-scroll" ref="{{ sc.scrollRef }}" style="flex:1;overflow-y:auto;padding:16px 20px 24px;min-height:0;">
+              <sc-for list="{{ sc.items }}" as="it" hint-placeholder-count="9">
+
+                <sc-if value="{{ it.isBanner }}" hint-placeholder-val="{{ true }}">
+                  <div style="{{ it.bannerStyle }}">
+                    <div>
+                      <div style="font:700 10px/1 ui-monospace,Menlo;letter-spacing:.12em;{{ it.unitColorStyle }}">{{ it.unit }}</div>
+                      <div style="font:800 18px/1.1 Rubik;color:#FBF7EF;margin-top:4px;">{{ it.name }}</div>
+                    </div>
+                    <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:none;">
+                      <div style="width:16px;height:13px;border:2.5px solid #FBF7EF;border-radius:2px;border-left-width:5px;"></div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ it.isNode }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding:9px 0;">
+                    <div style="{{ it.rowStyle }}">
+                      <sc-if value="{{ it.isCurrent }}" hint-placeholder-val="{{ true }}">
+                        <div style="position:absolute;top:-24px;left:50%;transform:translateX(-50%);background:#E8654C;color:#FBF7EF;font:800 10px/1 Rubik;letter-spacing:.08em;padding:6px 11px;border-radius:99px;box-shadow:0 4px 0 #C54F3A;white-space:nowrap;z-index:3;">{{ it.badge }}</div>
+                      </sc-if>
+                      <button onClick="{{ it.onClick }}" style="{{ it.circleStyle }}">
+                        <sc-if value="{{ it.showCheck }}" hint-placeholder-val="{{ true }}"><div style="width:20px;height:11px;border-left:5px solid #FBF7EF;border-bottom:5px solid #FBF7EF;transform:rotate(-45deg) translate(1px,-2px);border-radius:2px;"></div></sc-if>
+                        <sc-if value="{{ it.showFace }}" hint-placeholder-val="{{ true }}"><span style="{{ it.faceStyle }}">{{ it.face }}</span></sc-if>
+                        <sc-if value="{{ it.showLock }}" hint-placeholder-val="{{ true }}"><div style="width:15px;height:12px;border-radius:3px;background:#B8C4C1;position:relative;"><div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:11px;height:11px;border:2.5px solid #B8C4C1;border-bottom:none;border-radius:6px 6px 0 0;"></div></div></sc-if>
+                        <sc-if value="{{ it.showChest }}" hint-placeholder-val="{{ true }}"><div style="width:26px;height:19px;background:#F0C879;border-radius:5px;position:relative;box-shadow:inset 0 4px 0 #E6B24C;"><div style="position:absolute;top:7px;left:50%;transform:translateX(-50%);width:6px;height:8px;border-radius:2px;background:#C89A3D;"></div></div></sc-if>
+                      </button>
+                      <sc-if value="{{ it.hasFanan }}" hint-placeholder-val="{{ true }}">
+                        <div style="position:absolute;top:6px;left:100%;margin-left:2px;animation:bob 2.4s ease-in-out infinite;">
+                          <dc-import name="Fanan" pose="cheer" scale="0.42" hint-size="52px,52px"></dc-import>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <div style="{{ it.labelStyle }}">{{ it.label }}</div>
+                  </div>
+                </sc-if>
+
+              </sc-for>
+              <div style="height:8px;"></div>
+            </div>
+
+            <!-- bottom nav -->
+            <div style="flex:none;background:#FBF7EF;border-top:1px solid #EDE3D2;padding:9px 8px 16px;display:flex;z-index:4;">
+              <sc-for list="{{ sc.nav }}" as="nv" hint-placeholder-count="5">
+                <button onClick="{{ nv.onClick }}" style="flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0;">
+                  <div style="width:26px;height:24px;display:flex;align-items:flex-end;justify-content:center;">
+                    <sc-if value="{{ nv.isHome }}" hint-placeholder-val="{{ true }}"><div style="position:relative;width:20px;height:16px;background:{{ nv.color }};border-radius:0 0 3px 3px;margin-top:6px;"><div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:8px solid {{ nv.color }};"></div></div></sc-if>
+                    <sc-if value="{{ nv.isPractise }}" hint-placeholder-val="{{ true }}"><div style="width:22px;height:20px;border-radius:6px;background:{{ nv.color }};display:flex;align-items:center;justify-content:center;"><div style="width:9px;height:9px;border-radius:50%;background:#FBF7EF;"></div></div></sc-if>
+                    <sc-if value="{{ nv.isSigns }}" hint-placeholder-val="{{ true }}"><div style="position:relative;width:22px;height:20px;"><div style="position:absolute;top:0;left:2px;width:15px;height:19px;border-radius:4px;background:{{ nv.faint }};"></div><div style="position:absolute;top:0;left:6px;width:15px;height:19px;border-radius:4px;background:{{ nv.color }};"></div></div></sc-if>
+                    <sc-if value="{{ nv.isFamily }}" hint-placeholder-val="{{ true }}"><div style="position:relative;width:24px;height:18px;"><div style="position:absolute;bottom:0;left:0;width:12px;height:12px;border-radius:50% 50% 40% 40%;background:{{ nv.faint }};"></div><div style="position:absolute;bottom:0;right:0;width:14px;height:14px;border-radius:50% 50% 40% 40%;background:{{ nv.color }};"></div></div></sc-if>
+                    <sc-if value="{{ nv.isProgress }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:flex-end;gap:3px;height:20px;"><div style="width:5px;height:9px;border-radius:2px;background:{{ nv.faint }};"></div><div style="width:5px;height:15px;border-radius:2px;background:{{ nv.color }};"></div><div style="width:5px;height:20px;border-radius:2px;background:{{ nv.faint }};"></div></div></sc-if>
+                  </div>
+                  <span style="{{ nv.labelStyle }}">{{ nv.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <!-- popover -->
+            <sc-if value="{{ sc.popover }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ sc.closePop }}" style="position:absolute;inset:0;background:rgba(22,48,46,.5);z-index:20;display:flex;align-items:flex-end;border-radius:41px;">
+                <div style="width:100%;background:#FBF7EF;border-radius:26px 26px 41px 41px;padding:22px 22px 26px;animation:rise .28s ease both;box-shadow:0 -10px 40px rgba(0,0,0,.2);">
+                  <div style="width:42px;height:5px;border-radius:99px;background:#EDE3D2;margin:0 auto 16px;"></div>
+                  <div style="display:flex;align-items:center;gap:13px;">
+                    <div style="{{ sc.popIconStyle }}">
+                      <sc-if value="{{ sc.popLocked }}" hint-placeholder-val="{{ true }}"><div style="width:16px;height:13px;border-radius:3px;background:#FBF7EF;position:relative;"><div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:12px;height:11px;border:2.5px solid #FBF7EF;border-bottom:none;border-radius:6px 6px 0 0;"></div></div></sc-if>
+                      <sc-if value="{{ sc.popOpen }}" hint-placeholder-val="{{ true }}"><span style="font-size:26px;line-height:1;">{{ sc.popFace }}</span></sc-if>
+                    </div>
+                    <div style="flex:1;">
+                      <div style="font:800 20px/1.1 Rubik;color:#16302E;">{{ sc.popTitle }}</div>
+                      <div style="font:500 12px/1.3 'Readex Pro';color:#5C726F;margin-top:3px;">{{ sc.popMeta }}</div>
+                    </div>
+                  </div>
+                  <div style="{{ sc.popBtnStyle }}">{{ sc.popBtn }}</div>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Motion in play:</b> the current node breathes with a coral <i>pulse-ring</i> and a floating START pill, Fanan bobs beside it, nodes spring on tap, the start popover slides up (<i>rise</i>), and completed nodes carry a satisfying 3D bottom edge. Done nodes are teal with a check, locked nodes are muted with a padlock, and locked <b style="color:#16302E">alphabet</b> nodes preview their letter dimmed. Everything mirrors cleanly in Arabic RTL.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { openLang:null, openId:null };
+
+  ITEMS = [
+    { kind:'banner', tone:'teal', unit:{en:'UNIT 1',ar:'\u0627\u0644\u0648\u062d\u062f\u0629 \u0661'}, name:{en:'First Words',ar:'\u0643\u0644\u0645\u0627\u062a \u0623\u0648\u0644\u0649'} },
+    { kind:'node', id:'hello', state:'done', off:0, label:{en:'Hello',ar:'\u0645\u0631\u062d\u0628\u064b\u0627'} },
+    { kind:'node', id:'thanks', state:'done', off:50, label:{en:'Thank you',ar:'\u0634\u0643\u0631\u064b\u0627'} },
+    { kind:'node', id:'iloveyou', state:'current', off:-6, face:'\ud83e\udd1f', label:{en:'I love you',ar:'\u0623\u062d\u0628\u0651\u0643'}, meta:{en:'New sign \u00b7 camera-graded',ar:'\u0625\u0634\u0627\u0631\u0629 \u062c\u062f\u064a\u062f\u0629 \u00b7 \u062a\u0642\u064a\u064a\u0645 \u0628\u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627'} },
+    { kind:'node', id:'more', state:'locked', off:-52, label:{en:'More',ar:'\u0627\u0644\u0645\u0632\u064a\u062f'} },
+    { kind:'node', id:'reward1', state:'locked', type:'milestone', off:0, label:{en:'Unit reward',ar:'\u0645\u0643\u0627\u0641\u0623\u0629 \u0627\u0644\u0648\u062d\u062f\u0629'} },
+    { kind:'banner', tone:'gold', unit:{en:'UNIT 2',ar:'\u0627\u0644\u0648\u062d\u062f\u0629 \u0662'}, name:{en:'The Alphabet',ar:'\u0627\u0644\u062d\u0631\u0648\u0641 \u0627\u0644\u0623\u0628\u062c\u062f\u064a\u0629'} },
+    { kind:'node', id:'alif', state:'locked', off:0, face:'\u0627', label:{en:'Alif',ar:'\u0623\u0644\u0641'} },
+    { kind:'node', id:'baa', state:'locked', off:54, face:'\u0628', label:{en:'Baa',ar:'\u0628\u0627\u0621'} },
+    { kind:'node', id:'taa', state:'locked', off:40, face:'\u062a', label:{en:'Taa',ar:'\u062a\u0627\u0621'} }
+  ];
+
+  STR = {
+    en:{ langLabel:'English \u00b7 LTR', greeting:'Marhaba, Layla', greetSub:'Ready to sign today?', avatar:'L',
+      streakLbl:'day streak', goldLbl:'gold', familyLbl:'family',
+      nav:['Home','Practise','Signs','Family','Progress'],
+      startBtn:'Start \u2192', lockedBtn:'Locked', reviewBtn:'Review \u2192',
+      lockedMeta:'Finish the sign before this to unlock.', doneMeta:'Mastered \u00b7 tap to review', chestMeta:'Clear Unit 1 to open the reward chest.' },
+    ar:{ langLabel:'\u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u00b7 RTL', greeting:'\u0645\u0631\u062d\u0628\u064b\u0627 \u064a\u0627 \u0644\u064a\u0644\u0649', greetSub:'\u0645\u0633\u062a\u0639\u062f\u0629 \u0644\u0644\u0625\u0634\u0627\u0631\u0629 \u0627\u0644\u064a\u0648\u0645\u061f', avatar:'\u0644',
+      streakLbl:'\u0623\u064a\u0627\u0645 \u0645\u062a\u062a\u0627\u0644\u064a\u0629', goldLbl:'\u0630\u0647\u0628', familyLbl:'\u0627\u0644\u0639\u0627\u0626\u0644\u0629',
+      nav:['\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629','\u062a\u0645\u0631\u064a\u0646','\u0627\u0644\u0625\u0634\u0627\u0631\u0627\u062a','\u0627\u0644\u0639\u0627\u0626\u0644\u0629','\u0627\u0644\u062a\u0642\u062f\u0651\u0645'],
+      startBtn:'\u0627\u0628\u062f\u0623 \u2190', lockedBtn:'\u0645\u0642\u0641\u0644', reviewBtn:'\u0645\u0631\u0627\u062c\u0639\u0629 \u2190',
+      lockedMeta:'\u0623\u0643\u0645\u0644 \u0627\u0644\u0625\u0634\u0627\u0631\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629 \u0644\u0641\u062a\u062d\u0647\u0627.', doneMeta:'\u0645\u064f\u062a\u0642\u064e\u0646 \u00b7 \u0627\u0646\u0642\u0631 \u0644\u0644\u0645\u0631\u0627\u062c\u0639\u0629', chestMeta:'\u0623\u0643\u0645\u0644 \u0627\u0644\u0648\u062d\u062f\u0629 \u0661 \u0644\u0641\u062a\u062d \u0627\u0644\u0635\u0646\u062f\u0648\u0642.' }
+  };
+
+  scrollRef(el){ if(el && !el._sawInit){ el._sawInit=true; setTimeout(()=>{ try{ el.scrollTop=210; }catch(e){} }, 380); } }
+  open(lang,id){ this.setState({ openLang:lang, openId:id }); }
+  close(){ this.setState({ openLang:null, openId:null }); }
+
+  buildScreen(lang){
+    const S=this.STR[lang], st=this.state;
+    const num=(n)=> lang==='ar' ? String(n).replace(/[0-9]/g,d=>'\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'[+d]) : String(n);
+    const items = this.ITEMS.map(it=>{
+      if(it.kind==='banner'){
+        const teal = it.tone==='teal';
+        return { isBanner:true, isNode:false, unit:it.unit[lang], name:it.name[lang],
+          bannerStyle:{ display:'flex',alignItems:'center',justifyContent:'space-between',gap:'10px',
+            background: teal?'#0F6E6A':'#E8654C', borderRadius:'18px', padding:'13px 16px', margin:'14px 0 6px',
+            boxShadow: teal?'0 4px 0 #0A4F4C':'0 4px 0 #C54F3A' },
+          unitColorStyle:{ color: teal?'#F0C879':'#F6EFE3' } };
+      }
+      const done=it.state==='done', current=it.state==='current', locked=it.state==='locked', milestone=it.type==='milestone';
+      let bg='#EDE3D2', sh='0 4px 0 #D9CBB2', size=62;
+      if(done){ bg='#0F6E6A'; sh='0 5px 0 #0A4F4C'; }
+      if(current){ bg='#E8654C'; sh='0 6px 0 #C54F3A'; size=72; }
+      if(milestone){ bg='#F6EFE3'; sh='0 4px 0 #D9CBB2'; }
+      const circleStyle={ position:'relative', width:size+'px', height:size+'px', borderRadius: milestone?'20px':'50%',
+        border:'none', cursor:'pointer', backgroundColor:bg, boxShadow:sh, display:'flex', alignItems:'center', justifyContent:'center',
+        transition:'transform .08s', animation: current?'pulseRing 1.8s ease-out infinite':'none' };
+      const showFace = !done && !milestone && !!it.face;
+      const showLock = locked && !it.face && !milestone;
+      return { isBanner:false, isNode:true, id:it.id, isCurrent:current, off:it.off,
+        rowStyle:{ position:'relative', transform:'translateX('+it.off+'px)' },
+        circleStyle, showCheck:done, showFace, showLock, showChest:milestone,
+        face:it.face, faceStyle:{ fontSize: current?'30px':'26px', lineHeight:1, opacity: locked?0.4:1, filter: locked?'grayscale(0.6)':'none' },
+        badge:S.startBtn.replace(' \u2192','').replace(' \u2190','')==='Start'?'START':'\u0627\u0628\u062f\u0623',
+        label:it.label[lang],
+        labelStyle:{ font: current?"700 13px/1.2 Rubik,sans-serif":"500 12px/1.2 'Readex Pro',sans-serif",
+          color: locked?'#A9B8B5':(current?'#16302E':'#5C726F'), marginTop:'9px', textAlign:'center' },
+        hasFanan:current,
+        onClick:()=>this.open(lang,it.id) };
+    });
+
+    const nav = S.nav.map((label,i)=>{
+      const active=i===0;
+      const col=active?'#0F6E6A':'#B8C4C1', faint=active?'#8FC1BD':'#D6DEDC';
+      return { label, isHome:i===0,isPractise:i===1,isSigns:i===2,isFamily:i===3,isProgress:i===4,
+        color:col, faint:faint, onClick:()=>{},
+        labelStyle:{ font: active?"700 10px/1 Rubik,sans-serif":"500 10px/1 'Readex Pro',sans-serif", color: active?'#0F6E6A':'#8F9C99' } };
+    });
+
+    let pop=false, popData={};
+    if(st.openLang===lang && st.openId){
+      const src=this.ITEMS.find(x=>x.id===st.openId);
+      const locked=src.state==='locked', current=src.state==='current', done=src.state==='done', milestone=src.type==='milestone';
+      pop=true;
+      const btnBg = locked?'#EDE3D2':(done?'#0F6E6A':'#E8654C');
+      const btnSh = locked?'none':(done?'0 5px 0 #0A4F4C':'0 5px 0 #C54F3A');
+      popData={
+        popLocked:locked, popOpen:!locked, popFace: milestone?'\ud83c\udf81':(src.face||'\u2713'),
+        popTitle:src.label[lang],
+        popMeta: locked?(milestone?S.chestMeta:S.lockedMeta):(done?S.doneMeta:src.meta?src.meta[lang]:''),
+        popIconStyle:{ width:'56px',height:'56px',flex:'none',borderRadius: milestone?'16px':'50%',
+          backgroundColor: locked?'#B8C4C1':(done?'#0F6E6A':'#E8654C'), display:'flex',alignItems:'center',justifyContent:'center' },
+        popBtn: locked?S.lockedBtn:(done?S.reviewBtn:S.startBtn),
+        popBtnStyle:{ marginTop:'18px', textAlign:'center', font:'700 16px/1 Rubik,sans-serif',
+          padding:'15px', borderRadius:'16px', backgroundColor:btnBg, boxShadow:btnSh,
+          color: locked?'#8FA09D':'#FBF7EF', cursor: locked?'default':'pointer', opacity: locked?0.85:1 }
+      };
+    }
+
+    return { lang, dir: lang==='ar'?'rtl':'ltr', langLabel:S.langLabel,
+      greeting:S.greeting, greetSub:S.greetSub, avatar:S.avatar,
+      streak:num(7), gold:num(320), family:num(4),
+      streakLbl:S.streakLbl, goldLbl:S.goldLbl, familyLbl:S.familyLbl,
+      items, nav, closePop:()=>this.close(), scrollRef:this.scrollRef,
+      popover:pop, ...popData };
+  }
+
+  renderVals(){
+    return { screens: ['en','ar'].map(l=>this.buildScreen(l)) };
+  }
+}
+</script>
+</body>
+</html>

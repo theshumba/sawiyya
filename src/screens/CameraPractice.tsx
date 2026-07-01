@@ -11,6 +11,7 @@ import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { Icon, Title } from "../components/ui";
+import { toLocaleDigits } from "../components/dc";
 import { Chip } from "../components/Tile";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
@@ -58,16 +59,23 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
       <div className="mx-auto max-w-md px-5 pt-6 md:max-w-5xl md:px-8 md:pt-10">
         <Confetti burst={burst} />
 
-        <header className="mb-5 flex items-center justify-between gap-3">
-          <Title>{t("camPractice", lang)}</Title>
+        {/* Block B · header — circle back button (start edge) + title + streak pill. */}
+        <header className="mb-5 flex items-center gap-3">
           <button
             type="button"
             onClick={() => go({ name: "home" })}
             aria-label={t("back", lang)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-teal/70 transition hover:bg-teal/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
-            <Icon name="close" className="text-xl leading-none" />
+            <Icon name="arrow_back" className="text-xl leading-none rtl:rotate-180" />
           </button>
+          <Title className="min-w-0 flex-1 truncate">{t("camPractice", lang)}</Title>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sand px-2.5 py-1.5">
+            <span className="h-3.5 w-3.5 rounded-full bg-coral" aria-hidden="true" />
+            <span className="font-display text-[13px] font-bold leading-none text-ink">
+              {toLocaleDigits(profile.streak, lang)}
+            </span>
+          </span>
         </header>
 
         {/* ONE target switcher: gradable word signs + the Arabic alphabet,

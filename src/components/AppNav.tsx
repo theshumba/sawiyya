@@ -20,21 +20,19 @@ interface Tab {
   active: Screen["name"][];
   icon: string;
   label: (l: Lang) => string;
-  /** the visually dominant centre tab (the camera moat) */
-  hero?: boolean;
 }
 
 const TABS: Tab[] = [
   { name: "home", active: ["home"], icon: "home", label: (l) => t("navLearn", l) },
   {
-    // Practice-first: the hero tab drops you STRAIGHT into the camera (real-graded
+    // Practice-first: this tab drops you STRAIGHT into the camera (real-graded
     // alphabet on alpha-alif, with the full letter switcher) — no chooser detour.
     // PractiseChooser still exists as a reachable screen, just not the tab target.
+    // Rendered flat (no coral hero) to match the design's 5-flat-icon bottom bar.
     name: "camera",
     active: ["practiseChooser", "camera"],
     icon: "videocam",
     label: (l) => t("navPractise", l),
-    hero: true,
   },
   { name: "allSigns", active: ["allSigns"], icon: "menu_book", label: (l) => t("navDictionary", l) },
   { name: "family", active: ["family"], icon: "favorite", label: (l) => t("navFamily", l) },
@@ -70,8 +68,8 @@ export function AppNav({ lang }: { lang: Lang }) {
           <div className="flex items-center gap-3 border-b border-line px-4 py-3">
             <Avatar emoji={profile.emoji} />
             <span className="min-w-0">
-              <span className="block truncate font-display font-bold text-ink"><bdi>{profile.displayName}</bdi></span>
-              <span className="block text-xs text-muted">{t("navProfile", lang)}</span>
+              <span className="block truncate font-display text-[15px] font-extrabold text-ink"><bdi>{profile.displayName}</bdi></span>
+              <span className="block text-xs font-medium text-muted">{t("navProfile", lang)}</span>
             </span>
           </div>
         )}
@@ -87,7 +85,7 @@ export function AppNav({ lang }: { lang: Lang }) {
               go({ name: it.name });
               setMenuOpen(false);
             }}
-            className="flex w-full items-center gap-3 px-4 py-3 text-start font-display font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
+            className="flex w-full items-center gap-3 px-4 py-3 text-start font-display text-[15px] font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
           >
             <Icon name={it.icon} className="text-xl text-teal" />
             {it.label}
@@ -105,7 +103,7 @@ export function AppNav({ lang }: { lang: Lang }) {
         aria-expanded={menuOpen}
         aria-label={t("navProfile", lang)}
         onClick={() => setMenuOpen((v) => !v)}
-        className="relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-0.5 rounded-2xl px-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        className="relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-[5px] rounded-2xl px-2 py-1 transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
       >
         {profile ? <Avatar emoji={profile.emoji} size="sm" /> : <Icon name="account_circle" className="text-2xl text-teal" />}
         {requests > 0 && (
@@ -113,7 +111,7 @@ export function AppNav({ lang }: { lang: Lang }) {
             <Badge count={requests} />
           </span>
         )}
-        <span className="font-display text-[11px] font-bold text-ink/60">{t("navProfile", lang)}</span>
+        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`}>{t("navProfile", lang)}</span>
       </button>
       {profileMenu}
     </div>
@@ -121,40 +119,34 @@ export function AppNav({ lang }: { lang: Lang }) {
 
   const tabButton = (tab: Tab, vertical: boolean) => {
     const active = isActive(tab);
+    // Icon colour is independent of the label colour on the rail (design Block 5):
+    // active teal, inactive #B8C4C1 (icon) vs #8F9C99 (label).
+    const iconColor = active ? "text-teal" : "text-[#B8C4C1]";
     return (
       <button
         key={tab.name}
         type="button"
         aria-current={active ? "page" : undefined}
         onClick={() => go({ name: tab.name } as Screen)}
-        className={`flex min-h-[48px] min-w-[48px] items-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+        className={`flex min-h-[48px] min-w-[48px] items-center transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
           vertical
-            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-ink/60 hover:bg-teal/5"}`
-            : "flex-col justify-center gap-0.5 rounded-2xl px-2"
+            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-[#8F9C99] hover:bg-teal/5"}`
+            : "flex-col justify-center gap-[5px] rounded-2xl px-2 py-1"
         }`}
       >
-        <span
-          className={`flex items-center justify-center ${
-            tab.hero && !vertical
-              ? `-mt-5 h-14 w-14 rounded-full shadow-coral ${active ? "bg-coral text-white" : "bg-coral/90 text-white"}`
-              : ""
-          }`}
-        >
-          <Icon
-            name={tab.icon}
-            fill={active}
-            className={`leading-none ${tab.hero && !vertical ? "text-3xl" : "text-2xl"} ${
-              !(tab.hero && !vertical) ? (active ? "text-teal" : "text-ink/55") : ""
-            }`}
-          />
+        {/* icon box — 26×24 in the design, glyph bottom-aligned */}
+        <span className="flex h-6 items-end justify-center">
+          <Icon name={tab.icon} fill={active} className={`text-2xl leading-none ${iconColor}`} />
         </span>
-        {!(tab.hero && !vertical) || vertical ? (
-          <span className={`font-display ${vertical ? "" : "text-[11px] font-bold"} ${active ? "text-teal" : "text-ink/60"}`}>
-            {tab.label(lang)}
-          </span>
-        ) : (
-          <span className="font-display text-[11px] font-bold text-coral">{tab.label(lang)}</span>
-        )}
+        <span
+          className={
+            vertical
+              ? "leading-none"
+              : `font-display text-[10px] leading-none ${active ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`
+          }
+        >
+          {tab.label(lang)}
+        </span>
       </button>
     );
   };
@@ -163,10 +155,10 @@ export function AppNav({ lang }: { lang: Lang }) {
     <>
       {/* MOBILE: bottom bar */}
       <nav
-        aria-label={t("navProfile", lang)}
+        aria-label={t("navMain", lang)}
         className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur lg:hidden"
       >
-        <div className="mx-auto flex max-w-md items-center justify-around px-2 pt-2">
+        <div className="mx-auto flex max-w-md items-start justify-around px-2 pb-4 pt-[9px]">
           {TABS.map((tab) => tabButton(tab, false))}
           {profileButton}
         </div>
@@ -174,7 +166,7 @@ export function AppNav({ lang }: { lang: Lang }) {
 
       {/* DESKTOP: left rail */}
       <nav
-        aria-label={t("navProfile", lang)}
+        aria-label={t("navMain", lang)}
         className="fixed inset-y-0 start-0 z-30 hidden w-60 flex-col gap-2 border-e border-line bg-paper/95 px-4 py-8 backdrop-blur lg:flex"
       >
         <div className="mb-6 flex items-center gap-3 px-3">

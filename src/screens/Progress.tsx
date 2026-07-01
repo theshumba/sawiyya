@@ -1,30 +1,38 @@
 // Progress — "The World You're Building" (PRD §8), the "My World" surface behind
-// the profile button. One responsive render (no mobile/desktop twins): a compact
-// streak+XP+mastered strip → the growing-oasis hero (focal, NOT a button) → ONE
-// dominant CTA → the Alphabet Constellation → "Coming Up" with a designed empty
-// state. The full-screen streak-celebration moment fires on a fresh milestone.
+// the profile button. Reskinned (Turn 9 design) into a 4-tab surface —
+// Your oasis · Stats · Achievements · Family league — inside the preserved
+// takeover ScreenShell.
+//
+// The OASIS tab is the live default: the growing-oasis scene (Fanan relaxing by
+// the water, swaying palms), live planted/palms tiles, a next-milestone bar, the
+// live weekly streak, the Alphabet Constellation and the "Coming Up" SRS
+// forecast with its designed empty state. STATS/ACHIEVEMENTS/LEAGUE adopt the
+// design's card language; where the current app has no data source (avg
+// accuracy, minutes, the family league) they render the design's literal mock
+// values as static placeholders — flagged for a future data hook.
 //
 // Live data preserved: mastery/seen counts, A1 + alphabet ring progress, due +
 // upcoming SRS cards, profile streak/xp/goal, real weekly activeDays. Navigation
-// (Start Review / sign rows) routes through the real ui store. Read-only.
-//
-// New branded copy with no existing i18n key uses documented literals (EN/AR via
-// `pick`): "The World You're Building", "Coming Up", "The Constellation", the
-// growth/forecast micro-labels, and the streak-celebration lines.
+// (Start Review / sign rows) routes through the real ui store. The full-screen
+// streak-celebration moment still fires on a fresh milestone. Read-only.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
 import { activeProfile, dueSignIds, GOAL_XP, useApp } from "../store/app";
 import { isTrained } from "../recognizer/knn";
 import { useUi } from "../store/ui";
-import { Icon, Title, Subtitle, Eyebrow } from "../components/ui";
+import { Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Confetti, celebrate } from "../components/Confetti";
-import type { Sign } from "../types";
+import { Fanan } from "../components/Fanan";
+import { toLocaleDigits, formatPercent } from "../components/dc";
+import type { Lang, Sign } from "../types";
 
 const DAY_LABELS_EN = ["M", "T", "W", "T", "F", "S", "S"];
 const DAY_LABELS_AR = ["إث", "ث", "أر", "خ", "ج", "س", "ح"];
+
+type Tab = "oasis" | "stats" | "achieve" | "league";
 
 /** YYYY-MM-DD for an offset of `back` days before today. */
 function dayKey(back: number): string {
@@ -32,6 +40,13 @@ function dayKey(back: number): string {
   d.setDate(d.getDate() - back);
   return d.toISOString().slice(0, 10);
 }
+
+// Design keyframes (float/sway) — scoped names so they resolve regardless of the
+// Tailwind JIT purge. Reduce-motion is handled globally in src/styles.css.
+const OASIS_KEYFRAMES = `
+@keyframes pr-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pr-sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+`;
 
 export function Progress() {
   const app = useApp();
@@ -41,6 +56,8 @@ export function Progress() {
   const lang = profile.language;
   const rtl = lang === "ar";
   const prog = app.progress[profile.id] ?? {};
+
+  const [tab, setTab] = useState<Tab>("oasis");
 
   const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
   const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
@@ -52,9 +69,11 @@ export function Progress() {
     .sort((a, b) => new Date(a[1].due).getTime() - new Date(b[1].due).getTime())
     .slice(0, 6);
 
-  // World growth — share of the A1 unit + alphabet brought to life.
+  // World growth — share of the A1 unit + alphabet brought to life. Feeds the
+  // next-milestone bar (done / target).
   const totalTracked = A1_SIGNS.length + ALPHABET.length;
-  const growth = Math.round(((a1Done + alphaTaught) / Math.max(1, totalTracked)) * 100);
+  const milestoneDone = a1Done + alphaTaught;
+  const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
   const oasisLevel = Math.max(1, Math.floor(mastered / 4) + 1);
 
   // Real weekly streak: which of the last 7 days (Mon..Sun anchor on today) the
@@ -73,6 +92,13 @@ export function Progress() {
         };
       }),
     [activeSet, todayDow]
+  );
+
+  // Month heatmap: last 35 days from the real activeDays set (binary intensity —
+  // the app has no per-day volume source yet; flag for a future data hook).
+  const heat = useMemo(
+    () => Array.from({ length: 35 }, (_, i) => (activeSet.has(dayKey(34 - i)) ? 3 : 0)),
+    [activeSet]
   );
 
   const goalXp = GOAL_XP[profile.dailyGoal];
@@ -95,201 +121,81 @@ export function Progress() {
     go({ name: "camera", targetSignId: firstDueGradable });
   }
 
-  const headerTitle = pick(lang, "The World You're Building", "العالم الذي تبنيه");
-  const headerSub = pick(lang, "Every sign brings life to the oasis.", "كل إشارة تمنح الواحة حياة.");
+  const TABS: { key: Tab; label: string }[] = [
+    { key: "oasis", label: t("prTabOasis", lang) },
+    { key: "stats", label: t("prTabStats", lang) },
+    { key: "achieve", label: t("prTabAchieve", lang) },
+    { key: "league", label: t("prTabLeague", lang) },
+  ];
+  const headerTitle = TABS.find((x) => x.key === tab)!.label;
 
   const empty = due.length === 0 && upcoming.length === 0;
 
   return (
     <ScreenShell lang={lang} chrome="takeover" title={headerTitle} onClose={() => go({ name: "home" })}>
-      <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 md:px-6">
-        {/* Intro line under the shell title. */}
-        <Subtitle className="text-teal/70">{headerSub}</Subtitle>
-
-        {/* ── Stats strip: streak · XP · mastered ───────────────────────────── */}
-        <section className="grid grid-cols-3 gap-3" aria-label={pick(lang, "Your progress", "تقدّمك")}>
-          <div className="flex flex-col items-center justify-center gap-1 rounded-3xl border border-line bg-paper p-5 shadow-soft">
-            <span className="text-2xl" aria-hidden="true">🔥</span>
-            <span className="font-display text-2xl font-bold text-ink">{num(profile.streak, lang)}</span>
-            <Eyebrow lang={lang} className="text-teal/70">{pick(lang, "Streak", "المواظبة")}</Eyebrow>
-          </div>
-          <div className="flex flex-col items-center justify-center gap-1 rounded-3xl border border-line bg-paper p-5 shadow-soft">
-            <Icon name="military_tech" fill className="text-2xl text-gold" />
-            <span className="font-display text-2xl font-bold text-ink">{num(profile.xp, lang)}</span>
-            <Eyebrow lang={lang} className="text-teal/70">{t("xp", lang)}</Eyebrow>
-          </div>
-          <div className="flex flex-col items-center justify-center gap-1 rounded-3xl border border-line bg-paper p-5 shadow-soft">
-            <Icon name="potted_plant" fill className="text-2xl text-teal" />
-            <span className="font-display text-2xl font-bold text-ink">{num(mastered, lang)}</span>
-            <Eyebrow lang={lang} className="text-teal/70">{t("prMastered", lang)}</Eyebrow>
-          </div>
-        </section>
-
-        {/* ── Weekly streak dots ────────────────────────────────────────────── */}
-        <section className="rounded-3xl border border-line bg-paper p-6 shadow-soft">
-          <div className="mb-4 flex items-center justify-between">
-            <Eyebrow lang={lang} className="text-teal/70">{pick(lang, "Weekly streak", "المواظبة الأسبوعية")}</Eyebrow>
-            <div className="flex items-center gap-1.5 text-gold">
-              <span aria-hidden="true" className="text-lg">🔥</span>
-              <span className="font-display text-xl font-bold text-ink">{num(profile.streak, lang)}</span>
-            </div>
-          </div>
-          <div className="flex items-end justify-between gap-2">
-            {week.map((d, i) => {
-              const label = (rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i];
-              if (d.state === "active") {
-                return (
-                  <div key={i} className={`flex flex-col items-center gap-2 ${d.today ? "scale-110" : ""}`}>
-                    <span
-                      className={`relative flex h-9 w-9 items-center justify-center rounded-full bg-gold text-ink ${d.today ? "shadow-gold" : ""}`}
-                    >
-                      <Icon name="check" fill className="text-[18px]" />
-                      {d.today && (
-                        <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-paper bg-coral" />
-                      )}
-                    </span>
-                    <span className={`text-xs font-bold ${d.today ? "text-teal" : "text-teal/60"}`}>{label}</span>
-                  </div>
-                );
-              }
-              return (
-                <div key={i} className="flex flex-col items-center gap-2">
-                  <span
-                    className={`h-9 w-9 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
-                  />
-                  <span className="text-xs font-bold text-teal/60">{label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── Oasis-growth hero (focal, NOT a button) ───────────────────────── */}
-        <section className="relative">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-bowl border border-teal/10 bg-teal shadow-lift">
-            <img
-              alt=""
-              aria-hidden="true"
-              src="/brand/stitch-32.png"
-              className="h-full w-full object-cover"
-            />
-            {/* floating stats */}
-            <div className="absolute left-6 top-6 flex flex-col gap-3">
-              <span className="flex items-center gap-2 rounded-2xl border border-white/20 bg-teal px-4 py-2 text-paper shadow-lift">
-                <Icon name="star" fill className="text-[18px] text-gold" />
-                <span className="font-display text-sm font-bold uppercase tracking-wider">
-                  {num(mastered, lang)} {t("prMastered", lang)}
-                </span>
-              </span>
-              <span className="flex items-center gap-2 rounded-2xl border border-white/20 bg-gold px-4 py-2 text-ink shadow-lift">
-                <Icon name="spa" fill className="text-[14px] text-teal" />
-                <span className="font-display text-sm font-bold uppercase tracking-wider">
-                  {pick(lang, `Level ${oasisLevel} Oasis`, `واحة المستوى ${num(oasisLevel, lang)}`)}
-                </span>
-              </span>
-            </div>
-            {/* growth bar */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-teal/80 to-transparent p-6">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-display text-xs font-bold uppercase tracking-wide text-paper">
-                  {pick(lang, "World growth", "نمو العالم")}
-                </span>
-                <span className="font-display text-lg font-black text-gold">{num(growth, lang)}%</span>
-              </div>
-              <div className="h-4 w-full overflow-hidden rounded-full border border-white/10 bg-teal-deep/50">
-                <div
-                  className="relative h-full rounded-full bg-gold"
-                  style={{ width: `${Math.max(4, growth)}%`, boxShadow: "0 0 10px rgba(230,178,76,.7)" }}
-                >
-                  <span className="absolute inset-y-0 right-0 w-4 skew-x-12 bg-white/20 motion-safe:animate-pulse" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── ONE dominant CTA ──────────────────────────────────────────────── */}
-        <section>
-          {reviewCount > 0 ? (
-            <button
-              type="button"
-              onClick={startReview}
-              className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral py-5 font-display text-lg font-bold text-white transition active:translate-y-1"
-            >
-              <span>{pick(lang, "Start Review Session", "ابدأ جلسة المراجعة")}</span>
-              <Icon name="bolt" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => go({ name: "camera" })}
-              className="extruded-teal flex w-full items-center justify-center gap-3 rounded-2xl bg-teal py-5 font-display text-lg font-bold text-white transition active:translate-y-1"
-            >
-              <span>{pick(lang, "Keep building", "واصل البناء")}</span>
-              <Icon name="videocam" className={rtl ? "rotate-180" : ""} />
-            </button>
-          )}
-        </section>
-
-        {/* ── The Constellation ─────────────────────────────────────────────── */}
-        <Constellation lang={lang} alphaTaught={alphaTaught} onTap={(id) => go({ name: "camera", targetSignId: id })} />
-
-        {/* ── Coming Up ─────────────────────────────────────────────────────── */}
-        <section className="space-y-4">
-          <Title>{pick(lang, "Coming Up", "قادمة قريباً")}</Title>
-          <p className="text-ink/60">{t("prUpcoming", lang)}</p>
-          {empty ? (
-            <div className="flex flex-col items-center gap-3 rounded-3xl border border-line bg-paper p-8 text-center shadow-soft">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-teal/10 text-teal">
-                <Icon name="task_alt" fill className="text-3xl" />
-              </span>
-              <p className="font-display text-lg font-bold text-teal">{t("prNothingDue", lang)}</p>
-              <p className="text-sm text-muted">
-                {pick(lang, "Nothing due right now — your oasis is thriving.", "لا شيء مستحق الآن — واحتك مزدهرة.")}
-              </p>
+      <style>{OASIS_KEYFRAMES}</style>
+      <div className="mx-auto max-w-2xl px-4 py-4 md:px-6">
+        {/* ── Tab bar (Block B) ──────────────────────────────────────────────── */}
+        <div
+          role="tablist"
+          aria-label={pick(lang, "Progress views", "أوجه التقدّم")}
+          className="flex flex-wrap gap-2 rounded-[18px] border border-line bg-paper p-3"
+          style={{ boxShadow: "0 2px 0 #EDE3D2" }}
+        >
+          {TABS.map((x) => {
+            const active = x.key === tab;
+            return (
               <button
+                key={x.key}
                 type="button"
-                onClick={() => go({ name: "camera" })}
-                className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(x.key)}
+                className="rounded-[12px] px-[14px] py-[10px] font-display text-[12px] font-bold leading-none transition-all ease-standard duration-200"
+                style={
+                  active
+                    ? { background: "#0F6E6A", color: "#FBF7EF", boxShadow: "0 3px 0 #0A4F4C" }
+                    : { background: "#F6EFE3", color: "#5C726F", boxShadow: "inset 0 0 0 1px #EDE3D2" }
+                }
               >
-                <Icon name="videocam" className="text-lg" />
-                {t("practiceCamera", lang)}
+                {x.label}
               </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {due.slice(0, 4).map((signId) => {
-                const sign = signById(signId);
-                if (!sign) return null;
-                return (
-                  <ForecastRow
-                    key={signId}
-                    sign={sign}
-                    lang={lang}
-                    tone="due"
-                    badge={t("homeReviewDue", lang)}
-                    onClick={() => go({ name: "camera", targetSignId: sign.id })}
-                  />
-                );
-              })}
-              {upcoming.map(([signId, card]) => {
-                const sign = signById(signId);
-                if (!sign) return null;
-                const days = Math.max(0, Math.round((new Date(card.due).getTime() - Date.now()) / 86400000));
-                return (
-                  <ForecastRow
-                    key={signId}
-                    sign={sign}
-                    lang={lang}
-                    tone="later"
-                    badge={days === 0 ? pick(lang, "<1d", "<يوم") : `${num(days, lang)}${pick(lang, "d", "ي")}`}
-                    onClick={() => go({ name: "camera", targetSignId: sign.id })}
-                  />
-                );
-              })}
-            </div>
+            );
+          })}
+        </div>
+
+        {/* ── Tab panels ─────────────────────────────────────────────────────── */}
+        <div className="mt-5">
+          {tab === "oasis" && (
+            <OasisTab
+              lang={lang}
+              rtl={rtl}
+              mastered={mastered}
+              alphaTaught={alphaTaught}
+              milestoneDone={milestoneDone}
+              totalTracked={totalTracked}
+              growth={growth}
+              oasisLevel={oasisLevel}
+              xp={profile.xp}
+              streak={profile.streak}
+              week={week}
+              due={due}
+              upcoming={upcoming}
+              empty={empty}
+              reviewCount={reviewCount}
+              onReview={startReview}
+              onCamera={() => go({ name: "camera" })}
+              onSign={(id) => go({ name: "camera", targetSignId: id })}
+            />
           )}
-        </section>
+          {tab === "stats" && (
+            <StatsTab lang={lang} mastered={mastered} bestStreak={profile.streak} heat={heat} />
+          )}
+          {tab === "achieve" && (
+            <AchievementsTab lang={lang} seen={seen} mastered={mastered} streak={profile.streak} alphaTaught={alphaTaught} />
+          )}
+          {tab === "league" && <LeagueTab lang={lang} />}
+        </div>
       </div>
 
       {celebrating && (
@@ -306,6 +212,487 @@ export function Progress() {
   );
 }
 
+// ── OASIS tab ────────────────────────────────────────────────────────────────
+function OasisTab({
+  lang,
+  rtl,
+  mastered,
+  alphaTaught,
+  milestoneDone,
+  totalTracked,
+  growth,
+  oasisLevel,
+  xp,
+  streak,
+  week,
+  due,
+  upcoming,
+  empty,
+  reviewCount,
+  onReview,
+  onCamera,
+  onSign,
+}: {
+  lang: Lang;
+  rtl: boolean;
+  mastered: number;
+  alphaTaught: number;
+  milestoneDone: number;
+  totalTracked: number;
+  growth: number;
+  oasisLevel: number;
+  xp: number;
+  streak: number;
+  week: { state: "active" | "missed" | "future"; today?: boolean }[];
+  due: string[];
+  upcoming: [string, { due: string }][];
+  empty: boolean;
+  reviewCount: number;
+  onReview: () => void;
+  onCamera: () => void;
+  onSign: (id: string) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      {/* Title + body */}
+      <div>
+        <h2 className="font-display text-[25px] font-extrabold leading-[1.1] text-ink">{t("prOasisTitle", lang)}</h2>
+        <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("prOasisBody", lang)}</p>
+      </div>
+
+      {/* Oasis scene — non-interactive, illustrated. Fanan never mirrors. */}
+      <div
+        aria-hidden="true"
+        className="relative overflow-hidden rounded-[22px]"
+        style={{ height: 236, background: "linear-gradient(180deg,#FBF7EF 0%,#FBF3E6 55%,#F0E4CC 100%)" }}
+      >
+        {/* sun */}
+        <div
+          className="absolute top-5"
+          style={{
+            insetInlineEnd: 24,
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: "#F0C879",
+            boxShadow: "0 0 0 10px rgba(240,200,121,.25)",
+          }}
+        />
+        {/* sand mound */}
+        <div
+          className="absolute inset-x-0 bottom-0"
+          style={{ height: 96, background: "#EBD9B6", borderRadius: "50% 50% 0 0 / 40px 40px 0 0" }}
+        />
+        {/* water pool */}
+        <div
+          className="absolute left-1/2"
+          style={{
+            bottom: 26,
+            transform: "translateX(-50%)",
+            width: 150,
+            height: 52,
+            borderRadius: "50%",
+            background: "#0F6E6A",
+            boxShadow: "inset 0 4px 0 rgba(255,255,255,.15)",
+          }}
+        />
+        {/* palm 1 */}
+        <div
+          className="absolute"
+          style={{ bottom: 60, left: 56, transformOrigin: "bottom center", animation: "pr-sway 4s ease-in-out infinite" }}
+        >
+          <div style={{ width: 9, height: 64, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
+          <div className="absolute left-1/2" style={{ top: -6, transform: "translateX(-50%)", width: 70, height: 34 }}>
+            <div className="absolute left-1/2 top-0" style={{ width: 38, height: 15, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
+            <div className="absolute left-1/2 top-0" style={{ width: 38, height: 15, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
+            <div className="absolute left-1/2" style={{ top: -4, width: 34, height: 14, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
+          </div>
+        </div>
+        {/* palm 2 */}
+        <div
+          className="absolute"
+          style={{ bottom: 56, right: 60, transformOrigin: "bottom center", animation: "pr-sway 4.6s ease-in-out infinite" }}
+        >
+          <div style={{ width: 8, height: 50, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
+          <div className="absolute left-1/2" style={{ top: -5, transform: "translateX(-50%)", width: 60, height: 30 }}>
+            <div className="absolute left-1/2 top-0" style={{ width: 32, height: 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
+            <div className="absolute left-1/2 top-0" style={{ width: 32, height: 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
+            <div className="absolute left-1/2" style={{ top: -3, width: 28, height: 12, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
+          </div>
+        </div>
+        {/* sprout */}
+        <div className="absolute left-1/2" style={{ bottom: 40, transform: "translateX(-50%)" }}>
+          <div style={{ width: 5, height: 16, background: "#0F6E6A", borderRadius: 3, margin: "0 auto" }} />
+          <div style={{ width: 14, height: 8, background: "#1F8A5B", borderRadius: "50%", marginTop: -14 }} />
+        </div>
+        {/* Fanan — pose cheer, never mirrors; sits at the logical end edge. */}
+        <div className="absolute" style={{ bottom: 8, insetInlineEnd: 14, animation: "pr-float 3s ease-in-out infinite" }}>
+          <Fanan pose="cheer" scale={0.5} />
+        </div>
+      </div>
+
+      {/* Two stat tiles */}
+      <div className="flex gap-[10px]">
+        <div className="flex-1 rounded-[16px] border border-line bg-paper p-[13px] text-center">
+          <div className="font-display text-[24px] font-extrabold leading-none text-teal">{toLocaleDigits(mastered, lang)}</div>
+          <div className="mt-1 text-[11px] font-semibold leading-[1.2] text-muted">{t("prPlanted", lang)}</div>
+        </div>
+        <div className="flex-1 rounded-[16px] border border-line bg-paper p-[13px] text-center">
+          <div className="font-display text-[24px] font-extrabold leading-none" style={{ color: "#E6B24C" }}>
+            {toLocaleDigits(alphaTaught, lang)}
+          </div>
+          <div className="mt-1 text-[11px] font-semibold leading-[1.2] text-muted">{t("prPalmsGrown", lang)}</div>
+        </div>
+      </div>
+
+      {/* Next-milestone card — fill mirrors in RTL via document dir. */}
+      <div className="rounded-[16px] border border-line bg-paper p-[14px]">
+        <div className="mb-2 flex justify-between text-[12px] font-semibold leading-none">
+          <span className="text-ink">{t("prNextMilestone", lang)}</span>
+          <span className="text-muted">
+            {toLocaleDigits(milestoneDone, lang)} / {toLocaleDigits(totalTracked, lang)}
+          </span>
+        </div>
+        <div className="h-[9px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
+          <div
+            className="h-full rounded-full"
+            style={{ width: `${Math.min(100, Math.max(0, growth))}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }}
+          />
+        </div>
+      </div>
+
+      {/* Weekly streak (live activeDays) — restyled to the card system. */}
+      <div className="rounded-[16px] border border-line bg-paper p-[14px]">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-[12px] font-semibold text-ink">{pick(lang, "Weekly streak", "المواظبة الأسبوعية")}</span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true">🔥</span>
+            <span className="font-display text-[15px] font-extrabold text-ink">{num(streak, lang)}</span>
+            <span className="ms-2 text-[11px] font-semibold text-muted">
+              {num(mastered, lang)} {t("prMastered", lang)}
+            </span>
+            <span className="ms-2 text-[11px] font-semibold text-muted">
+              {num(xp, lang)} {t("xp", lang)}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-end justify-between gap-1.5">
+          {week.map((d, i) => {
+            const label = (rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i];
+            if (d.state === "active") {
+              return (
+                <div key={i} className={`flex flex-col items-center gap-1.5 ${d.today ? "scale-110" : ""}`}>
+                  <span
+                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-ink"
+                    style={{ background: "#E6B24C", boxShadow: d.today ? "0 3px 0 #C89A3D" : "none" }}
+                  >
+                    <Icon name="check" fill className="text-[16px]" />
+                    {d.today && <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />}
+                  </span>
+                  <span className={`text-[11px] font-bold ${d.today ? "text-teal" : "text-teal/60"}`}>{label}</span>
+                </div>
+              );
+            }
+            return (
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <span
+                  className={`h-8 w-8 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
+                />
+                <span className="text-[11px] font-bold text-teal/60">{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* The Constellation — live alphabet ring. */}
+      <Constellation lang={lang} alphaTaught={alphaTaught} onTap={onSign} />
+
+      {/* Coming Up — SRS forecast with designed empty state. */}
+      <section className="space-y-3">
+        <Title>{pick(lang, "Coming Up", "قادمة قريباً")}</Title>
+        <p className="text-[13px] text-muted">{t("prUpcoming", lang)}</p>
+        {empty ? (
+          <div className="flex flex-col items-center gap-3 rounded-[16px] border border-line bg-paper p-8 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-teal/10 text-teal">
+              <Icon name="task_alt" fill className="text-3xl" />
+            </span>
+            <p className="font-display text-lg font-bold text-teal">{t("prNothingDue", lang)}</p>
+            <p className="text-sm text-muted">
+              {pick(lang, "Nothing due right now — your oasis is thriving.", "لا شيء مستحق الآن — واحتك مزدهرة.")}
+            </p>
+            <button
+              type="button"
+              onClick={onCamera}
+              className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              <Icon name="videocam" className="text-lg" />
+              {t("practiceCamera", lang)}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {reviewCount > 0 && (
+              <button
+                type="button"
+                onClick={onReview}
+                className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral py-4 font-display text-base font-bold text-white transition active:translate-y-1"
+              >
+                <span>{pick(lang, "Start Review Session", "ابدأ جلسة المراجعة")}</span>
+                <Icon name="bolt" />
+              </button>
+            )}
+            {due.slice(0, 4).map((signId) => {
+              const sign = signById(signId);
+              if (!sign) return null;
+              return (
+                <ForecastRow
+                  key={signId}
+                  sign={sign}
+                  lang={lang}
+                  tone="due"
+                  badge={t("homeReviewDue", lang)}
+                  onClick={() => onSign(sign.id)}
+                />
+              );
+            })}
+            {upcoming.map(([signId, card]) => {
+              const sign = signById(signId);
+              if (!sign) return null;
+              const days = Math.max(0, Math.round((new Date(card.due).getTime() - Date.now()) / 86400000));
+              return (
+                <ForecastRow
+                  key={signId}
+                  sign={sign}
+                  lang={lang}
+                  tone="later"
+                  badge={days === 0 ? pick(lang, "<1d", "<يوم") : `${num(days, lang)}${pick(lang, "d", "ي")}`}
+                  onClick={() => onSign(sign.id)}
+                />
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+// ── STATS tab — grid + month heatmap. Accuracy/minutes have no source → static
+// placeholders (flag for future data hook). ────────────────────────────────────
+function StatsTab({
+  lang,
+  mastered,
+  bestStreak,
+  heat,
+}: {
+  lang: Lang;
+  mastered: number;
+  bestStreak: number;
+  heat: number[];
+}) {
+  const shades = ["#EDE3D2", "#9DC6C2", "#3E9A93", "#0F6E6A"];
+  const cells: { val: string; label: string; color: string }[] = [
+    { val: toLocaleDigits(mastered, lang), label: t("prStatMastered", lang), color: "#0F6E6A" },
+    { val: formatPercent(92, lang), label: t("prAvgAccuracy", lang), color: "#0F6E6A" }, // static placeholder
+    { val: toLocaleDigits(340, lang), label: t("prMinutesSigned", lang), color: "#C89A3D" }, // static placeholder
+    { val: toLocaleDigits(bestStreak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
+  ];
+  return (
+    <div className="space-y-0">
+      <h2 className="font-display text-[25px] font-extrabold leading-[1.1] text-ink">{t("prStatsTitle", lang)}</h2>
+      <div className="mt-[14px] grid grid-cols-2 gap-[10px]">
+        {cells.map((c, i) => (
+          <div key={i} className="rounded-[16px] border border-line bg-paper p-[14px]">
+            <div className="font-display text-[26px] font-extrabold leading-none" style={{ color: c.color }}>
+              {c.val}
+            </div>
+            <div className="mt-[5px] text-[11px] font-semibold leading-[1.2] text-muted">{c.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-[22px] font-mono text-[11px] font-bold uppercase leading-none tracking-[0.1em] text-teal">
+        {t("prThisMonth", lang)}
+      </div>
+      <div className="mt-[11px] rounded-[16px] border border-line bg-paper p-4">
+        <div className="grid grid-cols-7 gap-[6px]">
+          {heat.map((l, i) => (
+            <div key={i} className="rounded-[4px]" style={{ aspectRatio: "1", background: shades[l] }} />
+          ))}
+        </div>
+        <div className="mt-3 flex items-center justify-end gap-[5px]">
+          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prLess", lang)}</span>
+          {shades.map((s) => (
+            <div key={s} className="rounded-[3px]" style={{ width: 11, height: 11, background: s }} />
+          ))}
+          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prMore", lang)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ACHIEVEMENTS tab — earned states derived from live progress where possible;
+// family flag stays a placeholder (no household-badge store yet). ───────────────
+function AchievementsTab({
+  lang,
+  seen,
+  mastered,
+  streak,
+  alphaTaught,
+}: {
+  lang: Lang;
+  seen: number;
+  mastered: number;
+  streak: number;
+  alphaTaught: number;
+}) {
+  const items: { glyph: string; name: string; status: string; earned: boolean }[] = [
+    { glyph: "🌱", name: t("prAchFirstSign", lang), status: t("prUnlocked", lang), earned: seen >= 1 },
+    { glyph: "🔥", name: t("prAch7Day", lang), status: t("prUnlocked", lang), earned: streak >= 7 },
+    { glyph: "🤟", name: t("prAch5Words", lang), status: t("prUnlocked", lang), earned: mastered >= 5 },
+    { glyph: "أ", name: t("prAchAlphabetStarted", lang), status: t("prUnlocked", lang), earned: alphaTaught >= 1 },
+    { glyph: "👪", name: t("prAchFamilyFlag", lang), status: pick(lang, "2 / 5 signs", "٢ / ٥ إشارات"), earned: false }, // placeholder
+    {
+      glyph: "🏆",
+      name: t("prAchWholeAlphabet", lang),
+      status: `${toLocaleDigits(alphaTaught, lang)} / ${toLocaleDigits(28, lang)}`,
+      earned: alphaTaught >= 28,
+    },
+  ];
+  const earnedCount = items.filter((a) => a.earned).length;
+  const summary = t("prAchieveSummary", lang)
+    .replace("{n}", toLocaleDigits(earnedCount, lang))
+    .replace("{total}", toLocaleDigits(items.length, lang));
+
+  return (
+    <div>
+      <h2 className="font-display text-[25px] font-extrabold leading-[1.1] text-ink">{t("prAchievements", lang)}</h2>
+      <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{summary}</p>
+      <div className="mt-4 grid grid-cols-2 gap-[11px]">
+        {items.map((a, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center rounded-[16px] px-[10px] py-4"
+            style={{
+              background: "#FBF7EF",
+              border: a.earned ? "2px solid #E6B24C" : "2px dashed #C7BBA4",
+              opacity: a.earned ? 1 : 0.72,
+            }}
+          >
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: "50%",
+                fontSize: 25,
+                background: a.earned ? "#F6EFE3" : "#EDE3D2",
+                filter: a.earned ? "none" : "grayscale(0.7)",
+              }}
+            >
+              <span aria-hidden="true">{a.glyph}</span>
+            </div>
+            <div
+              className="mt-[9px] text-center font-display text-[13px] font-bold leading-[1.1]"
+              style={{ color: a.earned ? "#16302E" : "#94A5A2" }}
+            >
+              {a.name}
+            </div>
+            <div className="mt-[3px] text-center text-[10px] font-medium leading-[1.2] text-[#94A5A2]">{a.status}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── FAMILY LEAGUE tab — warm-by-design, off by default. Static placeholder: the
+// app has no household/family-league data source yet (flag for future hook). ────
+function LeagueTab({ lang }: { lang: Lang }) {
+  const members: { nameEn: string; nameAr: string; initEn: string; initAr: string; xp: number; bg: string; you?: boolean }[] = [
+    { nameEn: "Mama", nameAr: "ماما", initEn: "M", initAr: "م", xp: 240, bg: "#0F6E6A" },
+    { nameEn: "Layla", nameAr: "ليلى", initEn: "L", initAr: "ل", xp: 180, bg: "#E6B24C", you: true },
+    { nameEn: "Sara", nameAr: "سارة", initEn: "S", initAr: "س", xp: 120, bg: "#0A4F4C" },
+    { nameEn: "Baba", nameAr: "بابا", initEn: "B", initAr: "ب", xp: 90, bg: "#E8654C" },
+  ];
+  const max = 240;
+  const [competing, setCompeting] = useState(false); // visual only — needs a real household setting to persist.
+
+  return (
+    <div>
+      <h2 className="font-display text-[25px] font-extrabold leading-[1.1] text-ink">{t("prLeagueTitle", lang)}</h2>
+      <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("prLeagueBody", lang)}</p>
+
+      {/* Warm note */}
+      <div
+        className="mt-[14px] flex items-center gap-[9px] rounded-[14px] px-[13px] py-[11px]"
+        style={{ background: "#E6F0EE", border: "1px solid #C9E0DC" }}
+      >
+        <div className="flex-none" style={{ width: 20, height: 20, borderRadius: 6, background: "#0F6E6A" }} />
+        <span className="text-[12px] font-semibold leading-[1.3] text-teal">{t("prLeagueWarm", lang)}</span>
+      </div>
+
+      {/* Ranked rows */}
+      <div className="mt-[14px] flex flex-col gap-[10px]">
+        {members.map((m, i) => (
+          <div
+            key={m.nameEn}
+            className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
+            style={{ background: m.you ? "#FBF3EF" : "#FBF7EF", border: m.you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
+          >
+            <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-[#94A5A2]" style={{ width: 18 }}>
+              {toLocaleDigits(i + 1, lang)}
+            </span>
+            <div
+              className="flex flex-none items-center justify-center font-display text-[15px] font-extrabold"
+              style={{ width: 38, height: 38, borderRadius: "50%", background: m.bg, color: m.bg === "#E6B24C" ? "#16302E" : "#FBF7EF" }}
+            >
+              {pick(lang, m.initEn, m.initAr)}
+            </div>
+            <div className="flex-1">
+              <div className="font-display text-[14px] font-bold leading-[1.1] text-ink">{pick(lang, m.nameEn, m.nameAr)}</div>
+              <div className="mt-[5px] h-[6px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
+                <div className="h-full rounded-full" style={{ width: `${Math.round((m.xp / max) * 100)}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }} />
+              </div>
+            </div>
+            <span className="flex-none font-display text-[14px] font-extrabold leading-none text-teal">{toLocaleDigits(m.xp, lang)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Competition toggle */}
+      <div className="mt-4 flex items-center justify-between rounded-[14px] border border-line bg-paper px-[14px] py-[13px]">
+        <div>
+          <div className="font-display text-[13px] font-bold leading-[1.1] text-ink">{t("prCompetition", lang)}</div>
+          <div className="mt-[2px] text-[11px] leading-[1.2] text-[#94A5A2]">{t("prCompetitionHint", lang)}</div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={competing}
+          aria-label={t("prCompetition", lang)}
+          onClick={() => setCompeting((v) => !v)}
+          className="relative flex-none transition-colors duration-200"
+          style={{ width: 46, height: 27, borderRadius: 99, background: competing ? "#0F6E6A" : "#D6CDBB" }}
+        >
+          <span
+            className="absolute top-[3px] transition-all duration-200"
+            style={{
+              insetInlineStart: competing ? 22 : 3,
+              width: 21,
+              height: 21,
+              borderRadius: "50%",
+              background: "#FBF7EF",
+              boxShadow: "0 1px 3px rgba(0,0,0,.25)",
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Alphabet Constellation — every taught letter is a gold star; the rest are
 // dim numbered nodes waiting to be lit. ────────────────────────────────────────
 function Constellation({
@@ -313,14 +700,14 @@ function Constellation({
   alphaTaught,
   onTap,
 }: {
-  lang: "en" | "ar";
+  lang: Lang;
   alphaTaught: number;
   onTap: (signId: string) => void;
 }) {
   return (
-    <section className="overflow-hidden rounded-bowl border-2 border-teal bg-teal-deep p-8">
-      <header className="mb-6 flex items-center justify-between">
-        <h3 className="font-display text-xl font-bold text-paper">{pick(lang, "The Constellation", "الكوكبة")}</h3>
+    <section className="overflow-hidden rounded-bowl border-2 border-teal bg-teal-deep p-6">
+      <header className="mb-5 flex items-center justify-between">
+        <h3 className="font-display text-lg font-bold text-paper">{pick(lang, "The Constellation", "الكوكبة")}</h3>
         <span className="rounded-full bg-paper/15 px-3 py-1 font-display text-xs font-black uppercase tracking-tight text-gold">
           {num(alphaTaught, lang)} / {num(ALPHABET.length, lang)} {pick(lang, "Found", "مكتشفة")}
         </span>
@@ -349,7 +736,7 @@ function Constellation({
           );
         })}
       </div>
-      <p className="mt-6 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/60">
+      <p className="mt-5 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/60">
         {pick(lang, "Connect the signs to light the sky", "اربط الإشارات لتضيء السماء")}
       </p>
     </section>
@@ -365,7 +752,7 @@ function ForecastRow({
   onClick,
 }: {
   sign: Sign;
-  lang: "en" | "ar";
+  lang: Lang;
   tone: "due" | "later";
   badge: string;
   onClick: () => void;
@@ -374,17 +761,18 @@ function ForecastRow({
     <button
       type="button"
       onClick={onClick}
-      className={`group flex w-full items-center gap-4 rounded-3xl border-2 bg-paper p-4 text-start shadow-soft transition-colors hover:border-gold ${
-        tone === "due" ? "border-gold/20" : "border-transparent"
+      className={`group flex w-full items-center gap-4 rounded-[16px] border bg-paper p-3 text-start transition-colors hover:border-gold ${
+        tone === "due" ? "border-gold/40" : "border-line"
       }`}
+      style={{ boxShadow: "0 2px 0 #EDE3D2" }}
     >
-      <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-teal/5 bg-sand">
+      <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-teal/5 bg-sand">
         <span className="text-3xl" aria-hidden="true">
           {sign.type === "alphabet" ? sign.code : sign.emoji}
         </span>
       </span>
       <span className="flex-grow">
-        <span className="block text-lg font-bold leading-tight text-ink">{pick(lang, sign.glossEn, sign.glossAr)}</span>
+        <span className="block text-base font-bold leading-tight text-ink">{pick(lang, sign.glossEn, sign.glossAr)}</span>
         <span className="block text-xs font-semibold text-teal/70">
           {sign.type === "alphabet" ? pick(lang, "Alphabet", "الحروف") : pick(lang, "Sign review", "مراجعة إشارة")}
         </span>
@@ -411,7 +799,7 @@ function StreakCelebration({
   onContinue,
 }: {
   profile: { displayName: string; streak: number; xp: number };
-  lang: "en" | "ar";
+  lang: Lang;
   mastered: number;
   goalXp: number;
   week: { state: "active" | "missed" | "future"; today?: boolean }[];
@@ -433,6 +821,7 @@ function StreakCelebration({
     `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة لأجل `
   );
   const arNumber = pick(lang, `${n} ${n === 1 ? "day" : "days"}`, `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"}`);
+  void goalXp;
 
   return (
     <div className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center">

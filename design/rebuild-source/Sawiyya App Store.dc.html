@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+</style>
+</helmet>
+
+<div style="min-width:1200px;padding:44px 52px 96px;">
+  <div style="max-width:860px;margin-bottom:30px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · App Store
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">The store listing</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:760px;">Six marketing frames at App Store aspect (1290×2796). Each pairs a headline with a real screen and Fanan — the promise a family sees before they download.</p>
+  </div>
+
+  <div style="display:flex;gap:22px;align-items:flex-start;overflow:visible;">
+    <sc-for list="{{ frames }}" as="f" hint-placeholder-count="6">
+      <div style="flex:none;width:258px;height:559px;border-radius:34px;overflow:hidden;position:relative;background:{{ f.bg }};box-shadow:0 20px 50px rgba(22,48,46,.22);display:flex;flex-direction:column;align-items:center;">
+        <!-- headline -->
+        <div style="padding:30px 26px 0;text-align:center;">
+          <div style="font-weight:800;font-family:Rubik,sans-serif;letter-spacing:-.02em;color:{{ f.head }};font-size:26px;line-height:1.08;">{{ f.title }}</div>
+          <div style="font:500 13px/1.4 'Readex Pro';color:{{ f.sub }};margin-top:8px;">{{ f.subtitle }}</div>
+        </div>
+        <!-- device peeking from bottom -->
+        <div style="margin-top:auto;width:200px;height:340px;background:#16302E;border-radius:32px 32px 0 0;padding:7px 7px 0;box-shadow:0 -8px 30px rgba(0,0,0,.2);">
+          <div style="width:100%;height:100%;background:{{ f.screenBg }};border-radius:26px 26px 0 0;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;padding-top:22px;">
+            <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:52px;height:15px;background:#16302E;border-radius:99px;opacity:.55;"></div>
+            {{ f.screen }}
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;padding:24px 28px;box-shadow:0 2px 0 #EDE3D2;max-width:900px;">
+    <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.12em;color:#94A5A2;">LISTING COPY</div>
+    <div style="font:800 24px/1.15 Rubik;color:#16302E;margin:10px 0 4px;">Sawiyya — Learn Arabic Sign Language</div>
+    <div style="font:600 14px/1.4 'Readex Pro';color:#0F6E6A;margin-bottom:12px;">Sign with the people you love. On device. Private.</div>
+    <div style="font:400 14px/1.6 'Readex Pro';color:#5C726F;max-width:720px;">Sawiyya teaches Arabic Sign Language the way you learn a spoken language — one sign at a time, with your camera watching your hands and cheering you on. Every lesson is bilingual, every celebration is Fanan's, and nothing ever leaves your phone. Built with the Deaf community, for families who want to say <i>"I love you"</i> in the same language.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  R=React.createElement;
+  // small reusable screen fragments
+  frames(){
+    const R=this.R;
+    const chip=(txt,bg,col)=>R('div',{style:{background:bg,color:col,borderRadius:'10px',padding:'8px 12px',font:"700 12px Rubik,sans-serif",margin:'4px'}},txt);
+    // 1 camera
+    const s1=R('div',{style:{flex:1,width:'82%',borderRadius:'18px',background:'repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 12px,#12807b 12px,#12807b 24px)',position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}},
+      R('div',{style:{width:'72px',height:'72px',borderRadius:'50%',background:'#FBF7EF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'38px',boxShadow:'0 8px 20px rgba(0,0,0,.25)'}},'🤟'),
+      R('div',{style:{position:'absolute',bottom:'12px',left:'50%',transform:'translateX(-50%)',background:'#F0C879',color:'#16302E',borderRadius:'99px',padding:'6px 14px',font:"800 15px Rubik,sans-serif",whiteSpace:'nowrap'}},'96% match ✓'));
+    // 2 path
+    const node=(c,done)=>R('div',{style:{width:'40px',height:'40px',borderRadius:'50%',background:c,display:'flex',alignItems:'center',justifyContent:'center',color:'#FBF7EF',fontSize:'18px',boxShadow:'0 4px 0 rgba(0,0,0,.15)'}},done?'✓':'★');
+    const s2=R('div',{style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'16px',paddingTop:'14px'}},
+      node('#1F8A5B',true),node('#1F8A5B',true),node('#E8654C',false),
+      R('div',{style:{width:'46px',height:'46px',borderRadius:'50%',border:'2px dashed #C9BBA2'}}));
+    // 3 fanan celebrate
+    const s3=R('div',{style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'10px'}},
+      R('div',{style:{fontSize:'70px'}},'🦊'),
+      R('div',{style:{font:"800 17px Rubik,sans-serif",color:'#16302E'}},'7-day streak!'),
+      R('div',{style:{display:'flex',flexWrap:'wrap',justifyContent:'center'}},chip('🔥','#FBEFD1','#B8860B'),chip('⭐','#FBEFD1','#B8860B'),chip('🏆','#FBEFD1','#B8860B')));
+    // 4 family
+    const av=(e,c)=>R('div',{style:{width:'50px',height:'50px',borderRadius:'16px',background:c,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'24px'}},e);
+    const s4=R('div',{style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}},
+      R('div',{style:{display:'flex',gap:'10px'}},av('👩','#F6D8CE'),av('🧒','#D8EBE5'),av('👴','#E8DCC0')),
+      R('div',{style:{font:"700 14px Rubik,sans-serif",color:'#16302E'}},'Your family, signing'));
+    // 5 privacy
+    const s5=R('div',{style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px',padding:'0 20px',textAlign:'center'}},
+      R('div',{style:{fontSize:'54px'}},'🔒'),
+      R('div',{style:{font:"800 16px Rubik,sans-serif",color:'#FBF7EF'}},'Stays on your phone'),
+      R('div',{style:{font:"400 12px 'Readex Pro',sans-serif",color:'rgba(246,239,227,.8)'}},'The camera never uploads a single frame.'));
+    // 6 alphabet
+    const cell=(ch)=>R('div',{style:{width:'42px',height:'42px',borderRadius:'11px',background:'#FBF7EF',display:'flex',alignItems:'center',justifyContent:'center',font:"700 18px Rubik,sans-serif",color:'#16302E',boxShadow:'0 2px 0 #E0D3BC'}},ch);
+    const s6=R('div',{style:{flex:1,display:'flex',flexWrap:'wrap',gap:'8px',justifyContent:'center',alignContent:'center',padding:'0 18px'}},
+      cell('ا'),cell('ب'),cell('ت'),cell('ث'),cell('ج'),cell('ح'),cell('خ'),cell('د'),cell('ر'));
+    return [
+      { bg:'#F6EFE3', head:'#16302E', sub:'#5C726F', screenBg:'#0A1F1D', title:'Your camera is your teacher', subtitle:'Sign it — Sawiyya grades your hands in real time', screen:s1 },
+      { bg:'#E9F5EE', head:'#16302E', sub:'#4E7A66', screenBg:'#F6EFE3', title:'One sign at a time', subtitle:'A path built for real conversations', screen:s2 },
+      { bg:'#FBEFD1', head:'#7A5A12', sub:'#9B7A2E', screenBg:'#F6EFE3', title:'Show up, and Fanan shows up', subtitle:'Streaks, rewards and a fox who believes in you', screen:s3 },
+      { bg:'#F6D8CE', head:'#7A2E1A', sub:'#A0533C', screenBg:'#F6EFE3', title:'Learn together', subtitle:'One account, every generation of the family', screen:s4 },
+      { bg:'#0F6E6A', head:'#FBF7EF', sub:'rgba(251,247,239,.85)', screenBg:'#16302E', title:'Private by design', subtitle:'On-device AI. Nothing leaves the phone.', screen:s5 },
+      { bg:'#E6E0F2', head:'#3A2A6B', sub:'#5F4E96', screenBg:'#0F6E6A', title:'From alif to fluent', subtitle:'The whole Arabic manual alphabet, and beyond', screen:s6 }
+    ];
+  }
+  renderVals(){ return { frames:this.frames() }; }
+}
+</script>
+</body>
+</html>

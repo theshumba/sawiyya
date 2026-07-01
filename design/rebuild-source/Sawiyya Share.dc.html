@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 96px;">
+  <div style="max-width:860px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Cold-start share &amp; invite
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">The "I signed my first word" moment</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:740px;">The single most shareable beat in the app. Right after the first-sign win, Sawiyya offers a card worth sending — and an invite that turns one learner into a family. Shown in English and Arabic.</p>
+  </div>
+
+  <!-- SHARE CARDS -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:40px 0 16px;">Social share card · 1:1 &amp; 9:16</div>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- square EN -->
+    <div>
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;margin-bottom:9px;">SQUARE · EN</div>
+      <div style="position:relative;width:400px;height:400px;border-radius:28px;overflow:hidden;background:linear-gradient(150deg,#0F6E6A,#0A4F4C);box-shadow:0 20px 48px rgba(15,110,106,.3);">
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(240,200,121,.14);"></div>
+        <div style="position:absolute;bottom:-50px;left:-30px;width:180px;height:180px;border-radius:50%;background:rgba(232,101,76,.16);"></div>
+        <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:34px;text-align:center;">
+          <div style="animation:floaty 3s ease-in-out infinite;"><dc-import name="Fanan" pose="celebrate" scale="1.05" hint-size="128px,126px"></dc-import></div>
+          <div style="font:600 13px/1 'Readex Pro';color:#F0C879;margin-top:20px;letter-spacing:.02em;">I just learned my first sign</div>
+          <div style="font:800 34px/1.05 Rubik;color:#FBF7EF;margin-top:8px;">"I love you"</div>
+          <div style="font:800 40px/1 Rubik;color:#FBF7EF;margin-top:6px;">🤟</div>
+          <div style="font:400 13.5px/1.4 'Readex Pro';color:rgba(251,247,239,.82);margin-top:16px;max-width:270px;">in Arabic Sign Language — my first word to say to the people I love.</div>
+          <div style="display:flex;align-items:center;gap:9px;margin-top:22px;">
+            <div style="width:30px;height:30px;border-radius:9px;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 16px Rubik;color:#16302E;">س</div>
+            <span style="font:700 15px/1 Rubik;color:#FBF7EF;">Sawiyya</span>
+            <span style="font:400 13px/1 'Readex Pro';color:rgba(251,247,239,.6);">· learn to sign, together</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- square AR -->
+    <div>
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;margin-bottom:9px;">SQUARE · AR</div>
+      <div dir="rtl" style="position:relative;width:400px;height:400px;border-radius:28px;overflow:hidden;background:linear-gradient(150deg,#0F6E6A,#0A4F4C);box-shadow:0 20px 48px rgba(15,110,106,.3);">
+        <div style="position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(240,200,121,.14);"></div>
+        <div style="position:absolute;bottom:-50px;right:-30px;width:180px;height:180px;border-radius:50%;background:rgba(232,101,76,.16);"></div>
+        <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:34px;text-align:center;">
+          <div style="animation:floaty 3s ease-in-out infinite;"><dc-import name="Fanan" pose="celebrate" scale="1.05" hint-size="128px,126px"></dc-import></div>
+          <div style="font:600 13.5px/1 'Readex Pro';color:#F0C879;margin-top:20px;">تعلّمتُ إشارتي الأولى</div>
+          <div style="font:800 34px/1.05 Rubik;color:#FBF7EF;margin-top:8px;">«أحبّك»</div>
+          <div style="font:800 40px/1 Rubik;color:#FBF7EF;margin-top:6px;">🤟</div>
+          <div style="font:400 14px/1.5 'Readex Pro';color:rgba(251,247,239,.82);margin-top:16px;max-width:280px;">بلغة الإشارة العربية — أوّل كلمة أقولها لمن أحبّ.</div>
+          <div style="display:flex;align-items:center;gap:9px;margin-top:22px;">
+            <div style="width:30px;height:30px;border-radius:9px;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 16px Rubik;color:#16302E;">س</div>
+            <span style="font:700 16px/1 Rubik;color:#FBF7EF;">سويّة</span>
+            <span style="font:400 13px/1 'Readex Pro';color:rgba(251,247,239,.6);">· نتعلّم الإشارة معًا</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- story 9:16 EN -->
+    <div>
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;margin-bottom:9px;">STORY · 9:16</div>
+      <div style="position:relative;width:300px;height:534px;border-radius:28px;overflow:hidden;background:linear-gradient(165deg,#16302E,#0F6E6A);box-shadow:0 20px 48px rgba(22,48,46,.32);">
+        <div style="position:absolute;top:50px;right:-30px;width:150px;height:150px;border-radius:50%;background:rgba(240,200,121,.13);"></div>
+        <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 30px;text-align:center;">
+          <div style="animation:floaty 3s ease-in-out infinite;"><dc-import name="Fanan" pose="celebrate" scale="1.15" hint-size="140px,138px"></dc-import></div>
+          <div style="font:600 13px/1 'Readex Pro';color:#F0C879;margin-top:26px;">My first sign, ever</div>
+          <div style="font:800 40px/1.02 Rubik;color:#FBF7EF;margin-top:10px;">"I love<br>you" 🤟</div>
+          <div style="font:400 14px/1.5 'Readex Pro';color:rgba(251,247,239,.8);margin-top:18px;">Learn to sign with me.<br>It takes 30 seconds to start.</div>
+          <div style="margin-top:26px;background:#F0C879;color:#16302E;font:800 15px/1 Rubik;padding:14px 24px;border-radius:14px;">Join me on Sawiyya</div>
+          <div style="position:absolute;bottom:26px;display:flex;align-items:center;gap:8px;">
+            <div style="width:24px;height:24px;border-radius:7px;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 13px Rubik;color:#16302E;">س</div>
+            <span style="font:700 13px/1 Rubik;color:#FBF7EF;">Sawiyya · سويّة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EMAIL INVITE -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:44px 0 16px;">Family invite email</div>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;">
+
+    <sc-for list="{{ emails }}" as="e" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;margin-bottom:9px;">{{ e.tag }}</div>
+        <div dir="{{ e.dir }}" style="width:520px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(22,48,46,.12);">
+          <!-- subject line -->
+          <div style="padding:14px 22px;background:#F6EFE3;border-bottom:1px solid #EDE3D2;display:flex;align-items:center;gap:10px;">
+            <span style="font:700 10px/1 ui-monospace,Menlo;letter-spacing:.08em;color:#94A5A2;">{{ e.subjectLabel }}</span>
+            <span style="font:600 13.5px/1 Rubik;color:#16302E;">{{ e.subject }}</span>
+          </div>
+          <!-- hero -->
+          <div style="background:linear-gradient(150deg,#0F6E6A,#0A4F4C);padding:30px 30px 26px;text-align:center;">
+            <div style="animation:floaty 3s ease-in-out infinite;display:inline-block;"><dc-import name="Fanan" pose="wave" scale=".92" hint-size="112px,110px"></dc-import></div>
+            <div style="font:800 24px/1.15 Rubik;color:#FBF7EF;margin-top:14px;">{{ e.heroTitle }}</div>
+          </div>
+          <!-- body -->
+          <div style="padding:26px 30px 30px;text-align:{{ e.align }};">
+            <div style="font:400 15px/1.6 'Readex Pro';color:#5C726F;">{{ e.body }}</div>
+            <div style="margin-top:20px;background:#F6EFE3;border:1px solid #EDE3D2;border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:13px;text-align:start;">
+              <span style="flex:none;font-size:26px;">🤟</span>
+              <div><div style="font:700 14px/1.2 Rubik;color:#16302E;">{{ e.chipTitle }}</div><div style="font:400 12.5px/1.35 'Readex Pro';color:#5C726F;margin-top:2px;">{{ e.chipSub }}</div></div>
+            </div>
+            <div style="margin-top:22px;display:flex;justify-content:center;">
+              <div style="background:#0F6E6A;color:#FBF7EF;font:800 16px/1 Rubik;padding:15px 30px;border-radius:15px;box-shadow:0 5px 0 #0A4F4C;">{{ e.cta }}</div>
+            </div>
+            <div style="font:400 12px/1.5 'Readex Pro';color:#94A5A2;margin-top:20px;text-align:center;">{{ e.footer }}</div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+
+  </div>
+
+  <div style="margin-top:28px;max-width:820px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Why this pairing works:</b> the share card is for the <i>learner's</i> pride — public, celebratory, low-commitment. The email is the <i>direct</i> ask to one person, framed as "learn <b style="color:#16302E;">with</b> me," not "download this app." Both route into the same family-league flow, so an accepted invite instantly shows up as a shared goal.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    return { emails:[
+      { tag:'EN · LTR', dir:'ltr', align:'left',
+        subjectLabel:'SUBJECT', subject:'Layla wants to learn to sign with you',
+        heroTitle:'Layla just signed her first word — and she wants you next',
+        body:'She learned to sign "I love you" today on Sawiyya, and she picked you to learn the next one with. It takes 30 seconds to start, everything runs privately on your own phone, and you two can keep a shared streak going.',
+        chipTitle:'Your first sign is waiting', chipSub:'"I love you" — the same one Layla just learned.',
+        cta:'Learn with Layla', footer:'Sawiyya · learn to sign, together. You can turn off invites anytime.' },
+      { tag:'AR · RTL', dir:'rtl', align:'right',
+        subjectLabel:'الموضوع', subject:'ليلى تريد أن تتعلّم لغة الإشارة معك',
+        heroTitle:'ليلى أشارت كلمتها الأولى — وتريدك أن تكون التالي',
+        body:'تعلّمت اليوم إشارة «أحبّك» على تطبيق سويّة، واختارتك لتتعلّم معها الإشارة التالية. يستغرق البدء ٣٠ ثانية، وكلّ شيء يعمل بخصوصية على هاتفك، ويمكنكما الحفاظ على سلسلة إنجاز مشتركة.',
+        chipTitle:'إشارتك الأولى بانتظارك', chipSub:'«أحبّك» — الإشارة نفسها التي تعلّمتها ليلى للتوّ.',
+        cta:'تعلّم مع ليلى', footer:'سويّة · نتعلّم الإشارة معًا. يمكنك إيقاف الدعوات في أيّ وقت.' }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

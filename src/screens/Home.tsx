@@ -1,14 +1,13 @@
-// Home → Learn tab (UX redesign §5.2). Presentation-only re-skin.
-// The winding Path is the hero with EXACTLY ONE dominant action = current-node
-// START. Nav duties (desktop side-nav + right dashboard rail + mobile bottom bar)
-// are owned entirely by ScreenShell/AppNav now and have been stripped here.
-// The camera practiceHero + alphabetCard moved OUT to the Practise chooser; only
-// a slim secondary "Practise" link remains. Family flags collapse to a single
-// compact FlagCard. Daily goal is one GoalCard. Review-due + milestone are
-// lightweight secondary cards. Logic unchanged (contract §2) — every store hook,
-// route (incl. cameraGradable→targetSignId gate + lessonId:"review"), guard and
-// i18n key preserved; the old md:hidden / hidden-md:flex twin trees are collapsed
-// into ONE mobile-first responsive render.
+// Home → Learn tab. Presentation-only re-skin to the "Home learning path" design
+// (design/rebuild-source/Sawiyya Home Path.dc.html): a teal app bar (greeting +
+// three stat chips) above a winding vertical node trail — unit banner → nodes
+// (done / current / locked) → treasure milestone — with Fanan cheering beside the
+// current node and a bottom-sheet start popover on tap. The old landscape/palm
+// hero is dropped. Logic unchanged (contract §1) — every store hook, route (incl.
+// cameraGradable→targetSignId gate + lessonId fallback), guard and i18n key is
+// preserved; ScreenShell/AppNav still own the status bar + bottom tab bar.
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { num, pick, t } from "../i18n";
 import { signById, LESSONS, UNIT_A1_U1 } from "../content/signs";
 import {
@@ -25,6 +24,7 @@ import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { GoalCard } from "../components/GoalCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
+import { Fanan } from "../components/Fanan";
 import { nextMilestone } from "../lesson/milestones";
 import type { Lesson } from "../types";
 
@@ -33,10 +33,43 @@ import type { Lesson } from "../types";
 const lessonCameraTarget = (lesson: Lesson): string | undefined =>
   lesson.signIds.map(signById).find((s) => s?.cameraGradable)?.id;
 
+type NodeStatus = "current" | "done" | "locked" | "milestone";
+interface PathNode {
+  id: string;
+  status: NodeStatus;
+  lesson?: Lesson;
+  title: string;
+  off: number;
+}
+
+// Coral pulse-ring + Fanan bob keyframes, lifted literally from the design
+// <style>. Kept local (the global sheet has a gold pulse-ring only). The global
+// prefers-reduced-motion rule in styles.css freezes these via !important.
+const PATH_KEYFRAMES = `
+@keyframes sw-pulse{0%{box-shadow:0 0 0 0 rgba(232,101,76,.5)}70%{box-shadow:0 0 0 16px rgba(232,101,76,0)}100%{box-shadow:0 0 0 0 rgba(232,101,76,0)}}
+@keyframes sw-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+`;
+
 export function Home() {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const currentRef = useRef<HTMLDivElement | null>(null);
+  const scrolled = useRef(false);
+
+  // Centre the current node on first mount (design scrollRef → scrollTop 210).
+  useEffect(() => {
+    if (scrolled.current || !currentRef.current) return;
+    scrolled.current = true;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const el = currentRef.current;
+    const id = window.setTimeout(() => {
+      el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    }, 380);
+    return () => window.clearTimeout(id);
+  }, []);
+
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
@@ -62,211 +95,251 @@ export function Home() {
       lesson.id === nextLesson.id ? "current" : complete ? "done" : "locked";
     return { lesson, status };
   });
-  // alternating horizontal offsets along the winding path
-  const offsets = ["ms-28", "me-16", "ms-20", "-ms-10"];
 
   const ms = nextMilestone(app, profile.id, lang);
 
-  // Stitch CTA copy. i18n.ts is FROZEN and has no key for these strings, so the
-  // dual-script literals live here (spec §1 allows documented literals when no
-  // key exists). "START" is the single dominant action on the current journey node.
-  const startLabel = lang === "ar" ? "ابدأ" : "START";
+  // Winding horizontal offsets (design uses px translateX; mirror in RTL).
+  const nodeOffsets = [0, 48, -48];
+  const pathNodes: PathNode[] = nodes.map(({ lesson, status }, i) => ({
+    id: lesson.id,
+    status,
+    lesson,
+    title: pick(lang, lesson.titleEn, lesson.titleAr),
+    off: nodeOffsets[i % nodeOffsets.length],
+  }));
+  // Treasure milestone closes the unit trail (bound to `ms`, not a mock ITEM).
+  if (ms) pathNodes.push({ id: "__milestone", status: "milestone", title: ms.label, off: 0 });
+
+  const openNode = pathNodes.find((n) => n.id === openId) ?? null;
 
   const goalLabel =
     goalProgress >= 1
       ? t("homeAllDone", lang)
       : `${num(xpToday, lang)} / ${num(goalXp, lang)} ${t("xp", lang)}`;
 
+  const initial = profile.displayName.trim().charAt(0) || "•";
+
+  // App-bar stat chips (streak / gold / family), matching the design markers.
+  const stats: { marker: JSX.Element; value: string; label: string }[] = [
+    {
+      marker: (
+        <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#E8654C", flex: "none" }} />
+      ),
+      value: num(profile.streak, lang),
+      label: t("homeStreak", lang),
+    },
+    {
+      marker: (
+        <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#F0C879", flex: "none" }} />
+      ),
+      value: num(profile.xp, lang),
+      label: t("homeGoldStat", lang),
+    },
+    {
+      marker: (
+        <span style={{ width: 18, height: 18, borderRadius: 6, background: "#F08A75", flex: "none" }} />
+      ),
+      value: num(app.profiles.length, lang),
+      label: t("homeFamilyStat", lang),
+    },
+  ];
+
+  // ── per-status node styling ──────────────────────────────────────────────
+  const circleStyle = (status: NodeStatus): CSSProperties => {
+    const base: CSSProperties = {
+      position: "relative",
+      border: "none",
+      padding: 0,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "transform .08s",
+    };
+    switch (status) {
+      case "done":
+        return { ...base, width: 62, height: 62, borderRadius: "50%", background: "#0F6E6A", boxShadow: "0 5px 0 #0A4F4C" };
+      case "current":
+        return {
+          ...base,
+          width: 72,
+          height: 72,
+          borderRadius: "50%",
+          background: "#E8654C",
+          boxShadow: "0 6px 0 #C54F3A",
+          animation: "sw-pulse 1.8s ease-out infinite",
+        };
+      case "milestone":
+        return { ...base, width: 62, height: 62, borderRadius: 20, background: "#F6EFE3", boxShadow: "0 4px 0 #D9CBB2" };
+      default: // locked
+        return { ...base, width: 62, height: 62, borderRadius: "50%", background: "#EDE3D2", boxShadow: "0 4px 0 #D9CBB2" };
+    }
+  };
+
+  const nodeGlyph = (status: NodeStatus) => {
+    switch (status) {
+      case "done": // white check — never mirrors (§6)
+        return (
+          <span
+            style={{
+              display: "block",
+              width: 20,
+              height: 11,
+              borderInlineStart: "5px solid #FBF7EF",
+              borderBottom: "5px solid #FBF7EF",
+              transform: "rotate(-45deg) translate(1px,-2px)",
+              borderRadius: 2,
+            }}
+          />
+        );
+      case "current":
+        return <Icon name="sign_language" className="!text-4xl text-white" />;
+      case "milestone": // treasure chest
+        return (
+          <span style={{ position: "relative", display: "block", width: 26, height: 19, background: "#F0C879", borderRadius: 5, boxShadow: "inset 0 4px 0 #E6B24C" }}>
+            <span style={{ position: "absolute", top: 7, left: "50%", transform: "translateX(-50%)", width: 6, height: 8, borderRadius: 2, background: "#C89A3D" }} />
+          </span>
+        );
+      default: // padlock
+        return (
+          <span style={{ position: "relative", display: "block", width: 15, height: 12, borderRadius: 3, background: "#B8C4C1" }}>
+            <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 11, height: 11, border: "2.5px solid #B8C4C1", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />
+          </span>
+        );
+    }
+  };
+
+  const labelStyle = (status: NodeStatus): CSSProperties =>
+    status === "current"
+      ? { font: "700 13px/1.2 Rubik,sans-serif", color: "#16302E", marginTop: 9, textAlign: "center" }
+      : {
+          font: "500 12px/1.2 'Readex Pro',sans-serif",
+          color: status === "locked" || status === "milestone" ? "#A9B8B5" : "#5C726F",
+          marginTop: 9,
+          textAlign: "center",
+        };
+
   return (
     <ScreenShell lang={lang} chrome="tabs">
-      {/* Page-specific hero header — streak + XP chips + unit. NOT navigation:
-          brand + tabs + profile button live in the shared AppNav rail/bar. */}
-      <header className="bg-teal text-white">
-        <div className="mx-auto flex max-w-2xl flex-col gap-3 px-4 py-5 md:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <Eyebrow lang={lang} className="!text-gold/90">
-                {t("homeUnit", lang)} A1·1
-              </Eyebrow>
-              <h1 className="font-display text-xl font-bold leading-tight md:text-2xl">
-                {pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)}
-              </h1>
-              <p className="mt-0.5 text-sm text-white/70">
-                {pick(lang, "Ahlan, ", "أهلًا، ")}
+      <style>{PATH_KEYFRAMES}</style>
+
+      {/* Block A — teal app bar (greeting + stat chips). NOT navigation. */}
+      <header
+        className="sticky top-0 z-10"
+        style={{ background: "#0F6E6A", borderRadius: "0 0 24px 24px", boxShadow: "0 6px 16px rgba(15,110,106,.25)" }}
+      >
+        <div className="mx-auto max-w-xl" style={{ padding: "8px 20px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ minWidth: 0 }}>
+              <div className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF" }}>
+                {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
-              </p>
+              </div>
+              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.72)", marginTop: 3 }}>
+                {t("homeGreetSub", lang)}
+              </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {/* Streak chip — gold flame + Rubik number */}
-              <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-teal-deep/40 px-3 py-1">
-                <img alt="" aria-hidden="true" className="h-6 w-6" src="brand/stitch-18.png" />
-                <span className="font-display text-xl font-bold leading-none text-gold">
-                  {num(profile.streak, lang)}
-                </span>
-                <span className="sr-only">{t("homeStreak", lang)}</span>
-              </span>
-              {/* XP chip */}
-              <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-teal-deep/40 px-3.5 py-1">
-                <span className="font-display text-lg font-bold leading-none text-white">
-                  {num(profile.xp, lang)}
-                </span>
-                <span className="font-display text-[10px] font-bold uppercase tracking-widest text-white/60">
-                  {t("xp", lang)}
-                </span>
-              </span>
+            <div
+              className="font-display"
+              style={{ width: 44, height: 44, borderRadius: "50%", background: "#F0C879", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: "0 4px 0 #C89A3D" }}
+            >
+              <bdi style={{ fontWeight: 800, fontSize: 18, color: "#16302E" }}>{initial}</bdi>
             </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+            {stats.map((s, i) => (
+              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.12)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
+                {s.marker}
+                <div>
+                  <div className="font-display" style={{ fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
+                    {s.value}
+                  </div>
+                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "rgba(251,247,239,.7)", marginTop: 2 }}>
+                    {s.label}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </header>
 
-      {/* ONE responsive content column (no twin trees). */}
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-6 md:px-6">
-        {/* The Path — hero, with exactly one dominant action (current-node START). */}
-        <section
-          aria-label={t("homeToday", lang)}
-          className="relative w-full overflow-hidden rounded-bowl bg-sand shadow-inner aspect-[9/13] sm:aspect-[16/12]"
-        >
-          {/* CSS illustration — Gulf landscape (Stitch background asset unavailable) */}
-          <div aria-hidden="true" className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-b from-gold/15 via-sand to-coral/10" />
-            {/* far mosque skyline */}
-            <div className="absolute bottom-[58%] start-[8%] h-16 w-9 rounded-t-full bg-teal/15" />
-            <div className="absolute bottom-[58%] start-[20%] h-10 w-12 rounded-t-3xl bg-coral/15" />
-            <div className="absolute bottom-[57%] start-[33%] h-20 w-20 rounded-t-full bg-teal/12" />
-            <div className="absolute bottom-[59%] end-[12%] h-12 w-8 rounded-t-full bg-gold/25" />
-            {/* dunes */}
-            <div className="absolute -start-1/4 bottom-[30%] h-40 w-[150%] rounded-[100%] bg-gold/20" />
-            <div className="absolute -end-1/4 bottom-[8%] h-44 w-[150%] rounded-[100%] bg-coral/10" />
-            <div className="absolute -start-1/3 -bottom-12 h-40 w-[160%] rounded-[100%] bg-gold/25" />
-            {/* palms */}
-            <PalmTree className="absolute bottom-[42%] start-[10%] h-20" />
-            <PalmTree className="absolute bottom-[18%] end-[14%] h-24" />
-            <PalmTree className="absolute bottom-[4%] start-[16%] h-16" />
-            {/* winding teal path */}
-            <svg
-              className="absolute inset-0 h-full w-full"
-              viewBox="0 0 100 156"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M72 -4 C74 26, 26 30, 30 56 C34 82, 76 86, 70 112 C64 138, 36 140, 40 160"
-                fill="none"
-                stroke="#0F6E6A"
-                strokeOpacity="0.8"
-                strokeWidth="11"
-                strokeLinecap="round"
-              />
-              <path
-                d="M72 -4 C74 26, 26 30, 30 56 C34 82, 76 86, 70 112 C64 138, 36 140, 40 160"
-                fill="none"
-                stroke="#FBF7EF"
-                strokeOpacity="0.7"
-                strokeWidth="1.6"
-                strokeDasharray="4 5"
-              />
-            </svg>
+      <div className="mx-auto max-w-xl px-5">
+        {/* Block B — winding node trail. The current-node START is the one dominant action. */}
+        <section aria-label={t("homeToday", lang)} className="pt-4">
+          {/* B1 · Unit banner (teal). */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F0C879", textTransform: "uppercase" }}>
+                {`${t("homeUnit", lang)} ${num(1, lang)}`}
+              </div>
+              <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
+                {pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)}
+              </div>
+            </div>
+            <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+              <div style={{ width: 16, height: 13, border: "2.5px solid #FBF7EF", borderRadius: 2, borderInlineStartWidth: 5 }} />
+            </div>
           </div>
 
-          {/* Nodes layer */}
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-evenly py-10">
-            {nodes.map(({ lesson, status }, i) => {
-              const title = pick(lang, lesson.titleEn, lesson.titleAr);
-              if (status === "current") {
-                return (
-                  <div
-                    key={lesson.id}
-                    className={`relative flex flex-col items-center ${offsets[i % offsets.length]}`}
-                  >
-                    <div className="animate-pulse-ring relative z-10 flex h-24 w-24 items-center justify-center rounded-full border-4 border-coral-deep bg-coral shadow-coral">
-                      <Icon name="waving_hand" fill className="!text-5xl text-white" />
+          {/* B2 · Nodes. */}
+          {pathNodes.map((node) => {
+            const isCurrent = node.status === "current";
+            const off = lang === "ar" ? -node.off : node.off;
+            return (
+              <div
+                key={node.id}
+                ref={isCurrent ? currentRef : undefined}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "9px 0" }}
+              >
+                <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
+                  {isCurrent && (
+                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#E8654C", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #C54F3A", whiteSpace: "nowrap", zIndex: 3 }}>
+                      {t("homeStartBadge", lang)}
                     </div>
-                    <button
-                      type="button"
-                      aria-label={`${startLabel} — ${title}`}
-                      onClick={() => {
-                        // Practice-first: open camera on the lesson's first gradable
-                        // sign; fall back to the lesson only when none is gradable.
-                        const target = lessonCameraTarget(lesson);
-                        if (target) go({ name: "camera", targetSignId: target });
-                        else go({ name: "lesson", lessonId: lesson.id });
-                      }}
-                      className="extruded-coral mt-4 rounded-2xl border-2 border-coral-deep bg-coral px-8 py-3 font-display text-xl font-bold uppercase tracking-wide text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-                    >
-                      {startLabel}
-                    </button>
-                    <p className="mt-2 max-w-[180px] text-center text-sm font-semibold text-teal">
-                      {title}
-                    </p>
-                    {/* waving hand character */}
-                    <img
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute -start-14 top-0 w-16 -rotate-12 rounded-3xl drop-shadow-md motion-safe:animate-rise sm:-start-20 sm:w-20"
-                      src="brand/stitch-31.png"
-                    />
-                  </div>
-                );
-              }
-              const nodeTarget = lessonCameraTarget(lesson);
-              if (status === "done") {
-                return (
+                  )}
                   <button
-                    key={lesson.id}
                     type="button"
-                    aria-label={`${title} — ${t("practiceCamera", lang)}`}
-                    onClick={() => go({ name: "camera", targetSignId: nodeTarget })}
-                    className={`relative transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 rounded-full ${offsets[i % offsets.length]}`}
+                    aria-label={`${node.title} — ${t("practiceCamera", lang)}`}
+                    onClick={() => setOpenId(node.id)}
+                    className="active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
+                    style={circleStyle(node.status)}
                   >
-                    <div className="extruded-gold flex h-16 w-16 items-center justify-center rounded-full border-4 border-gold-deep bg-gold shadow-gold">
-                      <Icon name="check" className="!text-3xl font-bold text-white" />
-                    </div>
-                    <Icon
-                      name="auto_awesome"
-                      fill
-                      className="absolute -end-3 -top-2 !text-xl text-gold-deep"
-                    />
+                    {nodeGlyph(node.status)}
                   </button>
-                );
-              }
-              return (
-                <button
-                  key={lesson.id}
-                  type="button"
-                  aria-label={`${title} — ${t("practiceCamera", lang)}`}
-                  onClick={() => go({ name: "camera", targetSignId: nodeTarget })}
-                  className={`relative transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 rounded-full ${offsets[i % offsets.length]}`}
-                >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-teal/20 bg-sand shadow-sm">
-                    <Icon name="lock" fill className="!text-3xl text-teal/30" />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  {isCurrent && (
+                    // Fanan cheers beside the current node; artwork never mirrors (§6),
+                    // only its anchor swaps sides via the logical inset.
+                    <div style={{ position: "absolute", top: 6, insetInlineStart: "100%", marginInlineStart: 2, animation: "sw-bob 2.4s ease-in-out infinite" }}>
+                      <Fanan pose="cheer" scale={0.42} />
+                    </div>
+                  )}
+                </div>
+                <div style={labelStyle(node.status)}>{node.title}</div>
+              </div>
+            );
+          })}
         </section>
 
-        {/* Slim secondary "Practise" link — the camera moat now lives in the
-            Practise tab; this keeps a lightweight entry + the camera route alive. */}
-        <Card
-          variant="elevated"
-          className="flex items-center gap-3 p-5"
-          onClick={() => go({ name: "camera" })}
-        >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-coral/10">
-            <Icon name="videocam" fill className="!text-2xl text-coral" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-display font-bold text-ink">{t("camPractice", lang)}</p>
-            <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
-          </div>
-          <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-        </Card>
+        {/* Block D — secondary stack (functional contract; reskinned to tokens). */}
+        <section className="mt-6 space-y-6 pb-2">
+          {/* Slim secondary "Practise" link — keeps the camera route alive. */}
+          <Card
+            variant="elevated"
+            className="flex items-center gap-3 p-5"
+            onClick={() => go({ name: "camera" })}
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-coral/10">
+              <Icon name="videocam" fill className="!text-2xl text-coral" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display font-bold text-ink">{t("camPractice", lang)}</p>
+              <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
+            </div>
+            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+          </Card>
 
-        {/* Secondary cards below the Path. */}
-        <section className="space-y-6">
-          {/* Family flags — collapsed to a single compact FlagCard + a count
-              deep-link to the Family tab. Keeps the cameraGradable→targetSignId
-              gate (top flag) AND the family deep-link route. */}
+          {/* Family flags — one compact FlagCard + a count deep-link to the Family tab. */}
           {flags.length > 0 &&
             (() => {
               const slice = flags.slice(0, 3);
@@ -309,8 +382,7 @@ export function Home() {
               );
             })()}
 
-          {/* Review-due — lightweight secondary card. Routes straight to the camera
-              on the first due sign (practice-first) instead of the review lesson. */}
+          {/* Review-due — routes straight to the camera on the first due sign. */}
           {due.length > 0 && (
             <Card
               variant="elevated"
@@ -333,8 +405,7 @@ export function Home() {
             </Card>
           )}
 
-          {/* Empty state — when there's nothing flagged AND nothing due, the secondary
-              area would render blank. Offer a warm bilingual practice-first nudge. */}
+          {/* Empty state — nothing flagged AND nothing due. */}
           {flags.length === 0 && due.length === 0 && (
             <Card
               variant="elevated"
@@ -391,27 +462,82 @@ export function Home() {
           )}
         </section>
       </div>
+
+      {/* Block C — node start popover (bottom sheet). */}
+      {openNode &&
+        (() => {
+          const st = openNode.status;
+          const locked = st === "locked" || st === "milestone";
+          const meta =
+            st === "current"
+              ? t("pathNewSign", lang)
+              : st === "done"
+                ? t("pathDoneMeta", lang)
+                : st === "milestone"
+                  ? t("pathChestMeta", lang)
+                  : t("pathLockedMeta", lang);
+          const btnLabel =
+            st === "current" ? t("pathStartCta", lang) : st === "done" ? t("pathReview", lang) : t("pathLocked", lang);
+          const iconBg = locked ? "#B8C4C1" : st === "done" ? "#0F6E6A" : "#E8654C";
+          const btnBg = locked ? "#EDE3D2" : st === "done" ? "#0F6E6A" : "#E8654C";
+          const btnSh = locked ? "none" : st === "done" ? "0 5px 0 #0A4F4C" : "0 5px 0 #C54F3A";
+          const onAction = () => {
+            if (st === "current" && openNode.lesson) {
+              // Practice-first: open camera on the lesson's first gradable sign;
+              // fall back to the lesson only when none is gradable.
+              const target = lessonCameraTarget(openNode.lesson);
+              if (target) go({ name: "camera", targetSignId: target });
+              else go({ name: "lesson", lessonId: openNode.lesson.id });
+            } else if (st === "done" && openNode.lesson) {
+              go({ name: "camera", targetSignId: lessonCameraTarget(openNode.lesson) });
+            }
+            setOpenId(null);
+          };
+          return (
+            <div
+              onClick={() => setOpenId(null)}
+              style={{ position: "fixed", inset: 0, background: "rgba(22,48,46,.5)", zIndex: 40, display: "flex", alignItems: "flex-end" }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="mx-auto w-full max-w-xl animate-rise"
+                style={{ background: "#FBF7EF", borderRadius: "26px 26px 0 0", padding: "22px 22px 26px", boxShadow: "0 -10px 40px rgba(0,0,0,.2)" }}
+              >
+                <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+                  <div style={{ width: 56, height: 56, flex: "none", borderRadius: st === "milestone" ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {st === "milestone" ? (
+                      <span style={{ fontSize: 26, lineHeight: 1 }}>🎁</span>
+                    ) : locked ? (
+                      <span style={{ position: "relative", display: "block", width: 16, height: 13, borderRadius: 3, background: "#FBF7EF" }}>
+                        <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 12, height: 11, border: "2.5px solid #FBF7EF", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />
+                      </span>
+                    ) : st === "done" ? (
+                      <span style={{ fontSize: 26, lineHeight: 1, color: "#FBF7EF" }}>✓</span>
+                    ) : (
+                      <Icon name="sign_language" className="!text-2xl text-white" />
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="font-display" style={{ fontWeight: 800, fontSize: 20, lineHeight: 1.1, color: "#16302E" }}>
+                      {openNode.title}
+                    </div>
+                    <div style={{ font: "500 12px/1.3 'Readex Pro',sans-serif", color: "#5C726F", marginTop: 3 }}>{meta}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  disabled={locked}
+                  onClick={locked ? undefined : onAction}
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                  style={{ display: "block", width: "100%", marginTop: 18, textAlign: "center", font: "700 16px/1 Rubik,sans-serif", padding: 15, borderRadius: 16, border: "none", background: btnBg, boxShadow: btnSh, color: locked ? "#8FA09D" : "#FBF7EF", cursor: locked ? "default" : "pointer", opacity: locked ? 0.85 : 1 }}
+                >
+                  {btnLabel}
+                </button>
+              </div>
+            </div>
+          );
+        })()}
     </ScreenShell>
-  );
-}
-
-// ── Local sub-component (owned by this file) ────────────────────────────────
-
-function PalmTree({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 40 60"
-      fill="none"
-      aria-hidden="true"
-      preserveAspectRatio="xMidYMax meet"
-    >
-      <path d="M20 60 C19 45 19 35 20 26" stroke="#0A4F4C" strokeWidth="3" strokeLinecap="round" />
-      <path d="M20 26 C12 20 6 20 1 24" stroke="#0F6E6A" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M20 26 C28 20 34 20 39 24" stroke="#0F6E6A" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M20 26 C14 16 11 12 8 8" stroke="#0F6E6A" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M20 26 C26 16 29 12 32 8" stroke="#0F6E6A" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M20 26 C20 18 20 13 20 6" stroke="#0F6E6A" strokeWidth="3.5" strokeLinecap="round" />
-    </svg>
   );
 }

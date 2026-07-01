@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes rise{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  @keyframes framepulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.05);opacity:.5}}
+  @keyframes swing{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-width:1180px;padding:44px 52px 90px;">
+  <div style="max-width:840px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Live grader · Edge & permission states
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">When the camera can't do its job</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:740px;">The real-time grader depends on a clear view of your hand. Every failure is handled the Sawiyya way — Fanan stays warm, never blames you, and always shows the one thing to fix. Switch between states below.</p>
+  </div>
+
+  <!-- state switcher -->
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:8px;box-shadow:0 2px 0 #EDE3D2;display:inline-flex;gap:6px;flex-wrap:nowrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="5">
+      <button onClick="{{ tab.pick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:24px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#F6EFE3;">
+
+            <!-- statusbar -->
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;z-index:6;">
+              <span style="font:700 13px/1 Rubik;color:#16302E;">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;opacity:.5;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid #16302E;border-radius:3px;"></div>
+            </div>
+
+            <!-- ===== PERMISSION PRIMER ===== -->
+            <sc-if value="{{ s.isPrimer }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px;text-align:center;">
+                <div style="width:112px;height:112px;border-radius:32px;background:#0F6E6A;display:flex;align-items:center;justify-content:center;font-size:52px;box-shadow:0 12px 28px rgba(15,110,106,.32);animation:float 3s ease-in-out infinite;">📷</div>
+                <div style="font:800 25px/1.15 Rubik;color:#16302E;margin-top:24px;">{{ s.t.priTitle }}</div>
+                <div style="font:400 15px/1.5 'Readex Pro';color:#5C726F;margin-top:10px;max-width:250px;">{{ s.t.priBody }}</div>
+                <div style="margin-top:18px;display:flex;align-items:center;gap:9px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:14px;padding:12px 14px;text-align:start;max-width:270px;">
+                  <span style="flex:none;width:30px;height:30px;border-radius:50%;background:#E9F5EE;display:flex;align-items:center;justify-content:center;font-size:15px;">🔒</span>
+                  <span style="font:500 12px/1.4 'Readex Pro';color:#16302E;">{{ s.t.priLock }}</span>
+                </div>
+              </div>
+              <div style="flex:none;padding:0 28px 22px;display:flex;flex-direction:column;gap:10px;">
+                <button style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ s.t.priCta }}</button>
+                <button style="width:100%;border:none;cursor:pointer;background:transparent;color:#5C726F;font:600 14px/1 'Readex Pro';height:40px;">{{ s.t.priSkip }}</button>
+              </div>
+            </sc-if>
+
+            <!-- ===== PERMISSION DENIED ===== -->
+            <sc-if value="{{ s.isDenied }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;text-align:center;">
+                <dc-import name="Fanan" pose="sad" scale="1.05" hint-size="128px,126px"></dc-import>
+                <div style="font:800 23px/1.16 Rubik;color:#16302E;margin-top:20px;">{{ s.t.denTitle }}</div>
+                <div style="font:400 14.5px/1.5 'Readex Pro';color:#5C726F;margin-top:9px;max-width:250px;">{{ s.t.denBody }}</div>
+                <div style="margin-top:18px;width:100%;max-width:272px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:6px 4px;text-align:start;">
+                  <sc-for list="{{ s.t.denSteps }}" as="st" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;">
+                      <span style="flex:none;width:24px;height:24px;border-radius:50%;background:#0F6E6A;color:#FBF7EF;font:700 12px/1 Rubik;display:flex;align-items:center;justify-content:center;">{{ st.n }}</span>
+                      <span style="font:500 13px/1.35 'Readex Pro';color:#16302E;">{{ st.txt }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:none;padding:0 28px 22px;display:flex;flex-direction:column;gap:10px;">
+                <button style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ s.t.denCta }}</button>
+              </div>
+            </sc-if>
+
+            <!-- ===== LIVE CAMERA EDGE STATES ===== -->
+            <sc-if value="{{ s.isCam }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:none;padding:2px 26px 0;text-align:center;"><div style="font:800 21px/1.1 Rubik;color:#16302E;">{{ s.camTitle }}</div><div style="font:400 12.5px/1.4 'Readex Pro';color:#5C726F;margin-top:4px;">{{ s.camSub }}</div></div>
+              <div style="flex:1;padding:14px 22px 20px;display:flex;flex-direction:column;">
+                <div style="flex:1;position:relative;border-radius:26px;overflow:hidden;background:{{ s.camBg }};">
+
+                  <!-- LIVE badge (dimmed while paused) -->
+                  <div style="position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:6px;background:rgba(90,100,98,.85);border-radius:99px;padding:5px 10px;z-index:4;"><span style="width:7px;height:7px;border-radius:50%;background:#F0C879;"></span><span style="font:800 10px/1 ui-monospace,Menlo;color:#FBF7EF;letter-spacing:.1em;">{{ s.t.paused }}</span></div>
+
+                  <!-- NO HAND: dashed target frame -->
+                  <sc-if value="{{ s.isNohand }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:46%;left:50%;width:150px;height:170px;border:3px dashed rgba(240,200,121,.85);border-radius:26px;animation:framepulse 1.8s ease-in-out infinite;"></div>
+                    <div style="position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);font-size:46px;opacity:.32;">✋</div>
+                  </sc-if>
+
+                  <!-- OUT OF FRAME: hand cut at edge -->
+                  <sc-if value="{{ s.isFrame }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:50%;inset-inline-end:-24px;transform:translateY(-50%);font-size:96px;filter:blur(1px);animation:swing 2.4s ease-in-out infinite;">✋</div>
+                    <div style="position:absolute;top:46%;left:50%;width:150px;height:170px;border:3px dashed rgba(240,200,121,.7);border-radius:26px;transform:translate(-50%,-50%);"></div>
+                  </sc-if>
+
+                  <!-- TOO DARK: veil + moon -->
+                  <sc-if value="{{ s.isDark }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;inset:0;background:rgba(0,0,0,.55);"></div>
+                    <div style="position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:46px;opacity:.6;">🌙</div>
+                  </sc-if>
+
+                  <!-- guidance banner -->
+                  <div style="position:absolute;bottom:16px;inset-inline-start:14px;inset-inline-end:14px;background:rgba(251,247,239,.96);border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:11px;z-index:5;box-shadow:0 8px 20px rgba(0,0,0,.28);">
+                    <span style="flex:none;width:34px;height:34px;border-radius:50%;background:{{ s.badgeBg }};display:flex;align-items:center;justify-content:center;font-size:17px;">{{ s.badgeIcon }}</span>
+                    <div style="text-align:start;"><div style="font:700 14px/1.15 Rubik;color:#16302E;">{{ s.bannerTitle }}</div><div style="font:400 12px/1.35 'Readex Pro';color:#5C726F;margin-top:2px;">{{ s.bannerTip }}</div></div>
+                  </div>
+
+                  <!-- paused confidence ring -->
+                  <div style="position:absolute;top:14px;inset-inline-end:12px;width:52px;height:52px;border-radius:50%;border:4px solid rgba(240,200,121,.28);display:flex;align-items:center;justify-content:center;z-index:4;"><span style="font:800 17px/1 Rubik;color:rgba(251,247,239,.85);">--</span></div>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:28px;max-width:800px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">The rule for every failure state:</b> name what happened in one plain line, show the single fix, and never imply the learner did something wrong — "We can't see your hand," not "You're doing it wrong." The camera badge dims to <b style="color:#16302E;">Paused</b> (never "Error"), the confidence ring shows <b style="color:#16302E;">--</b> instead of a zero score, and Fanan only appears for the permission wall — the moment that actually needs reassurance.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { st:'primer' };
+  TABS=[['primer','Permission primer'],['denied','Permission denied'],['nohand','No hand detected'],['dark','Too dark'],['frame','Out of frame']];
+
+  STR={
+    en:{ langLabel:'English · LTR',
+      priTitle:'Sawiyya needs your camera', priBody:'It watches your hands so it can grade your signs in real time — that\u2019s the whole app.', priLock:'Everything runs on-device. No video ever leaves your phone.', priCta:'Enable camera', priSkip:'Maybe later',
+      denTitle:'Your camera is switched off', denBody:'We can\u2019t grade a sign we can\u2019t see. Flip it back on and Fanan\u2019s ready when you are.',
+      denSteps:[{n:'1',txt:'Open your phone Settings'},{n:'2',txt:'Find Sawiyya in the app list'},{n:'3',txt:'Turn Camera back on'}], denCta:'Open Settings',
+      paused:'PAUSED',
+      nohand:{ title:'Ready when you are', sub:'Show your hand to start grading', bTitle:'We can\u2019t see your hand', bTip:'Hold it inside the frame' },
+      dark:{ title:'It\u2019s a bit dark', sub:'The grader needs to see clearly', bTitle:'Too dark to read your sign', bTip:'Move somewhere brighter' },
+      frame:{ title:'Almost there', sub:'Keep your hand centred', bTitle:'Your hand\u2019s out of frame', bTip:'Bring your whole hand into view' } },
+    ar:{ langLabel:'العربية · RTL',
+      priTitle:'تحتاج سويّة إلى كاميرتك', priBody:'تراقب يديك لتقيّم إشاراتك مباشرةً \u2014 هذا هو جوهر التطبيق.', priLock:'كل شيء يعمل على الجهاز. لا يغادر أيّ فيديو هاتفك أبدًا.', priCta:'تفعيل الكاميرا', priSkip:'ربّما لاحقًا',
+      denTitle:'كاميرتك مُطفأة', denBody:'لا يمكننا تقييم إشارة لا نراها. أعِد تشغيلها وفَنَن جاهز متى استعددت.',
+      denSteps:[{n:'١',txt:'افتح إعدادات هاتفك'},{n:'٢',txt:'ابحث عن سويّة في قائمة التطبيقات'},{n:'٣',txt:'أعِد تفعيل الكاميرا'}], denCta:'فتح الإعدادات',
+      paused:'متوقّف',
+      nohand:{ title:'جاهزون متى استعددت', sub:'أظهر يدك لبدء التقييم', bTitle:'لا نرى يدك', bTip:'ضعها داخل الإطار' },
+      dark:{ title:'الإضاءة خافتة قليلًا', sub:'يحتاج المُقيّم إلى رؤية واضحة', bTitle:'الإضاءة خافتة لقراءة إشارتك', bTip:'انتقل إلى مكان أكثر إضاءة' },
+      frame:{ title:'اقتربتَ كثيرًا', sub:'أبقِ يدك في المنتصف', bTitle:'يدك خارج الإطار', bTip:'أدخِل يدك كاملةً إلى الرؤية' } }
+  };
+
+  pick(st){ this.setState({ st }); }
+
+  buildScreen(lang){
+    const S=this.STR[lang], st=this.state.st, isAr=lang==='ar';
+    const isCam=(st==='nohand'||st==='dark'||st==='frame');
+    const camKey = isCam ? st : 'nohand';
+    const cs = S[camKey];
+    const badge = { nohand:{bg:'#FCEFCF',icon:'\u270B'}, dark:{bg:'#E6E9EE',icon:'\uD83D\uDCA1'}, frame:{bg:'#FCEFCF',icon:'\u2194\uFE0F'} }[camKey];
+    const camBg = st==='dark'
+      ? 'repeating-linear-gradient(135deg,#0c1a19,#0c1a19 16px,#122421 16px,#122421 32px)'
+      : 'repeating-linear-gradient(135deg,#16302E,#16302E 16px,#1d3d3a 16px,#1d3d3a 32px)';
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t:S,
+      isPrimer:st==='primer', isDenied:st==='denied', isCam,
+      isNohand:st==='nohand', isDark:st==='dark', isFrame:st==='frame',
+      camTitle:cs.title, camSub:cs.sub, bannerTitle:cs.bTitle, bannerTip:cs.bTip,
+      badgeBg:badge.bg, badgeIcon:badge.icon, camBg };
+  }
+
+  renderVals(){
+    const st=this.state.st;
+    const tabs=this.TABS.map(([id,label])=>{
+      const on=st===id;
+      return { label, pick:()=>this.pick(id),
+        style:{ cursor:'pointer', border:'none', borderRadius:'11px', padding:'11px 15px', whiteSpace:'nowrap',
+          font:(on?'700':'600')+' 13px/1 '+(on?'Rubik':"'Readex Pro'")+',sans-serif',
+          background:on?'#0F6E6A':'transparent', color:on?'#FBF7EF':'#5C726F',
+          boxShadow:on?'0 3px 0 #0A4F4C':'none' } };
+    });
+    return { tabs, screens:['en','ar'].map(l=>this.buildScreen(l)) };
+  }
+}
+</script>
+</body>
+</html>

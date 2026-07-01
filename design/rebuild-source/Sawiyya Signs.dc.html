@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .sw-scroll::-webkit-scrollbar{width:0;height:0}
+  @keyframes rise{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes caret{0%,100%{opacity:1}50%{opacity:0}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 6
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Signs dictionary</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:680px;">Browse everything, glance at the whole alphabet, and open any sign's reference page. The detail template honestly shows <b style="color:#16302E">camera-graded</b> vs <b style="color:#16302E">watch-&amp;-practise</b> signs. <b style="color:#16302E">Pick a view</b> — the detail has its own examples.</p>
+  </div>
+
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:12px;box-shadow:0 2px 0 #EDE3D2;display:flex;gap:8px;flex-wrap:wrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:22px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#FBF7EF;">
+
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;">
+              <span style="font:700 13px/1 Rubik;color:#16302E;">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid #16302E;border-radius:3px;"></div>
+            </div>
+
+            <!-- ===== DICTIONARY ===== -->
+            <sc-if value="{{ s.isDict }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:6px 22px 0;">
+                <div style="font:800 26px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="display:flex;align-items:center;gap:9px;background:#F6EFE3;border:1px solid #EDE3D2;border-radius:14px;padding:12px 14px;margin-top:14px;">
+                  <div style="width:15px;height:15px;border:2.5px solid #94A5A2;border-radius:50%;flex:none;"></div>
+                  <span style="font:400 14px 'Readex Pro';color:#94A5A2;">{{ s.t.searchPh }}</span>
+                </div>
+                <div style="display:flex;gap:7px;margin-top:12px;overflow-x:auto;padding-bottom:2px;">
+                  <sc-for list="{{ s.cats }}" as="c" hint-placeholder-count="4"><span style="{{ c.style }}">{{ c.label }}</span></sc-for>
+                </div>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:14px 22px 20px;min-height:0;">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <sc-for list="{{ s.list }}" as="it" hint-placeholder-count="6">
+                    <button style="display:flex;align-items:center;gap:12px;width:100%;cursor:pointer;border:none;background:#FFFFFF;border:1px solid #EDE3D2;border-radius:16px;padding:11px;text-align:start;">
+                      <div style="width:48px;height:48px;border-radius:13px;background:#F6EFE3;display:flex;align-items:center;justify-content:center;font-size:25px;flex:none;">{{ it.glyph }}</div>
+                      <div style="flex:1;"><div style="font:700 15px/1.1 Rubik;color:#16302E;">{{ it.name }}</div><div style="font:500 13px/1.2 'Readex Pro';color:#5C726F;margin-top:2px;">{{ it.ar }}</div></div>
+                      <span style="{{ it.badgeStyle }}">{{ it.type }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== ALPHABET GRID ===== -->
+            <sc-if value="{{ s.isAlpha }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:6px 22px 0;">
+                <div style="font:800 26px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.body }}</div>
+                <div style="height:8px;border-radius:99px;background:#EDE3D2;overflow:hidden;margin-top:12px;"><div style="height:100%;width:25%;background:linear-gradient(90deg,#F0C879,#E6B24C);border-radius:99px;"></div></div>
+                <div style="font:600 11px/1 'Readex Pro';color:#5C726F;margin-top:7px;">{{ s.t.progress }}</div>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:14px 22px 20px;min-height:0;">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                  <sc-for list="{{ s.letters }}" as="L" hint-placeholder-count="28"><div style="{{ L.style }}">{{ L.g }}</div></sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== SIGN DETAIL ===== -->
+            <sc-if value="{{ s.isDetail }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:4px 22px 0;display:flex;gap:7px;">
+                <sc-for list="{{ s.examples }}" as="e" hint-placeholder-count="3"><button onClick="{{ e.onClick }}" style="{{ e.style }}">{{ e.label }}</button></sc-for>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:12px 22px 20px;min-height:0;">
+                <div style="position:relative;border-radius:22px;height:196px;overflow:hidden;background:{{ s.d.frameBg }};display:flex;align-items:center;justify-content:center;">
+                  <div style="position:absolute;top:11px;left:11px;font:700 9px/1 ui-monospace,Menlo;letter-spacing:.1em;color:rgba(255,255,255,.85);background:rgba(0,0,0,.28);padding:5px 9px;border-radius:8px;">● {{ s.t.signer }}</div>
+                  <div style="width:120px;height:120px;border-radius:50%;background:#FBF7EF;display:flex;align-items:center;justify-content:center;font-size:62px;box-shadow:0 12px 30px rgba(0,0,0,.22);">{{ s.d.glyph }}</div>
+                  <div style="position:absolute;bottom:11px;right:11px;width:38px;height:38px;border-radius:50%;background:#E6B24C;color:#16302E;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #C89A3D;">▶</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
+                  <div><div style="font:800 24px/1.05 Rubik;color:#16302E;">{{ s.d.name }}</div><div style="font:500 13px 'Readex Pro';color:#5C726F;margin-top:2px;">{{ s.d.arname }}</div></div>
+                  <span style="{{ s.d.badgeStyle }}">{{ s.d.type }}</span>
+                </div>
+                <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-top:18px;">{{ s.t.howto }}</div>
+                <div style="display:flex;flex-direction:column;gap:9px;margin-top:11px;">
+                  <sc-for list="{{ s.d.steps }}" as="st" hint-placeholder-count="3">
+                    <div style="display:flex;gap:11px;align-items:flex-start;"><div style="width:24px;height:24px;border-radius:50%;background:#0F6E6A;color:#FBF7EF;font:800 12px Rubik;display:flex;align-items:center;justify-content:center;flex:none;">{{ st.n }}</div><div style="font:400 13.5px/1.4 'Readex Pro';color:#16302E;padding-top:2px;">{{ st.txt }}</div></div>
+                  </sc-for>
+                </div>
+                <div style="background:#F6EFE3;border:1px solid #EDE3D2;border-radius:14px;padding:11px 13px;margin-top:16px;display:flex;gap:9px;align-items:center;">
+                  <div style="width:22px;height:22px;border-radius:7px;background:#E8654C;flex:none;"></div>
+                  <div style="font:500 12.5px/1.35 'Readex Pro';color:#16302E;">{{ s.d.note }}</div>
+                </div>
+              </div>
+              <div style="flex:none;padding:12px 22px 20px;">
+                <button style="width:100%;border:none;cursor:pointer;background:{{ s.d.ctaBg }};color:{{ s.d.ctaColor }};font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 {{ s.d.ctaShadow }};transition:all .08s;" style-active="transform:translateY(4px);box-shadow:0 1px 0 {{ s.d.ctaShadow }}">{{ s.d.cta }}</button>
+              </div>
+            </sc-if>
+
+            <!-- ===== SEARCH ===== -->
+            <sc-if value="{{ s.isSearch }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:6px 22px 0;">
+                <div style="display:flex;align-items:center;gap:9px;background:#F6EFE3;border:2px solid #0F6E6A;border-radius:14px;padding:12px 14px;">
+                  <div style="width:15px;height:15px;border:2.5px solid #0F6E6A;border-radius:50%;flex:none;"></div>
+                  <span style="font:500 15px 'Readex Pro';color:#16302E;">{{ s.t.query }}</span>
+                  <span style="width:2px;height:17px;background:#0F6E6A;animation:caret 1s step-end infinite;"></span>
+                </div>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:16px 22px 20px;min-height:0;">
+                <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;text-transform:uppercase;color:#5C726F;">{{ s.t.resultsLbl }}</div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:11px;">
+                  <sc-for list="{{ s.results }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border:1px solid #EDE3D2;border-radius:15px;padding:11px;">
+                      <div style="width:44px;height:44px;border-radius:12px;background:#F6EFE3;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;">{{ r.glyph }}</div>
+                      <div style="flex:1;"><div style="font:700 15px/1.1 Rubik;color:#16302E;">{{ r.name }}</div><div style="font:500 12px 'Readex Pro';color:#5C726F;margin-top:2px;">{{ r.ar }}</div></div>
+                      <span style="{{ r.badgeStyle }}">{{ r.type }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;text-transform:uppercase;color:#5C726F;margin-top:22px;">{{ s.t.recentLbl }}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;">
+                  <sc-for list="{{ s.recent }}" as="rc" hint-placeholder-count="3"><span style="background:#F6EFE3;border:1px solid #EDE3D2;border-radius:99px;padding:8px 14px;font:600 13px/1 'Readex Pro';color:#16302E;">{{ rc }}</span></sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">One reference template, honest by design:</b> the sign-detail page is a single template filled by content — switch between <b style="color:#16302E">Alif</b> (letter, camera-graded), <b style="color:#16302E">I love you</b> (word, camera-graded) and <b style="color:#16302E">Hello</b> (motion, watch-&amp;-practise). Graded signs get a teal "Practise this sign" CTA; the motion sign gets a gold "Watch &amp; practise" and never pretends to grade you. The alphabet grid shows all 28 letters with your learned ones filled in.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { which:'dict', detail:'iloveyou' };
+
+  ORDER=['dict','alpha','detail','search'];
+  TAB={ dict:'Dictionary', alpha:'Alphabet grid', detail:'Sign detail', search:'Search' };
+
+  LETTERS=['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','ه','و','ي'];
+
+  DETAIL={
+    alif:{ glyph:'ا', graded:true, en:{name:'Alif',arname:'أول حروف الأبجدية',type:'Letter · graded', steps:['Make a firm fist.','Rest your thumb flat along the side.','Face your knuckles to the camera.'], note:'The first of all 28 letters — where every name begins.'},
+      ar:{name:'ألف',arname:'أول حروف الأبجدية',type:'حرف · مُقيَّم', steps:['اقبض يدك بإحكام.','ضع إبهامك مسطّحًا على الجانب.','وجّه مفاصلك نحو الكاميرا.'], note:'أول الحروف الـ٢٨ — حيث يبدأ كل اسم.'} },
+    iloveyou:{ glyph:'🤟', graded:true, en:{name:'I love you',arname:'كلمة',type:'Word · graded', steps:['Extend your thumb, index and pinky.','Fold the middle and ring fingers down.','Hold steady toward the camera.'], note:'A favourite between parents and kids — say it without a sound.'},
+      ar:{name:'أحبّك',arname:'كلمة',type:'كلمة · مُقيَّمة', steps:['ارفع الإبهام والسبابة والخنصر.','اطوِ الوسطى والبنصر للأسفل.','اثبت باتجاه الكاميرا.'], note:'المفضّلة بين الآباء والأبناء — قلها بلا صوت.'} },
+    hello:{ glyph:'👋', graded:false, en:{name:'Hello',arname:'كلمة',type:'Motion · demo', steps:['Raise your open hand near your head.','Wave it gently side to side.','Auto-grading is coming soon — practise along.'], note:'A motion sign. Watch & practise for now — we never fake a grade.'},
+      ar:{name:'مرحبًا',arname:'كلمة',type:'حركة · عرض', steps:['ارفع يدك المفتوحة بجانب رأسك.','لوّح بها برفق يمينًا ويسارًا.','التقييم التلقائي قريبًا — تمرّن معنا.'], note:'إشارة حركية. شاهد وتمرّن الآن — لا نزيّف أي تقييم.'} }
+  };
+
+  STR={
+    en:{ langLabel:'English · LTR', signer:'SIGNER DEMO', howto:'How to sign it',
+      dict:{ title:'All signs', searchPh:'Search signs…' },
+      alpha:{ title:'The alphabet', body:'All 28 Arabic letters.', progress:'7 of 28 learned' },
+      search:{ title:'Search', query:'tha', resultsLbl:'Results', recentLbl:'Recent' },
+      cats:['All','First words','Alphabet','Family','Feelings'],
+      list:[['Hello','مرحبًا','👋','Motion',0],['I love you','أحبّك','🤟','Graded',1],['Yes','نعم','👍','Graded',1],['Thank you','شكرًا','🙏','Graded',1],['Milk','حليب','🤏','Graded',1],['Sleep','نوم','🖐','Motion',0]],
+      results:[['Thank you','شكرًا','🙏','Graded',1],['Thirsty','عطشان','🖐','Motion',0]],
+      recent:['Hello','Milk','Family'] },
+    ar:{ langLabel:'العربية · RTL', signer:'عرض المُشير', howto:'كيف تشير إليها',
+      dict:{ title:'كل الإشارات', searchPh:'ابحث عن إشارة…' },
+      alpha:{ title:'الأبجدية', body:'كل الحروف العربية الـ٢٨.', progress:'٧ من ٢٨ مُتعلَّمة' },
+      search:{ title:'بحث', query:'شكـ', resultsLbl:'النتائج', recentLbl:'الأخيرة' },
+      cats:['الكل','كلمات أولى','الأبجدية','العائلة','المشاعر'],
+      list:[['مرحبًا','Hello','👋','حركة',0],['أحبّك','I love you','🤟','مُقيَّم',1],['نعم','Yes','👍','مُقيَّم',1],['شكرًا','Thank you','🙏','مُقيَّم',1],['حليب','Milk','🤏','مُقيَّم',1],['نوم','Sleep','🖐','حركة',0]],
+      results:[['شكرًا','Thank you','🙏','مُقيَّم',1],['عطشان','Thirsty','🖐','حركة',0]],
+      recent:['مرحبًا','حليب','العائلة'] }
+  };
+
+  select(w){ this.setState({ which:w }); }
+  pickDetail(k){ this.setState({ detail:k }); }
+
+  badge(graded){ return { font:'700 9px/1 ui-monospace,Menlo,monospace', letterSpacing:'.04em', textTransform:'uppercase', flex:'none',
+    padding:'6px 9px', borderRadius:'8px', backgroundColor: graded?'#E6F0EE':'#FBEFE6', color: graded?'#0F6E6A':'#C89A3D' }; }
+
+  buildScreen(lang){
+    const S=this.STR[lang], w=this.state.which, isAr=lang==='ar';
+    const t=S[w]||{}; t.signer=S.signer; t.howto=S.howto;
+    const flags={ isDict:w==='dict',isAlpha:w==='alpha',isDetail:w==='detail',isSearch:w==='search' };
+
+    const cats=(S.cats||[]).map((c,i)=>({ label:c, style:{ flex:'none', font:"600 12px/1 'Readex Pro',sans-serif", padding:'8px 13px', borderRadius:'99px',
+      backgroundColor: i===0?'#0F6E6A':'#F6EFE3', color:i===0?'#FBF7EF':'#5C726F', border: i===0?'none':'1px solid #EDE3D2' } }));
+    const list=(S.list||[]).map(x=>({ name:x[0], ar:x[1], glyph:x[2], type:x[3], badgeStyle:this.badge(x[4]===1) }));
+    const results=(S.results||[]).map(x=>({ name:x[0], ar:x[1], glyph:x[2], type:x[3], badgeStyle:this.badge(x[4]===1) }));
+
+    const letters=this.LETTERS.map((g,i)=>{ const learned=i<7, cur=i===7;
+      return { g, style:{ aspectRatio:'1', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'15px',
+        font:'700 26px Rubik,sans-serif',
+        backgroundColor: learned?'#0F6E6A':(cur?'#FBF3EF':'#F6EFE3'), color: learned?'#FBF7EF':(cur?'#E8654C':'#16302E'),
+        boxShadow: cur?'0 0 0 2px #E8654C':'inset 0 0 0 1px #EDE3D2' } }; });
+
+    const exOrder=['alif','iloveyou','hello'];
+    const examples=exOrder.map(k=>{ const active=this.state.detail===k; const nm=this.DETAIL[k][lang].name;
+      return { label:nm, onClick:()=>this.pickDetail(k), style:{ flex:'1', cursor:'pointer', border:'none', font:'700 12px/1 Rubik,sans-serif',
+        padding:'10px 6px', borderRadius:'11px', backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F',
+        boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+
+    const dk=this.DETAIL[this.state.detail], dd=dk[lang];
+    const d={ glyph:dk.glyph, name:dd.name, arname:dd.arname, type:dd.type, note:dd.note,
+      frameBg: dk.graded?'repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)':'repeating-linear-gradient(135deg,#C89A3D,#C89A3D 15px,#d4a94a 15px,#d4a94a 30px)',
+      badgeStyle:this.badge(dk.graded),
+      steps: dd.steps.map((txt,i)=>({ n: isAr?['١','٢','٣'][i]:String(i+1), txt })),
+      cta: dk.graded ? (isAr?'تمرّن على هذه الإشارة ←':'Practise this sign →') : (isAr?'شاهد وتمرّن':'Watch & practise'),
+      ctaBg: dk.graded?'#E8654C':'#E6B24C', ctaShadow: dk.graded?'#C54F3A':'#C89A3D', ctaColor: dk.graded?'#FBF7EF':'#16302E' };
+
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t, ...flags,
+      cats, list, results, recent:S.recent, letters, examples, d };
+  }
+
+  renderVals(){
+    const w=this.state.which;
+    const tabs=this.ORDER.map(k=>{ const active=k===w; return { label:this.TAB[k], onClick:()=>this.select(k),
+      style:{ cursor:'pointer',border:'none',font:'700 13px/1 Rubik,sans-serif',padding:'10px 15px',borderRadius:'12px',
+        backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F', boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    return { screens:['en','ar'].map(l=>this.buildScreen(l)), tabs };
+  }
+}
+</script>
+</body>
+</html>

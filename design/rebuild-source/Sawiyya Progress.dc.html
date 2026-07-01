@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .sw-scroll::-webkit-scrollbar{width:0;height:0}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  @keyframes rise{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 9
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Progress &amp; stats</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:680px;">Every sign you learn grows your <b style="color:#16302E">oasis</b> — a world you build, not a chart you grind. Plus a stats dashboard, badge gallery, and a family league that <b style="color:#16302E">celebrates everyone</b>. Pick a view.</p>
+  </div>
+
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:12px;box-shadow:0 2px 0 #EDE3D2;display:flex;gap:8px;flex-wrap:wrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:22px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#F6EFE3;">
+
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;">
+              <span style="font:700 13px/1 Rubik;color:#16302E;">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid #16302E;border-radius:3px;"></div>
+            </div>
+
+            <!-- ===== OASIS ===== -->
+            <sc-if value="{{ s.isOasis }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;">
+                <div style="font:800 25px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.body }}</div>
+                <!-- oasis scene -->
+                <div style="position:relative;height:236px;border-radius:22px;overflow:hidden;margin-top:16px;background:linear-gradient(180deg,#FBF7EF 0%,#FBF3E6 55%,#F0E4CC 100%);">
+                  <div style="position:absolute;top:20px;right:24px;width:44px;height:44px;border-radius:50%;background:#F0C879;box-shadow:0 0 0 10px rgba(240,200,121,.25);"></div>
+                  <div style="position:absolute;bottom:0;left:0;right:0;height:96px;background:#EBD9B6;border-radius:50% 50% 0 0/40px 40px 0 0;"></div>
+                  <div style="position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:150px;height:52px;border-radius:50%;background:#0F6E6A;box-shadow:inset 0 4px 0 rgba(255,255,255,.15);"></div>
+                  <!-- palm 1 -->
+                  <div style="position:absolute;bottom:60px;left:56px;transform-origin:bottom center;animation:sway 4s ease-in-out infinite;">
+                    <div style="width:9px;height:64px;background:#C89A3D;border-radius:5px;margin:0 auto;"></div>
+                    <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:70px;height:34px;">
+                      <div style="position:absolute;left:50%;top:0;width:38px;height:15px;background:#0F6E6A;border-radius:50%;transform:translateX(-90%) rotate(-24deg);"></div>
+                      <div style="position:absolute;left:50%;top:0;width:38px;height:15px;background:#0F6E6A;border-radius:50%;transform:translateX(-10%) rotate(24deg);"></div>
+                      <div style="position:absolute;left:50%;top:-4px;width:34px;height:14px;background:#0A4F4C;border-radius:50%;transform:translateX(-50%);"></div>
+                    </div>
+                  </div>
+                  <!-- palm 2 -->
+                  <div style="position:absolute;bottom:56px;right:60px;transform-origin:bottom center;animation:sway 4.6s ease-in-out infinite;">
+                    <div style="width:8px;height:50px;background:#C89A3D;border-radius:5px;margin:0 auto;"></div>
+                    <div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:60px;height:30px;">
+                      <div style="position:absolute;left:50%;top:0;width:32px;height:13px;background:#0F6E6A;border-radius:50%;transform:translateX(-90%) rotate(-24deg);"></div>
+                      <div style="position:absolute;left:50%;top:0;width:32px;height:13px;background:#0F6E6A;border-radius:50%;transform:translateX(-10%) rotate(24deg);"></div>
+                      <div style="position:absolute;left:50%;top:-3px;width:28px;height:12px;background:#0A4F4C;border-radius:50%;transform:translateX(-50%);"></div>
+                    </div>
+                  </div>
+                  <!-- sprout -->
+                  <div style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);"><div style="width:5px;height:16px;background:#0F6E6A;border-radius:3px;margin:0 auto;"></div><div style="width:14px;height:8px;background:#1F8A5B;border-radius:50%;margin-top:-14px;"></div></div>
+                  <div style="position:absolute;bottom:8px;right:14px;animation:float 3s ease-in-out infinite;"><dc-import name="Fanan" pose="cheer" scale="0.5" hint-size="62px,62px"></dc-import></div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:14px;">
+                  <div style="flex:1;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:13px;text-align:center;"><div style="font:800 24px/1 Rubik;color:#0F6E6A;">{{ s.t.planted }}</div><div style="font:600 11px/1.2 'Readex Pro';color:#5C726F;margin-top:4px;">{{ s.t.plantedLbl }}</div></div>
+                  <div style="flex:1;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:13px;text-align:center;"><div style="font:800 24px/1 Rubik;color:#E6B24C;">{{ s.t.trees }}</div><div style="font:600 11px/1.2 'Readex Pro';color:#5C726F;margin-top:4px;">{{ s.t.treesLbl }}</div></div>
+                </div>
+                <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:14px;margin-top:12px;">
+                  <div style="display:flex;justify-content:space-between;font:600 12px/1 'Readex Pro';color:#16302E;margin-bottom:8px;"><span>{{ s.t.nextLbl }}</span><span style="color:#5C726F;">{{ s.t.nextVal }}</span></div>
+                  <div style="height:9px;border-radius:99px;background:#EDE3D2;overflow:hidden;"><div style="height:100%;width:72%;background:linear-gradient(90deg,#F0C879,#E6B24C);border-radius:99px;"></div></div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== STATS ===== -->
+            <sc-if value="{{ s.isStats }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;">
+                <div style="font:800 25px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+                  <sc-for list="{{ s.stats }}" as="st" hint-placeholder-count="4">
+                    <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:14px;"><div style="font:800 26px/1 Rubik;color:{{ st.color }};">{{ st.val }}</div><div style="font:600 11px/1.2 'Readex Pro';color:#5C726F;margin-top:5px;">{{ st.label }}</div></div>
+                  </sc-for>
+                </div>
+                <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-top:22px;">{{ s.t.heatLbl }}</div>
+                <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:16px;margin-top:11px;">
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+                    <sc-for list="{{ s.heat }}" as="h" hint-placeholder-count="35"><div style="{{ h.style }}"></div></sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:12px;">
+                    <span style="font:500 10px 'Readex Pro';color:#94A5A2;">{{ s.t.less }}</span>
+                    <div style="width:11px;height:11px;border-radius:3px;background:#EDE3D2;"></div>
+                    <div style="width:11px;height:11px;border-radius:3px;background:#9DC6C2;"></div>
+                    <div style="width:11px;height:11px;border-radius:3px;background:#3E9A93;"></div>
+                    <div style="width:11px;height:11px;border-radius:3px;background:#0F6E6A;"></div>
+                    <span style="font:500 10px 'Readex Pro';color:#94A5A2;">{{ s.t.more }}</span>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== ACHIEVEMENTS ===== -->
+            <sc-if value="{{ s.isAchieve }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;">
+                <div style="font:800 25px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.body }}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:16px;">
+                  <sc-for list="{{ s.achievements }}" as="a" hint-placeholder-count="6">
+                    <div style="{{ a.cardStyle }}">
+                      <div style="{{ a.iconStyle }}">{{ a.glyph }}</div>
+                      <div style="font:700 13px/1.1 Rubik;color:{{ a.titleColor }};margin-top:9px;text-align:center;">{{ a.name }}</div>
+                      <div style="font:500 10px/1.2 'Readex Pro';color:#94A5A2;margin-top:3px;text-align:center;">{{ a.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== FAMILY LEAGUE ===== -->
+            <sc-if value="{{ s.isLeague }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;">
+                <div style="font:800 25px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.body }}</div>
+                <div style="display:flex;align-items:center;gap:9px;background:#E6F0EE;border:1px solid #C9E0DC;border-radius:14px;padding:11px 13px;margin-top:14px;">
+                  <div style="width:20px;height:20px;border-radius:6px;background:#0F6E6A;flex:none;"></div>
+                  <span style="flex:1;font:600 12px/1.3 'Readex Pro';color:#0F6E6A;">{{ s.t.warmNote }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+                  <sc-for list="{{ s.league }}" as="m" hint-placeholder-count="4">
+                    <div style="{{ m.rowStyle }}">
+                      <span style="font:800 15px/1 Rubik;color:#94A5A2;width:18px;flex:none;">{{ m.rank }}</span>
+                      <div style="{{ m.avatarStyle }}">{{ m.init }}</div>
+                      <div style="flex:1;"><div style="font:700 14px/1.1 Rubik;color:#16302E;">{{ m.name }}</div><div style="height:6px;border-radius:99px;background:#EDE3D2;overflow:hidden;margin-top:5px;"><div style="{{ m.barStyle }}"></div></div></div>
+                      <span style="font:800 14px/1 Rubik;color:#0F6E6A;flex:none;">{{ m.xp }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:14px;padding:13px 14px;margin-top:16px;">
+                  <div><div style="font:700 13px/1.1 Rubik;color:#16302E;">{{ s.t.compLbl }}</div><div style="font:400 11px/1.2 'Readex Pro';color:#94A5A2;margin-top:2px;">{{ s.t.compHint }}</div></div>
+                  <div style="width:46px;height:27px;border-radius:99px;background:#D6CDBB;position:relative;flex:none;"><div style="position:absolute;top:3px;inset-inline-start:3px;width:21px;height:21px;border-radius:50%;background:#FBF7EF;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div></div>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Progress as a place, not a scoreboard:</b> the oasis literally grows — palms sway, a sprout marks your next sign, Fanan relaxes by the water. The heatmap celebrates showing up. And the family league is <b style="color:#16302E">off by default and warm by design</b>: it opens with "we climb together," everyone gets a full bar, and competition is an opt-in toggle — no losers, ever.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { which:'oasis' };
+  ORDER=['oasis','stats','achieve','league'];
+  TAB={ oasis:'Your oasis', stats:'Stats', achieve:'Achievements', league:'Family league' };
+
+  STR={
+    en:{ langLabel:'English · LTR',
+      oasis:{ title:'The world you\u2019re building', body:'Every sign you learn plants something new.', planted:'18', plantedLbl:'signs planted', trees:'2', treesLbl:'palms grown', nextLbl:'Next milestone', nextVal:'18 / 25' },
+      stats:{ title:'Your stats', heatLbl:'This month', less:'less', more:'more' },
+      achieve:{ title:'Achievements', body:'4 of 7 unlocked.' },
+      league:{ title:'Family league', body:'This week, together.', warmNote:'We climb together \u2014 no losers here, only progress.', compLbl:'Friendly competition', compHint:'Off by default \u00b7 opt-in anytime' },
+      stats2:[['18','Signs mastered','#0F6E6A'],['92%','Avg accuracy','#0F6E6A'],['340','Minutes signed','#C89A3D'],['9','Best streak','#E8654C']],
+      achievements:[['\ud83c\udf31','First sign','Unlocked',1],['\ud83d\udd25','7-day streak','Unlocked',1],['\ud83e\udd1f','5 words','Unlocked',1],['\u0623','Alphabet started','Unlocked',1],['\ud83d\udc6a','Family flag','2 / 5 signs',0],['\ud83c\udfc6','Whole alphabet','12 / 28',0]],
+      league:[['Mama','M','240','#0F6E6A'],['Layla','L','180','#E6B24C'],['Sara','S','120','#0A4F4C'],['Baba','B','90','#E8654C']] },
+    ar:{ langLabel:'العربية · RTL',
+      oasis:{ title:'العالم الذي تبنينه', body:'كل إشارة تتعلّمينها تزرع شيئًا جديدًا.', planted:'١٨', plantedLbl:'إشارة مزروعة', trees:'٢', treesLbl:'نخلتان', nextLbl:'المحطة التالية', nextVal:'١٨ / ٢٥' },
+      stats:{ title:'إحصاءاتك', heatLbl:'هذا الشهر', less:'أقل', more:'أكثر' },
+      achieve:{ title:'الإنجازات', body:'٤ من ٧ مفتوحة.' },
+      league:{ title:'دوري العائلة', body:'هذا الأسبوع، معًا.', warmNote:'نصعد معًا \u2014 لا خاسرين هنا، فقط تقدّم.', compLbl:'منافسة ودّية', compHint:'مطفأة افتراضيًا \u00b7 فعّلها متى شئت' },
+      stats2:[['١٨','إشارة مُتقَنة','#0F6E6A'],['٩٢٪','متوسط الدقّة','#0F6E6A'],['٣٤٠','دقيقة إشارة','#C89A3D'],['٩','أطول تتابع','#E8654C']],
+      achievements:[['\ud83c\udf31','أول إشارة','مفتوح',1],['\ud83d\udd25','تتابع ٧ أيام','مفتوح',1],['\ud83e\udd1f','٥ كلمات','مفتوح',1],['\u0623','بدء الأبجدية','مفتوح',1],['\ud83d\udc6a','علم عائلي','٢ / ٥ إشارات',0],['\ud83c\udfc6','الأبجدية كاملة','١٢ / ٢٨',0]],
+      league:[['ماما','م','٢٤٠','#0F6E6A'],['ليلى','ل','١٨٠','#E6B24C'],['سارة','س','١٢٠','#0A4F4C'],['بابا','ب','٩٠','#E8654C']] }
+  };
+
+  select(w){ this.setState({ which:w }); }
+
+  buildScreen(lang){
+    const S=this.STR[lang], w=this.state.which, isAr=lang==='ar';
+    const t=S[w];
+    const flags={ isOasis:w==='oasis',isStats:w==='stats',isAchieve:w==='achieve',isLeague:w==='league' };
+
+    const stats=(S.stats2||[]).map(x=>({ val:x[0], label:x[1], color:x[2] }));
+
+    const lv=[0,1,0,2,3,1,0, 1,2,3,3,1,0,0, 0,1,2,3,2,3,1, 2,3,1,0,1,2,3, 1,0,2,3,3,2,1];
+    const shades=['#EDE3D2','#9DC6C2','#3E9A93','#0F6E6A'];
+    const heat=lv.map(l=>({ style:{ aspectRatio:'1', borderRadius:'4px', backgroundColor:shades[l] } }));
+
+    const achievements=(S.achievements||[]).map(a=>{ const earned=a[3]===1;
+      return { glyph:a[0], name:a[1], status:a[2], titleColor: earned?'#16302E':'#94A5A2',
+        cardStyle:{ display:'flex',flexDirection:'column',alignItems:'center',padding:'16px 10px',borderRadius:'16px',
+          backgroundColor:'#FBF7EF', border: earned?'2px solid #E6B24C':'2px dashed #C7BBA4', opacity: earned?1:0.72 },
+        iconStyle:{ width:'52px',height:'52px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'25px',
+          backgroundColor: earned?'#F6EFE3':'#EDE3D2', filter: earned?'none':'grayscale(0.7)' } }; });
+
+    const max=240;
+    const league=(S.league||[]).map((m,i)=>{ const you=m[0]==='Layla'||m[0]==='ليلى';
+      return { rank:isAr?['١','٢','٣','٤'][i]:String(i+1), name:m[0], init:m[1], xp:m[2],
+        rowStyle:{ display:'flex',alignItems:'center',gap:'11px',background: you?'#FBF3EF':'#FBF7EF', border: you?'1px solid #F5C9BE':'1px solid #EDE3D2', borderRadius:'15px',padding:'11px 13px' },
+        avatarStyle:{ width:'38px',height:'38px',borderRadius:'50%',flex:'none',display:'flex',alignItems:'center',justifyContent:'center',font:'800 15px Rubik,sans-serif',backgroundColor:m[3],color: m[3]==='#E6B24C'?'#16302E':'#FBF7EF' },
+        barStyle:{ height:'100%', width:(Math.round((parseInt(m[2].replace(/[^0-9]/g,''))||(240-i*60))/max*100))+'%', background:'linear-gradient(90deg,#F0C879,#E6B24C)', borderRadius:'99px' } }; });
+
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t, ...flags, stats, heat, achievements, league };
+  }
+
+  renderVals(){
+    const w=this.state.which;
+    const tabs=this.ORDER.map(k=>{ const active=k===w; return { label:this.TAB[k], onClick:()=>this.select(k),
+      style:{ cursor:'pointer',border:'none',font:'700 12px/1 Rubik,sans-serif',padding:'10px 14px',borderRadius:'12px',
+        backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F', boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    return { screens:['en','ar'].map(l=>this.buildScreen(l)), tabs };
+  }
+}
+</script>
+</body>
+</html>
