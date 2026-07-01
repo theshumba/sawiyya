@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .sw-wg{border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.28);overflow:hidden;}
+</style>
+</helmet>
+
+<div style="width:1180px;margin:0 auto;padding:48px 48px 90px;">
+  <div style="border-bottom:2px solid #16302E;padding-bottom:22px;">
+    <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#0F6E6A;">Off-app surfaces</div>
+    <h1 style="font:800 46px/1 Rubik,sans-serif;color:#16302E;margin:12px 0 0;letter-spacing:-.025em;">Widgets &amp; notifications</h1>
+    <p style="font:400 16px/1.5 'Readex Pro';color:#5C726F;margin:12px 0 0;max-width:640px;">The gentle nudges that pull you back — Fanan on the home screen, the lock screen, and in a push. Warm, never nagging.</p>
+  </div>
+
+  <!-- HOME WIDGETS -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:36px 0 16px;">Home-screen widgets</div>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;">
+    <!-- small: streak -->
+    <div style="text-align:center;">
+      <div class="sw-wg" style="width:158px;height:158px;background:linear-gradient(160deg,#14827c,#0F6E6A);padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font:700 12px Rubik;color:#F0C879;">🔥 Streak</span><div style="transform:scale(.3);transform-origin:top right;margin:-8px -6px 0 0;"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div></div>
+        <div><div style="font:800 46px/1 Rubik;color:#FBF7EF;">12</div><div style="font:500 12px 'Readex Pro';color:rgba(251,247,239,.8);">days · keep it alive</div></div>
+      </div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Small · streak</div>
+    </div>
+
+    <!-- small: goal ring -->
+    <div style="text-align:center;">
+      <div class="sw-wg" style="width:158px;height:158px;background:#FBF7EF;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+        <div style="position:relative;width:88px;height:88px;border-radius:50%;background:conic-gradient(#E6B24C 0% 70%, #EDE3D2 70% 100%);display:flex;align-items:center;justify-content:center;">
+          <div style="width:64px;height:64px;border-radius:50%;background:#FBF7EF;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font:800 20px Rubik;color:#16302E;">7</span><span style="font:600 9px 'Readex Pro';color:#94A5A2;">/10 min</span></div>
+        </div>
+        <span style="font:600 12px Rubik;color:#16302E;">Today's goal</span>
+      </div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Small · daily goal</div>
+    </div>
+
+    <!-- medium: next lesson -->
+    <div style="text-align:center;">
+      <div class="sw-wg" style="width:340px;height:158px;background:#FBF7EF;padding:18px 20px;display:flex;gap:16px;align-items:center;">
+        <div style="flex:none;animation:float 2.6s ease-in-out infinite;"><dc-import name="Fanan" pose="wave" scale="0.82" hint-size="120px,118px"></dc-import></div>
+        <div style="flex:1;">
+          <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.08em;color:#0F6E6A;">UP NEXT · UNIT 3</div>
+          <div style="font:800 21px/1.1 Rubik;color:#16302E;margin:7px 0 3px;">Greetings — Lesson 4</div>
+          <div style="font:400 12px 'Readex Pro';color:#5C726F;">5 signs · about 4 min</div>
+          <div style="margin-top:12px;background:#0F6E6A;color:#FBF7EF;font:700 13px Rubik;padding:9px 16px;border-radius:12px;display:inline-block;box-shadow:0 3px 0 #0A4F4C;">Continue →</div>
+        </div>
+      </div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Medium · up next</div>
+    </div>
+  </div>
+
+  <!-- LOCK SCREEN -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:40px 0 16px;">Lock screen</div>
+  <div style="display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <div style="position:relative;width:250px;height:400px;border-radius:42px;overflow:hidden;background:linear-gradient(165deg,#3a2f5c,#16302E);box-shadow:0 20px 50px rgba(22,48,46,.3);padding:26px 22px;color:#FBF7EF;">
+      <div style="text-align:center;margin-top:20px;"><div style="font:300 15px 'Readex Pro';opacity:.85;">Friday, 12 June</div><div style="font:700 62px/1 Rubik;">9:41</div></div>
+      <!-- inline complications -->
+      <div style="display:flex;justify-content:center;gap:18px;margin-top:14px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font:700 15px Rubik;color:#F0C879;">🔥 12</span><span style="font:400 9px 'Readex Pro';opacity:.7;">streak</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font:700 15px Rubik;color:#E6B24C;">7/10</span><span style="font:400 9px 'Readex Pro';opacity:.7;">min</span></div>
+      </div>
+      <!-- widget card -->
+      <div style="margin-top:auto;position:absolute;left:22px;right:22px;bottom:26px;background:rgba(251,247,239,.14);backdrop-filter:blur(8px);border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:none;transform:scale(.44);transform-origin:left center;width:53px;height:52px;"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div>
+        <div><div style="font:700 13px Rubik;color:#FBF7EF;">One sign keeps your streak</div><div style="font:400 11px 'Readex Pro';color:rgba(251,247,239,.75);">Tap to practise · 2 min</div></div>
+      </div>
+    </div>
+    <div style="max-width:300px;font:400 14px/1.6 'Readex Pro';color:#5C726F;padding-top:12px;">Inline complications carry the streak and daily-goal glance; the frosted card invites a two-minute save without shouting. Fanan is present but calm.</div>
+  </div>
+
+  <!-- PUSH NOTIFICATIONS -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:40px 0 16px;">Push notifications</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:820px;">
+    <!-- EN -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:rgba(251,247,239,.9);backdrop-filter:blur(6px);border-radius:20px;padding:14px 16px;box-shadow:0 8px 24px rgba(22,48,46,.14);display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex:none;" class="sw-icon" ><div style="width:40px;height:40px;border-radius:24%;background:#0F6E6A;position:relative;overflow:hidden;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.28);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div></div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font:700 13px Rubik;color:#16302E;">Sawiyya</span><span style="font:400 11px 'Readex Pro';color:#94A5A2;">now</span></div><div style="font:600 13px/1.4 'Readex Pro';color:#16302E;margin-top:2px;">Fanan misses you 🦊</div><div style="font:400 13px/1.4 'Readex Pro';color:#5C726F;">Your 12-day streak is safe if you sign one word. Got two minutes?</div></div>
+      </div>
+      <div style="background:rgba(251,247,239,.9);backdrop-filter:blur(6px);border-radius:20px;padding:14px 16px;box-shadow:0 8px 24px rgba(22,48,46,.14);display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex:none;"><div style="width:40px;height:40px;border-radius:24%;background:#E8654C;position:relative;overflow:hidden;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.28);"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div></div></div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font:700 13px Rubik;color:#16302E;">Sawiyya</span><span style="font:400 11px 'Readex Pro';color:#94A5A2;">8:00</span></div><div style="font:600 13px/1.4 'Readex Pro';color:#16302E;margin-top:2px;">Maya learned "thank you" 👏</div><div style="font:400 13px/1.4 'Readex Pro';color:#5C726F;">Your daughter just added a sign to your family. Learn it with her?</div></div>
+      </div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;text-align:center;">English</div>
+    </div>
+    <!-- AR -->
+    <div dir="rtl" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:rgba(251,247,239,.9);backdrop-filter:blur(6px);border-radius:20px;padding:14px 16px;box-shadow:0 8px 24px rgba(22,48,46,.14);display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex:none;"><div style="width:40px;height:40px;border-radius:24%;background:#0F6E6A;position:relative;overflow:hidden;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.28);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div></div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font:700 13px Rubik;color:#16302E;">سويّة</span><span style="font:400 11px 'Readex Pro';color:#94A5A2;">الآن</span></div><div style="font:600 13px/1.4 'Readex Pro';color:#16302E;margin-top:2px;">فَنَن يفتقدك 🦊</div><div style="font:400 13px/1.4 'Readex Pro';color:#5C726F;">سلسلتك التي دامت ١٢ يومًا بأمان إذا أشرت كلمة واحدة. ألديك دقيقتان؟</div></div>
+      </div>
+      <div style="background:rgba(251,247,239,.9);backdrop-filter:blur(6px);border-radius:20px;padding:14px 16px;box-shadow:0 8px 24px rgba(22,48,46,.14);display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex:none;"><div style="width:40px;height:40px;border-radius:24%;background:#E8654C;position:relative;overflow:hidden;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.28);"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div></div></div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font:700 13px Rubik;color:#16302E;">سويّة</span><span style="font:400 11px 'Readex Pro';color:#94A5A2;">٨:٠٠</span></div><div style="font:600 13px/1.4 'Readex Pro';color:#16302E;margin-top:2px;">تعلّمت مايا «شكرًا» 👏</div><div style="font:400 13px/1.4 'Readex Pro';color:#5C726F;">أضافت ابنتك إشارة إلى عائلتك للتوّ. أتتعلّمها معها؟</div></div>
+      </div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;text-align:center;">العربية</div>
+    </div>
+  </div>
+
+  <div style="margin-top:30px;border-top:2px solid #16302E;padding-top:18px;font:400 13px/1.6 'Readex Pro';color:#5C726F;max-width:760px;"><b style="color:#16302E;">Tone rule:</b> notifications are invitations from a friend, never guilt. They celebrate family activity and offer a tiny, achievable action — one sign, two minutes — and always let Fanan carry the warmth.</div>
+</div>
+</x-dc>
+</body>
+</html>

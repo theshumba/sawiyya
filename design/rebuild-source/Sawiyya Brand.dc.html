@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .sw-icon{border-radius:24%;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+</style>
+</helmet>
+
+<div style="width:1180px;margin:0 auto;padding:48px 48px 90px;">
+  <!-- header -->
+  <div style="border-bottom:2px solid #16302E;padding-bottom:22px;">
+    <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#0F6E6A;">Brand assets</div>
+    <h1 style="font:800 46px/1 Rubik,sans-serif;color:#16302E;margin:12px 0 0;letter-spacing:-.025em;">App icon &amp; wordmark</h1>
+  </div>
+
+  <!-- HERO ICON + ON HOME -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px;align-items:center;">
+    <div style="display:flex;gap:26px;align-items:center;">
+      <div class="sw-icon" style="width:190px;height:190px;background:radial-gradient(120% 120% at 50% 0%, #14827c 0%, #0F6E6A 60%);box-shadow:0 18px 40px rgba(15,110,106,.35);">
+        <div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%) scale(1.28);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div>
+      </div>
+      <div>
+        <div style="font:800 30px/1 Rubik;color:#16302E;">Sawiyya</div>
+        <div dir="rtl" style="font:600 26px/1 'Readex Pro';color:#0F6E6A;margin-top:6px;">سويّة</div>
+        <div style="font:400 14px/1.5 'Readex Pro';color:#5C726F;margin-top:14px;max-width:260px;">The mark: Fanan, mid-wave, on the brand teal. Warm, friendly, unmistakable on a crowded home screen.</div>
+      </div>
+    </div>
+
+    <!-- on home screen -->
+    <div style="justify-self:center;position:relative;width:250px;height:400px;background:#16302E;border-radius:42px;padding:6px;box-shadow:0 20px 50px rgba(22,48,46,.3);">
+      <div style="width:100%;height:100%;border-radius:36px;overflow:hidden;background:linear-gradient(160deg,#2a6f6a,#16302E);position:relative;padding:30px 24px;">
+        <div style="text-align:center;color:#FBF7EF;font:600 14px 'Readex Pro';opacity:.85;">9:41 · Friday</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;margin-top:26px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="sw-icon" style="width:46px;height:46px;background:#0F6E6A;"><div style="position:absolute;bottom:-3px;left:50%;transform:translateX(-50%) scale(.34);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div>
+            <span style="font:500 9px 'Readex Pro';color:#FBF7EF;">Sawiyya</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:46px;height:46px;border-radius:24%;background:rgba(255,255,255,.16);"></div><span style="font:500 9px 'Readex Pro';color:rgba(255,255,255,.6);">Photos</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:46px;height:46px;border-radius:24%;background:rgba(255,255,255,.16);"></div><span style="font:500 9px 'Readex Pro';color:rgba(255,255,255,.6);">Notes</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><div style="width:46px;height:46px;border-radius:24%;background:rgba(255,255,255,.16);"></div><span style="font:500 9px 'Readex Pro';color:rgba(255,255,255,.6);">Clock</span></div>
+        </div>
+        <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:150px;height:5px;border-radius:99px;background:rgba(255,255,255,.4);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANTS -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:40px 0 14px;">Variants</div>
+  <div style="display:flex;gap:22px;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <div class="sw-icon" style="width:110px;height:110px;background:#0F6E6A;"><div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) scale(.78);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Primary · teal</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="sw-icon" style="width:110px;height:110px;background:#E6B24C;"><div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) scale(.78);"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div></div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Festive · gold</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="sw-icon" style="width:110px;height:110px;background:#16302E;"><div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font:800 52px Rubik;color:#F0C879;">س</div></div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Monogram · Arabic</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="sw-icon" style="width:110px;height:110px;background:#FBF7EF;border:1px solid #EDE3D2;align-items:center;"><span style="font:800 54px Rubik;color:#0F6E6A;">S</span></div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Monogram · Latin</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="sw-icon" style="width:110px;height:110px;background:#16302E;"><div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) scale(.78);filter:grayscale(1) brightness(1.5);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div>
+      <div style="font:600 12px 'Readex Pro';color:#5C726F;margin-top:10px;">Monochrome</div>
+    </div>
+  </div>
+
+  <!-- SIZES -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:40px 0 14px;">Sizes</div>
+  <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:26px;display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap;">
+    <div style="text-align:center;"><div class="sw-icon" style="width:88px;height:88px;background:#0F6E6A;"><div style="position:absolute;bottom:-3px;left:50%;transform:translateX(-50%) scale(.62);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div><div style="font:500 11px 'Readex Pro';color:#94A5A2;margin-top:8px;">1024</div></div>
+    <div style="text-align:center;"><div class="sw-icon" style="width:60px;height:60px;background:#0F6E6A;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.42);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div><div style="font:500 11px 'Readex Pro';color:#94A5A2;margin-top:8px;">180</div></div>
+    <div style="text-align:center;"><div class="sw-icon" style="width:44px;height:44px;background:#0F6E6A;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.31);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div><div style="font:500 11px 'Readex Pro';color:#94A5A2;margin-top:8px;">120</div></div>
+    <div style="text-align:center;"><div class="sw-icon" style="width:32px;height:32px;background:#0F6E6A;align-items:center;"><span style="font:800 16px Rubik;color:#F0C879;">S</span></div><div style="font:500 11px 'Readex Pro';color:#94A5A2;margin-top:8px;">60</div></div>
+    <div style="text-align:center;"><div class="sw-icon" style="width:22px;height:22px;background:#0F6E6A;align-items:center;"><span style="font:800 11px Rubik;color:#F0C879;">S</span></div><div style="font:500 11px 'Readex Pro';color:#94A5A2;margin-top:8px;">40</div></div>
+    <div style="font:400 13px/1.5 'Readex Pro';color:#5C726F;max-width:230px;">Below ~48px the fox loses legibility — the S/س monogram takes over for favicons &amp; notification badges.</div>
+  </div>
+
+  <!-- WORDMARK -->
+  <div style="font:700 13px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#94A5A2;margin:40px 0 14px;">Wordmark</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:34px;display:flex;align-items:center;gap:16px;">
+      <div class="sw-icon" style="width:56px;height:56px;background:#0F6E6A;flex:none;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.4);"><dc-import name="Fanan" pose="wave" scale="1" hint-size="120px,118px"></dc-import></div></div>
+      <div><div style="font:800 34px/1 Rubik;color:#16302E;letter-spacing:-.02em;">Sawiyya</div><div style="font:500 12px/1 'Readex Pro';color:#94A5A2;margin-top:5px;letter-spacing:.06em;">LEARN TO SIGN, TOGETHER</div></div>
+    </div>
+    <div dir="rtl" style="background:#16302E;border-radius:18px;padding:34px;display:flex;align-items:center;gap:16px;">
+      <div class="sw-icon" style="width:56px;height:56px;background:#E6B24C;flex:none;"><div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scale(.4);"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div></div>
+      <div><div style="font:700 38px/1 'Readex Pro';color:#FBF7EF;">سويّة</div><div style="font:500 13px/1 'Readex Pro';color:#F0C879;margin-top:5px;">تعلّم لغة الإشارة، معًا</div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:34px;border-top:2px solid #16302E;padding-top:18px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">Clear space = 25% of icon width on all sides. Never recolor the fox outside the approved variants; never stretch the wordmark. <b style="color:#16302E;">Sawiyya — together, and equal.</b></div>
+</div>
+</x-dc>
+</body>
+</html>

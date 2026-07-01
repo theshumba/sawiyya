@@ -64,6 +64,39 @@
     box-shadow: 0 0 0 0 #0a4f4c;
     transform: translateY(4px);
   }
+  /* ── Design-rebuild spring buttons (HANDOFF §Shape) ───────────────────────
+     Solid fill + HARD 5px bottom shadow (no blur). On :active the button
+     drops 4px and the shadow shrinks to 1px — the springy affordance.
+     prefers-reduced-motion (global @layer base rule) zeroes the transition. */
+  .spring {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .spring-teal {
+    box-shadow: 0 5px 0 #0a4f4c;
+  }
+  .spring-coral {
+    box-shadow: 0 5px 0 #c54f3a;
+  }
+  .spring-gold {
+    box-shadow: 0 5px 0 #c89a3d;
+  }
+  .spring-teal:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #0a4f4c;
+  }
+  .spring-coral:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #c54f3a;
+  }
+  .spring-gold:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #c89a3d;
+  }
+  .spring-teal:disabled,
+  .spring-coral:disabled,
+  .spring-gold:disabled {
+    box-shadow: none;
+  }
   .material-fill {
     font-variation-settings: "FILL" 1;
   }
@@ -72,5 +105,33 @@
   }
   .no-scrollbar {
     scrollbar-width: none;
+  }
+}
+
+/* Global keyframes consumed by Fanan's inline animation strings — declared
+   here (outside JIT purge) so the mascot animates even when no screen uses
+   the Tailwind animate-* utility. Mirrors Fanan.dc.html / Style Sheet. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+/* Sparkle pop that PRESERVES the 45° diamond rotation while scaling in
+   (celebrate pose). `pop` alone would flatten the diamond to a square. */
+@keyframes sparkle-pop {
+  0% {
+    transform: rotate(45deg) scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(45deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
   }
 }

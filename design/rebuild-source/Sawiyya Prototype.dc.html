@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes rise{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
+  @keyframes scan{0%{top:10%}100%{top:82%}}
+  @keyframes conf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(320px) rotate(500deg);opacity:0}}
+  @keyframes livedot{0%,100%{opacity:1}50%{opacity:.4}}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+
+<div style="min-width:1160px;padding:44px 52px 90px;display:flex;gap:44px;align-items:flex-start;">
+
+  <!-- LEFT: intro + flow map + controls -->
+  <div style="flex:none;width:360px;position:sticky;top:44px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Clickable prototype
+    </div>
+    <h1 style="font:800 40px/1.03 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">The core journey, end to end</h1>
+    <p style="font:400 15.5px/1.55 'Readex Pro',sans-serif;color:#5C726F;margin:0 0 22px;">From cold launch to a graded practice loop — one continuous, tappable flow. Use the phone's buttons; the camera grades itself automatically.</p>
+
+    <!-- lang toggle -->
+    <div style="display:inline-flex;gap:6px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:12px;padding:5px;box-shadow:0 2px 0 #EDE3D2;margin-bottom:20px;">
+      <button onClick="{{ setEn }}" style="{{ enBtn }}">English</button>
+      <button onClick="{{ setAr }}" style="{{ arBtn }}">العربية</button>
+    </div>
+
+    <!-- flow map -->
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <sc-for list="{{ stages }}" as="st" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:13px;background:{{ st.bg }};transition:background .2s ease;">
+          <div style="flex:none;width:30px;height:30px;border-radius:50%;background:{{ st.dotBg }};color:{{ st.dotFg }};display:flex;align-items:center;justify-content:center;font:800 13px/1 Rubik;">{{ st.mark }}</div>
+          <div style="font:{{ st.font }};color:{{ st.fg }};">{{ st.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <button onClick="{{ restart }}" style="margin-top:20px;border:1px solid #EDE3D2;cursor:pointer;background:#F6EFE3;color:#5C726F;font:600 13px/1 'Readex Pro';padding:11px 18px;border-radius:12px;">↺ Restart flow</button>
+  </div>
+
+  <!-- RIGHT: the phone -->
+  <div style="flex:none;">
+    <div dir="{{ dir }}" style="position:relative;width:340px;height:696px;background:#16302E;border-radius:50px;padding:8px;box-shadow:0 30px 70px rgba(22,48,46,.32);">
+      <div style="position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;background:{{ shellBg }};">
+
+        <!-- statusbar -->
+        <div style="flex:none;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:relative;z-index:8;">
+          <span style="font:700 13px/1 Rubik;color:{{ barFg }};">9:41</span>
+          <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:80px;height:22px;background:#16302E;border-radius:99px;opacity:.55;"></div>
+          <div style="width:17px;height:9px;border:1.5px solid {{ barFg }};border-radius:3px;"></div>
+        </div>
+
+        <!-- ============ BOOT ============ -->
+        <sc-if value="{{ isBoot }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;background:linear-gradient(165deg,#0F6E6A,#0A4F4C);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center;animation:fadein .4s ease;">
+            <div style="width:88px;height:88px;border-radius:26px;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 46px/1 Rubik;color:#16302E;box-shadow:0 14px 34px rgba(0,0,0,.28);">س</div>
+            <div style="font:800 34px/1 Rubik;color:#FBF7EF;margin-top:22px;">{{ t.brand }}</div>
+            <div style="font:400 15px/1.4 'Readex Pro';color:rgba(251,247,239,.8);margin-top:8px;">{{ t.tagline }}</div>
+            <div style="position:absolute;bottom:34px;left:34px;right:34px;">
+              <button onClick="{{ go_welcome }}" style="width:100%;border:none;cursor:pointer;background:#FBF7EF;color:#0F6E6A;font:800 16px/1 Rubik;height:54px;border-radius:16px;box-shadow:0 5px 0 rgba(0,0,0,.18);" style-active="transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.18)">{{ t.getStarted }}</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ============ WELCOME ============ -->
+        <sc-if value="{{ isWelcome }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;animation:fadein .35s ease;">
+            <div style="animation:float 2.6s ease-in-out infinite;"><dc-import name="Fanan" pose="wave" scale="1.2" hint-size="146px,144px"></dc-import></div>
+            <div style="font:800 27px/1.15 Rubik;color:#16302E;margin-top:26px;animation:rise .4s ease both;">{{ t.welTitle }}</div>
+            <div style="font:400 15px/1.5 'Readex Pro';color:#5C726F;margin-top:10px;max-width:250px;">{{ t.welBody }}</div>
+          </div>
+          <div style="flex:none;padding:0 30px 24px;"><button onClick="{{ go_privacy }}" style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:800 16px/1 Rubik;height:54px;border-radius:16px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ t.continue }}</button></div>
+        </sc-if>
+
+        <!-- ============ PRIVACY ============ -->
+        <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;animation:fadein .35s ease;">
+            <div style="width:100px;height:100px;border-radius:28px;background:#E9F5EE;display:flex;align-items:center;justify-content:center;font-size:46px;animation:float 3s ease-in-out infinite;">🔒</div>
+            <div style="font:800 25px/1.15 Rubik;color:#16302E;margin-top:24px;">{{ t.privTitle }}</div>
+            <div style="font:400 15px/1.5 'Readex Pro';color:#5C726F;margin-top:10px;max-width:260px;">{{ t.privBody }}</div>
+            <div style="margin-top:18px;display:flex;align-items:center;gap:10px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:14px;padding:12px 15px;max-width:280px;text-align:start;">
+              <span style="flex:none;width:30px;height:30px;border-radius:50%;background:#E4F3EA;display:flex;align-items:center;justify-content:center;font-size:15px;">✓</span>
+              <span style="font:500 12.5px/1.4 'Readex Pro';color:#16302E;">{{ t.privChip }}</span>
+            </div>
+          </div>
+          <div style="flex:none;padding:0 30px 24px;"><button onClick="{{ go_firstwatch }}" style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:800 16px/1 Rubik;height:54px;border-radius:16px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ t.enableCam }}</button></div>
+        </sc-if>
+
+        <!-- ============ WATCH ============ -->
+        <sc-if value="{{ isWatch }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:6px 28px 0;text-align:center;animation:fadein .3s ease;"><div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#E8654C;">{{ lesson.badge }}</div><div style="font:800 23px/1.1 Rubik;color:#16302E;margin-top:6px;">{{ t.watchTitle }}</div></div>
+          <div style="flex:1;padding:16px 28px 22px;display:flex;flex-direction:column;">
+            <div style="flex:1;position:relative;border-radius:26px;background:repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12807b 15px,#12807b 30px);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <div style="position:absolute;top:14px;inset-inline-start:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.28);border-radius:99px;padding:5px 11px;"><span style="width:7px;height:7px;border-radius:50%;background:#F0C879;"></span><span style="font:700 10px/1 ui-monospace,Menlo;color:#FBF7EF;">{{ t.signer }}</span></div>
+              <div style="width:132px;height:132px;border-radius:50%;background:#FBF7EF;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 10px 26px rgba(0,0,0,.22);">{{ lesson.emoji }}</div>
+            </div>
+            <div style="text-align:center;font:600 16px/1.35 'Readex Pro';color:#16302E;margin-top:14px;">{{ meansLine }}</div>
+          </div>
+          <div style="flex:none;padding:0 30px 24px;"><button onClick="{{ beginSign }}" style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:800 16px/1 Rubik;height:54px;border-radius:16px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ t.myTurn }}</button></div>
+        </sc-if>
+
+        <!-- ============ SIGN (live grade) ============ -->
+        <sc-if value="{{ isSign }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:6px 28px 0;text-align:center;"><div style="font:800 23px/1.1 Rubik;color:#16302E;">{{ t.signTitle }}</div></div>
+          <div style="flex:1;padding:14px 24px 20px;display:flex;flex-direction:column;">
+            <div style="flex:1;position:relative;border-radius:26px;background:repeating-linear-gradient(135deg,#16302E,#16302E 16px,#1d3d3a 16px,#1d3d3a 32px);overflow:hidden;">
+              <!-- live badge -->
+              <div style="position:absolute;top:14px;inset-inline-start:14px;display:flex;align-items:center;gap:6px;background:rgba(210,60,44,.92);border-radius:99px;padding:5px 11px;z-index:5;"><span style="width:7px;height:7px;border-radius:50%;background:#FBF7EF;animation:livedot 1s infinite;"></span><span style="font:800 10px/1 ui-monospace,Menlo;color:#FBF7EF;letter-spacing:.1em;">LIVE</span></div>
+              <!-- COPY reference -->
+              <div style="position:absolute;top:12px;inset-inline-end:12px;width:52px;height:52px;border-radius:14px;background:#FBF7EF;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:5;">{{ lesson.emoji }}</div>
+              <!-- hand skeleton -->
+              <div style="position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:120px;height:140px;">
+                <div style="position:absolute;left:52px;top:90px;width:16px;height:16px;border-radius:50%;background:#F0C879;box-shadow:0 0 12px #E6B24C;"></div>
+                <div style="position:absolute;left:16px;top:16px;width:11px;height:11px;border-radius:50%;background:#F0C879;"></div>
+                <div style="position:absolute;left:70px;top:8px;width:11px;height:11px;border-radius:50%;background:#F0C879;"></div>
+                <div style="position:absolute;left:96px;top:30px;width:11px;height:11px;border-radius:50%;background:#F0C879;"></div>
+                <div style="position:absolute;left:60px;top:40px;height:52px;width:3px;background:rgba(240,200,121,.6);"></div>
+                <div style="position:absolute;left:30px;top:50px;height:44px;width:3px;background:rgba(240,200,121,.6);transform:rotate(16deg);"></div>
+              </div>
+              <div style="position:absolute;left:6%;right:6%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#F0C879,transparent);animation:scan 1.1s ease-in-out infinite alternate;"></div>
+              <!-- confidence ring -->
+              <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:96px;height:96px;border-radius:50%;{{ ringStyle }}display:flex;align-items:center;justify-content:center;z-index:5;">
+                <div style="width:74px;height:74px;border-radius:50%;background:rgba(22,48,46,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font:800 26px/1 Rubik;color:#FBF7EF;">{{ conf }}</span><span style="font:600 9px/1 'Readex Pro';color:rgba(251,247,239,.7);margin-top:2px;">{{ t.match }}</span></div>
+              </div>
+            </div>
+            <div style="text-align:center;font:600 14px/1.4 'Readex Pro';color:#5C726F;margin-top:12px;">{{ t.detecting }}</div>
+          </div>
+        </sc-if>
+
+        <!-- ============ DONE ============ -->
+        <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px;text-align:center;overflow:hidden;">
+            <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="0"><div style="{{ c.style }}"></div></sc-for>
+            <div style="animation:float 2.4s ease-in-out infinite;"><dc-import name="Fanan" pose="celebrate" scale="1.2" hint-size="150px,148px"></dc-import></div>
+            <div style="width:64px;height:64px;border-radius:50%;background:#1F8A5B;display:flex;align-items:center;justify-content:center;margin-top:14px;animation:pop .5s ease both;box-shadow:0 6px 18px rgba(31,138,91,.35);"><span style="color:#FBF7EF;font:800 32px Rubik;">✓</span></div>
+            <div style="font:800 25px/1.14 Rubik;color:#16302E;margin-top:16px;animation:rise .4s ease .1s both;">{{ doneTitle }}</div>
+            <div style="display:inline-flex;align-items:baseline;gap:6px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:99px;padding:8px 16px;margin-top:12px;"><span style="font:800 21px Rubik;color:#0F6E6A;">{{ t.acc }}</span><span style="font:600 12px 'Readex Pro';color:#5C726F;">{{ t.match }}</span></div>
+            <div style="font:400 14px/1.5 'Readex Pro';color:#5C726F;margin-top:13px;max-width:250px;">{{ doneBody }}</div>
+          </div>
+          <div style="flex:none;padding:0 30px 24px;"><button onClick="{{ doneCta }}" style="width:100%;border:none;cursor:pointer;background:#0F6E6A;color:#FBF7EF;font:800 16px/1 Rubik;height:54px;border-radius:16px;box-shadow:0 5px 0 #0A4F4C;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #0A4F4C">{{ doneCtaLabel }}</button></div>
+        </sc-if>
+
+        <!-- ============ HOME ============ -->
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:4px 24px 10px;display:flex;align-items:center;justify-content:space-between;animation:fadein .35s ease;">
+            <div><div style="font:400 12.5px/1 'Readex Pro';color:#94A5A2;">{{ t.greeting }}</div><div style="font:800 21px/1.1 Rubik;color:#16302E;margin-top:3px;">{{ t.unit }}</div></div>
+            <div style="display:flex;align-items:center;gap:5px;background:#FBEFD1;border:1px solid #F0DFB0;border-radius:99px;padding:6px 12px;"><span style="font-size:14px;">🔥</span><span style="font:800 15px/1 Rubik;color:#B8860B;">{{ streak }}</span></div>
+          </div>
+          <div style="flex:1;overflow:hidden;padding:8px 30px 0;display:flex;flex-direction:column;align-items:center;">
+            <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <button onClick="{{ n.tap }}" style="{{ n.style }}">{{ n.mark }}</button>
+                <sc-if value="{{ n.connector }}" hint-placeholder-val="{{ true }}"><div style="width:4px;height:26px;background:#EDE3D2;border-radius:2px;"></div></sc-if>
+              </div>
+            </sc-for>
+            <div style="margin-top:10px;font:400 13px/1.4 'Readex Pro';color:#94A5A2;text-align:center;">{{ homeHint }}</div>
+          </div>
+          <!-- toast on return -->
+          <sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;bottom:92px;left:24px;right:24px;background:#1F8A5B;color:#FBF7EF;border-radius:15px;padding:13px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 24px rgba(31,138,91,.3);animation:rise .4s ease both;z-index:7;"><span style="font-size:18px;">🎉</span><span style="font:700 14px/1.2 Rubik;">{{ t.toast }}</span></div>
+          </sc-if>
+          <!-- bottom nav -->
+          <div style="flex:none;height:66px;border-top:1px solid #EDE3D2;background:#FBF7EF;display:flex;align-items:center;justify-content:space-around;padding:0 20px;">
+            <sc-for list="{{ nav }}" as="v" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font-size:19px;opacity:{{ v.op }};">{{ v.icon }}</span><span style="font:{{ v.font }};color:{{ v.color }};">{{ v.label }}</span></div></sc-for>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+    <div style="width:340px;text-align:center;font:400 12.5px/1.5 'Readex Pro';color:#94A5A2;margin-top:16px;">{{ hintUnderPhone }}</div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang:'en', screen:'boot', stage:'first', conf:0, done1:false, toast:false };
+
+  L={
+    en:{ brand:'Sawiyya', tagline:'Learn to sign, together.', getStarted:'Get started',
+      welTitle:'Ahlan! I\u2019m Fanan \uD83D\uDC4B', welBody:'I\u2019ll be with you the whole way. Let\u2019s learn to sign, together.', continue:'Continue',
+      privTitle:'Your camera, your phone', privBody:'Sawiyya watches your hands to grade your signs \u2014 and it all happens on-device.', privChip:'No video ever leaves your phone.', enableCam:'Enable camera',
+      watchTitle:'Watch closely', signer:'SIGNER', myTurn:'My turn',
+      signTitle:'Now your turn', detecting:'Hold the sign steady\u2026', match:'match',
+      acc:'96%', greeting:'Welcome back', unit:'Unit 1 · Greetings', toast:'Lesson complete! +1 day streak',
+      firstBadge:'YOUR FIRST SIGN', lessonBadge:'NEW SIGN' },
+    ar:{ brand:'سويّة', tagline:'نتعلّم لغة الإشارة معًا.', getStarted:'لنبدأ',
+      welTitle:'أهلاً! أنا فَنَن \uD83D\uDC4B', welBody:'سأرافقك طوال الطريق. لنتعلّم لغة الإشارة معًا.', continue:'متابعة',
+      privTitle:'كاميرتك، هاتفك', privBody:'تراقب سويّة يديك لتقييم إشاراتك \u2014 وكلّ ذلك يجري على جهازك.', privChip:'لا يغادر أيّ فيديو هاتفك أبدًا.', enableCam:'تفعيل الكاميرا',
+      watchTitle:'راقب بتمعّن', signer:'المُشير', myTurn:'حان دوري',
+      signTitle:'حان دورك الآن', detecting:'ثبّت الإشارة\u2026', match:'تطابق',
+      acc:'٩٦٪', greeting:'مرحبًا بعودتك', unit:'الوحدة ١ · التحيّات', toast:'اكتمل الدرس! +١ يوم في السلسلة',
+      firstBadge:'إشارتك الأولى', lessonBadge:'إشارة جديدة' }
+  };
+  LESSONS={
+    first:{ en:{word:'I love you', emoji:'🤟', means:'This sign means \u201cI love you\u201d \u2764\ufe0f', doneT:'You signed your first word!', doneB:'That\u2019s the whole app \u2014 watch, sign, get graded, celebrate.', cta:'Start learning'},
+            ar:{word:'أحبّك', emoji:'🤟', means:'هذه الإشارة تعني «أحبّك» \u2764\ufe0f', doneT:'أشرتَ كلمتك الأولى!', doneB:'هذا هو التطبيق كلّه \u2014 شاهِد، أشِر، احصل على تقييم، احتفِل.', cta:'ابدأ التعلّم'} },
+    practice:{ en:{word:'Hello', emoji:'👋', means:'This sign means \u201cHello\u201d \uD83D\uDC4B', doneT:'Lesson complete!', doneB:'One more sign in your hands. Fanan\u2019s proud of you.', cta:'Continue'},
+               ar:{word:'مرحبًا', emoji:'👋', means:'هذه الإشارة تعني «مرحبًا» \uD83D\uDC4B', doneT:'اكتمل الدرس!', doneB:'إشارة أخرى في يديك. فَنَن فخور بك.', cta:'متابعة'} }
+  };
+  STAGE_ORDER=['boot','onboarding','firstsign','home','practice'];
+
+  componentWillUnmount(){ clearInterval(this._iv); clearTimeout(this._to); clearTimeout(this._tt); }
+
+  setLang(l){ this.setState({ lang:l }); }
+  go(screen, extra){ this.setState({ screen, ...(extra||{}) }); }
+
+  beginSign(){
+    this.setState({ screen:'sign', conf:0 });
+    clearInterval(this._iv);
+    this._iv=setInterval(()=>{
+      this.setState(s=>{
+        const next=Math.min(96, s.conf + Math.round(6+Math.random()*9));
+        if(next>=96){ clearInterval(this._iv); this._to=setTimeout(()=>this.setState({ screen:'done' }),620); }
+        return { conf:next };
+      });
+    },140);
+  }
+  doneCta(){
+    if(this.state.stage==='first'){ this.setState({ screen:'home', toast:false }); }
+    else { this.setState({ screen:'home', done1:true, toast:true });
+      clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({ toast:false }),3200); }
+  }
+  startPractice(){ if(!this.state.done1) this.setState({ stage:'practice', screen:'watch', conf:0 }); }
+  restart(){ clearInterval(this._iv); clearTimeout(this._to); clearTimeout(this._tt);
+    this.setState({ screen:'boot', stage:'first', conf:0, done1:false, toast:false }); }
+
+  makeConfetti(){
+    const cols=['#0F6E6A','#E8654C','#E6B24C','#F0C879','#1F8A5B'];
+    return Array.from({length:16},(_,i)=>({ style:{ position:'absolute', top:'6%', left:(6+i*5.7)+'%',
+      width:(6+(i%3)*3)+'px', height:(9+(i%2)*4)+'px', background:cols[i%cols.length], borderRadius:'2px',
+      animation:'conf '+(1.1+(i%4)*0.22)+'s ease-in '+((i%5)*0.06)+'s forwards' } }));
+  }
+
+  activeStage(){
+    const s=this.state;
+    if(s.screen==='boot') return 'boot';
+    if(s.screen==='welcome'||s.screen==='privacy') return 'onboarding';
+    if(s.screen==='home') return 'home';
+    if(s.stage==='practice') return 'practice';
+    return 'firstsign';
+  }
+
+  renderVals(){
+    const s=this.state, lang=s.lang, t=this.L[lang], isAr=lang==='ar';
+    const lz=this.LESSONS[s.stage][lang];
+    const active=this.activeStage(), ai=this.STAGE_ORDER.indexOf(active);
+    const stageLabels={ boot:isAr?'الإقلاع':'Launch', onboarding:isAr?'التعريف':'Onboarding', firstsign:isAr?'الإشارة الأولى':'First sign', home:isAr?'الرئيسية':'Home', practice:isAr?'التدريب':'Practice' };
+    const stages=this.STAGE_ORDER.map((k,i)=>{
+      const on=i===ai, doneStage=i<ai || (k==='practice'&&s.done1);
+      return { label:stageLabels[k], mark: doneStage?'✓':String(i+1),
+        bg:on?'#E9F5EE':'transparent',
+        dotBg: doneStage?'#1F8A5B':(on?'#0F6E6A':'#EDE3D2'), dotFg:(doneStage||on)?'#FBF7EF':'#94A5A2',
+        fg:on?'#0F6E6A':(doneStage?'#16302E':'#94A5A2'),
+        font:(on?'800':'600')+' 14px/1.2 '+(on?'Rubik':"'Readex Pro'")+',sans-serif' };
+    });
+
+    // home nodes
+    const l1done=s.done1;
+    const nodeDefs=[
+      { key:1, state: l1done?'done':'active' },
+      { key:2, state: l1done?'active':'locked' },
+      { key:3, state:'locked' },
+      { key:4, state:'locked' }
+    ];
+    const nodes=nodeDefs.map((n,i)=>{
+      const st=n.state, base={ cursor: st==='active'?'pointer':'default', border:'none', width: st==='active'?'80px':'62px', height: st==='active'?'80px':'62px', borderRadius:'50%', font:'800 22px/1 Rubik', display:'flex', alignItems:'center', justifyContent:'center' };
+      let sty;
+      if(st==='done') sty={ ...base, background:'#1F8A5B', color:'#FBF7EF', boxShadow:'0 4px 0 #17694597' };
+      else if(st==='active') sty={ ...base, background:'#0F6E6A', color:'#FBF7EF', boxShadow:'0 6px 0 #0A4F4C, 0 0 0 6px rgba(15,110,106,.15)' };
+      else sty={ ...base, background:'#EDE3D2', color:'#B7A98F' };
+      return { mark: st==='done'?'✓':(st==='active'?(l1done?'2':'★'):'🔒'),
+        style:sty, connector: i<nodeDefs.length-1,
+        tap: st==='active'?(()=>this.startPractice()):(()=>{}) };
+    });
+    const nav=[['🏠',isAr?'الرئيسية':'Home',1],['📚',isAr?'الإشارات':'Signs',0],['📈',isAr?'التقدّم':'Progress',0],['👤',isAr?'حسابي':'Me',0]]
+      .map(([icon,label,act])=>({ icon, label, op:act?1:.4,
+        font:(act?'700':'500')+' 10px/1 '+(act?'Rubik':"'Readex Pro'")+',sans-serif', color:act?'#0F6E6A':'#94A5A2' }));
+
+    const ring = 'background:conic-gradient(#F0C879 '+(s.conf*3.6)+'deg, rgba(251,247,239,.18) 0);';
+
+    const activeBtn={ cursor:'pointer', border:'none', borderRadius:'9px', padding:'9px 16px', font:'800 13px/1 Rubik', background:'#0F6E6A', color:'#FBF7EF' };
+    const idleBtn={ cursor:'pointer', border:'none', borderRadius:'9px', padding:'9px 16px', font:"600 13px/1 'Readex Pro',sans-serif", background:'transparent', color:'#5C726F' };
+
+    const isBoot=s.screen==='boot';
+    return {
+      dir:isAr?'rtl':'ltr', t, lesson:{ badge: s.stage==='first'?t.firstBadge:t.lessonBadge, emoji:lz.emoji },
+      meansLine:lz.means, doneTitle:lz.doneT, doneBody:lz.doneB, doneCtaLabel:lz.cta,
+      shellBg: isBoot?'#0F6E6A':'#F6EFE3', barFg: isBoot?'#FBF7EF':'#16302E',
+      isBoot, isWelcome:s.screen==='welcome', isPrivacy:s.screen==='privacy',
+      isWatch:s.screen==='watch', isSign:s.screen==='sign', isDone:s.screen==='done', isHome:s.screen==='home',
+      conf:s.conf, ringStyle:ring, confetti: s.screen==='done'?this.makeConfetti():[],
+      streak: s.done1?'2':'1', showToast:s.toast,
+      homeHint: s.done1?(isAr?'أحسنت! الدرس التالي في انتظارك.':'Nice work! Your next lesson is ready.'):(isAr?'اضغط النجمة لتبدأ درسك الأول.':'Tap the star to start your first lesson.'),
+      hintUnderPhone: isAr?'استخدم أزرار الهاتف للتنقّل — الكاميرا تُقيّم تلقائيًا.':'Use the phone\u2019s buttons to move through — the camera grades itself.',
+      nodes, nav,
+      enBtn: lang==='en'?activeBtn:idleBtn, arBtn: lang==='ar'?activeBtn:idleBtn,
+      stages,
+      setEn:()=>this.setLang('en'), setAr:()=>this.setLang('ar'),
+      go_welcome:()=>this.go('welcome'), go_privacy:()=>this.go('privacy'), go_firstwatch:()=>this.go('watch',{stage:'first',conf:0}),
+      beginSign:()=>this.beginSign(), doneCta:()=>this.doneCta(), restart:()=>this.restart()
+    };
+  }
+}
+</script>
+</body>
+</html>

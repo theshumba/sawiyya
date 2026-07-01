@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes pulse{0%{transform:scale(.85);opacity:.7}70%{transform:scale(1.5);opacity:0}100%{opacity:0}}
+  @keyframes capin{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</helmet>
+
+<div style="min-width:1160px;padding:44px 52px 90px;display:flex;gap:44px;align-items:flex-start;">
+
+  <!-- LEFT: intro + controls -->
+  <div style="flex:none;width:400px;position:sticky;top:44px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Accessibility, applied
+    </div>
+    <h1 style="font:800 38px/1.04 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Built for every body</h1>
+    <p style="font:400 15px/1.55 'Readex Pro',sans-serif;color:#5C726F;margin:0 0 22px;">An app for the Deaf community has to lead on access. Flip each setting — the screen on the right responds live.</p>
+
+    <!-- lang toggle -->
+    <div style="display:inline-flex;gap:6px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:12px;padding:5px;box-shadow:0 2px 0 #EDE3D2;margin-bottom:18px;">
+      <button onClick="{{ setEn }}" style="{{ enBtn }}">English</button>
+      <button onClick="{{ setAr }}" style="{{ arBtn }}">العربية</button>
+    </div>
+
+    <!-- toggles -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ toggles }}" as="tg" hint-placeholder-count="4">
+        <button onClick="{{ tg.toggle }}" style="text-align:start;cursor:pointer;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:15px 17px;box-shadow:0 2px 0 #EDE3D2;display:flex;align-items:center;gap:14px;">
+          <span style="flex:none;font-size:22px;">{{ tg.icon }}</span>
+          <span style="flex:1;"><span style="display:block;font:700 15px/1.15 Rubik;color:#16302E;">{{ tg.label }}</span><span style="display:block;font:400 12.5px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ tg.desc }}</span></span>
+          <span style="{{ tg.trackStyle }}"><span style="{{ tg.knobStyle }}"></span></span>
+        </button>
+      </sc-for>
+    </div>
+
+    <button onClick="{{ reset }}" style="margin-top:16px;border:1px solid #EDE3D2;cursor:pointer;background:#F6EFE3;color:#5C726F;font:600 13px/1 'Readex Pro';padding:11px 18px;border-radius:12px;">↺ Reset all</button>
+
+    <div style="margin-top:18px;background:#16302E;border-radius:16px;padding:16px 18px;">
+      <div style="font:800 13px/1.15 Rubik;color:#F0C879;">Deaf-first, always</div>
+      <div style="font:400 12.5px/1.5 'Readex Pro';color:rgba(246,239,227,.82);margin-top:6px;">{{ deafNote }}</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: the phone -->
+  <div style="flex:none;">
+    <div dir="{{ dir }}" style="position:relative;width:346px;height:706px;background:#16302E;border-radius:50px;padding:8px;box-shadow:0 30px 70px rgba(22,48,46,.3);">
+      <div style="position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;background:{{ v.appBg }};">
+
+        <!-- statusbar -->
+        <div style="flex:none;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:relative;">
+          <span style="font:700 13px/1 Rubik;color:{{ v.textHi }};">9:41</span>
+          <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:80px;height:22px;background:#16302E;border-radius:99px;opacity:.5;"></div>
+          <div style="width:17px;height:9px;border:1.5px solid {{ v.textHi }};border-radius:3px;"></div>
+        </div>
+
+        <!-- header -->
+        <div style="flex:none;padding:6px 30px 0;text-align:center;">
+          <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:{{ v.badge }};">{{ t.badge }}</div>
+          <div style="font-weight:800;line-height:1.1;font-family:Rubik,sans-serif;color:{{ v.textHi }};margin-top:6px;font-size:{{ v.titlePx }};">{{ t.title }}</div>
+        </div>
+
+        <!-- signer panel -->
+        <div style="flex:1;padding:14px 30px 10px;display:flex;flex-direction:column;">
+          <div style="flex:1;position:relative;border-radius:26px;overflow:hidden;background:{{ v.panelBg }};border:{{ v.panelBorder }};display:flex;align-items:center;justify-content:center;">
+            <div style="position:absolute;top:14px;inset-inline-start:14px;display:flex;align-items:center;gap:6px;background:{{ v.tagBg }};border-radius:99px;padding:5px 11px;"><span style="width:7px;height:7px;border-radius:50%;background:#F0C879;"></span><span style="font:700 10px/1 ui-monospace,Menlo;color:#FBF7EF;">{{ t.signer }}</span></div>
+            <sc-if value="{{ v.anim }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;width:150px;height:150px;border-radius:50%;border:3px solid rgba(240,200,121,.6);animation:pulse 2s ease-out infinite;"></div></sc-if>
+            <div style="position:relative;width:132px;height:132px;border-radius:50%;background:#FBF7EF;display:flex;align-items:center;justify-content:center;font-size:64px;box-shadow:0 10px 26px rgba(0,0,0,.22);">🤟</div>
+          </div>
+          <div style="text-align:center;font-weight:600;font-family:'Readex Pro',sans-serif;color:{{ v.textHi }};margin-top:14px;font-size:{{ v.bodyPx }};">{{ t.means }}</div>
+        </div>
+
+        <!-- caption bar -->
+        <sc-if value="{{ caps }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:0 20px 8px;background:{{ v.capBg }};border-radius:14px;padding:12px 15px;animation:capin .3s ease;">
+            <div style="font:700 9px/1 ui-monospace,Menlo;letter-spacing:.12em;color:{{ v.capAccent }};">{{ t.capLabel }}</div>
+            <div style="font-weight:600;font-family:'Readex Pro',sans-serif;color:#FBF7EF;margin-top:5px;font-size:{{ v.capPx }};">{{ t.caption }}</div>
+          </div>
+        </sc-if>
+
+        <!-- primary button -->
+        <div style="flex:none;padding:0 30px 24px;">
+          <div style="width:100%;background:{{ v.primary }};color:#FBF7EF;font-weight:800;font-family:Rubik,sans-serif;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:{{ v.btnPx }};height:{{ v.btnH }};box-shadow:0 5px 0 {{ v.primaryDeep }};">{{ t.cta }}</div>
+        </div>
+
+      </div>
+    </div>
+    <div style="width:346px;text-align:center;font:400 12.5px/1.5 'Readex Pro';color:#94A5A2;margin-top:14px;">{{ statusLine }}</div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang:'en', caps:true, contrast:false, large:false, reduce:false };
+
+  L={
+    en:{ badge:'YOUR FIRST SIGN', title:'Watch closely', signer:'SIGNER', means:'This sign means \u201cI love you\u201d', cta:'My turn',
+      capLabel:'LIVE CAPTION', caption:'Signer: \u201cI love you.\u201d  \uD83D\uDD09 soft chime plays on match.',
+      tCaps:['Captions','Every sound & spoken cue mirrored as on-screen text.'],
+      tContrast:['High contrast','Pure black on white, thicker borders, no grey text.'],
+      tLarge:['Larger text','Bumps every size up ~30% without breaking layout.'],
+      tReduce:['Reduce motion','Stills the pulse, float & confetti — info stays put.'],
+      deaf:'Sound is never the only signal. Every audio cue is paired with motion, haptics and a caption, so nothing is missed on mute.' },
+    ar:{ badge:'إشارتك الأولى', title:'راقب بتمعّن', signer:'المُشير', means:'هذه الإشارة تعني «أحبّك»', cta:'حان دوري',
+      capLabel:'تسمية حيّة', caption:'المُشير: «أحبّك».  \uD83D\uDD09 نغمة خفيفة عند التطابق.',
+      tCaps:['التسميات','كلّ صوت أو إشارة منطوقة تظهر كنصّ على الشاشة.'],
+      tContrast:['تباين عالٍ','أسود خالص على أبيض، حدود أثخن، بلا رماديّ.'],
+      tLarge:['نصّ أكبر','يكبّر كلّ الأحجام ٣٠٪ دون كسر التصميم.'],
+      tReduce:['تقليل الحركة','يوقف النبض والحركة والقصاصات — المعلومة تبقى.'],
+      deaf:'الصوت ليس الإشارة الوحيدة أبدًا. كلّ تنبيه صوتيّ مقترن بحركة واهتزاز وتسمية، فلا يفوت شيء عند كتم الصوت.' }
+  };
+
+  set(k){ this.setState(s=>({ [k]:!s[k] })); }
+  setLang(l){ this.setState({ lang:l }); }
+  reset(){ this.setState({ caps:true, contrast:false, large:false, reduce:false }); }
+
+  sw(on, contrast){
+    const track={ flexShrink:0, width:'46px', height:'27px', borderRadius:'99px', padding:'3px', display:'flex',
+      justifyContent: on?'flex-end':'flex-start', background: on?(contrast?'#00413B':'#0F6E6A'):'#D9CDB8', transition:'all .2s ease' };
+    const knob={ width:'21px', height:'21px', borderRadius:'50%', background:'#FBF7EF', boxShadow:'0 1px 3px rgba(0,0,0,.25)' };
+    return { track, knob };
+  }
+
+  renderVals(){
+    const s=this.state, lang=s.lang, t=this.L[lang], isAr=lang==='ar', c=s.contrast, fs=s.large?1.3:1;
+    const v={
+      appBg: c?'#FFFFFF':'#F6EFE3', textHi: c?'#000000':'#16302E',
+      primary: c?'#00413B':'#0F6E6A', primaryDeep: c?'#00201D':'#0A4F4C',
+      badge: c?'#00413B':'#E8654C',
+      panelBg: c?'#00413B':'repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12807b 15px,#12807b 30px)',
+      panelBorder: c?'3px solid #000000':'none',
+      tagBg: c?'#000000':'rgba(0,0,0,.28)',
+      capBg: c?'#000000':'#16302E', capAccent: c?'#FFFFFF':'#F0C879',
+      anim: !s.reduce,
+      titlePx:(22*fs).toFixed(0)+'px', bodyPx:(16*fs).toFixed(0)+'px', capPx:(13*fs).toFixed(0)+'px',
+      btnPx:(16*fs).toFixed(0)+'px', btnH:(54*fs).toFixed(0)+'px'
+    };
+    const mk=(key,icon,arr)=>{ const on=s[key], sw=this.sw(on,c);
+      return { icon, label:arr[0], desc:arr[1], on, toggle:()=>this.set(key), trackStyle:sw.track, knobStyle:sw.knob }; };
+    const toggles=[ mk('caps','\uD83D\uDCAC',t.tCaps), mk('contrast','\u25D0',t.tContrast), mk('large','\uD83D\uDD20',t.tLarge), mk('reduce','\uD83C\uDF00',t.tReduce) ];
+    const onList=[ s.caps&&(isAr?'التسميات':'Captions'), s.contrast&&(isAr?'تباين':'Contrast'), s.large&&(isAr?'نصّ أكبر':'Large text'), s.reduce&&(isAr?'حركة أقلّ':'Reduce motion') ].filter(Boolean);
+    return { dir:isAr?'rtl':'ltr', t, v, caps:s.caps, toggles, deafNote:t.deaf,
+      enBtn: lang==='en'?this.activeBtn():this.idleBtn(), arBtn: lang==='ar'?this.activeBtn():this.idleBtn(),
+      statusLine: onList.length?((isAr?'مُفعَّل: ':'On: ')+onList.join(' · ')):(isAr?'الإعدادات الافتراضية':'Default settings'),
+      setEn:()=>this.setLang('en'), setAr:()=>this.setLang('ar'), reset:()=>this.reset() };
+  }
+  activeBtn(){ return { cursor:'pointer', border:'none', borderRadius:'9px', padding:'9px 16px', font:'800 13px/1 Rubik', background:'#0F6E6A', color:'#FBF7EF' }; }
+  idleBtn(){ return { cursor:'pointer', border:'none', borderRadius:'9px', padding:'9px 16px', font:"600 13px/1 'Readex Pro',sans-serif", background:'transparent', color:'#5C726F' }; }
+}
+</script>
+</body>
+</html>

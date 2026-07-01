@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+</style>
+</helmet>
+
+<div style="min-width:1160px;padding:44px 52px 96px;">
+  <div style="max-width:860px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Content map
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">The learning journey</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:760px;">Every sign lives somewhere. Signs group into <b style="color:#16302E;">units</b>, units stack into <b style="color:#16302E;">levels</b>, and each unit ends in a mixed review before the next unlocks — the same path drawn on the Home screen.</p>
+  </div>
+
+  <!-- level legend -->
+  <div style="display:flex;gap:10px;margin:28px 0 20px;flex-wrap:wrap;">
+    <sc-for list="{{ levels }}" as="lv" hint-placeholder-count="4">
+      <div style="display:flex;align-items:center;gap:9px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:99px;padding:8px 15px 8px 9px;box-shadow:0 2px 0 #EDE3D2;">
+        <span style="width:26px;height:26px;border-radius:50%;background:{{ lv.color }};color:#FBF7EF;font:800 12px Rubik;display:flex;align-items:center;justify-content:center;">{{ lv.n }}</span>
+        <span style="font:700 13px Rubik;color:#16302E;">{{ lv.name }}</span>
+        <span style="font:400 12px 'Readex Pro';color:#94A5A2;">{{ lv.cefr }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- units grid -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;">
+    <sc-for list="{{ units }}" as="u" hint-placeholder-count="8">
+      <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;display:flex;flex-direction:column;">
+        <div style="height:7px;background:{{ u.color }};"></div>
+        <div style="padding:20px 22px;flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:44px;height:44px;border-radius:13px;background:{{ u.tint }};display:flex;align-items:center;justify-content:center;font-size:23px;">{{ u.icon }}</div>
+              <div>
+                <div style="font:700 10px/1 ui-monospace,Menlo;letter-spacing:.1em;color:{{ u.color }};">UNIT {{ u.num }} · LEVEL {{ u.lvl }}</div>
+                <div style="font:800 19px/1.1 Rubik;color:#16302E;margin-top:4px;">{{ u.title }}</div>
+                <div dir="rtl" style="font:600 14px/1.1 'Readex Pro';color:#5C726F;margin-top:2px;">{{ u.titleAr }}</div>
+              </div>
+            </div>
+            <div style="flex:none;text-align:center;background:#F6EFE3;border-radius:11px;padding:7px 11px;"><div style="font:800 17px/1 Rubik;color:#16302E;">{{ u.count }}</div><div style="font:400 9px/1 'Readex Pro';color:#94A5A2;margin-top:2px;">signs</div></div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:15px;">
+            <sc-for list="{{ u.signs }}" as="s" hint-placeholder-count="4"><span style="background:#F6EFE3;border:1px solid #EDE3D2;border-radius:8px;padding:6px 10px;font:500 12.5px 'Readex Pro';color:#16302E;">{{ s }}</span></sc-for>
+            <span style="background:{{ u.tint }};border-radius:8px;padding:6px 10px;font:700 12.5px Rubik;color:{{ u.color }};">🏁 Review</span>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:28px;background:#16302E;border-radius:20px;padding:26px 30px;display:flex;gap:30px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+    <div style="max-width:520px;">
+      <div style="font:800 20px/1.15 Rubik;color:#F6EFE3;">How a sign is chosen for a unit</div>
+      <div style="font:400 13.5px/1.6 'Readex Pro';color:rgba(246,239,227,.82);margin-top:8px;">Frequency-first. We teach the signs a learner will actually use with a Deaf family member this week before rarer vocabulary. Handshape difficulty is layered gently — units revisit earlier handshapes so the hands build muscle memory, not just recall.</div>
+    </div>
+    <div style="display:flex;gap:22px;">
+      <div style="text-align:center;"><div style="font:800 34px/1 Rubik;color:#F0C879;">6</div><div style="font:400 12px 'Readex Pro';color:#7E938F;margin-top:4px;">levels</div></div>
+      <div style="text-align:center;"><div style="font:800 34px/1 Rubik;color:#F0C879;">8</div><div style="font:400 12px 'Readex Pro';color:#7E938F;margin-top:4px;">units shown</div></div>
+      <div style="text-align:center;"><div style="font:800 34px/1 Rubik;color:#F0C879;">~180</div><div style="font:400 12px 'Readex Pro';color:#7E938F;margin-top:4px;">signs to fluency</div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const L={ f:'#1F8A5B', b:'#0F6E6A', c:'#E6B24C', d:'#E8654C', e:'#7A5CB0', s:'#C0492F' };
+    return {
+      levels:[
+        { n:'1', name:'Foundation', cefr:'A1', color:'#1F8A5B' },
+        { n:'2', name:'Everyday', cefr:'A2', color:'#0F6E6A' },
+        { n:'3', name:'Connected', cefr:'B1', color:'#E6B24C' },
+        { n:'4', name:'Fluent', cefr:'B2+', color:'#7A5CB0' }
+      ],
+      units:[
+        { num:'01', lvl:'1', color:'#1F8A5B', tint:'#E9F5EE', icon:'👋', title:'First hellos', titleAr:'أوّل التحيّات', count:6, signs:['Hello','Thank you','Yes','No'] },
+        { num:'02', lvl:'1', color:'#1F8A5B', tint:'#E9F5EE', icon:'🔤', title:'The alphabet', titleAr:'الأبجدية', count:28, signs:['Alif','Baa','Taa','Thaa'] },
+        { num:'03', lvl:'1', color:'#1F8A5B', tint:'#E9F5EE', icon:'❤️', title:'People I love', titleAr:'من أحبّ', count:9, signs:['Mama','Baba','I love you','Family'] },
+        { num:'04', lvl:'2', color:'#0F6E6A', tint:'#E6F1F0', icon:'🔢', title:'Numbers 1–20', titleAr:'الأرقام', count:20, signs:['One','Two','Three','Ten'] },
+        { num:'05', lvl:'2', color:'#0F6E6A', tint:'#E6F1F0', icon:'🍽️', title:'Food & home', titleAr:'الطعام والبيت', count:14, signs:['Water','Eat','Home','Sleep'] },
+        { num:'06', lvl:'2', color:'#0F6E6A', tint:'#E6F1F0', icon:'😊', title:'Feelings', titleAr:'المشاعر', count:11, signs:['Happy','Sad','Tired','Okay'] },
+        { num:'07', lvl:'3', color:'#E6B24C', tint:'#FBEFD1', icon:'💬', title:'Small talk', titleAr:'حديث خفيف', count:15, signs:['How are you','Later','Where','Wait'] },
+        { num:'08', lvl:'3', color:'#E6B24C', tint:'#FBEFD1', icon:'📅', title:'Days & time', titleAr:'الأيام والوقت', count:13, signs:['Today','Tomorrow','Morning','Now'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

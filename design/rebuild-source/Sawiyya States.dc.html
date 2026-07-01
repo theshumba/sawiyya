@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes rise{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(15,110,106,.35)}70%{box-shadow:0 0 0 18px rgba(15,110,106,0)}100%{box-shadow:0 0 0 0 rgba(15,110,106,0)}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 7
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">States &amp; edge cases</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:680px;">The difference between a demo and a finished app — permissions, empty states, and offline all handled with warmth (and honesty about the on-device promise). <b style="color:#16302E">No dead ends.</b> Pick a state.</p>
+  </div>
+
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:12px;box-shadow:0 2px 0 #EDE3D2;display:flex;gap:8px;flex-wrap:wrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="6">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:22px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:{{ s.bg }};">
+
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;">
+              <span style="font:700 13px/1 Rubik;color:{{ s.statusColor }};">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;opacity:.5;"></div>
+              <div style="display:flex;gap:5px;align-items:center;">
+                <sc-if value="{{ s.isOffline }}" hint-placeholder-val="{{ true }}"><span style="font:700 9px/1 ui-monospace,Menlo;color:#C54F3A;">OFFLINE</span></sc-if>
+                <div style="width:16px;height:9px;border:1.5px solid {{ s.statusColor }};border-radius:3px;"></div>
+              </div>
+            </div>
+
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 30px 0;min-height:0;">
+
+              <!-- icon zone -->
+              <sc-if value="{{ s.showCamera }}" hint-placeholder-val="{{ true }}">
+                <div style="width:120px;height:120px;border-radius:34px;background:{{ s.iconBg }};display:flex;align-items:center;justify-content:center;animation:{{ s.iconAnim }};box-shadow:0 12px 30px rgba(22,48,46,.16);position:relative;">
+                  <div style="width:56px;height:42px;border-radius:11px;background:#FBF7EF;position:relative;"><div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;border:4px solid {{ s.iconBg }};"></div><div style="position:absolute;top:-7px;left:14px;width:18px;height:9px;border-radius:4px 4px 0 0;background:#FBF7EF;"></div></div>
+                  <sc-if value="{{ s.isDenied }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;width:130px;height:6px;border-radius:99px;background:#C54F3A;transform:rotate(-45deg);"></div></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.showMascot }}" hint-placeholder-val="{{ true }}">
+                <div style="animation:float 3s ease-in-out infinite;"><dc-import name="Fanan" pose="{{ s.pose }}" scale="1.05" hint-size="128px,128px"></dc-import></div>
+              </sc-if>
+
+              <div style="font:800 28px/1.12 Rubik;color:{{ s.titleColor }};margin-top:22px;max-width:260px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+              <div style="font:400 15px/1.5 'Readex Pro';color:{{ s.bodyColor }};max-width:256px;margin-top:8px;">{{ s.t.body }}</div>
+
+              <!-- privacy badge (permission) -->
+              <sc-if value="{{ s.isPermission }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:8px;background:#F6EFE3;border:1px solid #EDE3D2;border-radius:99px;padding:9px 15px;margin-top:16px;"><span style="width:9px;height:9px;border-radius:50%;background:#1F8A5B;box-shadow:0 0 0 4px rgba(31,138,91,.18);"></span><span style="font:700 12px/1 'Readex Pro';color:#16302E;">{{ s.t.badge }}</span></div>
+              </sc-if>
+
+              <!-- re-enable steps (denied) -->
+              <sc-if value="{{ s.isDenied }}" hint-placeholder-val="{{ true }}">
+                <div style="width:100%;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:16px;padding:14px;margin-top:18px;text-align:start;">
+                  <sc-for list="{{ s.steps }}" as="st" hint-placeholder-count="3">
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:9px;"><div style="width:22px;height:22px;border-radius:50%;background:#0F6E6A;color:#FBF7EF;font:800 11px Rubik;display:flex;align-items:center;justify-content:center;flex:none;">{{ st.n }}</div><div style="font:500 13px/1.3 'Readex Pro';color:#16302E;">{{ st.txt }}</div></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="flex:none;padding:12px 30px 20px;display:flex;flex-direction:column;gap:9px;">
+              <button style="width:100%;border:none;cursor:pointer;background:{{ s.ctaBg }};color:{{ s.ctaColor }};font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 {{ s.ctaShadow }};transition:all .08s;" style-active="transform:translateY(4px);box-shadow:0 1px 0 {{ s.ctaShadow }}">{{ s.t.cta }}</button>
+              <sc-if value="{{ s.hasSecondary }}" hint-placeholder-val="{{ true }}">
+                <button style="width:100%;border:none;cursor:pointer;background:none;color:{{ s.secondaryColor }};font:600 14px/1 'Readex Pro';padding:8px;">{{ s.t.secondary }}</button>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Handled with care:</b> the permission ask leads with the <b style="color:#16302E">on-device promise</b> so it feels safe, not scary. Denied isn't a dead end — clear re-enable steps plus a "browse without camera" escape. Empty states are hopeful invitations (Fanan thinking / waving), never lonely voids. Offline honestly reassures that <b style="color:#16302E">camera grading runs fully on-device</b> — the app keeps working; only your family feed waits to sync. Every state has a way forward.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { which:'permission' };
+
+  ORDER=['permission','denied','nocamera','emptysigns','nofamily','offline'];
+  TAB={ permission:'Camera permission', denied:'Camera denied', nocamera:'No camera', emptysigns:'Empty · no signs', nofamily:'Empty · no family', offline:'Offline' };
+
+  STR={
+    en:{ langLabel:'English · LTR',
+      permission:{ title:'Let\u2019s turn on your camera', body:'Sawiyya watches your hands so it can grade your signs \u2014 gently.', badge:'100% on-device \u00b7 nothing is uploaded', cta:'Allow camera', secondary:'Not now' },
+      denied:{ title:'Your camera is off', body:'No worries \u2014 flip it back on in two taps whenever you\u2019re ready.', cta:'Open Settings', secondary:'Keep it off for now' },
+      nocamera:{ title:'No camera? No problem.', body:'You can still watch every signer demo and learn the shapes. Grading unlocks when a camera\u2019s available.', cta:'Browse the signs \u2192', secondary:'' },
+      emptysigns:{ title:'Your oasis is waiting', body:'You haven\u2019t learned a sign yet \u2014 let\u2019s plant the first one together.', cta:'Learn my first sign', secondary:'' },
+      nofamily:{ title:'Better together', body:'Learning to sign is a shared act. Invite someone to learn with you.', cta:'Invite family', secondary:'Maybe later' },
+      offline:{ title:'You\u2019re offline', body:'That\u2019s okay \u2014 sign grading runs on your device. Your family feed will sync the moment you\u2019re back.', cta:'Try again', secondary:'Keep practising offline' },
+      steps:['Open your phone\u2019s Settings','Tap Sawiyya','Turn on Camera'] },
+    ar:{ langLabel:'العربية · RTL',
+      permission:{ title:'لنفعّل كاميرتك', body:'ترى سويّة يديك لتقيّم إشاراتك \u2014 برفق.', badge:'١٠٠٪ على الجهاز \u00b7 لا شيء يُرفع', cta:'السماح بالكاميرا', secondary:'ليس الآن' },
+      denied:{ title:'كاميرتك مُطفأة', body:'لا بأس \u2014 أعِد تشغيلها بنقرتين متى شئت.', cta:'فتح الإعدادات', secondary:'أبقِها مطفأة الآن' },
+      nocamera:{ title:'لا كاميرا؟ لا مشكلة.', body:'يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا.', cta:'تصفّح الإشارات \u2190', secondary:'' },
+      emptysigns:{ title:'واحتك بانتظارك', body:'لم تتعلّم إشارة بعد \u2014 لنزرع الأولى معًا.', cta:'تعلّم أول إشارة', secondary:'' },
+      nofamily:{ title:'أفضل معًا', body:'تعلّم الإشارة فعلٌ مشترك. ادعُ من يتعلّم معك.', cta:'ادعُ العائلة', secondary:'ربما لاحقًا' },
+      offline:{ title:'أنت غير متصل', body:'لا بأس \u2014 يعمل تقييم الإشارات على جهازك. ستُزامَن أخبار عائلتك فور عودتك.', cta:'أعِد المحاولة', secondary:'واصل التمرّن دون اتصال' },
+      steps:['افتح إعدادات هاتفك','اختر سويّة','فعّل الكاميرا'] }
+  };
+
+  select(w){ this.setState({ which:w }); }
+
+  buildScreen(lang){
+    const S=this.STR[lang], w=this.state.which, isAr=lang==='ar';
+    const t=S[w];
+    const isPermission=w==='permission', isDenied=w==='denied', isNoCam=w==='nocamera',
+          isEmptySigns=w==='emptysigns', isNoFamily=w==='nofamily', isOffline=w==='offline';
+    const showCamera = isPermission||isDenied;
+    const showMascot = !showCamera;
+    const pose = isEmptySigns?'think' : isNoFamily?'wave' : isNoCam?'idle' : 'sad';
+
+    let ctaBg='#0F6E6A', ctaShadow='#0A4F4C', ctaColor='#FBF7EF';
+    if(isDenied||isOffline){ ctaBg='#E8654C'; ctaShadow='#C54F3A'; }
+    if(isNoFamily){ ctaBg='#E8654C'; ctaShadow='#C54F3A'; }
+
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t,
+      isPermission, isDenied, isNoCamera:isNoCam, isEmptySigns, isNoFamily, isOffline,
+      showCamera, showMascot, pose,
+      iconBg: isDenied?'#C54F3A':'#0F6E6A', iconAnim: isPermission?'pulseRing 2s ease-out infinite':'none',
+      bg:'#F6EFE3', statusColor:'#16302E', titleColor:'#16302E', bodyColor:'#5C726F',
+      steps: (S.steps||[]).map((txt,i)=>({ n: isAr?['١','٢','٣'][i]:String(i+1), txt })),
+      hasSecondary: !!t.secondary, secondaryColor:'#5C726F',
+      ctaBg, ctaShadow, ctaColor };
+  }
+
+  renderVals(){
+    const w=this.state.which;
+    const tabs=this.ORDER.map(k=>{ const active=k===w; return { label:this.TAB[k], onClick:()=>this.select(k),
+      style:{ cursor:'pointer',border:'none',font:'700 12px/1 Rubik,sans-serif',padding:'10px 13px',borderRadius:'12px',
+        backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F', boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    return { screens:['en','ar'].map(l=>this.buildScreen(l)), tabs };
+  }
+}
+</script>
+</body>
+</html>

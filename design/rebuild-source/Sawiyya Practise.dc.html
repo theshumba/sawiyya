@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .sw-scroll::-webkit-scrollbar{width:0;height:0}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes rise{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+  @keyframes confettiFall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(440px) rotate(560deg);opacity:.2}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 10
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Practise &amp; activities</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:680px;">The practise hub plus the interactive drills between camera reps — <b style="color:#16302E">tap the quiz answers and match the pairs</b>, they really respond. EN + AR.</p>
+  </div>
+
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:12px;box-shadow:0 2px 0 #EDE3D2;display:flex;gap:8px;flex-wrap:wrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:22px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#F6EFE3;">
+
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;">
+              <span style="font:700 13px/1 Rubik;color:#16302E;">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid #16302E;border-radius:3px;"></div>
+            </div>
+
+            <!-- ===== HUB ===== -->
+            <sc-if value="{{ s.isHub }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;">
+                <div style="font:800 26px/1.1 Rubik;color:#16302E;">{{ s.t.title }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.body }}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;">
+                  <sc-for list="{{ s.hubCards }}" as="c" hint-placeholder-count="4">
+                    <button style="{{ c.style }}">
+                      <div style="{{ c.iconStyle }}">{{ c.glyph }}</div>
+                      <div style="font:700 15px/1.1 Rubik;color:{{ c.titleColor }};margin-top:11px;text-align:start;">{{ c.title }}</div>
+                      <div style="font:500 11px/1.3 'Readex Pro';color:{{ c.subColor }};margin-top:3px;text-align:start;">{{ c.sub }}</div>
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;background:#0F6E6A;border-radius:18px;padding:15px;margin-top:14px;box-shadow:0 4px 0 #0A4F4C;">
+                  <div style="animation:float 3s ease-in-out infinite;"><dc-import name="Fanan" pose="wave" scale="0.5" hint-size="62px,62px"></dc-import></div>
+                  <div style="flex:1;"><div style="font:700 15px/1.1 Rubik;color:#FBF7EF;">{{ s.t.dueTitle }}</div><div style="font:400 12px/1.3 'Readex Pro';color:rgba(255,255,255,.8);margin-top:3px;">{{ s.t.dueBody }}</div></div>
+                  <div style="background:#F0C879;color:#16302E;font:800 15px Rubik;padding:6px 12px;border-radius:11px;flex:none;">{{ s.t.dueCount }}</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- ===== MCQ QUIZ ===== -->
+            <sc-if value="{{ s.isQuiz }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:6px 22px 0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="height:8px;flex:1;border-radius:99px;background:#EDE3D2;overflow:hidden;"><div style="height:100%;width:60%;background:#E6B24C;border-radius:99px;"></div></div>
+                  <span style="font:700 12px/1 Rubik;color:#5C726F;">3/5</span>
+                </div>
+                <div style="font:800 22px/1.15 Rubik;color:#16302E;margin-top:16px;">{{ s.t.qTitle }}</div>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:14px 22px 20px;min-height:0;">
+                <div style="border-radius:20px;height:150px;background:repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px);display:flex;align-items:center;justify-content:center;">
+                  <div style="width:104px;height:104px;border-radius:50%;background:#FBF7EF;display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:0 10px 26px rgba(0,0,0,.22);">{{ s.qGlyph }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+                  <sc-for list="{{ s.options }}" as="o" hint-placeholder-count="4">
+                    <button onClick="{{ o.onClick }}" style="{{ o.style }}"><span style="{{ o.markStyle }}">{{ o.mark }}</span>{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:none;padding:10px 22px 20px;">
+                <button onClick="{{ s.resetQuiz }}" style="width:100%;border:none;cursor:pointer;background:{{ s.quizCtaBg }};color:#FBF7EF;font:700 15px/1 Rubik;height:52px;border-radius:16px;box-shadow:0 4px 0 {{ s.quizCtaShadow }};" style-active="transform:translateY(3px);box-shadow:0 1px 0 {{ s.quizCtaShadow }}">{{ s.quizCtaLabel }}</button>
+              </div>
+            </sc-if>
+
+            <!-- ===== MATCH PAIRS ===== -->
+            <sc-if value="{{ s.isMatch }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:none;padding:6px 22px 0;">
+                <div style="font:800 22px/1.15 Rubik;color:#16302E;">{{ s.t.mTitle }}</div>
+                <div style="font:400 13px/1.35 'Readex Pro';color:#5C726F;margin-top:3px;">{{ s.t.mBody }}</div>
+              </div>
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:16px 22px 20px;min-height:0;">
+                <div style="display:flex;gap:12px;">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:11px;">
+                    <sc-for list="{{ s.leftCol }}" as="l" hint-placeholder-count="4"><button onClick="{{ l.onClick }}" style="{{ l.style }}"><span style="font-size:26px;">{{ l.glyph }}</span></button></sc-for>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:11px;">
+                    <sc-for list="{{ s.rightCol }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button></sc-for>
+                  </div>
+                </div>
+                <div style="text-align:center;font:600 12px/1.3 'Readex Pro';color:#5C726F;margin-top:16px;">{{ s.matchStatus }}</div>
+              </div>
+            </sc-if>
+
+            <!-- ===== RESULTS ===== -->
+            <sc-if value="{{ s.isResults }}" hint-placeholder-val="{{ true }}">
+              <div class="sw-scroll" style="flex:1;overflow-y:auto;padding:6px 22px 20px;min-height:0;text-align:center;">
+                <div style="animation:float 2.6s ease-in-out infinite;margin-top:6px;"><dc-import name="Fanan" pose="celebrate" scale="0.85" hint-size="102px,102px"></dc-import></div>
+                <div style="font:800 27px/1.1 Rubik;color:#16302E;margin-top:12px;animation:pop .5s ease both;">{{ s.t.rTitle }}</div>
+                <div style="font:400 14px/1.4 'Readex Pro';color:#5C726F;margin-top:6px;">{{ s.t.rBody }}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;">
+                  <sc-for list="{{ s.rStats }}" as="st" hint-placeholder-count="3"><div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:15px;padding:13px 6px;"><div style="font:800 22px/1 Rubik;color:{{ st.color }};">{{ st.val }}</div><div style="font:600 10px/1.2 'Readex Pro';color:#5C726F;margin-top:4px;">{{ st.label }}</div></div></sc-for>
+                </div>
+                <div style="background:#FBF3EF;border:1px solid #F5C9BE;border-radius:16px;padding:14px;margin-top:14px;text-align:start;">
+                  <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.08em;text-transform:uppercase;color:#C54F3A;">{{ s.t.reviewLbl }}</div>
+                  <div style="display:flex;gap:8px;margin-top:10px;">
+                    <sc-for list="{{ s.reviewNext }}" as="rv" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:7px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:11px;padding:7px 11px;"><span style="font-size:18px;">{{ rv.glyph }}</span><span style="font:600 12px 'Readex Pro';color:#16302E;">{{ rv.label }}</span></div></sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:none;padding:12px 22px 20px;">
+                <button style="width:100%;border:none;cursor:pointer;background:#E8654C;color:#FBF7EF;font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 #C54F3A;" style-active="transform:translateY(4px);box-shadow:0 1px 0 #C54F3A">{{ s.t.rCta }}</button>
+              </div>
+              <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:47px;"><sc-for list="{{ confetti }}" as="cp" hint-placeholder-count="0"><div style="{{ cp.style }}"></div></sc-for></div>
+            </sc-if>
+
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Really interactive:</b> in the quiz, tap any answer — the right one springs to teal with a check, a wrong pick turns coral and reveals the correct one. In match-pairs, tap a sign then its meaning to lock them in (correct pairs turn teal, and the status counts up). Results celebrate with confetti and honestly point you to what's due for review. These drills sit <i>between</i> camera reps so practice never feels repetitive.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { which:'hub', pick:null, sel:null, matched:[] };
+  ORDER=['hub','quiz','match','results'];
+  TAB={ hub:'Practise hub', quiz:'Quiz', match:'Match pairs', results:'Results' };
+
+  OPTIONS=[ {id:'iloveyou',correct:true}, {id:'hello'}, {id:'thankyou'}, {id:'more'} ];
+  PAIRS=[ {id:'hello',glyph:'\ud83d\udc4b'}, {id:'iloveyou',glyph:'\ud83e\udd1f'}, {id:'thankyou',glyph:'\ud83d\ude4f'}, {id:'milk',glyph:'\ud83e\udd0f'} ];
+  RIGHT=['iloveyou','milk','hello','thankyou'];
+
+  STR={
+    en:{ langLabel:'English · LTR',
+      hub:{ title:'Practise', body:'Pick how you want to sign today.', dueTitle:'Review due', dueBody:'6 signs are ready for a quick refresh.', dueCount:'6' },
+      quiz:{ qTitle:'Which meaning is this sign?' },
+      match:{ mTitle:'Match the pairs', mBody:'Tap a sign, then its meaning.' },
+      results:{ rTitle:'Great session!', rBody:'You reviewed 6 signs with Fanan.', reviewLbl:'Review next', rCta:'Back to practise' },
+      hubCards:[['Alphabet','28 letters','\u0623','#0F6E6A'],['Words','16 signs','\ud83e\udd1f','#E8654C'],['Free camera','Sign anything','\ud83d\udcf7','#E6B24C'],['Review','6 due','\u21ba','#0A4F4C']],
+      labels:{ iloveyou:'I love you', hello:'Hello', thankyou:'Thank you', more:'More', milk:'Milk' },
+      qGlyph:'\ud83e\udd1f', rStats:[['90%','Accuracy','#0F6E6A'],['+45','XP','#E8654C'],['6','Signs','#C89A3D']],
+      reviewNext:[['\ud83d\udc4b','Hello'],['\ud83e\udd0f','Milk']],
+      matchDone:'matched', tapCorrect:'Correct!', tapWrong:'Try another pairing' },
+    ar:{ langLabel:'العربية · RTL',
+      hub:{ title:'تمرّن', body:'اختر كيف تشير اليوم.', dueTitle:'مراجعة مستحقّة', dueBody:'٦ إشارات جاهزة لتذكير سريع.', dueCount:'٦' },
+      quiz:{ qTitle:'ما معنى هذه الإشارة؟' },
+      match:{ mTitle:'طابِق الأزواج', mBody:'انقر إشارة ثم معناها.' },
+      results:{ rTitle:'جلسة رائعة!', rBody:'راجعت ٦ إشارات مع فَنَن.', reviewLbl:'راجع تاليًا', rCta:'العودة للتمرّن' },
+      hubCards:[['الأبجدية','٢٨ حرفًا','\u0623','#0F6E6A'],['الكلمات','١٦ إشارة','\ud83e\udd1f','#E8654C'],['كاميرا حرّة','أشِر أي شيء','\ud83d\udcf7','#E6B24C'],['مراجعة','٦ مستحقّة','\u21ba','#0A4F4C']],
+      labels:{ iloveyou:'أحبّك', hello:'مرحبًا', thankyou:'شكرًا', more:'المزيد', milk:'حليب' },
+      qGlyph:'\ud83e\udd1f', rStats:[['٩٠٪','الدقّة','#0F6E6A'],['+٤٥','نقاط','#E8654C'],['٦','إشارات','#C89A3D']],
+      reviewNext:[['\ud83d\udc4b','مرحبًا'],['\ud83e\udd0f','حليب']],
+      matchDone:'مطابَقة', tapCorrect:'صحيح!', tapWrong:'جرّب زوجًا آخر' }
+  };
+
+  select(w){ this.setState({ which:w }); }
+  pickAns(id){ if(this.state.pick) return; this.setState({ pick:id }); }
+  resetQuiz(){ this.setState({ pick:null }); }
+  tapLeft(id){ if(this.state.matched.includes(id)) return; this.setState({ sel: this.state.sel===id?null:id }); }
+  tapRight(id){ const sel=this.state.sel; if(!sel) return; if(sel===id){ this.setState(s=>({ matched:[...s.matched,id], sel:null })); } else { this.setState({ sel:null }); } }
+
+  buildScreen(lang){
+    const S=this.STR[lang], w=this.state.which, isAr=lang==='ar';
+    const t=S[w]; const L=S.labels;
+    const flags={ isHub:w==='hub',isQuiz:w==='quiz',isMatch:w==='match',isResults:w==='results' };
+
+    const hubCards=(S.hubCards||[]).map((c,i)=>{ const dark=i===0||i===3;
+      return { title:c[0], sub:c[1], glyph:c[2], titleColor:'#FBF7EF', subColor:'rgba(255,255,255,.8)',
+        style:{ cursor:'pointer',border:'none',borderRadius:'18px',padding:'16px',display:'flex',flexDirection:'column',alignItems:'flex-start',
+          backgroundColor:c[3], boxShadow:'0 4px 0 rgba(0,0,0,.18)', minHeight:'118px' },
+        iconStyle:{ width:'44px',height:'44px',borderRadius:'13px',background:'rgba(255,255,255,.2)',display:'flex',alignItems:'center',justifyContent:'center',font:'800 22px Rubik,sans-serif',color:'#FBF7EF',fontSize:'24px' } }; });
+
+    const pick=this.state.pick;
+    const options=this.OPTIONS.map(o=>{ let bg='#FBF7EF',col='#16302E',sh='inset 0 0 0 1px #EDE3D2',mark='',markCol='#EDE3D2';
+      if(pick){ if(o.correct){ bg='#0F6E6A';col='#FBF7EF';sh='0 3px 0 #0A4F4C';mark='\u2713';markCol='rgba(255,255,255,.9)'; }
+        else if(o.id===pick){ bg='#E8654C';col='#FBF7EF';sh='0 3px 0 #C54F3A';mark='\u2715';markCol='rgba(255,255,255,.9)'; }
+        else { bg='#F6EFE3';col='#94A5A2'; } }
+      return { label:L[o.id], onClick:()=>this.pickAns(o.id),
+        style:{ display:'flex',alignItems:'center',gap:'11px',width:'100%',cursor:'pointer',border:'none',textAlign:'start',
+          padding:'15px 16px',borderRadius:'15px',font:"700 15px/1.1 Rubik,sans-serif", backgroundColor:bg,color:col,boxShadow:sh },
+        mark, markStyle:{ width:'22px',height:'22px',borderRadius:'50%',flex:'none',display:'flex',alignItems:'center',justifyContent:'center',
+          font:'700 12px Rubik', backgroundColor: mark?'rgba(255,255,255,.22)':'transparent', color:markCol, border: mark?'none':'2px solid '+markCol } }; });
+    const quizCtaBg = pick? '#0F6E6A':'#C7D0CE';
+    const quizCtaShadow = pick? '#0A4F4C':'#aab6b3';
+    const quizCtaLabel = pick? (isAr?'التالي ←':'Next →') : (isAr?'اختر إجابة':'Pick an answer');
+
+    const matched=this.state.matched, sel=this.state.sel;
+    const leftCol=this.PAIRS.map(p=>{ const done=matched.includes(p.id), on=sel===p.id;
+      return { glyph:p.glyph, onClick:()=>this.tapLeft(p.id),
+        style:{ cursor:'pointer',border:'none',height:'58px',borderRadius:'15px',display:'flex',alignItems:'center',justifyContent:'center',
+          backgroundColor: done?'#0F6E6A':'#FBF7EF', boxShadow: on?'0 0 0 3px #E6B24C':(done?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2'),
+          opacity: done?0.9:1, filter: done?'grayscale(0.2)':'none' } }; });
+    const rightCol=this.RIGHT.map(id=>{ const done=matched.includes(id);
+      return { label:L[id], onClick:()=>this.tapRight(id),
+        style:{ cursor:'pointer',border:'none',height:'58px',borderRadius:'15px',display:'flex',alignItems:'center',justifyContent:'center',
+          font:"700 14px/1.1 Rubik,sans-serif", backgroundColor: done?'#0F6E6A':'#FBF7EF', color: done?'#FBF7EF':'#16302E',
+          boxShadow: done?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    const matchStatus = matched.length+' / 4 '+S.matchDone;
+
+    const rStats=(S.rStats||[]).map(x=>({ val:x[0], label:x[1], color:x[2] }));
+    const reviewNext=(S.reviewNext||[]).map(x=>({ glyph:x[0], label:x[1] }));
+
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t, ...flags,
+      hubCards, qGlyph:S.qGlyph, options, quizCtaBg, quizCtaShadow, quizCtaLabel, resetQuiz:()=>this.resetQuiz(),
+      leftCol, rightCol, matchStatus, rStats, reviewNext };
+  }
+
+  renderVals(){
+    if(!this._conf){ const cols=['#0F6E6A','#E8654C','#E6B24C','#F0C879','#F08A75'];
+      this._conf=Array.from({length:34},(_,i)=>{ const sz=6+Math.random()*8; return { style:{ position:'absolute',top:'-16px',left:(Math.random()*100)+'%',
+        width:sz+'px',height:(sz*0.66)+'px',background:cols[i%cols.length],borderRadius:Math.random()<0.5?'2px':'50%',
+        transform:'rotate('+(Math.random()*360)+'deg)',animation:'confettiFall '+(1.3+Math.random()*0.9)+'s '+(Math.random()*0.4)+'s ease-in forwards' } }; }); }
+    const w=this.state.which;
+    const tabs=this.ORDER.map(k=>{ const active=k===w; return { label:this.TAB[k], onClick:()=>this.select(k),
+      style:{ cursor:'pointer',border:'none',font:'700 13px/1 Rubik,sans-serif',padding:'10px 15px',borderRadius:'12px',
+        backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F', boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    return { screens:['en','ar'].map(l=>this.buildScreen(l)), tabs, confetti:this._conf };
+  }
+}
+</script>
+</body>
+</html>

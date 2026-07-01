@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="./Fanan.dc.html" data-resource-id="fanan" />
+<script>
+  // Standalone: the DC runtime fetches sibling ./Fanan.dc.html at runtime.
+  // Redirect that fetch to the inlined blob URL so the mascot works offline.
+  (function () {
+    var _fetch = window.fetch.bind(window);
+    window.fetch = function (u) {
+      try {
+        var s = typeof u === "string" ? u : (u && u.url) || "";
+        if (/Fanan\.dc\.html/i.test(decodeURIComponent(s)) &&
+            window.__resources && window.__resources.fanan) {
+          return _fetch(window.__resources.fanan);
+        }
+      } catch (e) {}
+      return _fetch.apply(null, arguments);
+    };
+  })();
+</script>
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0F6E6A">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0F6E6A"/>
+    <g transform="translate(600 380)">
+      <!-- ears -->
+      <path d="M-120 -40 Q-150 -170 -70 -150 Q-52 -70 -60 -40 Z" fill="#E6B24C"/>
+      <path d="M120 -40 Q150 -170 70 -150 Q52 -70 60 -40 Z" fill="#E6B24C"/>
+      <path d="M-112 -60 Q-124 -120 -84 -118 Q-78 -84 -80 -62 Z" fill="#F08A75"/>
+      <path d="M112 -60 Q124 -120 84 -118 Q78 -84 80 -62 Z" fill="#F08A75"/>
+      <!-- head -->
+      <ellipse cx="0" cy="20" rx="120" ry="115" fill="#E6B24C"/>
+      <!-- muzzle -->
+      <ellipse cx="0" cy="72" rx="68" ry="48" fill="#FBF7EF"/>
+      <!-- eyes (happy arcs) -->
+      <path d="M-56 34 q22 -22 44 0" stroke="#16302E" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M12 34 q22 -22 44 0" stroke="#16302E" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <!-- nose + smile -->
+      <ellipse cx="0" cy="66" rx="17" ry="12" fill="#16302E"/>
+      <path d="M-26 92 q26 30 52 0" stroke="#16302E" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <!-- cheeks -->
+      <ellipse cx="-78" cy="66" rx="16" ry="10" fill="#F08A75" opacity="0.75"/>
+      <ellipse cx="78" cy="66" rx="16" ry="10" fill="#F08A75" opacity="0.75"/>
+    </g>
+    <text x="600" y="640" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="76" fill="#FBF7EF" letter-spacing="-1">Sawiyya</text>
+    <text x="600" y="694" text-anchor="middle" font-family="'Readex Pro', sans-serif" font-size="30" fill="#F0C879">سويّة</text>
+  </svg>
+</template>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  a.sw-card{transition:transform .14s ease, box-shadow .14s ease}
+  a.sw-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(22,48,46,.14)}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:52px 56px 90px;">
+  <!-- header -->
+  <div style="display:flex;align-items:center;gap:26px;flex-wrap:wrap;">
+    <div style="animation:float 2.8s ease-in-out infinite;flex:none;"><dc-import name="Fanan" pose="wave" scale="1.15" hint-size="140px,140px"></dc-import></div>
+    <div style="flex:1;min-width:340px;">
+      <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Full app · Walkthrough
+      </div>
+      <h1 style="font:800 52px/1 Rubik,sans-serif;color:#16302E;margin:16px 0 6px;letter-spacing:-.025em;">Sawiyya <span style="color:#0F6E6A;font-weight:600;">سويّة</span></h1>
+      <p style="font:400 18px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:620px;">Learn to sign, together. Every screen in the app — 11 flow groups plus the mascot system — each rendered in English (LTR) and Arabic (RTL). Tap any card to open it live.</p>
+    </div>
+  </div>
+
+  <!-- section: journey -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:40px 0 14px;">The core journey</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+
+    <a class="sw-card" href="Sawiyya%20Boot.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#16302E;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">A · BOOT &amp; BRAND</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">First launch</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Splash, loading skeleton, update nudge, free camera, words grid &amp; tap drill.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Onboarding.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">B · ONBOARDING</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Getting started</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Welcome, meet Fanan, language, goals — and the on-device privacy moment.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20First%20Sign.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">B+ · QUICK WIN</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Your first sign</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The onboarding hook — teach one real sign before anything else. A win in 30 seconds.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Home%20Path.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">C · HOME</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Learning path</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The journey map — node states, unit banners, tap-to-start, and the bottom nav.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Practice%20Loop.dc.html" style="text-decoration:none;background:#FBF7EF;border:2px solid #0F6E6A;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#0F6E6A;">D · THE CORE ★</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Practice loop</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Watch → sign → grade. Three content types, live camera feedback, celebration.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Practise.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#16302E;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">E · PRACTISE</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Activities</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Hub, multiple-choice quiz, match-pairs, and the results screen.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Celebrations.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">F · REWARDS</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Celebrations</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Streak, goal, achievement, level-up, the "connection made" payoff &amp; certificate.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Progress.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">G · PROGRESS</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Stats &amp; oasis</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The growing oasis, heatmap dashboard, achievements gallery, family league.</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- section: everything else -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:36px 0 14px;">Reference, people &amp; system</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+
+    <a class="sw-card" href="Sawiyya%20Signs.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">H · DICTIONARY</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Signs</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Browse, the 28-letter alphabet grid, sign detail, and search.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Family.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">I · FAMILY</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Family &amp; social</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Profile switcher, hub, the "learn this with me" flag, and the family feed.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Settings.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#16302E;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">J · ACCOUNT</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Profile &amp; settings</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Profile, settings, accessibility, "how the AI works" trust screen, credits.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20States.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">✦ · EDGE CASES</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">States</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Camera permission, denied, no-camera, empty, and offline states.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Brand.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · BRAND</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">App icon &amp; wordmark</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The squircle icon in its variants &amp; sizes, plus the EN &amp; AR wordmark lockup.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Widgets.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · OFF-APP</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Widgets &amp; push</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Home-screen widgets, lock-screen complications, and Fanan notifications (EN+AR).</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Live%20States.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · LIVE GRADER</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Camera edge states</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Permission primer &amp; denied, no-hand, too-dark, out-of-frame — every live-grader failure, handled warmly.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Sound%20%26%20Haptics.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · FEEL</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Sound &amp; haptics</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The audio + vibration language — playable cues for correct, almost, celebrate, streak &amp; more.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Prototype.dc.html" style="text-decoration:none;background:#FBF7EF;border:2px solid #E8654C;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#E8654C;">▶ · INTERACTIVE ★</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Clickable prototype</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The whole core journey — Boot → Onboarding → First sign → Home → Practice — as one tappable flow, EN + AR.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Motion.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · MOTION</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Motion &amp; transitions</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Live easing curves, push/pop &amp; sheet transitions, the timed celebration, and the duration scale.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Share.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · GROWTH</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Share &amp; invite</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The "I signed my first word" share card (1:1 &amp; 9:16) and the family invite email, EN + AR.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Dark%20Mode.dc.html" style="text-decoration:none;background:#0E1B1A;border:1px solid #274744;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #000;">
+      <div style="height:8px;background:#1E9E96;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#4FD1C7;">◆ · THEME</div>
+        <div style="font:800 22px/1.1 Rubik;color:#F6EFE3;margin:9px 0 6px;">Dark mode</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#9DB0AD;">The core screens after dark — token mapping and Home / First sign / Practice in EN + AR.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Accessibility.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#0F6E6A;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · A11Y · INTERACTIVE</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Accessibility, applied</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Toggle captions, high-contrast, large-text and reduce-motion live on a real screen.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Curriculum.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#1F8A5B;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · CONTENT</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Curriculum map</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">How signs group into units and levels — the shape of the whole learning journey.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Notifications.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E8654C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · GROWTH</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Notifications</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">The re-engagement nudge ladder, lock-screen mockups, and the kindness rules Fanan follows.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20App%20Store.dc.html" style="text-decoration:none;background:#0F6E6A;border:1px solid #0F6E6A;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #0A4F4C;">
+      <div style="height:8px;background:#F0C879;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#F0C879;">◆ · MARKETING</div>
+        <div style="font:800 22px/1.1 Rubik;color:#FBF7EF;margin:9px 0 6px;">App Store</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#CFE6E3;">Six marketing frames at store aspect, plus the full listing copy.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Localization.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · SYSTEM</div>
+        <div style="font:800 22px/1.1 Rubik;color:#16302E;margin:9px 0 6px;">Localization &amp; RTL</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#5C726F;">Mirroring rules, Eastern-Arabic numerals, and the Rubik + Readex Pro bilingual type system.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Sawiyya%20Style%20Sheet.dc.html" style="text-decoration:none;background:#16302E;border:1px solid #16302E;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #0A1F1D;">
+      <div style="height:8px;background:#F0C879;"></div>
+      <div style="padding:20px;">
+        <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#F0C879;">◆ · FOUNDATION</div>
+        <div style="font:800 22px/1.1 Rubik;color:#FBF7EF;margin:9px 0 6px;">Style sheet</div>
+        <div style="font:400 13.5px/1.45 'Readex Pro';color:#B9C9C6;">Palette, type scale, Fanan poses, buttons, motion &amp; spacing — the handoff spec.</div>
+      </div>
+    </a>
+
+    <a class="sw-card" href="Fanan.dc.html" style="text-decoration:none;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:20px;overflow:hidden;box-shadow:0 2px 0 #EDE3D2;display:flex;flex-direction:column;">
+      <div style="height:8px;background:#E6B24C;"></div>
+      <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:none;transform:scale(.62);transform-origin:left center;width:76px;height:74px;"><dc-import name="Fanan" pose="cheer" scale="1" hint-size="120px,118px"></dc-import></div>
+        <div>
+          <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;">◆ · MASCOT</div>
+          <div style="font:800 20px/1.1 Rubik;color:#16302E;margin:7px 0 4px;">Fanan</div>
+          <div style="font:400 12.5px/1.4 'Readex Pro';color:#5C726F;">6 poses, one component.</div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <div style="margin-top:34px;font:400 13px/1.6 'Readex Pro';color:#94A5A2;">25 surfaces · every screen in English &amp; Arabic · locked palette · Rubik + Readex Pro · Fanan throughout. Developer tokens &amp; file map in <b style="color:#5C726F;">HANDOFF.md</b>.</div>
+</div>
+</x-dc>
+</body>
+</html>

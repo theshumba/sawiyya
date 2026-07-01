@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 96px;">
+  <div style="max-width:880px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#E8654C;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FBF7EF;"></span> Sawiyya · Localization &amp; RTL
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Two scripts, one Sawiyya</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:760px;">Arabic isn't a translation layer bolted on — it's a first-class mirror of the whole app. These are the rules every screen already follows, written down.</p>
+  </div>
+
+  <!-- MIRRORING -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:40px 0 16px;">1 · Layout mirroring</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch;">
+    <!-- LTR mini -->
+    <div style="flex:1;min-width:300px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:20px;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#94A5A2;margin-bottom:14px;">ENGLISH · LTR</div>
+      <div style="background:#F6EFE3;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:#EDE3D2;display:flex;align-items:center;justify-content:center;font:800 18px Rubik;color:#16302E;">←</div>
+        <div style="flex:1;font:800 16px/1 Rubik;color:#16302E;">Lesson 3</div>
+        <div style="width:34px;height:34px;border-radius:10px;background:#0F6E6A;display:flex;align-items:center;justify-content:center;color:#FBF7EF;font-size:15px;">✓</div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:99px;background:#EDE3D2;overflow:hidden;"><div style="height:100%;width:65%;background:#E6B24C;border-radius:99px;"></div></div><span style="font:700 12px Rubik;color:#94A5A2;">65%</span></div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <div style="flex:1;background:#0F6E6A;color:#FBF7EF;border-radius:10px;padding:9px 0;text-align:center;font:700 12px Rubik;">🏠 Home</div>
+        <div style="flex:1;background:#F1E7D6;color:#94A5A2;border-radius:10px;padding:9px 0;text-align:center;font:600 12px 'Readex Pro';">📚 Signs</div>
+        <div style="flex:1;background:#F1E7D6;color:#94A5A2;border-radius:10px;padding:9px 0;text-align:center;font:600 12px 'Readex Pro';">👤 Me</div>
+      </div>
+      <div style="margin-top:12px;font:400 12px/1.4 'Readex Pro';color:#94A5A2;">Back points left · action trails right · progress fills →</div>
+    </div>
+    <!-- RTL mini -->
+    <div dir="rtl" style="flex:1;min-width:300px;background:#16302E;border:1px solid #16302E;border-radius:18px;padding:20px;">
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#7E938F;margin-bottom:14px;">العربية · RTL</div>
+      <div style="background:#1D3D3A;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:#274744;display:flex;align-items:center;justify-content:center;font:800 18px Rubik;color:#F6EFE3;">→</div>
+        <div style="flex:1;font:800 16px/1 Rubik;color:#F6EFE3;">الدرس ٣</div>
+        <div style="width:34px;height:34px;border-radius:10px;background:#1E9E96;display:flex;align-items:center;justify-content:center;color:#06110F;font-size:15px;">✓</div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;"><div style="flex:1;height:8px;border-radius:99px;background:#274744;overflow:hidden;display:flex;justify-content:flex-start;"><div style="height:100%;width:65%;background:#F0C879;border-radius:99px;"></div></div><span style="font:700 12px Rubik;color:#7E938F;">٦٥٪</span></div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <div style="flex:1;background:#1E9E96;color:#06110F;border-radius:10px;padding:9px 0;text-align:center;font:700 12px Rubik;">🏠 الرئيسية</div>
+        <div style="flex:1;background:#12211F;color:#7E938F;border-radius:10px;padding:9px 0;text-align:center;font:600 12px 'Readex Pro';">📚 الإشارات</div>
+        <div style="flex:1;background:#12211F;color:#7E938F;border-radius:10px;padding:9px 0;text-align:center;font:600 12px 'Readex Pro';">👤 حسابي</div>
+      </div>
+      <div style="margin-top:12px;font:400 12px/1.4 'Readex Pro';color:#7E938F;">الرجوع يمينًا · الإجراء يسارًا · التقدّم يمتلئ ←</div>
+    </div>
+  </div>
+
+  <!-- mirrors / doesn't -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+    <div style="background:#E9F5EE;border:1px solid #C7E6D3;border-radius:16px;padding:18px 20px;">
+      <div style="font:800 14px/1 Rubik;color:#1F8A5B;margin-bottom:10px;">↔ Mirrors</div>
+      <sc-for list="{{ mirrors }}" as="m" hint-placeholder-count="5"><div style="display:flex;gap:9px;align-items:flex-start;padding:4px 0;font:400 13px/1.4 'Readex Pro';color:#16302E;"><span style="color:#1F8A5B;font-weight:700;">✓</span>{{ m }}</div></sc-for>
+    </div>
+    <div style="background:#FBEEE9;border:1px solid #F1CFC4;border-radius:16px;padding:18px 20px;">
+      <div style="font:800 14px/1 Rubik;color:#C0492F;margin-bottom:10px;">⛔ Never mirrors</div>
+      <sc-for list="{{ statics }}" as="m" hint-placeholder-count="5"><div style="display:flex;gap:9px;align-items:flex-start;padding:4px 0;font:400 13px/1.4 'Readex Pro';color:#16302E;"><span style="color:#C0492F;font-weight:700;">×</span>{{ m }}</div></sc-for>
+    </div>
+  </div>
+
+  <!-- NUMERALS -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:40px 0 16px;">2 · Numerals</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch;">
+    <div style="flex:2;min-width:420px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:22px 24px;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="display:flex;gap:0;flex-wrap:wrap;">
+        <sc-for list="{{ digits }}" as="d" hint-placeholder-count="10">
+          <div style="flex:1;min-width:56px;text-align:center;padding:6px 0;">
+            <div style="font:700 26px/1 Rubik;color:#16302E;">{{ d.w }}</div>
+            <div style="font:400 11px/1 'Readex Pro';color:#94A5A2;margin:6px 0;">↓</div>
+            <div style="font:700 30px/1 'Readex Pro';color:#0F6E6A;">{{ d.e }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:16px;font:400 13px/1.5 'Readex Pro';color:#5C726F;">In the Arabic UI, all counts, timers, scores and dates use <b style="color:#16302E;">Eastern Arabic numerals</b> (٠–٩). The two never mix within one screen.</div>
+    </div>
+    <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px;">
+      <div style="background:#FBEFD1;border:1px solid #F0DFB0;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🔥</span><span style="font:800 16px Rubik;color:#B8860B;">7 day streak</span></div>
+      <div dir="rtl" style="background:#FBEFD1;border:1px solid #F0DFB0;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🔥</span><span style="font:800 16px Rubik;color:#B8860B;">٧ أيام متتالية</span></div>
+      <div style="background:#FBF7EF;border:1px solid #EDE3D2;border-radius:14px;padding:12px 15px;font:400 12px/1.4 'Readex Pro';color:#5C726F;">Same value, script-appropriate glyphs. Percent sign becomes ٪ and trails per RTL.</div>
+    </div>
+  </div>
+
+  <!-- TYPE -->
+  <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:#0F6E6A;margin:40px 0 16px;">3 · Bilingual type</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch;">
+    <div style="flex:1;min-width:260px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:24px;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="font:800 60px/1 Rubik;color:#16302E;">Aa</div>
+      <div style="font:800 20px/1 Rubik;color:#16302E;margin-top:12px;">Rubik</div>
+      <div style="font:400 13px/1.5 'Readex Pro';color:#5C726F;margin-top:6px;">Latin display &amp; UI. Weights 400–800. Friendly geometric, slightly rounded — matches Fanan.</div>
+    </div>
+    <div dir="rtl" style="flex:1;min-width:260px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:24px;box-shadow:0 2px 0 #EDE3D2;">
+      <div style="font:700 60px/1 'Readex Pro';color:#16302E;">أب</div>
+      <div style="font:700 20px/1 'Readex Pro';color:#16302E;margin-top:12px;">Readex Pro</div>
+      <div style="font:400 13px/1.6 'Readex Pro';color:#5C726F;margin-top:6px;">Arabic display &amp; UI. Weights 300–700. A modern, open naskh that pairs optically with Rubik's weight.</div>
+    </div>
+    <div style="flex:1.4;min-width:320px;background:#16302E;border-radius:18px;padding:22px 24px;">
+      <div style="font:700 11px/1 ui-monospace,Menlo;letter-spacing:.1em;color:#F0C879;margin-bottom:14px;">MATCHED SCALE</div>
+      <sc-for list="{{ typeScale }}" as="ts" hint-placeholder-count="4">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #274744;">
+          <span style="font:700 12px/1 ui-monospace,Menlo;color:#7E938F;flex:none;width:96px;">{{ ts.name }}</span>
+          <span style="font-family:Rubik;font-weight:700;color:#F6EFE3;flex:1;font-size:{{ ts.px }};">{{ ts.en }}</span>
+          <span dir="rtl" style="font-family:'Readex Pro';font-weight:700;color:#F6EFE3;flex:1;text-align:right;font-size:{{ ts.px }};">{{ ts.ar }}</span>
+        </div>
+      </sc-for>
+      <div style="font:400 12px/1.5 'Readex Pro';color:#7E938F;margin-top:12px;">Arabic gets <b style="color:#F6EFE3;">+0.15 line-height</b> over Latin at every step — the taller glyphs and diacritics need the room.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px;max-width:840px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Rule of thumb:</b> design the Arabic screen first, not last. If a layout only works in English and breaks when mirrored — crowded action rows, left-anchored numbers, icons that imply direction — it's the layout that's wrong, not the translation. Every screen in this set was checked in both directions before it shipped.
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const w='0123456789'.split(''), e='٠١٢٣٤٥٦٧٨٩'.split('');
+    return {
+      mirrors:[ 'Reading & flow direction — everything anchors to the start edge',
+        'Back / forward arrows and chevrons flip horizontally',
+        'Progress bars & sliders fill from the opposite side',
+        'Bottom-nav and tab order reverses',
+        'Slide push/pop enters from the leading (left) edge' ],
+      statics:[ 'Numerals inside media, clocks & the 9:41 status time',
+        'Play / pause, camera and record glyphs',
+        'The checkmark, and Fanan himself',
+        'Logos, wordmarks and the app icon',
+        'Sign-language handshapes — they are physical, not textual' ],
+      digits: w.map((x,i)=>({ w:x, e:e[i] })),
+      typeScale:[
+        { name:'Display', px:'30px', en:'Watch closely', ar:'راقب بتمعّن' },
+        { name:'Title', px:'22px', en:'Lesson 3', ar:'الدرس ٣' },
+        { name:'Body', px:'16px', en:'This means hello', ar:'هذه تعني مرحبًا' },
+        { name:'Caption', px:'13px', en:'On-device', ar:'على الجهاز' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

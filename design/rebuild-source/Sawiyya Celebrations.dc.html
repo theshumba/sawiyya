@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F1E7D6;font-family:'Readex Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes rise{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(255,255,255,.4)}70%{box-shadow:0 0 0 22px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  @keyframes confettiFall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(460px) rotate(560deg);opacity:.2}}
+  @keyframes flick{0%,100%{transform:scaleY(1) rotate(-2deg)}50%{transform:scaleY(1.08) rotate(2deg)}}
+</style>
+</helmet>
+
+<div style="min-width:1120px;padding:44px 52px 90px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:9px;background:#0F6E6A;color:#FBF7EF;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:99px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#F0C879;"></span> Sawiyya · Hi-fi · Turn 4
+    </div>
+    <h1 style="font:800 46px/1.02 Rubik,sans-serif;color:#16302E;margin:16px 0 8px;letter-spacing:-.02em;">Celebrations &amp; rewards</h1>
+    <p style="font:400 17px/1.5 'Readex Pro',sans-serif;color:#5C726F;margin:0;max-width:680px;">The moments that make it feel <i>earned</i> — streaks, goals, badges, level-ups, and the emotional family payoff. <b style="color:#16302E">Pick a moment</b>; each plays its own celebration in English &amp; Arabic.</p>
+  </div>
+
+  <!-- tabs -->
+  <div style="margin-top:22px;background:#FBF7EF;border:1px solid #EDE3D2;border-radius:18px;padding:12px;box-shadow:0 2px 0 #EDE3D2;display:flex;gap:8px;flex-wrap:wrap;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="6">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:22px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">
+    <sc-for list="{{ screens }}" as="s" hint-placeholder-count="2">
+      <div>
+        <div style="font:700 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:#0F6E6A;margin-bottom:10px;">{{ s.langLabel }}</div>
+        <div dir="{{ s.dir }}" style="position:relative;width:322px;height:660px;background:#16302E;border-radius:47px;padding:7px;box-shadow:0 24px 60px rgba(22,48,46,.28);">
+          <div style="position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:{{ s.bg }};">
+
+            <div style="flex:none;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:relative;">
+              <span style="font:700 13px/1 Rubik;color:{{ s.statusColor }};">9:41</span>
+              <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);width:74px;height:20px;background:#16302E;border-radius:99px;opacity:.5;"></div>
+              <div style="width:16px;height:9px;border:1.5px solid {{ s.statusColor }};border-radius:3px;"></div>
+            </div>
+
+            <div style="flex:1;padding:12px 26px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0;">
+
+              <!-- STREAK -->
+              <sc-if value="{{ s.isStreak }}" hint-placeholder-val="{{ true }}">
+                <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;">
+                  <div style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.14);animation:pulseRing 2s ease-out infinite;"></div>
+                  <div style="width:118px;height:132px;background:#F0C879;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;position:relative;animation:flick 1.6s ease-in-out infinite;box-shadow:0 12px 30px rgba(0,0,0,.18);"><div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:58px;height:66px;background:#F6EFE3;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;"></div></div>
+                  <div style="position:absolute;font:800 46px/1 Rubik;color:#C54F3A;">{{ s.count }}</div>
+                </div>
+                <div style="font:800 32px/1.05 Rubik;color:#FBF7EF;margin-top:22px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+                <div style="font:400 15px/1.45 'Readex Pro';color:rgba(255,255,255,.85);max-width:250px;margin-top:6px;">{{ s.t.body }}</div>
+              </sc-if>
+
+              <!-- DAILY GOAL -->
+              <sc-if value="{{ s.isGoal }}" hint-placeholder-val="{{ true }}">
+                <div style="position:relative;width:150px;height:150px;">
+                  <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(#F0C879 100%, rgba(255,255,255,.15) 0);"></div>
+                  <div style="position:absolute;inset:16px;border-radius:50%;background:#0F6E6A;display:flex;align-items:center;justify-content:center;animation:pop .5s ease both;"><div style="width:52px;height:28px;border-left:9px solid #FBF7EF;border-bottom:9px solid #FBF7EF;transform:rotate(-45deg) translateY(-4px);border-radius:2px;"></div></div>
+                </div>
+                <div style="font:800 30px/1.05 Rubik;color:#FBF7EF;margin-top:22px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+                <div style="font:400 15px/1.45 'Readex Pro';color:rgba(255,255,255,.85);max-width:250px;margin-top:6px;">{{ s.t.body }}</div>
+              </sc-if>
+
+              <!-- ACHIEVEMENT -->
+              <sc-if value="{{ s.isBadge }}" hint-placeholder-val="{{ true }}">
+                <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;animation:pop .5s ease both;">
+                  <div style="position:absolute;inset:0;border-radius:50%;background:rgba(22,48,46,.1);animation:pulseRing 2s ease-out infinite;"></div>
+                  <div style="width:120px;height:120px;border-radius:50%;background:#16302E;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,.2);border:5px solid #0F6E6A;">
+                    <div style="font:800 30px Rubik;color:#F0C879;">أ</div>
+                  </div>
+                </div>
+                <div style="font:700 12px/1 ui-monospace,Menlo;letter-spacing:.14em;text-transform:uppercase;color:#16302E;margin-top:22px;">{{ s.t.eyebrow }}</div>
+                <div style="font:800 28px/1.08 Rubik;color:#16302E;margin-top:6px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+                <div style="font:400 14px/1.4 'Readex Pro';color:rgba(22,48,46,.7);max-width:250px;margin-top:6px;">{{ s.t.body }}</div>
+              </sc-if>
+
+              <!-- LEVEL UP -->
+              <sc-if value="{{ s.isLevel }}" hint-placeholder-val="{{ true }}">
+                <div style="animation:float 2.6s ease-in-out infinite;"><dc-import name="Fanan" pose="celebrate" scale="1.05" hint-size="128px,128px"></dc-import></div>
+                <div style="font:700 12px/1 ui-monospace,Menlo;letter-spacing:.14em;text-transform:uppercase;color:#F0C879;margin-top:16px;">{{ s.t.eyebrow }}</div>
+                <div style="font:800 30px/1.05 Rubik;color:#FBF7EF;margin-top:6px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:16px;background:rgba(255,255,255,.14);border-radius:99px;padding:9px 15px;"><span style="width:9px;height:9px;border-radius:50%;background:#F0C879;"></span><span style="font:600 13px/1 'Readex Pro';color:#FBF7EF;">{{ s.t.body }}</span></div>
+              </sc-if>
+
+              <!-- CONNECTION MADE -->
+              <sc-if value="{{ s.isConnect }}" hint-placeholder-val="{{ true }}">
+                <div style="position:relative;display:flex;align-items:center;gap:0;margin-bottom:6px;">
+                  <div style="width:78px;height:78px;border-radius:50%;background:#F0C879;display:flex;align-items:center;justify-content:center;font:800 30px Rubik;color:#16302E;box-shadow:0 8px 20px rgba(0,0,0,.12);z-index:1;">{{ s.t.meInit }}</div>
+                  <div style="width:44px;height:44px;border-radius:50%;background:#E8654C;display:flex;align-items:center;justify-content:center;margin:0 -8px;z-index:2;animation:pop .5s ease .2s both;box-shadow:0 6px 16px rgba(232,101,76,.4);"><div style="width:18px;height:16px;background:#FBF7EF;border-radius:50% 50% 0 0;transform:rotate(45deg);position:relative;"><div style="position:absolute;left:-9px;top:0;width:18px;height:16px;background:#FBF7EF;border-radius:50% 50% 0 0;"></div></div></div>
+                  <div style="width:78px;height:78px;border-radius:50%;background:#0F6E6A;display:flex;align-items:center;justify-content:center;font:800 30px Rubik;color:#FBF7EF;box-shadow:0 8px 20px rgba(0,0,0,.12);z-index:1;">{{ s.t.themInit }}</div>
+                </div>
+                <div style="font:700 12px/1 ui-monospace,Menlo;letter-spacing:.14em;text-transform:uppercase;color:#E8654C;margin-top:20px;">{{ s.t.eyebrow }}</div>
+                <div style="font:800 27px/1.12 Rubik;color:#16302E;margin-top:8px;max-width:260px;animation:rise .4s ease both;">{{ s.t.title }}</div>
+                <div style="font:400 14px/1.5 'Readex Pro';color:#5C726F;max-width:250px;margin-top:8px;">{{ s.t.body }}</div>
+              </sc-if>
+
+              <!-- CERTIFICATE -->
+              <sc-if value="{{ s.isCert }}" hint-placeholder-val="{{ true }}">
+                <div style="width:100%;background:#FBF7EF;border:2px solid #E6B24C;border-radius:20px;padding:22px 20px;position:relative;box-shadow:0 14px 34px rgba(22,48,46,.14);animation:pop .5s ease both;">
+                  <div style="position:absolute;inset:6px;border:1px solid #F0C879;border-radius:14px;pointer-events:none;"></div>
+                  <div style="font:700 10px/1 ui-monospace,Menlo;letter-spacing:.18em;text-transform:uppercase;color:#C89A3D;">{{ s.t.eyebrow }}</div>
+                  <div style="font:800 22px/1.15 Rubik;color:#16302E;margin-top:12px;">{{ s.t.title }}</div>
+                  <div style="font:400 13px/1.4 'Readex Pro';color:#5C726F;margin-top:8px;">{{ s.t.body }}</div>
+                  <div style="width:66px;height:66px;border-radius:50%;background:#E6B24C;margin:18px auto 6px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #C89A3D;"><div style="font:800 26px Rubik;color:#FBF7EF;">أ</div></div>
+                  <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px dashed #EDE3D2;">
+                    <div style="text-align:start;"><div style="font:700 14px Rubik;color:#16302E;">{{ s.t.name }}</div><div style="font:500 10px 'Readex Pro';color:#5C726F;">{{ s.t.nameLbl }}</div></div>
+                    <div style="text-align:end;"><div style="font:700 14px Rubik;color:#16302E;">{{ s.t.date }}</div><div style="font:500 10px 'Readex Pro';color:#5C726F;">{{ s.t.dateLbl }}</div></div>
+                  </div>
+                </div>
+              </sc-if>
+
+            </div>
+
+            <div style="flex:none;padding:14px 26px 22px;">
+              <button style="width:100%;border:none;cursor:pointer;background:{{ s.ctaBg }};color:{{ s.ctaColor }};font:700 16px/1 Rubik;height:54px;border-radius:17px;box-shadow:0 5px 0 {{ s.ctaShadow }};transition:all .08s;" style-active="transform:translateY(4px);box-shadow:0 1px 0 {{ s.ctaShadow }}">{{ s.t.cta }}</button>
+            </div>
+
+            <sc-if value="{{ s.confetti }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:47px;">
+                <sc-for list="{{ confetti }}" as="cp" hint-placeholder-count="0"><div style="{{ cp.style }}"></div></sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px;max-width:760px;font:400 13px/1.6 'Readex Pro';color:#5C726F;">
+    <b style="color:#16302E;">Motion in play:</b> the streak flame flickers while the count ticks up, the goal ring fills and the check pops, badges spring in with a halo <i>pulse-ring</i>, level-up rains weighted confetti while Fanan celebrates, and the <b style="color:#16302E">connection-made</b> moment quietly pops a heart between two avatars — calmer on purpose, because it's the emotional one. The certificate is a share-ready card. <b style="color:#16302E">Connection made</b> is Sawiyya's signature payoff: <i>you didn't just learn a sign — you reached someone.</i>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { which:'streak', count:0 };
+
+  ORDER = ['streak','goal','badge','level','connect','cert'];
+  TAB = { streak:{en:'Streak',ar:'التتابع'}, goal:{en:'Daily goal',ar:'الهدف'}, badge:{en:'Achievement',ar:'إنجاز'},
+    level:{en:'Level up',ar:'ترقية'}, connect:{en:'Connection',ar:'تواصل'}, cert:{en:'Certificate',ar:'شهادة'} };
+
+  STR = {
+    en:{ langLabel:'English · LTR',
+      streak:{ title:'7-day streak!', body:'You\u2019ve signed every day this week. You\u2019re on fire.', cta:'Keep it going \u2192' },
+      goal:{ title:'Daily goal met!', body:'10 / 10 XP today. Fanan is proud of you.', cta:'Continue' },
+      badge:{ eyebrow:'Achievement unlocked', title:'First Words', body:'You mastered your first 5 signs. A whole conversation starts here.', cta:'Collect \u2b50' },
+      level:{ eyebrow:'Unit 1 complete', title:'Level up!', body:'You unlocked \u201cThe Alphabet\u201d', cta:'Start Unit 2 \u2192' },
+      connect:{ eyebrow:'Connection made', meInit:'L', themInit:'M', title:'You signed \u201cI love you\u201d with Mama.', body:'Not a lesson \u2014 a moment. This is why Sawiyya exists.', cta:'Share this moment' },
+      cert:{ eyebrow:'Certificate of achievement', title:'You learned the whole Arabic alphabet', body:'All 28 letters, signed and camera-checked.', name:'Layla Al-Mansoori', nameLbl:'Learner', date:'Jul 2026', dateLbl:'Completed', cta:'Share certificate \u2191' } },
+    ar:{ langLabel:'العربية · RTL',
+      streak:{ title:'تتابع ٧ أيام!', body:'أشرت كل يوم هذا الأسبوع. أنت في أوجك.', cta:'واصل التقدّم \u2190' },
+      goal:{ title:'تحقّق هدف اليوم!', body:'١٠ / ١٠ نقاط اليوم. فَنَن فخور بك.', cta:'متابعة' },
+      badge:{ eyebrow:'إنجاز مفتوح', title:'الكلمات الأولى', body:'أتقنت أول ٥ إشارات. محادثة كاملة تبدأ من هنا.', cta:'استلم \u2b50' },
+      level:{ eyebrow:'اكتملت الوحدة ١', title:'ترقية!', body:'فتحت «الحروف الأبجدية»', cta:'ابدأ الوحدة ٢ \u2190' },
+      connect:{ eyebrow:'تمّ التواصل', meInit:'ل', themInit:'م', title:'أشرت «أحبّك» مع ماما.', body:'ليست حصّة \u2014 بل لحظة. لهذا وُجدت سويّة.', cta:'شارك هذه اللحظة' },
+      cert:{ eyebrow:'شهادة إنجاز', title:'تعلّمت الحروف العربية كاملة', body:'كل الحروف الـ٢٨، بالإشارة وبتحقّق الكاميرا.', name:'ليلى المنصوري', nameLbl:'المتعلّمة', date:'يوليو ٢٠٢٦', dateLbl:'أُنجزت', cta:'شارك الشهادة \u2191' } }
+  };
+
+  select(w){ this.setState({ which:w, count:0 }); if(w==='streak') this.tick(); }
+  tick(){ if(this._i)clearInterval(this._i); this._i=setInterval(()=>{ this.setState(s=>{ const c=Math.min(7,s.count+1); if(c>=7){clearInterval(this._i);this._i=null;} return {count:c}; }); },130); }
+  componentDidMount(){ this.tick(); }
+  componentWillUnmount(){ if(this._i)clearInterval(this._i); }
+
+  buildScreen(lang){
+    const S=this.STR[lang], w=this.state.which, t=S[w], isAr=lang==='ar';
+    const dark = w==='streak'||w==='goal'||w==='level';
+    const bgMap = { streak:'linear-gradient(160deg,#E8654C,#C54F3A)', goal:'linear-gradient(160deg,#0F6E6A,#0A4F4C)',
+      badge:'linear-gradient(160deg,#F0C879,#E6B24C)', level:'linear-gradient(160deg,#0F6E6A,#0A4F4C)',
+      connect:'#F6EFE3', cert:'#F6EFE3' };
+    let ctaBg='#FBF7EF', ctaColor='#16302E', ctaShadow='rgba(0,0,0,.18)';
+    if(w==='badge'){ ctaBg='#16302E'; ctaColor='#FBF7EF'; ctaShadow='#0a1a19'; }
+    if(w==='connect'){ ctaBg='#E8654C'; ctaColor='#FBF7EF'; ctaShadow='#C54F3A'; }
+    if(w==='cert'){ ctaBg='#0F6E6A'; ctaColor='#FBF7EF'; ctaShadow='#0A4F4C'; }
+    const flags={ isStreak:w==='streak',isGoal:w==='goal',isBadge:w==='badge',isLevel:w==='level',isConnect:w==='connect',isCert:w==='cert' };
+    return { lang, dir:isAr?'rtl':'ltr', langLabel:S.langLabel, t, ...flags,
+      bg:bgMap[w], statusColor: dark?'#FBF7EF':'#16302E',
+      count: isAr ? String(this.state.count).replace(/[0-9]/g,d=>'\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'[+d]) : String(this.state.count),
+      confetti: w==='streak'||w==='goal'||w==='badge'||w==='level',
+      ctaBg, ctaColor, ctaShadow };
+  }
+
+  renderVals(){
+    if(!this._conf){ const cols=['#0F6E6A','#E8654C','#E6B24C','#F0C879','#F08A75','#FBF7EF'];
+      this._conf=Array.from({length:42},(_,i)=>{ const sz=6+Math.random()*9; return { style:{ position:'absolute',top:'-18px',left:(Math.random()*100)+'%',
+        width:sz+'px',height:(sz*0.62)+'px',background:cols[i%cols.length],borderRadius:Math.random()<0.5?'2px':'50%',
+        transform:'rotate('+(Math.random()*360)+'deg)',animation:'confettiFall '+(1.3+Math.random()*1)+'s '+(Math.random()*0.45)+'s ease-in forwards' } }; }); }
+    const w=this.state.which;
+    const tabs=this.ORDER.map(k=>{ const active=k===w; return { label:this.TAB[k].en, onClick:()=>this.select(k),
+      style:{ cursor:'pointer',border:'none',font:'700 13px/1 Rubik,sans-serif',padding:'10px 15px',borderRadius:'12px',
+        backgroundColor: active?'#0F6E6A':'#F6EFE3', color: active?'#FBF7EF':'#5C726F', boxShadow: active?'0 3px 0 #0A4F4C':'inset 0 0 0 1px #EDE3D2' } }; });
+    return { screens:['en','ar'].map(l=>this.buildScreen(l)), tabs, confetti:this._conf };
+  }
+}
+</script>
+</body>
+</html>

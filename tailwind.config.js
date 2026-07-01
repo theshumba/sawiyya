@@ -5,14 +5,27 @@ export default {
     extend: {
       colors: {
         // Sawiyya brand palette (LOCKED — Brand Identity §2). AA-tuned.
-        teal: { DEFAULT: "#0F6E6A", deep: "#0A4F4C", ink: "#16302E" },
+        // ink900 = button hard-shadow deep tone (HANDOFF §1 · teal/ink-900).
+        teal: { DEFAULT: "#0F6E6A", deep: "#0A4F4C", ink: "#16302E", ink900: "#0A1F1D" },
         coral: { DEFAULT: "#E8654C", soft: "#F08A75", deep: "#C54F3A" },
-        gold: { DEFAULT: "#E6B24C", soft: "#F0C879", deep: "#C89A3D" },
+        // mid = progress-fill / reward accent (HANDOFF §1 · gold/mid).
+        gold: { DEFAULT: "#E6B24C", soft: "#F0C879", deep: "#C89A3D", mid: "#E6B24C" },
+        success: "#1F8A5B",
+        danger: "#C0492F",
         sand: "#F6EFE3",
         paper: "#FBF7EF",
+        // paper2 = canvas / behind-app background (HANDOFF §1 · paper/2).
+        paper2: "#F1E7D6",
         ink: "#16302E",
         muted: "#5C726F",
         line: "#EDE3D2",
+      },
+      transitionTimingFunction: {
+        // Named easings — HANDOFF §Motion. Use as ease-spring / ease-standard / …
+        spring: "cubic-bezier(.34,1.56,.64,1)",
+        standard: "cubic-bezier(.4,0,.2,1)",
+        enter: "cubic-bezier(0,0,.2,1)",
+        exit: "cubic-bezier(.4,0,1,1)",
       },
       fontFamily: {
         // Readex Pro = dual-script UI/body. Rubik = display + numbers.
@@ -52,12 +65,31 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        // Celebration confetti — linear fall + spin (HANDOFF §Motion · ~1.4s).
+        "confetti": {
+          "0%": { transform: "translateY(-10%) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateY(160px) rotate(430deg)", opacity: "0" },
+        },
+        // Mascot / idle gentle bob.
+        "float": {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-7px)" },
+        },
+        // Overshoot scale-in for checks, badges, sparkles.
+        "pop": {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "60%": { transform: "scale(1.1)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "pop-in": "pop-in .45s cubic-bezier(.2,.9,.3,1.4) both",
         "rise": "rise .5s ease both",
         "pulse-ring": "pulse-ring 1.4s ease-out infinite",
         "shimmer": "shimmer 1.6s linear infinite",
+        "confetti": "confetti 1.4s linear forwards",
+        "float": "float 2.6s ease-in-out infinite",
+        "pop": "pop .4s cubic-bezier(.34,1.56,.64,1) both",
       },
     },
   },

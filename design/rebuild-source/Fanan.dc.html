@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="{{ wrapStyle }}">
+  <div style="position:relative;width:120px;height:118px;">
+    <!-- ears -->
+    <div style="position:absolute;top:0;left:12px;width:36px;height:54px;border-radius:66% 34% 48% 52%/76% 76% 26% 26%;background:#E6B24C;transform:rotate(-20deg);box-shadow:inset 0 -4px 0 rgba(0,0,0,.06);">
+      <div style="position:absolute;top:11px;left:11px;width:14px;height:30px;border-radius:50%;background:#F08A75;"></div>
+    </div>
+    <div style="position:absolute;top:0;right:12px;width:36px;height:54px;border-radius:34% 66% 52% 48%/76% 76% 26% 26%;background:#E6B24C;transform:rotate(20deg);box-shadow:inset 0 -4px 0 rgba(0,0,0,.06);">
+      <div style="position:absolute;top:11px;right:11px;width:14px;height:30px;border-radius:50%;background:#F08A75;"></div>
+    </div>
+    <!-- head -->
+    <div style="position:absolute;top:28px;left:19px;width:82px;height:78px;border-radius:50% 50% 47% 47%;background:#E6B24C;box-shadow:inset 0 -7px 0 rgba(0,0,0,.07);"></div>
+    <!-- muzzle -->
+    <div style="position:absolute;top:74px;left:37px;width:46px;height:32px;border-radius:50%;background:#FBF7EF;"></div>
+
+    <!-- sparkles (celebrate) -->
+    <sc-if value="{{ isCeleb }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:2px;left:2px;width:9px;height:9px;background:#F0C879;border-radius:2px;transform:rotate(45deg);animation:pop .5s ease both;"></div>
+      <div style="position:absolute;top:8px;right:0;width:11px;height:11px;background:#E8654C;border-radius:2px;transform:rotate(45deg);animation:pop .5s ease .1s both;"></div>
+      <div style="position:absolute;top:30px;right:-6px;width:7px;height:7px;background:#0F6E6A;border-radius:2px;transform:rotate(45deg);animation:pop .5s ease .2s both;"></div>
+    </sc-if>
+
+    <!-- eyes: happy arcs -->
+    <sc-if value="{{ happy }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:56px;left:36px;width:15px;height:9px;border:3px solid #16302E;border-bottom:none;border-radius:15px 15px 0 0;"></div>
+      <div style="position:absolute;top:56px;left:69px;width:15px;height:9px;border:3px solid #16302E;border-bottom:none;border-radius:15px 15px 0 0;"></div>
+    </sc-if>
+    <!-- eyes: open dots -->
+    <sc-if value="{{ dots }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:54px;left:37px;width:14px;height:15px;border-radius:50%;background:#16302E;"><div style="position:absolute;top:3px;right:3px;width:4px;height:4px;border-radius:50%;background:#FBF7EF;"></div></div>
+      <div style="position:absolute;top:54px;left:70px;width:14px;height:15px;border-radius:50%;background:#16302E;"><div style="position:absolute;top:3px;right:3px;width:4px;height:4px;border-radius:50%;background:#FBF7EF;"></div></div>
+    </sc-if>
+
+    <!-- sad brows -->
+    <sc-if value="{{ isSad }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:49px;left:35px;width:15px;height:3px;background:#16302E;border-radius:2px;transform:rotate(14deg);"></div>
+      <div style="position:absolute;top:49px;left:70px;width:15px;height:3px;background:#16302E;border-radius:2px;transform:rotate(-14deg);"></div>
+    </sc-if>
+    <!-- think brow + ? -->
+    <sc-if value="{{ isThink }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:49px;left:70px;width:14px;height:3px;background:#16302E;border-radius:2px;transform:rotate(-16deg);"></div>
+      <div style="position:absolute;top:0;right:-4px;font:800 18px/1 Rubik,sans-serif;color:#0F6E6A;">?</div>
+    </sc-if>
+
+    <!-- nose -->
+    <div style="position:absolute;top:73px;left:54px;width:12px;height:9px;border-radius:50%;background:#16302E;"></div>
+
+    <!-- mouths -->
+    <sc-if value="{{ mouthSmile }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:84px;left:50px;width:20px;height:10px;border:2.5px solid #16302E;border-top:none;border-radius:0 0 20px 20px;"></div></sc-if>
+    <sc-if value="{{ mouthOpen }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:83px;left:51px;width:18px;height:12px;background:#16302E;border-radius:0 0 11px 11px;"></div></sc-if>
+    <sc-if value="{{ mouthFrown }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:89px;left:52px;width:16px;height:8px;border:2.5px solid #16302E;border-bottom:none;border-radius:16px 16px 0 0;"></div></sc-if>
+    <sc-if value="{{ mouthLine }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:87px;left:54px;width:12px;height:3px;background:#16302E;border-radius:2px;"></div></sc-if>
+
+    <!-- cheeks -->
+    <sc-if value="{{ happy }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:70px;left:28px;width:11px;height:7px;border-radius:50%;background:#F08A75;opacity:.75;"></div>
+      <div style="position:absolute;top:70px;left:81px;width:11px;height:7px;border-radius:50%;background:#F08A75;opacity:.75;"></div>
+    </sc-if>
+
+    <!-- raised paw (wave / celebrate) -->
+    <sc-if value="{{ raisePaw }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;top:44px;right:-4px;width:18px;height:18px;border-radius:50%;background:#E6B24C;box-shadow:inset 0 -3px 0 rgba(0,0,0,.07);transform-origin:bottom center;animation:float 1s ease-in-out infinite;"></div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:140,&quot;height&quot;:140},&quot;pose&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;think&quot;,&quot;cheer&quot;,&quot;sad&quot;,&quot;celebrate&quot;,&quot;wave&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;scale&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;min&quot;:0.4,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals(){
+    const pose = this.props.pose || 'idle';
+    const scale = this.props.scale!=null ? +this.props.scale : 1;
+    const happy = pose==='cheer' || pose==='celebrate';
+    return {
+      wrapStyle:{ transform:'scale('+scale+')', transformOrigin:'center bottom', width:'120px', height:'118px' },
+      isIdle:pose==='idle', isThink:pose==='think', isCheer:pose==='cheer',
+      isSad:pose==='sad', isCeleb:pose==='celebrate', isWave:pose==='wave',
+      happy, dots: !happy,
+      mouthSmile: pose==='idle' || pose==='wave',
+      mouthOpen: happy,
+      mouthFrown: pose==='sad',
+      mouthLine: pose==='think',
+      raisePaw: pose==='wave' || pose==='celebrate'
+    };
+  }
+}
+</script>
+</body>
+</html>
