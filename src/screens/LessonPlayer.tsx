@@ -1,10 +1,10 @@
 // Lesson player — one drill at a time, soft feedback, end card (PRD §6.3, §8).
 // Never hard-fail: misses get encouragement + the answer, and still earn XP.
-// Redesign: full-screen takeover via ScreenShell (chrome="takeover"); one spacing
-// scale, one answer-grid strategy, unified card treatment, aria-live soft feedback.
+// Reskin: Practice-Loop / Practise design — takeover shell + step progress, sand
+// surfaces, teal diagonal signer medallions, spring CTAs, Fanan-celebrate results.
 import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { num, pick, t } from "../i18n";
+import { pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
@@ -16,10 +16,16 @@ import { SignDemo } from "../components/SignDemo";
 import { SignGlyph } from "../components/SignGlyph";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
-import { Button, Card, Icon, MeetingBar } from "../components/ui";
+import { Fanan } from "../components/Fanan";
+import { Button, Card, Icon } from "../components/ui";
+import { toLocaleDigits, formatPercent } from "../components/dc";
 
 /** A scored drill outcome flows back up so the end card can show accuracy. */
 type DrillOutcome = { xp: number; scored: boolean; correct: boolean };
+
+// diagonal teal "signer texture" used behind demo medallions (Practice Loop.dc.html)
+const SIGNER_TEXTURE =
+  "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)";
 
 export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const app = useApp();
@@ -62,7 +68,12 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
               {pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
             </p>
           </div>
-          <Button full size="lg" variant="primary" onClick={() => go({ name: "camera" })}>
+          <Button
+            full
+            variant="primary"
+            className="h-[54px] rounded-[17px]"
+            onClick={() => go({ name: "camera" })}
+          >
             <span className="flex items-center justify-center gap-2">
               <Icon name="videocam" className="text-xl" />
               {t("practiceCamera", lang)}
@@ -121,14 +132,23 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   }
 
   const isCamera = drill!.type === "camera";
+  const stepLabel =
+    drill!.type === "watch"
+      ? t("lsWatchStep", lang)
+      : drill!.type === "camera"
+        ? t("lsSignBack", lang)
+        : undefined;
 
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
       <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col px-5 pb-8 pt-5 md:max-w-3xl md:px-8">
-        {/* meeting-curve progress */}
-        <div className="mb-6 md:mb-8">
-          <MeetingBar progress={index / queue.length} />
-        </div>
+        <LessonProgress
+          index={index}
+          total={queue.length}
+          streak={profile.streak}
+          lang={lang}
+          stepLabel={stepLabel}
+        />
 
         <Drill
           key={`${drill!.type}-${drill!.signId}-${index}`}
@@ -144,7 +164,54 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
 // ── shared drill primitives ──────────────────────────────────────────────────
 
-/** Centered drill question heading — Rubik, teal (Stitch). */
+/** Header: step label + streak pill, then the thin gold progress bar + counter. */
+function LessonProgress({
+  index,
+  total,
+  streak,
+  lang,
+  stepLabel,
+}: {
+  index: number;
+  total: number;
+  streak: number;
+  lang: Lang;
+  stepLabel?: string;
+}) {
+  const pct = total > 0 ? index / total : 0;
+  return (
+    <div className="mb-6 md:mb-8">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-muted">{stepLabel ?? ""}</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-sand px-2.5 py-1">
+          <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-coral" aria-hidden="true" />
+          <span className="font-display text-[13px] font-bold text-ink">
+            {toLocaleDigits(streak, lang)}
+          </span>
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div
+          className="h-2 flex-1 overflow-hidden rounded-full bg-line"
+          role="progressbar"
+          aria-valuenow={Math.round(pct * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full rounded-full bg-gold transition-all duration-500"
+            style={{ width: `${Math.max(6, pct * 100)}%` }}
+          />
+        </div>
+        <span className="font-display text-xs font-bold text-muted">
+          {toLocaleDigits(index + 1, lang)}/{toLocaleDigits(total, lang)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Centered drill question heading — Rubik, teal (design keeps teal drill titles). */
 function DrillTitle({ children }: { children: ReactNode }) {
   return (
     <div className="mb-6 text-center md:mb-8">
@@ -153,7 +220,7 @@ function DrillTitle({ children }: { children: ReactNode }) {
   );
 }
 
-/** A fixed-feel coral primary action that mirrors the Stitch CHECK / CONTINUE footer. */
+/** A fixed-feel spring footer action anchored to the bottom of the drill. */
 function DrillFooter({ children }: { children: ReactNode }) {
   return (
     <div className="mt-auto pt-6 md:flex md:justify-end">
@@ -220,6 +287,23 @@ function Drill({
   }
 }
 
+/** Bilingual sign-kind sub-line (inline copy — no dedicated i18n key). */
+function kindLabel(sign: Sign, lang: Lang): string {
+  const en =
+    sign.type === "alphabet"
+      ? "Arabic letter"
+      : sign.type === "dynamic"
+        ? "Moving sign"
+        : "Static handshape";
+  const ar =
+    sign.type === "alphabet"
+      ? "حرف عربي"
+      : sign.type === "dynamic"
+        ? "إشارة متحركة"
+        : "شكل يد ثابت";
+  return pick(lang, en, ar);
+}
+
 function WatchDrill({
   sign,
   lang,
@@ -232,13 +316,48 @@ function WatchDrill({
   const { recordDrillResult } = useApp();
   return (
     <div className="flex flex-1 flex-col">
-      <DrillTitle>{t("lsWatchTitle", lang)} ✨</DrillTitle>
-      <div className="mx-auto w-full max-w-md">
-        <SignDemo sign={sign} lang={lang} />
+      {/* heading — small eyebrow, big sign name, kind sub-line */}
+      <div className="animate-rise mb-5 text-center">
+        <span className="text-[11px] font-bold tracking-[0.12em] text-teal">
+          {t("lsWatchTitle", lang)} ✨
+        </span>
+        <h2 className="mt-2 font-display text-[26px] font-extrabold leading-[1.05] tracking-[-0.01em] text-ink">
+          {pick(lang, sign.glossEn, sign.glossAr)}
+        </h2>
+        <p className="mt-1 text-[13px] leading-[1.35] text-muted">{kindLabel(sign, lang)}</p>
       </div>
+
+      {/* signer demo — SignDemo body + a SIGNER DEMO badge overlay (never mirrors) */}
+      <div className="relative mx-auto w-full max-w-md">
+        <SignDemo sign={sign} lang={lang} />
+        <span
+          className="absolute start-3 top-3 z-10 rounded-lg bg-black/30 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85"
+          dir="ltr"
+        >
+          ● {t("lsSignerDemo", lang)}
+        </span>
+      </div>
+
+      {/* hint card */}
+      <div className="mx-auto mt-3.5 flex w-full max-w-md items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold text-ink">
+          !
+        </span>
+        <div>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
+            {t("lsHint", lang)}
+          </span>
+          <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
+            {pick(lang, sign.hintEn, sign.hintAr)}
+          </p>
+        </div>
+      </div>
+
       <DrillFooter>
         <Button
           full
+          variant="primary"
+          className="h-[54px] rounded-[17px]"
           onClick={() => {
             recordDrillResult(sign.id, "good", { watch: true });
             onDone({ xp: 5, scored: false, correct: false });
@@ -275,7 +394,7 @@ function CameraDrill({
     });
     onDone({ xp: 10, scored: true, correct: true });
   };
-  // CameraTrainer owns the full-screen camera-practice chrome (its own Stitch ref).
+  // CameraTrainer owns the full-screen camera-practice chrome (its own design ref).
   return <CameraTrainer sign={sign} lang={lang} onResult={handleResult} allowSkip autoStart />;
 }
 
@@ -317,24 +436,25 @@ function ChoiceDrill({
     <div className="flex flex-1 flex-col">
       <DrillTitle>{title}</DrillTitle>
 
-      {/* question zone — one elevated paper card holding the sign demo (Stitch) */}
+      {/* question zone — one elevated paper card holding the demo medallion */}
       {mode === "recognise" ? (
-        <Card variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-5">
-          <DemoFace sign={sign} lang={lang} compact={compact} />
+        <Card variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-4">
+          {/* recognise question medallion — spec §D fixes this card at ~150px */}
+          <DemoFace sign={sign} lang={lang} compact />
         </Card>
       ) : (
         <Card variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
-          <p className="font-display text-3xl font-bold text-teal">
+          <p className="font-display text-[30px] font-extrabold leading-none text-teal">
             {pick(lang, sign.glossEn, sign.glossAr)}
           </p>
-          <p className="mt-1 text-lg font-medium text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
+          <p className="mt-1.5 text-lg font-medium text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
             {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
           </p>
         </Card>
       )}
 
       {/* answers — one grid strategy: mobile single column, 2-col on desktop */}
-      <div className="mx-auto mt-6 grid w-full max-w-md grid-cols-1 gap-3 md:max-w-2xl md:grid-cols-2 md:gap-4">
+      <div className="mx-auto mt-6 grid w-full max-w-md grid-cols-1 gap-3 md:max-w-2xl md:grid-cols-2 md:gap-3">
         {choices.map((id, i) => {
           const choice = signById(id);
           if (!choice) return null;
@@ -375,7 +495,7 @@ function ChoiceDrill({
         {picked !== null && (
           <div className="animate-rise mt-5">
             <p
-              className={`flex items-center gap-2 rounded-2xl px-4 py-3 font-semibold ${
+              className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 font-semibold ${
                 correct ? "bg-gold/20 text-ink" : "bg-teal/10 text-teal"
               }`}
             >
@@ -397,8 +517,9 @@ function ChoiceDrill({
       <DrillFooter>
         <Button
           full
-          variant="primary"
+          variant="secondary"
           disabled={picked === null}
+          className={`h-[54px] rounded-[17px] ${picked === null ? "!bg-[#C7D0CE] !text-white" : ""}`}
           onClick={() => onDone({ xp: correct ? 10 : 4, scored: true, correct })}
         >
           {picked === null ? t("lsCheck", lang) : `${t("lsContinue", lang)} →`}
@@ -408,7 +529,7 @@ function ChoiceDrill({
   );
 }
 
-/** Stacked answer row (recognise) — numbered badge + bilingual gloss, extruded paper. */
+/** Stacked answer row (recognise) — leading state mark + bilingual gloss. */
 function ChoiceRow({
   n,
   state,
@@ -426,16 +547,10 @@ function ChoiceRow({
 }) {
   const selected = state === "correct" || state === "wrong";
   const shell = {
-    idle: "border-ink/5 bg-paper text-ink extruded-paper",
-    correct: "border-teal-deep bg-teal text-white",
-    wrong: "border-coral/60 bg-coral/10 text-ink",
-    dim: "border-ink/5 bg-paper text-ink opacity-40",
-  }[state];
-  const badge = {
-    idle: "bg-sand text-ink/60",
-    correct: "bg-white/20 text-white",
-    wrong: "bg-coral/20 text-coral",
-    dim: "bg-sand text-ink/40",
+    idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
+    correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
+    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    dim: "bg-sand text-[#94A5A2]",
   }[state];
   return (
     <button
@@ -443,26 +558,34 @@ function ChoiceRow({
       disabled={disabled}
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex w-full items-center justify-between rounded-3xl border-2 p-5 text-start transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
+      className={`flex w-full items-center gap-[11px] rounded-[15px] px-4 py-[15px] text-start text-[15px] font-bold leading-[1.1] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
-      <span className="flex items-center gap-3">
-        <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${badge}`}>
-          {n}
+      {/* leading state mark — empty circle idle, ✓ correct, ✕ wrong */}
+      {state === "correct" ? (
+        <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-white/20 text-white/90">
+          <Icon name="check" fill className="text-base leading-none" />
         </span>
-        <span className="text-xl font-bold">
-          {labelEn}
-          <span className={`mx-2 ${state === "correct" ? "opacity-70" : "text-teal/30"}`}>·</span>
-          <span dir="rtl">{labelAr}</span>
+      ) : state === "wrong" ? (
+        <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-white/20 text-white/90">
+          <Icon name="close" fill className="text-base leading-none" />
         </span>
+      ) : (
+        <span
+          className={`h-[22px] w-[22px] shrink-0 rounded-full border-2 ${state === "dim" ? "border-[#94A5A2]/40" : "border-line"}`}
+          aria-hidden="true"
+        />
+      )}
+      <span className="sr-only">{n}. </span>
+      <span>
+        {labelEn}
+        <span className={`mx-2 ${state === "correct" || state === "wrong" ? "opacity-70" : "text-teal/30"}`}>·</span>
+        <span dir="rtl">{labelAr}</span>
       </span>
-      {state === "correct" && <Icon name="check_circle" fill className="text-2xl text-white" />}
-      {state === "wrong" && <Icon name="cancel" fill className="text-2xl text-coral" />}
-      {!selected && <span className="w-6" aria-hidden="true" />}
     </button>
   );
 }
 
-/** Tile answer (recall) — large glyph + hint, extruded paper, 2-col grid. */
+/** Tile answer (recall) — large glyph + hint, 2-col grid, numbered corner. */
 function ChoiceTile({
   n,
   state,
@@ -480,16 +603,16 @@ function ChoiceTile({
 }) {
   const selected = state === "correct" || state === "wrong";
   const shell = {
-    idle: "border-ink/5 bg-paper extruded-paper",
-    correct: "border-teal-deep bg-teal text-white",
-    wrong: "border-coral/60 bg-coral/10",
-    dim: "border-ink/5 bg-paper opacity-40",
+    idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
+    correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
+    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    dim: "bg-sand text-[#94A5A2]",
   }[state];
   const badge = {
     idle: "bg-ink/5 text-ink/40",
     correct: "bg-white/20 text-white",
-    wrong: "bg-coral/20 text-coral",
-    dim: "bg-ink/5 text-ink/40",
+    wrong: "bg-white/20 text-white",
+    dim: "bg-ink/5 text-[#94A5A2]",
   }[state];
   return (
     <button
@@ -497,16 +620,16 @@ function ChoiceTile({
       disabled={disabled}
       aria-pressed={selected}
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center gap-1.5 rounded-3xl border-2 p-6 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
+      className={`relative flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-[15px] px-4 py-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
       <span className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}>
         {n}
       </span>
-      <span className="text-4xl" aria-hidden="true">
+      <span className="text-[32px] leading-none" aria-hidden="true">
         {glyph}
       </span>
       <span
-        className={`text-xs font-medium ${state === "correct" ? "text-white/80" : "text-muted"}`}
+        className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
       >
         {hint.length > 38 ? `${hint.slice(0, 38)}…` : hint}
       </span>
@@ -514,45 +637,44 @@ function ChoiceTile({
   );
 }
 
-/** The demo face without the gloss (so recognise doesn't leak the answer). */
+/** The demo medallion without the gloss (so recognise doesn't leak the answer). */
 function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: boolean }) {
   // "Watch again" re-triggers the demo animation (honest placeholder — no signer video yet).
   const [replayKey, setReplayKey] = useState(0);
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-teal/10 via-paper to-gold/10 ${
-        compact ? "h-44" : "aspect-square max-h-[22rem]"
-      }`}
+      className="relative flex items-center justify-center overflow-hidden rounded-[20px]"
+      style={{ height: compact ? 150 : 190, background: SIGNER_TEXTURE }}
     >
-      {sign.id === "iloveyou" ? (
-        <img
-          key={replayKey}
-          src="brand/stitch-30.png"
-          alt={t("lsRecogniseTitle", lang)}
-          className="animate-pop-in h-full w-full object-cover"
-        />
-      ) : sign.type === "alphabet" ? (
-        <span
-          key={replayKey}
-          className="animate-pop-in font-display text-8xl font-bold text-teal"
-          role="img"
-          aria-label={t("lsRecogniseTitle", lang)}
-        >
-          {sign.code}
-        </span>
-      ) : (
-        <Icon
-          key={replayKey}
-          name="sign_language"
-          className="animate-pop-in text-8xl leading-none text-teal/70"
-        />
-      )}
+      <div
+        key={replayKey}
+        className="animate-pop-in flex items-center justify-center overflow-hidden rounded-full bg-paper"
+        style={{ width: 104, height: 104, boxShadow: "0 10px 26px rgba(0,0,0,.22)" }}
+      >
+        {sign.id === "iloveyou" ? (
+          <img
+            src="brand/stitch-30.png"
+            alt={t("lsRecogniseTitle", lang)}
+            className="h-full w-full object-cover"
+          />
+        ) : sign.type === "alphabet" ? (
+          <span
+            className="font-display text-[56px] font-bold text-teal"
+            role="img"
+            aria-label={t("lsRecogniseTitle", lang)}
+          >
+            {sign.code}
+          </span>
+        ) : (
+          <Icon name="sign_language" className="text-[56px] leading-none text-teal/80" />
+        )}
+      </div>
 
-      {/* Watch-again replay chip — frosted overlay (mirrors Stitch choice-drill mobile + desktop). */}
+      {/* Watch-again replay chip — frosted overlay (glyph never mirrors). */}
       <button
         type="button"
         onClick={() => setReplayKey((k) => k + 1)}
-        className="absolute bottom-3 end-3 z-10 flex items-center gap-2 rounded-full border-2 border-teal/10 bg-sand/85 px-4 py-2 backdrop-blur-sm transition hover:bg-sand active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 md:bottom-4 md:end-4"
+        className="absolute bottom-3 end-3 z-10 flex items-center gap-2 rounded-full border-2 border-teal/10 bg-sand/85 px-3 py-1.5 backdrop-blur-sm transition hover:bg-sand active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
       >
         <Icon name="play_circle" fill className="text-lg leading-none text-teal" />
         <span className="font-display text-[11px] font-bold uppercase tracking-widest text-teal">
@@ -565,7 +687,7 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
 
 // ── end card ─────────────────────────────────────────────────────────────────
 
-/** Lesson-complete results — celebratory hero, bento stats, signs learned. */
+/** Lesson-complete results — Fanan celebrate, stat trio, review-next, actions. */
 function ResultsCard({
   lang,
   lesson,
@@ -593,92 +715,90 @@ function ResultsCard({
   // to a generic camera open when the lesson held only non-gradable/dynamic signs).
   const firstGradable = learned.find((s) => s.cameraGradable);
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-2xl flex-col items-center px-6 pb-10 pt-10 md:pt-14">
+    <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center px-6 pb-10 pt-8 md:pt-12">
       <Confetti burst={burst} />
 
-      {/* celebratory hero */}
-      <section
-        className="animate-pop-in flex w-full flex-col items-center text-center"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 30%, rgba(230,178,76,.18) 0%, transparent 62%)",
-        }}
-      >
-        <div className="relative mb-6 flex h-44 w-44 items-center justify-center md:h-52 md:w-52">
-          <span className="absolute inset-0 rounded-full bg-gold/30 blur-2xl" aria-hidden="true" />
-          <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gold shadow-gold md:h-36 md:w-36">
-            <span className="text-6xl" aria-hidden="true">
-              🎉
-            </span>
-          </div>
-        </div>
-        <h1 className="font-display text-3xl font-bold leading-tight text-teal md:text-4xl">
+      {/* celebratory hero — Fanan never mirrors */}
+      <div className="flex w-full flex-col items-center text-center">
+        <Fanan pose="celebrate" scale={0.85} className="animate-float" />
+        <span className="animate-pop-in mt-4 text-[11px] font-bold tracking-[0.1em] text-teal">
           {t("lsLessonDone", lang)}
+        </span>
+        <h1 className="animate-pop-in mt-1 font-display text-[27px] font-extrabold leading-[1.1] text-ink">
+          {t("lsSessionTitle", lang)}
         </h1>
         {lesson && (
-          <p className="mt-1.5 font-medium text-muted">
+          <p className="mt-1.5 text-sm text-muted">
             {pick(lang, lesson.titleEn, lesson.titleAr)}
           </p>
         )}
-      </section>
+      </div>
 
-      {/* bento stat cards */}
-      <section className="mt-8 grid w-full max-w-md grid-cols-3 gap-3 md:gap-4">
+      {/* stat trio — accuracy · XP · streak */}
+      <section className="mt-8 grid w-full grid-cols-3 gap-2.5">
         <StatCard
-          tone="gold"
-          label={t("lsXpEarned", lang)}
-          value={`+${num(xp, lang)}`}
-        />
-        <StatCard
-          tone="teal"
+          value={formatPercent(accuracy, lang)}
+          valueClass="text-teal"
           label={t("accuracy", lang)}
-          value={`${num(accuracy, lang)}%`}
         />
         <StatCard
-          tone="coral"
+          value={`+${toLocaleDigits(xp, lang)}`}
+          valueClass="text-coral"
+          label={t("lsXpEarned", lang)}
+        />
+        <StatCard
+          value={toLocaleDigits(streak, lang)}
+          valueClass="text-gold-deep"
           label={t("homeStreak", lang)}
-          value={num(streak, lang)}
-          icon="local_fire_department"
         />
       </section>
 
-      {/* signs learned — horizontal snap rail */}
+      {/* review-next band — chips per just-learned sign (camera pre-target on tap) */}
       {learned.length > 0 && (
-        <section className="mt-10 w-full max-w-2xl">
-          <h3 className="mb-3 px-1 font-display text-xl font-bold text-teal">
+        <section className="mt-6 w-full rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3.5 text-start">
+          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-coral-deep">
             {t("lsWhatsNext", lang)}
-          </h3>
-          <div className="flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          </span>
+          <div className="mt-2.5 flex flex-wrap gap-2">
             {learned.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => onPractice(s.cameraGradable ? s.id : undefined)}
                 aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
-                className="flex min-w-[8.5rem] snap-center flex-col items-center rounded-3xl border-2 border-line bg-paper p-3 extruded-paper transition active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                className="flex items-center gap-2 rounded-[11px] border border-line bg-paper px-2.5 py-[7px] transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
-                <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-sand/60 p-2">
-                  <SignGlyph sign={s} lang={lang} className="text-4xl" imgClassName="h-16 w-16 rounded-xl object-cover" />
-                </div>
-                <p className="text-center font-display text-sm font-bold text-ink">
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center" aria-hidden="true">
+                  <SignGlyph sign={s} lang={lang} className="text-base" imgClassName="h-full w-full rounded object-cover" />
+                </span>
+                <span className="text-[12px] font-semibold text-ink">
                   <BilingualGloss lang={lang} sign={s} />
-                </p>
+                </span>
               </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* actions — practice-first: the camera is the dominant action (just-learned
-          sign pre-targeted), Continue → home is the secondary affordance. */}
-      <section className="mt-auto flex w-full max-w-md flex-col gap-3 pt-8">
-        <Button full size="lg" variant="primary" onClick={() => onPractice(firstGradable?.id)}>
+      {/* actions — practice-first: camera dominant, Continue → home secondary. */}
+      <section className="mt-auto flex w-full flex-col gap-3 pt-8">
+        <Button
+          full
+          variant="primary"
+          className="h-[54px] rounded-[17px]"
+          onClick={() => onPractice(firstGradable?.id)}
+        >
           <span className="flex items-center justify-center gap-2">
             <Icon name="videocam" className="text-xl" />
             {t("practiceCamera", lang)}
           </span>
         </Button>
-        <Button full size="lg" variant="secondary" onClick={onContinue}>
+        <Button
+          full
+          variant="secondary"
+          className="h-[54px] rounded-[17px]"
+          onClick={onContinue}
+        >
           {pick(lang, "Continue", "متابعة")} →
         </Button>
       </section>
@@ -686,32 +806,22 @@ function ResultsCard({
   );
 }
 
+/** Results stat cell — colored value over a muted label, paper surface. */
 function StatCard({
-  tone,
-  label,
   value,
-  icon,
+  valueClass,
+  label,
 }: {
-  tone: "gold" | "teal" | "coral";
-  label: string;
   value: string;
-  icon?: string;
+  valueClass: string;
+  label: string;
 }) {
-  const shell = {
-    gold: "bg-gold text-ink extruded-gold",
-    teal: "bg-teal text-white extruded-teal",
-    coral: "bg-coral text-white extruded-coral",
-  }[tone];
-  const labelTone = tone === "gold" ? "text-ink/60" : "text-white/70";
   return (
-    <div
-      className={`flex flex-col items-center justify-center rounded-3xl p-4 text-center transition hover:-translate-y-0.5 ${shell}`}
-    >
-      <span className={`mb-1 text-[10px] font-bold uppercase tracking-widest ${labelTone}`}>
-        {label}
+    <div className="flex flex-col items-center justify-center rounded-[15px] border border-line bg-paper px-1.5 py-3 text-center">
+      <span className={`font-display text-[22px] font-extrabold leading-none ${valueClass}`}>
+        {value}
       </span>
-      {icon && <Icon name={icon} fill className="mb-0.5 text-xl" />}
-      <span className="font-display text-2xl font-extrabold leading-none md:text-3xl">{value}</span>
+      <span className="mt-1.5 text-[10px] font-semibold text-muted">{label}</span>
     </div>
   );
 }

@@ -1,12 +1,11 @@
 // First-sign-in-3-min — the hook and the demo open (PRD §6.2, G1).
 // First graded sign is the real-graded letter Alif (ا) — has ground-truth seeds,
 // so CameraTrainer opens straight into grade mode (no teach step) and grades genuinely.
-// Visuals mirror first-sign-watch-i-love-you / -demo + celebration-connection-made (stitch-v2-brand).
+// Reskin: maps the design's 4 visual phases (intro/demo/live/done) onto the real
+// 3-step machine — watch→demo (2/4), try→live (3/4), celebrate→done (4/4). The
+// "intro" phase is optional chrome and is dropped (onboarding drops straight into camera).
 //
 // Redesign (§5.4): chrome-light onboarding takeover — NO global tab bar / profile button.
-// ONE responsive tree (mobile-first) with a single source of truth for the
-// watch → try → celebrate machine. One next action per step (single coral
-// "Now you try"; the sidebar "Start Practice" duplicate is gone).
 import { useState } from "react";
 import { pick, t } from "../i18n";
 import { signById } from "../content/signs";
@@ -18,48 +17,43 @@ import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { SignDemo } from "../components/SignDemo";
+import { Fanan } from "../components/Fanan";
+import { toLocaleDigits } from "../components/dc";
 
 type Step = "watch" | "try" | "celebrate";
 
+// STEP labels stay wired for the accessible current-step announcement (Watch/Try/Celebrate).
 const STEPS: { id: Step; icon: string; en: string; ar: string }[] = [
   { id: "watch", icon: "visibility", en: "Watch", ar: "شاهد" },
   { id: "try", icon: "front_hand", en: "Try", ar: "جرّب" },
   { id: "celebrate", icon: "emoji_events", en: "Celebrate", ar: "افرح" },
 ];
 
-function StepDots({ step, lang }: { step: Step; lang: "en" | "ar" }) {
-  const activeIdx = STEPS.findIndex((s) => s.id === step);
+// Design "Block B" — top progress track (gold fill) + N/4 counter.
+// The three real steps map onto phases 2..4 of the four-phase design (intro=1/4 dropped).
+function ProgressHeader({ step, lang }: { step: Step; lang: "en" | "ar" }) {
+  const idx = STEPS.findIndex((s) => s.id === step);
+  const current = STEPS[idx];
+  const num = idx + 2; // watch→2, try→3, celebrate→4
+  const width = step === "watch" ? "34%" : step === "try" ? "72%" : "100%";
   return (
-    <div className="flex items-center justify-center gap-6 sm:gap-8">
-      {STEPS.map((s, i) => {
-        const active = i === activeIdx;
-        const done = i < activeIdx;
-        return (
-          <div key={s.id} className="flex items-center gap-6 sm:gap-8">
-            {i > 0 && <span className="-mt-6 h-1 w-10 rounded-full bg-ink/10 sm:w-12" aria-hidden="true" />}
-            <div className="flex flex-col items-center gap-2">
-              <span
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                  active
-                    ? "animate-pulse-ring border-4 border-white bg-gold text-white shadow-gold"
-                    : done
-                      ? "bg-teal text-white"
-                      : "bg-ink/10 text-ink/30"
-                }`}
-              >
-                <Icon name={s.icon} fill={active || done} className="text-xl leading-none" />
-              </span>
-              <span
-                className={`text-[10px] font-display font-extrabold uppercase tracking-widest ${
-                  active ? "text-gold" : done ? "text-teal" : "text-ink/30"
-                }`}
-              >
-                {pick(lang, s.en, s.ar)}
-              </span>
-            </div>
-          </div>
-        );
-      })}
+    <div className="flex items-center gap-2.5 pb-5">
+      <span className="sr-only">{pick(lang, current.en, current.ar)}</span>
+      <div
+        className="h-[7px] flex-1 overflow-hidden rounded-full bg-line"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={4}
+        aria-valuenow={num}
+      >
+        <div
+          className="h-full rounded-full bg-gold-mid transition-[width] duration-500 ease-out"
+          style={{ width }}
+        />
+      </div>
+      <span className="font-display text-[11px] font-bold text-muted">
+        {toLocaleDigits(num, lang)}/{toLocaleDigits(4, lang)}
+      </span>
     </div>
   );
 }
@@ -72,6 +66,9 @@ export function FirstSign() {
   // CameraTrainer shows the ا glyph reference chip and grades genuinely (no teach step).
   const [step, setStep] = useState<Step>("try");
   const [burst, setBurst] = useState(0);
+  // Track the real grading outcome so the done pill reads "live match" only on a genuine
+  // camera match (never a fabricated percentage — the % lives inside CameraTrainer).
+  const [result, setResult] = useState<TrainerResult | null>(null);
   const profile = activeProfile(app);
   const sign = signById("alpha-alif");
   if (!profile) return <NoProfileFallback />;
@@ -79,6 +76,7 @@ export function FirstSign() {
   const lang = profile.language;
 
   const handleResult = (result: TrainerResult) => {
+    setResult(result);
     app.recordDrillResult(sign.id, "good", {
       camera: result === "match",
       matched: result === "match",
@@ -103,8 +101,7 @@ export function FirstSign() {
     }
   };
 
-  // ——— Celebration takes over the full viewport (teal/gold) ———
-  // Early-return: the celebration owns the whole screen (no shell chrome).
+  // ——— PHASE: DONE / celebrate — full-viewport teal takeover (design §DONE) ———
   if (step === "celebrate") {
     return (
       <div
@@ -128,38 +125,35 @@ export function FirstSign() {
           و
         </span>
 
-        <main className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 md:max-w-2xl">
-          {/* hero starburst with floating XP + streak badges */}
-          <div className="fs-hero-float relative flex aspect-square w-full max-w-sm items-center justify-center md:max-w-md">
-            <img
-              src="brand/stitch-22.png"
-              alt=""
-              aria-hidden="true"
-              className="animate-pop-in w-4/5 max-w-xs drop-shadow-2xl md:max-w-sm"
-            />
+        <main className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6">
+          {/* Fanan celebrate hero (never mirrors) with floating +10 XP + Day-1 streak badges */}
+          <div className="fs-hero-float relative flex items-end justify-center">
+            <Fanan pose="celebrate" scale={1.2} />
             {/* +10 XP chip */}
-            <div className="extruded-gold animate-rise absolute end-2 top-8 flex rotate-12 items-center gap-1.5 rounded-2xl bg-gold px-5 py-2 md:end-0">
+            <div className="extruded-gold animate-rise absolute -end-6 top-2 flex rotate-12 items-center gap-1.5 rounded-2xl bg-gold px-4 py-2">
               <span className="font-display text-xl font-bold text-teal-deep">+10</span>
               <span className="font-display text-[10px] font-bold tracking-tight text-teal-deep">
                 {t("xp", lang)}
               </span>
             </div>
             {/* Day 1 streak badge */}
-            <div className="animate-rise absolute bottom-8 start-2 flex w-24 -rotate-12 flex-col items-center justify-center gap-1 rounded-2xl border-4 border-gold bg-paper p-2 shadow-lift md:start-0">
-              <Icon name="local_fire_department" fill className="text-3xl leading-none text-coral" />
+            <div className="animate-rise absolute -bottom-4 -start-8 flex w-20 -rotate-12 flex-col items-center justify-center gap-1 rounded-2xl border-4 border-gold bg-paper p-2 shadow-lift">
+              <Icon name="local_fire_department" fill className="text-2xl leading-none text-coral" />
               <span className="font-display text-[10px] font-extrabold uppercase tracking-widest text-teal">
                 {pick(lang, "Day 1", "اليوم ١")}
               </span>
             </div>
           </div>
 
-          {/* typography cluster — Stitch shows the Arabic glyph "وصلت!" on its own line
-              above the localized celebrate string. The Arabic i18n value already leads
-              with "وصلت!", so we strip that duplicate for the second line while keeping
-              the localization wired. The headline line carries an explicit lang for
-              correct shaping of the bilingual cluster. */}
+          {/* success checkmark badge (never mirrors) */}
+          <div className="animate-pop mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-success shadow-[0_6px_18px_rgba(31,138,91,.35)]">
+            <span className="font-display text-3xl font-extrabold text-paper">✓</span>
+          </div>
+
+          {/* typography cluster — the Arabic i18n value leads with "وصلت!", so we render that
+              glyph on its own line then strip the duplicate from the localized string below. */}
           <h1
-            className="animate-rise mt-4 font-display text-4xl font-extrabold leading-tight text-gold md:text-5xl"
+            className="animate-rise mt-4 font-display text-3xl font-extrabold leading-tight text-gold md:text-4xl"
             style={{ textShadow: "0 0 20px rgba(230,178,76,.6)" }}
             lang={lang}
           >
@@ -169,7 +163,18 @@ export function FirstSign() {
               {t("fsCelebrate", lang).replace(/^\s*وصلت!\s*/, "")}
             </span>
           </h1>
-          <p className="animate-rise mx-auto mt-4 max-w-[280px] text-lg font-medium leading-relaxed text-sand/90 md:text-xl">
+
+          {/* accuracy pill — real, camera-graded outcome only (no fabricated %) */}
+          {result === "match" && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2">
+              <Icon name="check_circle" fill className="text-lg leading-none text-success" />
+              <span className="font-display text-[15px] font-bold text-teal">
+                {t("fsDoneBadgeMatch", lang)}
+              </span>
+            </div>
+          )}
+
+          <p className="animate-rise mx-auto mt-4 max-w-[280px] text-lg font-medium leading-relaxed text-sand/90">
             {t("fsDone", lang)}
           </p>
         </main>
@@ -203,39 +208,50 @@ export function FirstSign() {
     );
   }
 
-  // ——— Watch / Try chrome (single responsive tree) ———
-  // Chrome-light takeover: a minimal close to home + brand only (NO tab bar).
+  // ——— PHASES: DEMO (watch) + LIVE (try) — chrome-light takeover ———
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
-      <main className={`mx-auto flex min-h-[calc(100dvh-57px)] w-full flex-col px-5 pb-32 pt-8 md:items-center md:justify-center md:px-6 md:text-center ${step === "try" ? "max-w-5xl" : "max-w-2xl"}`}>
+      <main
+        className={`mx-auto flex min-h-[calc(100dvh-57px)] w-full flex-col px-5 pb-32 pt-6 md:px-6 ${
+          step === "try" ? "max-w-3xl" : "max-w-2xl"
+        }`}
+      >
+        <ProgressHeader step={step} lang={lang} />
+
         {step === "watch" ? (
-          <>
-            <p className="font-display text-xl font-bold text-ink/80 md:text-2xl">{t("fsIntro", lang)}</p>
-            <h1 className="mt-1 font-display text-4xl font-extrabold leading-tight tracking-tight text-teal md:text-6xl">
-              <span lang={lang}>{pick(lang, sign.glossEn, sign.glossAr)}</span>
-              <span className="mx-2 text-muted">·</span>
-              <span dir={lang === "ar" ? "ltr" : "rtl"} lang={lang === "ar" ? "en" : "ar"}>
-                {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
-              </span>
+          // PHASE: DEMO / "watch" (2/4) — real looping SignDemo clip.
+          <div className="flex flex-1 flex-col md:items-center md:text-center">
+            <p className="font-display text-sm font-semibold text-muted">{t("fsIntro", lang)}</p>
+            <h1 className="mt-1 font-display text-[22px] font-extrabold leading-tight text-ink md:text-3xl">
+              {t("fsDemoTitle", lang)}
             </h1>
-            <div className="mt-6 w-full md:mt-10 md:max-w-md">
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("fsDemoSub", lang)}</p>
+
+            <div className="mt-5 w-full md:mt-6 md:max-w-md">
               <SignDemo sign={sign} lang={lang} />
             </div>
-            <div className="mt-8 md:mt-10">
-              <StepDots step="watch" lang={lang} />
-            </div>
-          </>
+
+            {/* dynamic caption — the real sign's gloss (NOT the design's "I love you") */}
+            <p className="mt-4 text-center font-display text-[15px] font-semibold text-ink">
+              {t("fsDemoMeans", lang).replace("{gloss}", pick(lang, sign.glossEn, sign.glossAr))}
+            </p>
+          </div>
         ) : (
-          <>
-            <h1 className="mb-4 text-center font-display text-2xl font-bold text-teal md:text-3xl">
-              {t("fsNowYou", lang)}
+          // PHASE: LIVE / "try" (3/4) — the real on-device grader (CameraTrainer draws
+          // the LIVE badge, skeleton, confidence ring + on-device badge itself).
+          <div className="flex flex-1 flex-col md:items-center md:text-center">
+            <h1 className="font-display text-[21px] font-extrabold leading-tight text-ink md:text-3xl">
+              {t("fsLiveTitle", lang)}
             </h1>
-            <CameraTrainer sign={sign} lang={lang} onResult={handleResult} autoStart />
-          </>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("fsLiveSub", lang)}</p>
+            <div className="mt-4 w-full flex-1 md:max-w-xl">
+              <CameraTrainer sign={sign} lang={lang} onResult={handleResult} autoStart />
+            </div>
+          </div>
         )}
       </main>
 
-      {/* ONE dominant next action — coral "Now you try" (watch step only) */}
+      {/* ONE dominant next action — coral springy "Now you try" (watch/demo step only) */}
       {step === "watch" && (
         <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 bg-paper/80 p-5 backdrop-blur-sm">
           <div className="mx-auto w-full max-w-md">

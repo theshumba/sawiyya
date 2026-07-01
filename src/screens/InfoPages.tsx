@@ -2,8 +2,8 @@
 // Responsible-AI signal: state plainly what the AI does and does NOT do.
 // Both pages live behind the profile button and render inside the global
 // ScreenShell takeover chrome (close → settings). No self-hosted nav.
-import type { ReactNode } from "react";
-import { pick } from "../i18n";
+import { Fragment, type ReactNode } from "react";
+import { pick, t } from "../i18n";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Lang } from "../types";
@@ -122,6 +122,53 @@ export function AiTransparency() {
               "خصوصية ولطف وترابط — آمن وداعم ومركّز على ترابط عائلتكم."
             )}
           </p>
+        </section>
+
+        {/* On-device promise — three-step flow, banner, guarantees (design C) */}
+        <section className="space-y-4">
+          {/* Three-step flow strip. Camera-square glyph + arrows never mirror as
+              shapes; arrow direction follows reading flow. */}
+          <div className="flex items-center justify-between rounded-[18px] border border-line bg-paper px-3 py-4 shadow-[0_2px_0_#EDE3D2] md:mx-auto md:max-w-lg">
+            {([
+              { bg: "bg-ink", round: "rounded-[4px]", label: t("aiFlowCamera", lang) },
+              { bg: "bg-teal", round: "rounded-full", label: t("aiFlowModel", lang) },
+              { bg: "bg-gold", round: "rounded-full", label: t("aiFlowGrade", lang) },
+            ]).map((s, i) => (
+              <Fragment key={i}>
+                <div className="flex flex-1 flex-col items-center gap-1.5">
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-[13px] ${s.bg}`}>
+                    <span className={`h-4 w-4 bg-paper ${s.round}`} aria-hidden="true" />
+                  </div>
+                  <span className="text-center text-[10px] font-semibold leading-tight text-ink">{s.label}</span>
+                </div>
+                {i < 2 && (
+                  <span aria-hidden="true" className="px-1 font-display text-base font-bold text-[#C7D0CE]">
+                    {lang === "ar" ? "←" : "→"}
+                  </span>
+                )}
+              </Fragment>
+            ))}
+          </div>
+
+          {/* Promise banner */}
+          <div className="rounded-[18px] bg-teal p-[18px] text-center md:mx-auto md:max-w-lg">
+            <p className="font-display text-[19px] font-extrabold leading-tight text-paper">{t("aiPromise", lang)}</p>
+          </div>
+
+          {/* Guarantee bullets — CSS checkmark keeps its orientation (never mirrors) */}
+          <div className="flex flex-col gap-2.5 md:mx-auto md:max-w-lg">
+            {(["aiBulletNoUpload", "aiBulletNoAccount", "aiBulletOffline", "aiBulletDelete"] as const).map((k) => (
+              <div key={k} className="flex items-start gap-3">
+                <span
+                  className="mt-0.5 flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-success"
+                  aria-hidden="true"
+                >
+                  <span className="mb-[3px] h-[5px] w-[9px] -rotate-45 border-b-2 border-l-2 border-paper" />
+                </span>
+                <span className="text-[13px] leading-relaxed text-ink">{t(k, lang)}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Storybook cards */}
