@@ -378,6 +378,19 @@ export function xpTodayFor(p: Profile): number {
   return p.lastActiveDay === todayKey() ? p.xpToday : 0;
 }
 
+/**
+ * Current streak, derived at read time (M26). Like `xpToday`, the stored
+ * `streak` is only reset inside recordDrillResult on the first drill after a
+ * lapse — so a lapsed learner would otherwise keep seeing their old streak
+ * until a drill silently knocked it down to 1. A streak is only alive if the
+ * profile was active today or yesterday.
+ */
+export function streakFor(p: Profile): number {
+  return p.lastActiveDay === todayKey() || p.lastActiveDay === yesterdayKey()
+    ? p.streak
+    : 0;
+}
+
 /** Signs flagged by Deaf family members, newest first (PRD §6.7). */
 export function activeFlags(s: AppState): Flag[] {
   return s.flags.filter((f) => f.active).slice().reverse();

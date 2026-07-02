@@ -101,3 +101,48 @@ describe("corrupt-blob backup (M21)", () => {
     expect(s.profiles).toEqual([]);
   });
 });
+
+describe("streakFor read-time selector (M26)", () => {
+  const baseProfile = {
+    id: "p-1",
+    displayName: "Amal",
+    role: "parent",
+    emoji: "🦊",
+    dominantHand: "R",
+    language: "en",
+    xp: 100,
+    xpToday: 10,
+    streak: 6,
+    lastActiveDay: null as string | null,
+    activeDays: [] as string[],
+    dailyGoal: "regular",
+    createdAt: "2026-06-01T09:00:00.000Z",
+  };
+
+  it("keeps a streak alive when last active today", async () => {
+    const { streakFor, todayKey } = await freshStore();
+    const p = { ...baseProfile, lastActiveDay: todayKey() };
+    expect(streakFor(p as never)).toBe(6);
+  });
+
+  it("keeps a streak alive when last active yesterday (today not done yet)", async () => {
+    const { streakFor, todayKey } = await freshStore();
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    const p = { ...baseProfile, lastActiveDay: todayKey(y) };
+    expect(streakFor(p as never)).toBe(6);
+  });
+
+  it("shows 0 — not the stale stored streak — after a lapse", async () => {
+    const { streakFor, todayKey } = await freshStore();
+    const old = new Date();
+    old.setDate(old.getDate() - 5);
+    const p = { ...baseProfile, lastActiveDay: todayKey(old) };
+    expect(streakFor(p as never)).toBe(0);
+  });
+
+  it("shows 0 for a brand-new profile that never drilled", async () => {
+    const { streakFor } = await freshStore();
+    expect(streakFor({ ...baseProfile, streak: 0 } as never)).toBe(0);
+  });
+});

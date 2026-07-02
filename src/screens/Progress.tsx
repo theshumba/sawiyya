@@ -18,7 +18,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
-import { activeProfile, dueSignIds, GOAL_XP, useApp } from "../store/app";
+import { activeProfile, dueSignIds, GOAL_XP, streakFor, useApp } from "../store/app";
 import { isTrained } from "../recognizer/knn";
 import { useUi } from "../store/ui";
 import { Icon, Title } from "../components/ui";
@@ -103,6 +103,8 @@ export function Progress() {
   );
 
   const goalXp = GOAL_XP[profile.dailyGoal];
+  // Read-time streak: a lapsed learner sees 0, not their stale pre-lapse count (M26).
+  const streak = streakFor(profile);
 
   // Streak celebration: fire once when arriving with a fresh streak milestone.
   const [celebrating, setCelebrating] = useState(false);
@@ -178,7 +180,7 @@ export function Progress() {
               growth={growth}
               oasisLevel={oasisLevel}
               xp={profile.xp}
-              streak={profile.streak}
+              streak={streak}
               week={week}
               due={due}
               upcoming={upcoming}
@@ -190,14 +192,14 @@ export function Progress() {
             />
           )}
           {tab === "stats" && (
-            <StatsTab lang={lang} mastered={mastered} streak={profile.streak} heat={heat} metrics={app.metrics} />
+            <StatsTab lang={lang} mastered={mastered} streak={streak} heat={heat} metrics={app.metrics} />
           )}
           {tab === "achieve" && (
             <AchievementsTab
               lang={lang}
               seen={seen}
               mastered={mastered}
-              streak={profile.streak}
+              streak={streak}
               alphaTaught={alphaTaught}
               flagsRaised={app.flags.length}
             />

@@ -6,7 +6,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign } from "../types";
 import { buildChoices, buildDrillQueue } from "../lesson/engine";
@@ -122,7 +122,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           signIds={signIds}
           xp={xpEarned.current}
           accuracy={accuracy}
-          streak={profile.streak}
+          streak={streakFor(profile)}
           burst={burst}
           onContinue={() => go({ name: "home" })}
           onPractice={(targetSignId) => go({ name: "camera", targetSignId })}
@@ -145,7 +145,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <LessonProgress
           index={index}
           total={queue.length}
-          streak={profile.streak}
+          streak={streakFor(profile)}
           lang={lang}
           stepLabel={stepLabel}
         />

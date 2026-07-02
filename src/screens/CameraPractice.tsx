@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { pick, t } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
@@ -73,7 +73,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sand px-2.5 py-1.5">
             <span className="h-3.5 w-3.5 rounded-full bg-coral" aria-hidden="true" />
             <span className="font-display text-[13px] font-bold leading-none text-ink">
-              {toLocaleDigits(profile.streak, lang)}
+              {toLocaleDigits(streakFor(profile), lang)}
             </span>
           </span>
         </header>

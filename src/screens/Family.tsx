@@ -14,6 +14,7 @@ import {
   householdStreak,
   profilesActiveToday,
   signsAllCanDo,
+  streakFor,
   todayKey,
   useApp,
 } from "../store/app";
@@ -152,7 +153,7 @@ export function Family() {
                 <span className="mt-[5px] flex items-center justify-center gap-[3px]">
                   <span className="h-[9px] w-[9px] rounded-full bg-coral" aria-hidden="true" />
                   <span className="font-display text-[11px] font-bold text-muted">
-                    {num(p.streak, lang)}
+                    {num(streakFor(p), lang)}
                   </span>
                 </span>
               </button>

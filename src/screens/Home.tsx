@@ -15,6 +15,7 @@ import {
   activeProfile,
   dueSignIds,
   pinnedFlagSigns,
+  streakFor,
   useApp,
   xpTodayFor,
 } from "../store/app";
@@ -125,7 +126,7 @@ export function Home() {
       marker: (
         <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#E8654C", flex: "none" }} />
       ),
-      value: num(profile.streak, lang),
+      value: num(streakFor(profile), lang), // read-time: lapsed streaks show 0, not stale (M26)
       label: t("homeStreak", lang),
     },
     {
