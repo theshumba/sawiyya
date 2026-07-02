@@ -32,22 +32,14 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
           aria-hidden="true"
         />
         {sign.id === "iloveyou" ? (
-          <>
-            {/* Mobile: warm signer photo (stitch-30). Desktop Stitch: the ILY hand
-                illustration on its transparent checkerboard (stitch-54). */}
-            <img
-              key={`m-${replayKey}`}
-              src="brand/stitch-30.png"
-              alt={gloss}
-              className="animate-pop-in relative z-10 h-full w-full object-cover md:hidden"
-            />
-            <img
-              key={`d-${replayKey}`}
-              src="brand/stitch-54.png"
-              alt={gloss}
-              className="animate-pop-in relative z-10 hidden h-full w-full object-contain p-4 drop-shadow-2xl md:block"
-            />
-          </>
+          // The ILY hand ILLUSTRATION (stitch-54). The AI-generated "signer" photo
+          // (stitch-30) is retired — we never present a generated person as a Deaf signer.
+          <img
+            key={`d-${replayKey}`}
+            src="brand/stitch-54.png"
+            alt={gloss}
+            className="animate-pop-in relative z-10 h-full w-full object-contain p-4 drop-shadow-2xl"
+          />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // REAL averaged handshape (Zenodo ArSL geometry) — the hand, not the glyph.
           // The Arabic letter rides along as a small gold label for context.
@@ -105,7 +97,7 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
               {pick(
                 lang,
                 "Average hand from real signers (Zenodo ArSL). Deaf-signer video lands in Phase 2.",
-                "متوسط اليد من توقيعات حقيقية (Zenodo ArSL). فيديو من شخص أصمّ في المرحلة 2.",
+                "متوسط اليد من مُشيرين حقيقيين (Zenodo ArSL). فيديو من شخص أصمّ في المرحلة الثانية.",
               )}
             </p>
           </div>
@@ -114,11 +106,14 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
               <Icon name="info" className="text-xs leading-none text-ink/60" />
               <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/60">
-                {pick(lang, "Demo placeholder", "عرض مؤقت")}
+                {sign.tier === "A1"
+                  ? pick(lang, "Unverified as QSL", "غير معتمدة بلغة الإشارة القطرية")
+                  : pick(lang, "Demo placeholder", "عرض مؤقت")}
               </span>
             </span>
             <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
-              {t("lsDemoPlaceholder", lang)}
+              {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+              {sign.tier === "A1" ? t("a1AslProvenance", lang) : t("lsDemoPlaceholder", lang)}
             </p>
           </div>
         )
