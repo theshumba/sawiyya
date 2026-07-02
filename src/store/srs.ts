@@ -31,7 +31,9 @@ function toStored(c: Card): StoredCard {
 
 function toCard(s: StoredCard): Card {
   return {
-    due: new Date(s.due),
+    // Self-heal a corrupt due date (L16): an invalid ISO string would otherwise
+    // flow NaN through ts-fsrs scheduling. Due-now is the safe recovery.
+    due: healDate(s.due),
     stability: s.stability,
     difficulty: s.difficulty,
     elapsed_days: s.elapsed_days,
@@ -58,6 +60,16 @@ export function rateCard(stored: StoredCard, outcome: SrsOutcome, now = new Date
   return toStored(result.card);
 }
 
+/** Invalid date string → due now (self-heal), never a silent NaN. */
+function healDate(iso: string, now = new Date()): Date {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime()) ? d : now;
+}
+
 export function isDue(stored: StoredCard, now = new Date()): boolean {
-  return new Date(stored.due).getTime() <= now.getTime();
+  const t = new Date(stored.due).getTime();
+  // A corrupt due date must surface the card, not hide it forever (L16):
+  // NaN <= x is false, which would make the card silently never-due.
+  if (!Number.isFinite(t)) return true;
+  return t <= now.getTime();
 }
