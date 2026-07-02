@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { applyDir, t } from "./i18n";
+import { applyDir, langFromSearch, t } from "./i18n";
 import { activeProfile, RECOVERY_NOTICE_KEY, useApp } from "./store/app";
 import { Card, SpringButton } from "./components/dc";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -49,7 +49,9 @@ export default function App() {
   const onboarded = useApp((s) => s.onboarded);
   const profile = useApp(activeProfile);
   const { screen } = useUi();
-  const lang = profile?.language ?? "en";
+  // Pre-profile (first run) the landing's ?lang=ar handoff decides the default
+  // language/direction (M27); once a profile exists its language always wins.
+  const lang = profile?.language ?? langFromSearch(window.location.search) ?? "en";
 
   // Corrupt-blob recovery notice (M21) — flagged by the persist storage guard.
   const [showRecovery, setShowRecovery] = useState(

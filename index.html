@@ -184,19 +184,26 @@
     </div>
     <noscript>Sawiyya needs JavaScript and a camera to teach you to sign. سويّة</noscript>
     <script>
-      // Localize the splash tagline + document dir from the persisted profile
-      // BEFORE React boots, so the splash matches the user's language with no
-      // flash. Mirrors t("splashTagline", lang) — copy inlined since this runs
+      // Localize the splash tagline + document dir BEFORE React boots, so the
+      // splash matches the user's language with no flash. The persisted profile
+      // wins; on first run the landing's ?lang=ar handoff decides (M27).
+      // Mirrors t("splashTagline", lang) — copy inlined since this runs
       // pre-bundle. Store: zustand persist "sawiyya.app.v1" → state.profiles.
       (function () {
         try {
+          var lang = null;
           var raw = localStorage.getItem("sawiyya.app.v1");
-          if (!raw) return;
-          var s = (JSON.parse(raw) || {}).state || {};
-          var p = (s.profiles || []).filter(function (x) {
-            return x && x.id === s.activeProfileId;
-          })[0];
-          var lang = (p && p.language) || "en";
+          if (raw) {
+            var s = (JSON.parse(raw) || {}).state || {};
+            var p = (s.profiles || []).filter(function (x) {
+              return x && x.id === s.activeProfileId;
+            })[0];
+            lang = (p && p.language) || null;
+          }
+          if (!lang) {
+            var q = new URLSearchParams(window.location.search).get("lang");
+            lang = q === "ar" ? "ar" : "en";
+          }
           if (lang === "ar") {
             document.documentElement.lang = "ar";
             document.documentElement.dir = "rtl";

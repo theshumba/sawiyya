@@ -536,6 +536,17 @@ export function applyDir(lang: Lang) {
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
 }
 
+/**
+ * Landing→app language handoff (M27): the landing page appends ?lang=ar when
+ * the visitor chose Arabic, so first-run onboarding (and the boot splash in
+ * index.html, which inlines the same check) opens in the right language and
+ * direction instead of defaulting to English LTR.
+ */
+export function langFromSearch(search: string): Lang | null {
+  const q = new URLSearchParams(search).get("lang");
+  return q === "ar" || q === "en" ? q : null;
+}
+
 /** Localised numerals (PRD §6.9). */
 export function num(n: number, lang: Lang): string {
   return new Intl.NumberFormat(lang === "ar" ? "ar-QA" : "en-GB").format(n);

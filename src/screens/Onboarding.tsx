@@ -6,8 +6,8 @@
 // Every step is re-dressed in the device-column visual system: springy amber
 // progress, Fanan poses per screen, teal/coral selection chips and the signature
 // hard-shadow footer CTA. Bilingual EN(LTR)/AR(RTL) via logical properties.
-import { useState } from "react";
-import { pick, t, applyDir } from "../i18n";
+import { useEffect, useState } from "react";
+import { pick, t, applyDir, langFromSearch } from "../i18n";
 import { PERSONA_TAGLINE } from "../content/signs";
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
@@ -82,7 +82,14 @@ export function Onboarding() {
   const { createProfile, completeOnboarding } = useApp();
   const { go } = useUi();
   const [step, setStep] = useState<Step>("splash");
-  const [lang, setLang] = useState<Lang>("en");
+  // Landing→app handoff (M27): honour ?lang=ar so an Arabic visitor's first-run
+  // opens Arabic/RTL from the splash, not English LTR until the language step.
+  const [lang, setLang] = useState<Lang>(() => langFromSearch(window.location.search) ?? "en");
+  useEffect(() => {
+    applyDir(lang);
+    // mount-only: the language step calls applyDir itself on later changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [persona, setPersona] = useState<Persona>("parent");
   const [hand, setHand] = useState<Hand>("R");
   const [goal, setGoal] = useState<DailyGoal>("regular");
