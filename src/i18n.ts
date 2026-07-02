@@ -496,6 +496,21 @@ const dict = {
   stFrameBanner: { en: "Your hand's out of frame", ar: "يدك خارج الإطار" },
   stFrameTip: { en: "Bring your whole hand into view", ar: "أدخِل يدك كاملةً إلى الرؤية" },
 
+  // error boundary (H12) — honest recovery, reset only as a confirmed last resort
+  ebTitle: { en: "Something went wrong", ar: "حدث خطأ ما" },
+  ebBody: {
+    en: "An unexpected error stopped this screen. Your progress is saved on this device — reloading usually fixes it.",
+    ar: "أوقف خطأ غير متوقع هذه الشاشة. تقدمك محفوظ على هذا الجهاز — وإعادة التحميل عادةً ما تحل المشكلة.",
+  },
+  ebRetry: { en: "Try again", ar: "حاول مجددًا" },
+  ebReload: { en: "Reload the app", ar: "أعد تحميل التطبيق" },
+  ebResetHint: { en: "Still stuck after reloading?", ar: "ما زالت المشكلة بعد إعادة التحميل؟" },
+  ebReset: { en: "Reset app data (last resort)", ar: "امسح بيانات التطبيق (كحل أخير)" },
+  ebResetConfirm: {
+    en: "This deletes ALL Sawiyya data on this device — every profile, all progress and your teach-mode recordings. This cannot be undone. Continue?",
+    ar: "سيؤدي هذا إلى حذف كل بيانات سويّة على هذا الجهاز — جميع الملفات الشخصية وكل التقدم وتسجيلات وضع التعليم. لا يمكن التراجع عن ذلك. هل تريد المتابعة؟",
+  },
+
   // storage recovery notice (M21) — honest, never a silent wipe
   recoveryTitle: { en: "We couldn't read your saved progress", ar: "تعذّرت قراءة تقدمك المحفوظ" },
   recoveryBody: {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { applyDir, t } from "./i18n";
 import { activeProfile, RECOVERY_NOTICE_KEY, useApp } from "./store/app";
 import { Card, SpringButton } from "./components/dc";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useUi } from "./store/ui";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
@@ -77,12 +78,25 @@ export default function App() {
       {showRecovery && <RecoveryNotice onDismiss={dismissRecovery} />}
       <main>
         {screen.name === "home" && <Home />}
+        {/* Camera screens get their own boundary (H12): the MediaPipe/camera
+            stack is the riskiest subtree, and "try again" just re-mounts it. */}
         {screen.name === "camera" && (
-          <CameraPractice key={screen.targetSignId ?? "free"} initialSignId={screen.targetSignId} />
+          <ErrorBoundary scope="section">
+            <CameraPractice
+              key={screen.targetSignId ?? "free"}
+              initialSignId={screen.targetSignId}
+            />
+          </ErrorBoundary>
         )}
-        {screen.name === "firstSign" && <FirstSign />}
+        {screen.name === "firstSign" && (
+          <ErrorBoundary scope="section">
+            <FirstSign />
+          </ErrorBoundary>
+        )}
         {screen.name === "lesson" && (
-          <LessonPlayer key={screen.lessonId} lessonId={screen.lessonId} />
+          <ErrorBoundary scope="section">
+            <LessonPlayer key={screen.lessonId} lessonId={screen.lessonId} />
+          </ErrorBoundary>
         )}
         {screen.name === "family" && <Family />}
         {screen.name === "flagPicker" && <FlagPicker />}
