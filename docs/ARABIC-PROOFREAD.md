@@ -40,3 +40,23 @@ Format: `location` · EN → **AR**
 - Early-family invite · "Sawiyya is brand new — the very first families are starting now. Learn your first signs together, tell us what matters to your family, and help shape what we build next." → **سويّة جديدة تمامًا — العائلات الأولى تبدأ رحلتها الآن. تعلّموا إشاراتكم الأولى معًا، وأخبرونا بما يهمّ عائلتك، وساعدونا في تشكيل ما نبنيه.**
 - Early-family CTA · "Be an early family →" → **كن عائلة من الأوائل ←**
 - Impact stat · "camera-graded letters — the full Arabic alphabet, from day one" → **حرفًا مُقيَّمًا بالكاميرا — الأبجدية العربية كاملة، من يومك الأول**
+
+## Batch 2 — Deploy & state safety net (2026-07-02)
+
+### App (`src/i18n.ts`)
+
+Error boundary (H12):
+
+- `ebTitle` · "Something went wrong" → **حدث خطأ ما**
+- `ebBody` · "An unexpected error stopped this screen. Your progress is saved on this device — reloading usually fixes it." → **أوقف خطأ غير متوقع هذه الشاشة. تقدمك محفوظ على هذا الجهاز — وإعادة التحميل عادةً ما تحل المشكلة.**
+- `ebRetry` · "Try again" → **حاول مجددًا**
+- `ebReload` · "Reload the app" → **أعد تحميل التطبيق**
+- `ebResetHint` · "Still stuck after reloading?" → **ما زالت المشكلة بعد إعادة التحميل؟**
+- `ebReset` · "Reset app data (last resort)" → **امسح بيانات التطبيق (كحل أخير)**
+- `ebResetConfirm` · "This deletes ALL Sawiyya data on this device — every profile, all progress and your teach-mode recordings. This cannot be undone. Continue?" → **سيؤدي هذا إلى حذف كل بيانات سويّة على هذا الجهاز — جميع الملفات الشخصية وكل التقدم وتسجيلات وضع التعليم. لا يمكن التراجع عن ذلك. هل تريد المتابعة؟**
+
+Storage recovery notice (M21):
+
+- `recoveryTitle` · "We couldn't read your saved progress" → **تعذّرت قراءة تقدمك المحفوظ**
+- `recoveryBody` · "The data saved on this device was damaged, so the app has started fresh. A backup copy of the damaged data is kept on this device." → **تلفت البيانات المحفوظة على هذا الجهاز، فبدأ التطبيق من جديد. احتفظنا بنسخة احتياطية من البيانات التالفة على جهازك.**
+- `recoveryDismiss` · "OK" → **حسنًا**
