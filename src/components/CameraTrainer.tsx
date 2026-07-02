@@ -313,6 +313,12 @@ export function CameraTrainer({
             <p className="mt-1 font-sans text-[12.5px] leading-[1.4] text-ink">
               {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
+            {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+            {sign.tier === "A1" && (
+              <p className="mt-1 font-sans text-[11px] italic leading-snug text-muted">
+                {t("a1AslProvenance", lang)}
+              </p>
+            )}
           </div>
         </div>
       )}

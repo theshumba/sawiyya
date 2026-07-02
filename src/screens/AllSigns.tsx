@@ -655,6 +655,12 @@ function DetailPanel({
           </span>
           <p className="text-[13.5px] leading-relaxed text-ink">{hint}</p>
         </div>
+        {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+        {sign.tier === "A1" && (
+          <p className="mt-2 px-1 text-[11px] italic leading-snug text-ink/50">
+            {t("a1AslProvenance", lang)}
+          </p>
+        )}
       </div>
 
       {/* actions — camera CTA gated by cameraGradable; motion signs get the honest

@@ -65,6 +65,10 @@ export const ALPHABET: Sign[] = [
 ];
 
 // ── A1 · Unit 1 — "Family & First Words" (PRD §19 candidate set) ─────────────
+// PROVENANCE (C3, disclosed in-app via i18n `a1AslProvenance`): these word-sign
+// descriptions are ADAPTED FROM ASL and are NOT yet verified as Qatari Sign
+// Language. No public QSL word dataset exists; a native Deaf Qatari signer
+// records and verifies every A1 sign in Phase 2 (docs/real-sign-content-plan.md).
 const S = (
   id: string,
   glossEn: string,
