@@ -15,7 +15,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "spike.html"],
+      includeAssets: ["favicon.svg"],
       workbox: {
         // Cache the app shell + the MediaPipe wasm/model so the recognizer
         // works offline after first load. Frames never leave the device.
