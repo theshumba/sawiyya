@@ -54,6 +54,39 @@ Findings: **H15** AA contrast on flagged token pairings (adjust tailwind tokens,
 
 Fresh full run: tsc, vitest, build. Then Playwright smoke against `vite preview`: cold onboarding → first sign → Home → all tabs → fingerspelling → family flag flow → settings, in EN **and** AR (RTL), plus camera-denied path — no dead ends, no console errors. Bundle checks: no MediaPipe CDN refs, no analytics in app bundle, no "Winner"/testimonial strings anywhere, precache size sane. `git log main..HEAD` contains no dist/node_modules/secrets.
 
+## Pinned design decisions (do NOT redesign — implement exactly these)
+
+These resolve every judgment call left open by the audit. If the code makes one of these impossible as written, pick the nearest faithful variant and record the deviation in your commit message — do not invent a different design.
+
+### Step 1 (Batch 4) — ratings, queue, mastery
+- **Soft fail:** in camera drills, if no confirmed match after **20 seconds of hand-visible time**, show "Still tricky — let's see it again" (EN+AR) → replay the HandSkeleton demo → rate the card **'again'**. User retries immediately. Never a blocking fail screen (never-hard-fail brand rule).
+- **Self-mark** ("I did it" without camera confirmation) → rate **'hard'**, never 'good'.
+- **Skip** = record **nothing** (no-op) in both LessonPlayer and CameraPractice (resolves L5).
+- **Watch drills:** never call rateCard; watch reps never count toward mastery (M3).
+- **Review sessions:** wire review CTAs to the existing `lessonId:'review'` queue; sessions of **10 cards**, oldest-due first, mixed drill types; **daily soft cap 30 reviews** — beyond that show "30 done today — the rest will wait for tomorrow" (EN+AR). This is the flood spreader (H3).
+- **Starvation (M5):** when nothing is due and the daily goal is unmet, Home offers "Learn a new letter" = the next letter in curriculum order (see Step 3 groups) that has no SRS card.
+- **Mastery level 3** requires: FSRS card state = Review **and** stability ≥ 2 days **and** ≥ 2 camera-confirmed successes (self-marks and watch don't count) (M4).
+- **Milestone at:16** filters to A1_SIGNS ids only (M4).
+
+### Step 2 (Batch 5) — Family Mode semantics
+- **Flag shape:** add `raisedBy: profileId` and `supporters: profileId[]` to Flag. On creation, seed `newStoredCard()` into every **non-raiser** profile's SRS (H4).
+- **Ownership (H7):** only the raiser or any deaf-role profile can deactivate a flag. Another member tapping an already-flagged sign is a **co-request** (added to `supporters`), never a toggle-off. "Clear all" clears only the current profile's own raised flags.
+- **Routing (H5):** flagged sign taps → camera only when `cameraGradable`; otherwise the dictionary/watch surface for that exact sign.
+- **Deaf-role (H6):** excluded from the honeycomb intersection denominator and household-streak day-sets; their **flagging activity counts as their active day**.
+- **Assigner visibility (M8):** each flag row shows one mastery dot (0–3) per non-raiser member; when all non-raiser hearing members reach mastery ≥ 2, the flag **auto-archives** (kept in state as `archived`, not deleted) and the sign celebrates into the honeycomb.
+- **Export/Import (H8):** Settings gains "Export household" (JSON file download) and "Import household" (file picker). Format: `{ schema: "sawiyya.household.v1", exportedAt, appVersion, state: <entire persisted app-store slice> }`. Import validates the schema tag, shows a bilingual "this replaces everything on this device" confirm, then replaces wholesale. One honest line on the Family screen: data lives on this device — export to move it.
+
+### Step 3 (Batch 6) — curriculum + fingerspelling
+- **Letter groups — 4 lessons of 7, standard Arabic order** (predictable, defensible; do NOT invent a similarity-based order without data):
+  1. ا ب ت ث ج ح خ · 2. د ذ ر ز س ش ص · 3. ض ط ظ ع غ ف ق · 4. ك ل م ن ه و ي
+  Each lesson: per letter watch (HandSkeleton) → produce (camera drill); end-of-group checkpoint = recognise quiz (show a skeleton, pick the letter) drawn only from letters met so far. 28-letter milestone at the end.
+- **Fingerspelling "Spell your name" (M6):** Arabic text input only. Map each char to its `alpha-*` sign; ة renders its reference-only card (not gradable); non-letter chars are skipped with a small honest note. Playback = HandSkeleton sequence at 0.5× / 1× / 2×. Then optional "practice along": camera steps through the word's gradable letters one by one. Entry points: Home card + PractiseChooser.
+- **Sign.media (H23):** optional `media?: { type: 'video'; src: string; poster?: string }` on the Sign type; SignDemo renders the video when present, current fallback otherwise; recognise-quiz pools filtered to signs with a real visual (skeleton or media). Footage itself stays owner-gated.
+- **yes/no (M7):** flip both to dynamic + `cameraGradable:false` (the audit's first option — safest honest choice). iloveyou + stop stay gradable.
+
+### Cross-step rule
+After finishing each step, run the batch's **verification gate exactly as written in docs/AUDIT-2026-07.md §"Prioritised execution plan"** — the gates there are the acceptance criteria for these steps (Step 1↔Batch 4, Step 2↔Batch 5, Step 3↔Batch 6, Step 4↔Batch 7, Step 5↔Batch 8).
+
 ## Step 7 — Merge + deploy (only if Step 6 fully passes)
 
 `git checkout main && git merge feat/fable5-overhaul && git push` → watch the GitHub Actions Pages run → verify https://theshumba.github.io/sawiyya live bundle contains the new markers and none of the fabricated strings. Push the landing repo (`~/Desktop/Projects/sawiyya-landing`, main) → verify https://sawiyya.com. Then write the owner runbook summary: phone camera test with `?debug`, Arabic proofread list location, native-signer next step, ArSL21L download step.
