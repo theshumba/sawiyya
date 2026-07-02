@@ -109,7 +109,7 @@ export function AiTransparency() {
         {/* Intro — one reconciled bilingual heading story */}
         <section className="space-y-4 text-center">
           <span className="font-label inline-block rounded-full border-2 border-gold/30 bg-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-teal-deep">
-            {T("Mada Innovation Award Winner", "الفائز بجائزة مدى للابتكار")}
+            {T("Mada Innovation Award 2026 entry", "مشاركة في جائزة مدى للابتكار ٢٠٢٦")}
           </span>
           <h2 className="font-display text-3xl font-bold leading-tight text-teal md:text-4xl">
             {T("Built for your family,", "مصمّم لعائلتك،")}

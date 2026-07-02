@@ -360,7 +360,7 @@ export function Settings() {
             </button>
             <span className="text-[11px] font-medium text-[#94A5A2]">{t("aboutVersion", lang)}</span>
             <span className="text-[11px] font-medium text-ink/30">
-              {pick(lang, "© 2024 Sawiyya · Mada Innovation", "© 2024 سويّة · ابتكار مدى")}
+              {pick(lang, "© 2026 Sawiyya", "© ٢٠٢٦ سويّة")}
             </span>
           </div>
         </div>
