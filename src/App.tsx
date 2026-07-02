@@ -87,6 +87,7 @@ export default function App() {
             <CameraPractice
               key={screen.targetSignId ?? "free"}
               initialSignId={screen.targetSignId}
+              autoStart={screen.autoStart}
             />
           </ErrorBoundary>
         )}

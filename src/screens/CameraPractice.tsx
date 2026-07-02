@@ -18,7 +18,15 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 
 const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
-export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
+// autoStart: the onboarding alphabet fast-path opens the camera immediately
+// (no extra "Start camera" tap — L20); the browser permission prompt still gates.
+export function CameraPractice({
+  initialSignId,
+  autoStart = false,
+}: {
+  initialSignId?: string;
+  autoStart?: boolean;
+}) {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
@@ -121,7 +129,13 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
           />
         </div>
 
-        <CameraTrainer key={`${signId}-${round}`} sign={sign} lang={lang} onResult={handleResult} />
+        <CameraTrainer
+          key={`${signId}-${round}`}
+          sign={sign}
+          lang={lang}
+          onResult={handleResult}
+          autoStart={autoStart}
+        />
       </div>
     </ScreenShell>
   );
