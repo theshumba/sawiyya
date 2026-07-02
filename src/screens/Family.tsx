@@ -352,7 +352,10 @@ export function Family() {
                         style={{ animationDelay: `${i * 40}ms` }}
                         title={pick(lang, sign.glossEn, sign.glossAr)}
                       >
-                        <span aria-hidden="true">{sign.type === "alphabet" ? sign.code : sign.emoji}</span>
+                        {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
+                        <span aria-hidden="true">
+                          <SignGlyph sign={sign} lang={lang} className="text-lg" imgClassName="h-6 w-6 object-contain" />
+                        </span>
                       </button>
                     );
                   }
@@ -376,7 +379,9 @@ export function Family() {
                       onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
                       ariaLabel={`${pick(lang, sign.glossEn, sign.glossAr)} — ${t("practiceCamera", lang)}`}
                     >
-                      <span aria-hidden="true">{sign.type === "alphabet" ? sign.code : sign.emoji}</span>
+                      <span aria-hidden="true">
+                        <SignGlyph sign={sign} lang={lang} className="text-base" imgClassName="h-5 w-5 object-contain" />
+                      </span>
                       {pick(lang, sign.glossEn, sign.glossAr)}
                     </Pill>
                   );

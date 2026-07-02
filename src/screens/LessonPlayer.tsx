@@ -481,7 +481,8 @@ function ChoiceDrill({
               key={id}
               n={i + 1}
               state={state}
-              glyph={(choice.type === "alphabet" ? choice.code : choice.emoji) ?? choice.emoji}
+              sign={choice}
+              lang={lang}
               hint={pick(lang, choice.hintEn, choice.hintAr)}
               disabled={picked !== null}
               onClick={() => choose(id)}
@@ -585,18 +586,21 @@ function ChoiceRow({
   );
 }
 
-/** Tile answer (recall) — large glyph + hint, 2-col grid, numbered corner. */
+/** Tile answer (recall) — sign glyph (via SignGlyph, no emoji-as-sign) + hint,
+ *  2-col grid, numbered corner. */
 function ChoiceTile({
   n,
   state,
-  glyph,
+  sign,
+  lang,
   hint,
   disabled,
   onClick,
 }: {
   n: number;
   state: "idle" | "correct" | "wrong" | "dim";
-  glyph: string;
+  sign: Sign;
+  lang: Lang;
   hint: string;
   disabled: boolean;
   onClick: () => void;
@@ -625,8 +629,8 @@ function ChoiceTile({
       <span className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}>
         {n}
       </span>
-      <span className="text-[32px] leading-none" aria-hidden="true">
-        {glyph}
+      <span className="flex h-12 items-center justify-center leading-none" aria-hidden="true">
+        <SignGlyph sign={sign} lang={lang} className="text-[32px]" imgClassName="h-10 w-10 object-contain" />
       </span>
       <span
         className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
@@ -652,10 +656,11 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
         style={{ width: 104, height: 104, boxShadow: "0 10px 26px rgba(0,0,0,.22)" }}
       >
         {sign.id === "iloveyou" ? (
+          // ILY hand illustration (stitch-34) — the AI-generated "signer" photo is retired (C2).
           <img
-            src="brand/stitch-30.png"
+            src="brand/stitch-34.png"
             alt={t("lsRecogniseTitle", lang)}
-            className="h-full w-full object-cover"
+            className="h-4/5 w-4/5 object-contain"
           />
         ) : sign.type === "alphabet" ? (
           <span

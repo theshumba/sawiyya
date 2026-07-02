@@ -19,6 +19,7 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { SpringButton } from "../components/dc";
 import { Chip } from "../components/Tile";
+import { SignGlyph } from "../components/SignGlyph";
 import type { Sign } from "../types";
 
 const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
@@ -253,8 +254,9 @@ export function FlagPicker() {
                           flagged ? "bg-sand" : "bg-sand/50"
                         }`}
                       >
-                        <span className="text-5xl" aria-hidden="true">
-                          {sign.emoji}
+                        {/* SignGlyph — real handshape / letter / honest icon (H14, no emoji-as-sign). */}
+                        <span aria-hidden="true">
+                          <SignGlyph sign={sign} lang={lang} className="text-5xl" imgClassName="h-16 w-16 object-contain" />
                         </span>
                       </span>
 
@@ -292,10 +294,11 @@ export function FlagPicker() {
                   <Icon name="push_pin" fill className="text-2xl" />
                 </span>
                 <h3 className="font-display text-xl font-bold leading-tight text-teal">
+                  {/* Honest count — no fabricated weekly time-box (M9). */}
                   {pick(
                     lang,
-                    `${num(flaggedSigns.length, lang)} signs flagged for this week`,
-                    `${num(flaggedSigns.length, lang)} إشارات محدّدة لهذا الأسبوع`,
+                    `${num(flaggedSigns.length, lang)} signs flagged for your family`,
+                    `${num(flaggedSigns.length, lang)} إشارات محدّدة لعائلتك`,
                   )}
                 </h3>
               </div>
@@ -312,7 +315,9 @@ export function FlagPicker() {
                         aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
-                        <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
+                        <span aria-hidden="true">
+                          <SignGlyph sign={s} lang={lang} className="text-2xl" imgClassName="h-8 w-8 object-contain" />
+                        </span>
                         <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
                         <Icon name="videocam" className="text-xl text-coral" />
                       </button>
