@@ -60,3 +60,18 @@ Storage recovery notice (M21):
 - `recoveryTitle` · "We couldn't read your saved progress" → **تعذّرت قراءة تقدمك المحفوظ**
 - `recoveryBody` · "The data saved on this device was damaged, so the app has started fresh. A backup copy of the damaged data is kept on this device." → **تلفت البيانات المحفوظة على هذا الجهاز، فبدأ التطبيق من جديد. احتفظنا بنسخة احتياطية من البيانات التالفة على جهازك.**
 - `recoveryDismiss` · "OK" → **حسنًا**
+
+## Batch 3 — Funnel & measurement honesty (2026-07-02)
+
+### App (`src/i18n.ts`)
+
+- `obCamEyebrow` (edited — dropped the dangling "· 1" after the camera+privacy merge) · "How it works" → **كيف يعمل**
+- `obRemindBody` (rewritten honest — the app sends no notifications) · "Sawiyya doesn't send notifications — nothing leaves your device. Want a daily nudge? Add a practice reminder to your own calendar." → **سويّة لا ترسل إشعارات — لا شيء يغادر جهازك. أتريد تذكيرًا يوميًا؟ أضِف موعد تدريب إلى تقويمك.**
+- `obRemindEventTitle` (new — .ics event summary + preview card) · "Practise Sawiyya" → **تمرّن على سويّة**
+- `obRemindEventWhen` (new) · "Every day · 6:00 pm · in your calendar" → **كل يوم · ٦:٠٠ مساءً · في تقويمك**
+- `obRemindCal` (new) · "Add to my calendar (.ics)" → **أضِفه إلى تقويمي (.ics)**
+- `obRemindCalDone` (new) · "Downloaded — open it to add the reminder" → **تم التنزيل — افتحه لإضافة التذكير**
+
+### Landing (`~/Desktop/Projects/sawiyya-landing/index.html`, notify-me pills)
+
+- Notify-me confirmation (shown only after the PostHog event is captured) · "Interest noted ✓" → **سجّلنا اهتمامك ✓**
