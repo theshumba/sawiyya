@@ -4,6 +4,10 @@ node_modules/
 .superpowers/
 tools/extract-seeds/dataset/
 
+# Build output — CI builds fresh (deploy.yml); a committed dist is always stale (M12)
+dist/
+tsconfig.tsbuildinfo
+
 # Environment / secrets (added by security hygiene pass)
 .env
 .env.*
