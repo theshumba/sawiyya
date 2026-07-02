@@ -495,6 +495,14 @@ const dict = {
   stFrameSub: { en: "Keep your hand centred", ar: "أبقِ يدك في المنتصف" },
   stFrameBanner: { en: "Your hand's out of frame", ar: "يدك خارج الإطار" },
   stFrameTip: { en: "Bring your whole hand into view", ar: "أدخِل يدك كاملةً إلى الرؤية" },
+
+  // storage recovery notice (M21) — honest, never a silent wipe
+  recoveryTitle: { en: "We couldn't read your saved progress", ar: "تعذّرت قراءة تقدمك المحفوظ" },
+  recoveryBody: {
+    en: "The data saved on this device was damaged, so the app has started fresh. A backup copy of the damaged data is kept on this device.",
+    ar: "تلفت البيانات المحفوظة على هذا الجهاز، فبدأ التطبيق من جديد. احتفظنا بنسخة احتياطية من البيانات التالفة على جهازك.",
+  },
+  recoveryDismiss: { en: "OK", ar: "حسنًا" },
 } satisfies Record<string, Entry>;
 
 export type TKey = keyof typeof dict;

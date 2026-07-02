@@ -1,7 +1,7 @@
 // Sawiyya app state — zustand, persisted to localStorage (PRD §10 [A]).
 // Single device, multiple local profiles. No accounts, no cloud, no PII upload.
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type {
   DailyGoal,
   Flag,
@@ -88,6 +88,97 @@ const emptyMetrics: Metrics = {
   selfMarks: 0,
   lessonsCompleted: 0,
 };
+
+// ── persistence safety net (H13, M21) ────────────────────────────────────────
+// localStorage IS the database here — no accounts, no cloud. Two protections:
+// 1. A corrupt blob is backed up to CORRUPT_BACKUP_KEY before the app falls
+//    back to defaults, and RECOVERY_NOTICE_KEY flags a one-time honest notice
+//    (M21 — never silently wipe someone's progress).
+// 2. `version` + `migrate` + a normalizing `merge` mean future schema changes
+//    can't shallow-merge stale nested shapes into new code (H13).
+
+export const STORE_KEY = "sawiyya.app.v1";
+export const CORRUPT_BACKUP_KEY = "sawiyya.app.v1.corrupt";
+export const RECOVERY_NOTICE_KEY = "sawiyya.app.recovery-notice";
+
+const guardedStorage = createJSONStorage(() => ({
+  getItem: (name: string) => {
+    const raw = localStorage.getItem(name);
+    if (raw === null) return null;
+    try {
+      JSON.parse(raw);
+      return raw;
+    } catch {
+      try {
+        localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
+        localStorage.setItem(RECOVERY_NOTICE_KEY, "1");
+      } catch {
+        // storage full — the backup is best-effort, the app must still boot
+      }
+      return null;
+    }
+  },
+  setItem: (name: string, value: string) => localStorage.setItem(name, value),
+  removeItem: (name: string) => localStorage.removeItem(name),
+}));
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function finiteOr(n: unknown, fallback: number): number {
+  return typeof n === "number" && Number.isFinite(n) ? n : fallback;
+}
+
+/**
+ * Rehydrate normalizer: whatever shape the persisted blob has, the state that
+ * reaches the app is complete. Backfills keys added after a blob was written
+ * (e.g. a profile missing `activeDays` or a metrics key) so no selector ever
+ * sees `undefined` and NaNs the UI.
+ */
+function normalizePersisted(persisted: unknown, current: AppState): AppState {
+  if (!isRecord(persisted)) return current;
+  const p = persisted as Partial<AppState>;
+  const profiles: Profile[] = Array.isArray(p.profiles)
+    ? p.profiles.filter(isRecord).map((raw) => {
+        const pr = raw as Partial<Profile>;
+        return {
+          id: typeof pr.id === "string" ? pr.id : uid("p"),
+          displayName: typeof pr.displayName === "string" ? pr.displayName : "",
+          role: pr.role ?? "parent",
+          emoji: typeof pr.emoji === "string" ? pr.emoji : AVATARS[0],
+          dominantHand: pr.dominantHand ?? "R",
+          language: pr.language ?? "en",
+          xp: finiteOr(pr.xp, 0),
+          xpToday: finiteOr(pr.xpToday, 0),
+          streak: finiteOr(pr.streak, 0),
+          lastActiveDay: typeof pr.lastActiveDay === "string" ? pr.lastActiveDay : null,
+          activeDays: Array.isArray(pr.activeDays)
+            ? pr.activeDays.filter((d): d is string => typeof d === "string")
+            : [],
+          dailyGoal: pr.dailyGoal ?? "regular",
+          createdAt: typeof pr.createdAt === "string" ? pr.createdAt : new Date().toISOString(),
+        };
+      })
+    : current.profiles;
+  return {
+    ...current,
+    ...p,
+    profiles,
+    activeProfileId:
+      typeof p.activeProfileId === "string" && profiles.some((pr) => pr.id === p.activeProfileId)
+        ? p.activeProfileId
+        : (profiles[0]?.id ?? null),
+    progress: isRecord(p.progress) ? (p.progress as AppState["progress"]) : {},
+    srs: isRecord(p.srs) ? (p.srs as AppState["srs"]) : {},
+    flags: Array.isArray(p.flags) ? p.flags : [],
+    metrics: {
+      ...emptyMetrics,
+      appFirstOpenAt: current.metrics.appFirstOpenAt,
+      ...(isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {}),
+    },
+  };
+}
 
 export const useApp = create<AppState>()(
   persist(
@@ -259,7 +350,16 @@ export const useApp = create<AppState>()(
           return { metrics: { ...s.metrics, [key]: cur + by } };
         }),
     }),
-    { name: "sawiyya.app.v1" },
+    {
+      name: STORE_KEY,
+      storage: guardedStorage,
+      // Schema version 1 (H13). Bump this + extend migrate whenever the
+      // persisted shape changes; identity for now so today's blobs are v1.
+      version: 1,
+      migrate: (persistedState) => persistedState as AppState,
+      merge: (persistedState, currentState) =>
+        normalizePersisted(persistedState, currentState),
+    },
   ),
 );
 
