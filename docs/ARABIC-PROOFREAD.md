@@ -19,7 +19,7 @@ Format: `location` · EN → **AR**
 - `prLeagueBody` · "Growing together." → **ننمو معًا.**
 - `prLeagueSolo` (new) · "It's just you so far — add family members and you'll grow here together." → **أنت وحدك حتى الآن — أضف أفراد عائلتك لتنموا هنا معًا.**
 - `practiseWordsSub` · "4 camera · 12 watch" → **٤ بالكاميرا · ١٢ للمشاهدة**
-- `a1AslProvenance` (new) · "Adapted from ASL — not yet verified as Qatari Sign Language. Native recordings come with our Deaf signer partner in Phase 2." → **مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. التسجيلات الأصلية قادمة مع شريكنا المُشير الأصم في المرحلة الثانية.**
+- `a1AslProvenance` (new) · "Adapted from ASL — not yet verified as Qatari Sign Language. A Deaf Qatari signer records the native versions in Phase 2." → **مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. سيسجّل النسخ الأصلية شخص أصم قطري في المرحلة الثانية.**
 - `prDrillsDone` (new) · "Drills completed" → **تمارين مكتملة**
 - `prBestStreak` · "Current streak" → **التتابع الحالي**
 - `src/screens/InfoPages.tsx` badge · "Mada Innovation Award 2026 entry" → **مشاركة في جائزة مدى للابتكار ٢٠٢٦**

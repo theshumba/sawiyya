@@ -101,7 +101,7 @@ const dict = {
   lsWhatsNext: { en: "What's next", ar: "ما التالي" },
   lsBackHome: { en: "Back home", ar: "العودة للرئيسية" },
   lsDemoPlaceholder: { en: "Demo placeholder — a Deaf Qatari signer records the real demonstrations in Phase 2.", ar: "عرض مؤقت — سيسجّل العروض الحقيقية شخص أصم قطري في المرحلة الثانية." },
-  a1AslProvenance: { en: "Adapted from ASL — not yet verified as Qatari Sign Language. Native recordings come with our Deaf signer partner in Phase 2.", ar: "مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. التسجيلات الأصلية قادمة مع شريكنا المُشير الأصم في المرحلة الثانية." },
+  a1AslProvenance: { en: "Adapted from ASL — not yet verified as Qatari Sign Language. A Deaf Qatari signer records the native versions in Phase 2.", ar: "مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. سيسجّل النسخ الأصلية شخص أصم قطري في المرحلة الثانية." },
 
   // home
   homeToday: { en: "Today's lesson", ar: "درس اليوم" },
