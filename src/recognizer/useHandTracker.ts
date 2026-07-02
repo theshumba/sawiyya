@@ -1,4 +1,4 @@
-// MediaPipe HandLandmarker hook — lifted from the proven spike (spike.html).
+// MediaPipe HandLandmarker hook — lifted from the proven spike (tools/archive/spike.html).
 // 21 landmarks per frame, fully on-device; the landmarker is a module
 // singleton so screens share one model download (then SW-cached offline).
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -129,38 +129,56 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
         }
       };
 
+      // One detectForVideo throw must not silently kill the rAF loop while the
+      // UI still says "running" (M23) — fail loudly into the existing error UI
+      // and rebuild the landmarker next start, in case the graph is corrupted.
+      const failLoop = (e: unknown) => {
+        running.current = false;
+        landmarkerPromise = null; // force a fresh landmarker on the next start()
+        media.getTracks().forEach((tr) => tr.stop());
+        stream.current = null;
+        setHandVisibleIfChanged(false);
+        setStatus("error");
+        setError(e instanceof Error ? e.message : String(e));
+      };
+
       const loop = (t: number) => {
         if (!running.current || myLoop !== activeLoop) return; // superseded by a newer loop
-        // Some mobile Safari builds report videoWidth 0 until metadata fires, leaving
-        // the overlay canvas 0×0 all session; lazily size it once dimensions exist (M4).
-        if ((canvas.width === 0 || canvas.height === 0) && video.videoWidth > 0) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-        }
-        if (video.currentTime !== lastVideoTime) {
-          lastVideoTime = video.currentTime;
-          const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (res.landmarks && res.landmarks.length > 0) {
-            setHandVisibleIfChanged(true);
-            const lm = res.landmarks[0];
-            draw.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, {
-              color: "#E6B24C",
-              lineWidth: 4,
-            });
-            draw.drawLandmarks(lm, {
-              color: "#FBF7EF",
-              fillColor: "#E8654C",
-              radius: 5,
-              lineWidth: 1,
-            });
-            const detectedHand =
-              (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
-            onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
-          } else {
-            setHandVisibleIfChanged(false);
-            onFrameRef.current(null);
+        try {
+          // Some mobile Safari builds report videoWidth 0 until metadata fires, leaving
+          // the overlay canvas 0×0 all session; lazily size it once dimensions exist (M4).
+          if ((canvas.width === 0 || canvas.height === 0) && video.videoWidth > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
           }
+          if (video.currentTime !== lastVideoTime) {
+            lastVideoTime = video.currentTime;
+            const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (res.landmarks && res.landmarks.length > 0) {
+              setHandVisibleIfChanged(true);
+              const lm = res.landmarks[0];
+              draw.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, {
+                color: "#E6B24C",
+                lineWidth: 4,
+              });
+              draw.drawLandmarks(lm, {
+                color: "#FBF7EF",
+                fillColor: "#E8654C",
+                radius: 5,
+                lineWidth: 1,
+              });
+              const detectedHand =
+                (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
+              onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
+            } else {
+              setHandVisibleIfChanged(false);
+              onFrameRef.current(null);
+            }
+          }
+        } catch (e) {
+          failLoop(e);
+          return;
         }
         frames += 1;
         if (t - fpsT > 500) {
