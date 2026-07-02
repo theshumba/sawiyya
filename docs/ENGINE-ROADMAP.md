@@ -48,17 +48,23 @@ Goal (Melusi): make the **camera recognition engine genuinely good** (incorporat
   `landmarks_from_images.py`; CONFIRM AASL's license first (Kaggle shows CC BY-NC-SA — NC
   would block us). Full runbook: `docs/PHASE-B-DATA.md`.
 - A live in-app **motion-sign demo** waits on recorded QSL motion sequences (engine is ready).
-- A few **tiny inline emoji** remain only in two bespoke dense visualisations (Progress
-  "constellation" nodes, Family honeycomb/pills) where alphabet already shows the real letter
-  and a hand skeleton would be illegible at that scale — left as a deliberate, owner-decidable
-  call rather than a uniform icon wall.
+- ~~A few **tiny inline emoji** remain in two bespoke dense visualisations~~ **RESOLVED
+  (2026-07 truth pass, H14):** every sign tile — Family honeycomb + board pills, FlagPicker
+  tiles + summary rows, LessonPlayer recall tiles, Progress forecast rows — now routes through
+  `SignGlyph` (real skeleton / letter / honest icon). The Progress constellation renders the
+  real Arabic letter, never an emoji. Remaining emoji are decorative only (streak flame,
+  achievement badges, profile avatars) — none represents a sign.
 - Cosmetic Arabic plural-grammar + Western-digit localisation deferred (flagged in audit).
 
 ## Where we are today (verified in code)
 - Pipeline: MediaPipe `tasks-vision` HandLandmarker → `normalizeLandmarks()` (42-dim, rotation-invariant) → **KNN** with distance gate (`src/recognizer/`).
 - **Alphabet = real**: 28 letters seeded from the Zenodo ArSL dataset (`seeds/alphabet.json`, CC-BY-4.0), gate 0.65 / tau 0.70, TA≈98% / FA 0.2% (within-dataset). These grade genuinely.
 - **Everyday signs = fake-feeling**: no dataset → `CameraTrainer` falls back to **teach mode** (you record your own hand, then it confirms you match *yourself*).
-- **Visuals = placeholders**: `SignGlyph` / `SignDemo` show the Arabic *letter* or an *emoji* — never a real hand. (Code comments: "Phase-2 swaps in Deaf-signer video.")
+- **Visuals (2026-07)**: `SignGlyph` / `SignDemo` show the real averaged handshape skeleton for
+  the 28 seeded letters, the Arabic letter for the 3 edge forms, and an honest sign icon for
+  un-recorded words — never an emoji-as-sign, never an AI-generated "signer" photo (stitch-30
+  retired). Word-sign descriptions are disclosed in-app as ASL-adapted, unverified as QSL
+  (`a1AslProvenance`) until the Phase-2 Deaf-signer recording.
 
 ## The plan
 
