@@ -27,7 +27,8 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Confetti, celebrate } from "../components/Confetti";
 import { Fanan } from "../components/Fanan";
 import { toLocaleDigits, formatPercent } from "../components/dc";
-import type { Lang, Sign } from "../types";
+import { SignGlyph } from "../components/SignGlyph";
+import type { Lang, Metrics, Profile, Sign } from "../types";
 
 const DAY_LABELS_EN = ["M", "T", "W", "T", "F", "S", "S"];
 const DAY_LABELS_AR = ["إث", "ث", "أر", "خ", "ج", "س", "ح"];
@@ -189,12 +190,26 @@ export function Progress() {
             />
           )}
           {tab === "stats" && (
-            <StatsTab lang={lang} mastered={mastered} bestStreak={profile.streak} heat={heat} />
+            <StatsTab lang={lang} mastered={mastered} streak={profile.streak} heat={heat} metrics={app.metrics} />
           )}
           {tab === "achieve" && (
-            <AchievementsTab lang={lang} seen={seen} mastered={mastered} streak={profile.streak} alphaTaught={alphaTaught} />
+            <AchievementsTab
+              lang={lang}
+              seen={seen}
+              mastered={mastered}
+              streak={profile.streak}
+              alphaTaught={alphaTaught}
+              flagsRaised={app.flags.length}
+            />
           )}
-          {tab === "league" && <LeagueTab lang={lang} />}
+          {tab === "league" && (
+            <LeagueTab
+              lang={lang}
+              profiles={app.profiles}
+              activeProfileId={app.activeProfileId}
+              onAddFamily={() => go({ name: "family" })}
+            />
+          )}
         </div>
       </div>
 
@@ -478,25 +493,32 @@ function OasisTab({
   );
 }
 
-// ── STATS tab — grid + month heatmap. Accuracy/minutes have no source → static
-// placeholders (flag for future data hook). ────────────────────────────────────
+// ── STATS tab — grid + month heatmap. Every number is real store data (C6):
+// camera accuracy derives from metrics; drills replace the un-tracked "minutes"
+// (never render a number the store can't back — "—" until data exists). ────────
 function StatsTab({
   lang,
   mastered,
-  bestStreak,
+  streak,
   heat,
+  metrics,
 }: {
   lang: Lang;
   mastered: number;
-  bestStreak: number;
+  streak: number;
   heat: number[];
+  metrics: Metrics;
 }) {
   const shades = ["#EDE3D2", "#9DC6C2", "#3E9A93", "#0F6E6A"];
+  const accuracy =
+    metrics.cameraAttempts > 0
+      ? formatPercent(Math.round((100 * metrics.cameraMatches) / metrics.cameraAttempts), lang)
+      : "—";
   const cells: { val: string; label: string; color: string }[] = [
     { val: toLocaleDigits(mastered, lang), label: t("prStatMastered", lang), color: "#0F6E6A" },
-    { val: formatPercent(92, lang), label: t("prAvgAccuracy", lang), color: "#0F6E6A" }, // static placeholder
-    { val: toLocaleDigits(340, lang), label: t("prMinutesSigned", lang), color: "#C89A3D" }, // static placeholder
-    { val: toLocaleDigits(bestStreak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
+    { val: accuracy, label: t("prAvgAccuracy", lang), color: "#0F6E6A" },
+    { val: toLocaleDigits(metrics.drillsCompleted, lang), label: t("prDrillsDone", lang), color: "#C89A3D" },
+    { val: toLocaleDigits(streak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
   ];
   return (
     <div className="space-y-0">
@@ -532,27 +554,34 @@ function StatsTab({
   );
 }
 
-// ── ACHIEVEMENTS tab — earned states derived from live progress where possible;
-// family flag stays a placeholder (no household-badge store yet). ───────────────
+// ── ACHIEVEMENTS tab — every earned state derives from live store data (C6);
+// the family-flag badge unlocks when the household has raised a flag. ───────────
 function AchievementsTab({
   lang,
   seen,
   mastered,
   streak,
   alphaTaught,
+  flagsRaised,
 }: {
   lang: Lang;
   seen: number;
   mastered: number;
   streak: number;
   alphaTaught: number;
+  flagsRaised: number;
 }) {
   const items: { glyph: string; name: string; status: string; earned: boolean }[] = [
     { glyph: "🌱", name: t("prAchFirstSign", lang), status: t("prUnlocked", lang), earned: seen >= 1 },
     { glyph: "🔥", name: t("prAch7Day", lang), status: t("prUnlocked", lang), earned: streak >= 7 },
     { glyph: "🤟", name: t("prAch5Words", lang), status: t("prUnlocked", lang), earned: mastered >= 5 },
     { glyph: "أ", name: t("prAchAlphabetStarted", lang), status: t("prUnlocked", lang), earned: alphaTaught >= 1 },
-    { glyph: "👪", name: t("prAchFamilyFlag", lang), status: pick(lang, "2 / 5 signs", "٢ / ٥ إشارات"), earned: false }, // placeholder
+    {
+      glyph: "👪",
+      name: t("prAchFamilyFlag", lang),
+      status: flagsRaised > 0 ? t("prUnlocked", lang) : "—",
+      earned: flagsRaised > 0,
+    },
     {
       glyph: "🏆",
       name: t("prAchWholeAlphabet", lang),
@@ -607,17 +636,26 @@ function AchievementsTab({
   );
 }
 
-// ── FAMILY LEAGUE tab — warm-by-design, off by default. Static placeholder: the
-// app has no household/family-league data source yet (flag for future hook). ────
-function LeagueTab({ lang }: { lang: Lang }) {
-  const members: { nameEn: string; nameAr: string; initEn: string; initAr: string; xp: number; bg: string; you?: boolean }[] = [
-    { nameEn: "Mama", nameAr: "ماما", initEn: "M", initAr: "م", xp: 240, bg: "#0F6E6A" },
-    { nameEn: "Layla", nameAr: "ليلى", initEn: "L", initAr: "ل", xp: 180, bg: "#E6B24C", you: true },
-    { nameEn: "Sara", nameAr: "سارة", initEn: "S", initAr: "س", xp: 120, bg: "#0A4F4C" },
-    { nameEn: "Baba", nameAr: "بابا", initEn: "B", initAr: "ب", xp: 90, bg: "#E8654C" },
-  ];
-  const max = 240;
-  const [competing, setCompeting] = useState(false); // visual only — needs a real household setting to persist.
+// ── FAMILY LEAGUE tab — bound to the REAL household profiles in the store (C6).
+// Solo users get an honest empty state; no fabricated members, no phantom toggle.
+const LEAGUE_AVATAR_BG = ["#E6B24C", "#0F6E6A", "#E8654C", "#0A4F4C"];
+
+function LeagueTab({
+  lang,
+  profiles,
+  activeProfileId,
+  onAddFamily,
+}: {
+  lang: Lang;
+  profiles: Profile[];
+  activeProfileId: string | null;
+  onAddFamily: () => void;
+}) {
+  const ranked = [...profiles].sort((a, b) => b.xp - a.xp);
+  const max = Math.max(1, ...ranked.map((p) => p.xp));
+  const colorFor = (p: Profile) =>
+    LEAGUE_AVATAR_BG[Math.max(0, profiles.findIndex((x) => x.id === p.id)) % LEAGUE_AVATAR_BG.length];
+  const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
 
   return (
     <div>
@@ -633,62 +671,58 @@ function LeagueTab({ lang }: { lang: Lang }) {
         <span className="text-[12px] font-semibold leading-[1.3] text-teal">{t("prLeagueWarm", lang)}</span>
       </div>
 
-      {/* Ranked rows */}
-      <div className="mt-[14px] flex flex-col gap-[10px]">
-        {members.map((m, i) => (
-          <div
-            key={m.nameEn}
-            className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
-            style={{ background: m.you ? "#FBF3EF" : "#FBF7EF", border: m.you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
+      {profiles.length <= 1 ? (
+        // Honest empty state — one learner is not a league.
+        <div className="mt-[14px] flex flex-col items-center gap-3 rounded-[16px] border border-line bg-paper p-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gold/15 text-gold-deep">
+            <Icon name="family_restroom" fill className="text-3xl" />
+          </span>
+          <p className="max-w-[280px] text-sm leading-relaxed text-muted">{t("prLeagueSolo", lang)}</p>
+          <button
+            type="button"
+            onClick={onAddFamily}
+            className="mt-1 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
-            <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-[#94A5A2]" style={{ width: 18 }}>
-              {toLocaleDigits(i + 1, lang)}
-            </span>
-            <div
-              className="flex flex-none items-center justify-center font-display text-[15px] font-extrabold"
-              style={{ width: 38, height: 38, borderRadius: "50%", background: m.bg, color: m.bg === "#E6B24C" ? "#16302E" : "#FBF7EF" }}
-            >
-              {pick(lang, m.initEn, m.initAr)}
-            </div>
-            <div className="flex-1">
-              <div className="font-display text-[14px] font-bold leading-[1.1] text-ink">{pick(lang, m.nameEn, m.nameAr)}</div>
-              <div className="mt-[5px] h-[6px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
-                <div className="h-full rounded-full" style={{ width: `${Math.round((m.xp / max) * 100)}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }} />
-              </div>
-            </div>
-            <span className="flex-none font-display text-[14px] font-extrabold leading-none text-teal">{toLocaleDigits(m.xp, lang)}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Competition toggle */}
-      <div className="mt-4 flex items-center justify-between rounded-[14px] border border-line bg-paper px-[14px] py-[13px]">
-        <div>
-          <div className="font-display text-[13px] font-bold leading-[1.1] text-ink">{t("prCompetition", lang)}</div>
-          <div className="mt-[2px] text-[11px] leading-[1.2] text-[#94A5A2]">{t("prCompetitionHint", lang)}</div>
+            <Icon name="person_add" className="text-lg" />
+            {t("famAdd", lang)}
+          </button>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={competing}
-          aria-label={t("prCompetition", lang)}
-          onClick={() => setCompeting((v) => !v)}
-          className="relative flex-none transition-colors duration-200"
-          style={{ width: 46, height: 27, borderRadius: 99, background: competing ? "#0F6E6A" : "#D6CDBB" }}
-        >
-          <span
-            className="absolute top-[3px] transition-all duration-200"
-            style={{
-              insetInlineStart: competing ? 22 : 3,
-              width: 21,
-              height: 21,
-              borderRadius: "50%",
-              background: "#FBF7EF",
-              boxShadow: "0 1px 3px rgba(0,0,0,.25)",
-            }}
-          />
-        </button>
-      </div>
+      ) : (
+        // Ranked rows — real names, real XP, "you" = the active profile.
+        <div className="mt-[14px] flex flex-col gap-[10px]">
+          {ranked.map((p, i) => {
+            const you = p.id === activeProfileId;
+            const bg = colorFor(p);
+            return (
+              <div
+                key={p.id}
+                className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
+                style={{ background: you ? "#FBF3EF" : "#FBF7EF", border: you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
+              >
+                <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-[#94A5A2]" style={{ width: 18 }}>
+                  {toLocaleDigits(i + 1, lang)}
+                </span>
+                <div
+                  className="flex flex-none items-center justify-center font-display text-[15px] font-extrabold"
+                  style={{ width: 38, height: 38, borderRadius: "50%", background: bg, color: bg === "#E6B24C" ? "#16302E" : "#FBF7EF" }}
+                  aria-hidden="true"
+                >
+                  {initialOf(p.displayName)}
+                </div>
+                <div className="flex-1">
+                  <div className="font-display text-[14px] font-bold leading-[1.1] text-ink">
+                    <bdi>{p.displayName}</bdi>
+                  </div>
+                  <div className="mt-[5px] h-[6px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.round((p.xp / max) * 100)}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }} />
+                  </div>
+                </div>
+                <span className="flex-none font-display text-[14px] font-extrabold leading-none text-teal">{toLocaleDigits(p.xp, lang)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -767,8 +801,9 @@ function ForecastRow({
       style={{ boxShadow: "0 2px 0 #EDE3D2" }}
     >
       <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-teal/5 bg-sand">
-        <span className="text-3xl" aria-hidden="true">
-          {sign.type === "alphabet" ? sign.code : sign.emoji}
+        {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
+        <span aria-hidden="true">
+          <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-10 w-10 object-contain" />
         </span>
       </span>
       <span className="flex-grow">
