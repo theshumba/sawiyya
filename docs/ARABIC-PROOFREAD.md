@@ -86,6 +86,22 @@ Storage recovery notice (M21):
 - `homeNewLetterSub` (new) · "Nothing due right now — start the next letter" → **لا شيء مستحق الآن — ابدأ الحرف التالي**
 - LessonPlayer capped-review sub (inline) · "Spacing the load out is how it sticks — see you tomorrow." → **توزيع المراجعة هو سرّ ثباتها — نراك غدًا.**
 
+## Step 2 — Batch 5 Family Mode (2026-07-03)
+
+### App (`src/i18n.ts`)
+
+- `famDataLocal` (new — single-device disclosure, Family + Settings) · "Your family's data lives on this device — export it from Settings to move or back it up." → **بيانات عائلتك محفوظة على هذا الجهاز — صدّرها من الإعدادات لنقلها أو نسخها احتياطيًا.**
+- `famClearMine` (new — H7-scoped clear) · "Clear my flags" → **مسح إشاراتي**
+- `famCoRequested` (new — non-raiser tap on an existing flag) · "You asked for this too" → **طلبتها أنت أيضًا**
+- `setHousehold` (new — Settings group) · "Household data" → **بيانات الأسرة**
+- `setExport` (new) · "Export household (JSON file)" → **تصدير بيانات الأسرة (ملف JSON)**
+- `setExportDone` (new) · "Saved — keep the file somewhere safe." → **تم الحفظ — احتفظ بالملف في مكان آمن.**
+- `setImport` (new) · "Import household" → **استيراد بيانات الأسرة**
+- `setImportConfirmTitle` (new) · "Replace everything on this device?" → **استبدال كل شيء على هذا الجهاز؟**
+- `setImportConfirmBody` (new) · "Importing replaces every profile, flag and progress record on this device with the file's contents. This cannot be undone." → **الاستيراد يستبدل جميع الملفات الشخصية والإشارات المحددة وسجل التقدم على هذا الجهاز بمحتوى الملف. لا يمكن التراجع عن هذا.**
+- `setImportReplace` (new) · "Replace & restart" → **استبدل وأعد التشغيل**
+- `setImportInvalid` (new) · "That file isn't a Sawiyya household export." → **هذا الملف ليس ملف تصدير أسرة من سويّة.**
+
 ## Step 0 — Adversarial review fixes (2026-07-03)
 
 ### Landing (`~/Desktop/Projects/sawiyya-landing/index.html`, `data-ar` attributes)
