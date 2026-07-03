@@ -9,7 +9,10 @@ export default {
         teal: { DEFAULT: "#0F6E6A", deep: "#0A4F4C", ink: "#16302E", ink900: "#0A1F1D" },
         coral: { DEFAULT: "#E8654C", soft: "#F08A75", deep: "#C54F3A" },
         // mid = progress-fill / reward accent (HANDOFF §1 · gold/mid).
-        gold: { DEFAULT: "#E6B24C", soft: "#F0C879", deep: "#C89A3D", mid: "#E6B24C" },
+        // deep = darkened for H15 (AA contrast): #C89A3D on sand (#F6EFE3) was
+        // 2.26:1 for the "HINT" label text; #7F621F holds the same ~42° gold
+        // hue at 5.01:1 on sand / 5.36:1 on paper (both ≥ AA 4.5:1).
+        gold: { DEFAULT: "#E6B24C", soft: "#F0C879", deep: "#7F621F", mid: "#E6B24C" },
         success: "#1F8A5B",
         danger: "#C0492F",
         sand: "#F6EFE3",

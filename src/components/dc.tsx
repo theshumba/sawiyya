@@ -27,10 +27,12 @@ export function formatPercent(pct: number, lang: Lang): string {
 export type SpringVariant = "teal" | "coral" | "gold" | "ghost";
 export type SpringSize = "sm" | "md" | "lg";
 
-/** Fill + deep-tone spring-shadow classes (HANDOFF §Shape). Ghost = flat sand. */
+/** Fill + deep-tone spring-shadow classes (HANDOFF §Shape). Ghost = flat sand.
+ *  H15: paper-on-coral (DEFAULT #E8654C) measured 3.28:1 — below AA 4.5:1;
+ *  coral-deep (#C54F3A) holds the same hue at 4.62:1 for paper / 4.93:1 for white. */
 const springFill: Record<SpringVariant, string> = {
   teal: "bg-teal text-paper spring spring-teal",
-  coral: "bg-coral text-paper spring spring-coral",
+  coral: "bg-coral-deep text-paper spring spring-coral",
   gold: "bg-gold text-ink spring spring-gold",
   ghost: "bg-sand text-ink border border-line",
 };
@@ -163,14 +165,16 @@ export function Pill({ children, tone = "teal", className = "", onClick, ariaLab
 export interface MonoLabelProps {
   children: ReactNode;
   className?: string;
+  /** M20: uppercase + wide tracking severs Arabic cursive joins — drop both
+   *  for `ar`, matching the guard Eyebrow already has. Omit for EN-only text. */
+  lang?: Lang;
 }
 
 /** 11px/700 uppercase mono label, letter-spacing .12em (HANDOFF §Type · mono). */
-export function MonoLabel({ children, className = "" }: MonoLabelProps) {
+export function MonoLabel({ children, className = "", lang }: MonoLabelProps) {
+  const latin = lang !== "ar" ? "uppercase tracking-[0.12em]" : "";
   return (
-    <span
-      className={`font-mono text-[11px] font-bold uppercase leading-none tracking-[0.12em] ${className}`}
-    >
+    <span className={`font-mono text-[11px] font-bold leading-none ${latin} ${className}`}>
       {children}
     </span>
   );

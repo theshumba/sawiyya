@@ -83,7 +83,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
           {/* Last resort — small, separated, and gated behind a bilingual confirm. */}
           <div className="border-t border-line pt-3 text-center">
-            <p className="text-xs text-ink/50">
+            <p className="text-xs text-ink/70">
               {t("ebResetHint", "en")} · {t("ebResetHint", "ar")}
             </p>
             <button

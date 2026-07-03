@@ -70,7 +70,7 @@ export function PractiseChooser() {
           <button
             type="button"
             onClick={() => go({ name: "camera", targetSignId: GRADABLE_SIGNS[0]?.id })}
-            className={`${TILE_BASE} bg-coral`}
+            className={`${TILE_BASE} bg-coral-deep`}
           >
             {/* 🤟 handshape — never mirrors */}
             <div className={CHIP} aria-hidden>🤟</div>

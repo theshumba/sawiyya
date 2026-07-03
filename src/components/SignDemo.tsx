@@ -57,7 +57,12 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // REAL averaged handshape (Zenodo ArSL geometry) — the hand, not the glyph.
           // The Arabic letter rides along as a small gold label for context.
-          <div key={replayKey} className="animate-pop-in relative z-10 flex h-full w-full items-center justify-center p-3">
+          <div
+            key={replayKey}
+            role="img"
+            aria-label={gloss}
+            className="animate-pop-in relative z-10 flex h-full w-full items-center justify-center p-3"
+          >
             <HandSkeleton signId={sign.id} className={`text-teal ${compact ? "h-4/5 w-4/5" : "h-full w-full"}`} />
             <span
               className="absolute bottom-2 end-2 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/70 font-display text-xl font-black text-teal backdrop-blur-sm"
@@ -117,7 +122,7 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
                 {pick(lang, "Real signer handshape", "شكل يد حقيقي")}
               </span>
             </span>
-            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
               {pick(
                 lang,
                 "Average hand from real signers (Zenodo ArSL). Deaf-signer video lands in Phase 2.",
@@ -128,14 +133,14 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
         ) : (
           <div className="mt-5 flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
-              <Icon name="info" className="text-xs leading-none text-ink/60" />
-              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/60">
+              <Icon name="info" className="text-xs leading-none text-ink/70" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/70">
                 {sign.tier === "A1"
                   ? pick(lang, "Unverified as QSL", "غير معتمدة بلغة الإشارة القطرية")
                   : pick(lang, "Demo placeholder", "عرض مؤقت")}
               </span>
             </span>
-            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
               {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
               {sign.tier === "A1" ? t("a1AslProvenance", lang) : t("lsDemoPlaceholder", lang)}
             </p>

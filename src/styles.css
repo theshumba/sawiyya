@@ -75,7 +75,9 @@
     box-shadow: 0 5px 0 #0a4f4c;
   }
   .spring-coral {
-    box-shadow: 0 5px 0 #c54f3a;
+    /* H15: the face is now coral-deep (#c54f3a) — one shade darker so the
+       extruded edge stays visible instead of matching the face exactly. */
+    box-shadow: 0 5px 0 #9c3d2c;
   }
   .spring-gold {
     box-shadow: 0 5px 0 #c89a3d;
@@ -86,7 +88,7 @@
   }
   .spring-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 #c54f3a;
+    box-shadow: 0 1px 0 #9c3d2c;
   }
   .spring-gold:active:not(:disabled) {
     transform: translateY(4px);

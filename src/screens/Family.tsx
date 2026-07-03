@@ -219,7 +219,7 @@ export function Family() {
         {/* B7 · "Learning together" — the Deaf member's flags lead the household ── */}
         <section className="mt-[22px]">
           {/* Coral flagged badge + flagger hero line (distinct from the teal eyebrow). */}
-          <span className="inline-block rounded-full bg-coral px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wide text-paper">
+          <span className="inline-block rounded-full bg-coral-deep px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wide text-paper">
             {t("homeFlagged", lang)}
           </span>
           {flagger && (
@@ -344,12 +344,12 @@ export function Family() {
           </SpringButton>
 
           {/* B10 · League note — warm, no-rankings tone. */}
-          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-[#94A5A2]">
+          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-muted">
             {t("famLeagueNote", lang)}
           </p>
           {/* H8 · honest single-device disclosure — the whole household lives in
               this browser's storage; export (Settings) is the only backup. */}
-          <p className="mt-2 text-center font-sans text-[11px] leading-[1.4] text-[#94A5A2]">
+          <p className="mt-2 text-center font-sans text-[11px] leading-[1.4] text-muted">
             {t("famDataLocal", lang)}
           </p>
         </section>
