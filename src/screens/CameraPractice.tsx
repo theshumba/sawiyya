@@ -7,7 +7,6 @@ import { pick, t } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
 import { activeProfile, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { Icon, Title } from "../components/ui";
@@ -38,6 +37,11 @@ export function CameraPractice({
   const lang = profile.language;
   const sign = signById(signId);
   if (!sign) return null;
+  // Star chips only for targets THIS profile has practised successfully — the
+  // recognizer's isTrained() counts bundled seeds, which would star all 28
+  // letters for a brand-new user (C6-class fabricated achievement).
+  const progress = app.progress[profile.id] ?? {};
+  const practised = (id: string) => (progress[id]?.masteryLevel ?? 0) >= 1;
 
   const handleResult = (result: "match" | "selfMark" | "skip") => {
     if (result === "skip") {
@@ -94,7 +98,7 @@ export function CameraPractice({
               <Chip
                 key={s.id}
                 selected={s.id === signId}
-                state={isTrained(s.id) ? "trained" : "idle"}
+                state={practised(s.id) ? "trained" : "idle"}
                 onClick={() => choose(s.id)}
               >
                 {pick(lang, s.glossEn, s.glossAr)}
@@ -108,7 +112,7 @@ export function CameraPractice({
                 <Chip
                   key={s.id}
                   selected={s.id === signId}
-                  state={isTrained(s.id) ? "trained" : "idle"}
+                  state={practised(s.id) ? "trained" : "idle"}
                   onClick={() => choose(s.id)}
                   ariaLabel={s.glossEn}
                   className="h-12 w-12 px-0 text-xl"

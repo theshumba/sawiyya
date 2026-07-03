@@ -19,7 +19,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
 import { activeProfile, dueSignIds, GOAL_XP, streakFor, useApp } from "../store/app";
-import { isTrained } from "../recognizer/knn";
 import { useUi } from "../store/ui";
 import { Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
@@ -63,7 +62,13 @@ export function Progress() {
   const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
   const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
   const a1Done = A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length;
-  const alphaTaught = ALPHABET.filter((s) => isTrained(s.id)).length;
+  // Letters THIS profile actually practised successfully — from the store, never
+  // the recognizer's isTrained() (bundled seeds mark all 28 letters trained for a
+  // brand-new user; rendering that as progress is a C6-class fabrication).
+  const alphaLit = new Set(
+    ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id),
+  );
+  const alphaTaught = alphaLit.size;
   const due = dueSignIds(app, profile.id);
   const upcoming = Object.entries(app.srs[profile.id] ?? {})
     .filter(([, c]) => new Date(c.due).getTime() > Date.now())
@@ -175,6 +180,7 @@ export function Progress() {
               rtl={rtl}
               mastered={mastered}
               alphaTaught={alphaTaught}
+              alphaLit={alphaLit}
               milestoneDone={milestoneDone}
               totalTracked={totalTracked}
               growth={growth}
@@ -235,6 +241,7 @@ function OasisTab({
   rtl,
   mastered,
   alphaTaught,
+  alphaLit,
   milestoneDone,
   totalTracked,
   growth,
@@ -254,6 +261,7 @@ function OasisTab({
   rtl: boolean;
   mastered: number;
   alphaTaught: number;
+  alphaLit: Set<string>;
   milestoneDone: number;
   totalTracked: number;
   growth: number;
@@ -423,7 +431,7 @@ function OasisTab({
       </div>
 
       {/* The Constellation — live alphabet ring. */}
-      <Constellation lang={lang} alphaTaught={alphaTaught} onTap={onSign} />
+      <Constellation lang={lang} alphaTaught={alphaTaught} alphaLit={alphaLit} onTap={onSign} />
 
       {/* Coming Up — SRS forecast with designed empty state. */}
       <section className="space-y-3">
@@ -734,10 +742,12 @@ function LeagueTab({
 function Constellation({
   lang,
   alphaTaught,
+  alphaLit,
   onTap,
 }: {
   lang: Lang;
   alphaTaught: number;
+  alphaLit: Set<string>;
   onTap: (signId: string) => void;
 }) {
   return (
@@ -750,7 +760,7 @@ function Constellation({
       </header>
       <div className="grid grid-cols-5 gap-4" dir="ltr">
         {ALPHABET.map((s, i) => {
-          const lit = isTrained(s.id);
+          const lit = alphaLit.has(s.id);
           return (
             <button
               key={s.id}
