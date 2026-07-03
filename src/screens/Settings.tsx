@@ -6,7 +6,12 @@
 // chrome="takeover" (shell owns nav). Reset-training is window.confirm-guarded.
 import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, todayKey, useApp } from "../store/app";
+import {
+  applyHouseholdImport,
+  buildHouseholdExport,
+  parseHouseholdImport,
+} from "../store/household";
 import { useUi } from "../store/ui";
 import { clearClass, trainedClassIds } from "../recognizer/knn";
 import type { DailyGoal, Hand, Lang } from "../types";
@@ -38,6 +43,11 @@ export function Settings() {
   const [camState, setCamState] = useState<string | null>(null);
   const [resetMsg, setResetMsg] = useState<string | null>(null);
   const taps = useRef(0);
+  // H8 · household export/import — local-first backup/restore.
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
+  const [importErr, setImportErr] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<unknown | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +83,41 @@ export function Settings() {
     ids.forEach((id) => clearClass(id));
     setResetMsg(pick(lang, `Cleared ${ids.length} trained sign(s)`, `تم مسح ${ids.length} إشارة مدرّبة`));
     window.setTimeout(() => setResetMsg(null), 3000);
+  };
+
+  // H8: download the whole persisted household as one JSON file.
+  const exportHousehold = () => {
+    const json = buildHouseholdExport(__BUILD__);
+    if (json === null) return;
+    const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sawiyya-household-${todayKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportMsg(t("setExportDone", lang));
+    window.setTimeout(() => setExportMsg(null), 3000);
+  };
+
+  // H8: validate the picked file, then hold it behind the explicit bilingual
+  // "this replaces everything" confirm — never a silent overwrite.
+  const onImportFile = async (file: File | undefined) => {
+    setImportErr(null);
+    setPendingImport(null);
+    if (!file) return;
+    const parsed = parseHouseholdImport(await file.text());
+    if (!parsed.ok) {
+      setImportErr(t("setImportInvalid", lang));
+      return;
+    }
+    setPendingImport(parsed.state);
+  };
+
+  const confirmImport = () => {
+    if (pendingImport === null) return;
+    applyHouseholdImport(pendingImport);
+    // Reload so the imported blob rehydrates through migrate + normalizer (H13).
+    window.location.reload();
   };
 
   const bump = () => {
@@ -302,6 +347,80 @@ export function Settings() {
               <p className="mt-2 h-5 text-center text-xs font-semibold text-teal-deep" role="status" aria-live="polite">
                 {resetMsg}
               </p>
+            </Block>
+          </Group>
+        </div>
+
+        {/* ── Household data (H8) — the whole household lives in this browser's
+            storage; export is the backup, import the restore. ─────────── */}
+        <div className="pt-4">
+          <Group title={t("setHousehold", lang)}>
+            <Block>
+              <button
+                type="button"
+                onClick={exportHousehold}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-teal/30 bg-teal/5 py-3 font-display text-sm font-bold text-teal transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/30"
+              >
+                <Icon name="download" />
+                {t("setExport", lang)}
+              </button>
+              <p className="mt-2 h-5 text-center text-xs font-semibold text-teal-deep" role="status" aria-live="polite">
+                {exportMsg}
+              </p>
+              <p className="text-center text-[12px] leading-[1.4] text-muted">
+                {t("famDataLocal", lang)}
+              </p>
+            </Block>
+            <Block last>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={(e) => {
+                  void onImportFile(e.target.files?.[0]);
+                  e.target.value = ""; // allow re-picking the same file
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-paper py-3 font-display text-sm font-bold text-ink transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/30"
+              >
+                <Icon name="upload" />
+                {t("setImport", lang)}
+              </button>
+              {importErr && (
+                <p className="mt-2 text-center text-xs font-semibold text-coral-deep" role="alert">
+                  {importErr}
+                </p>
+              )}
+              {pendingImport !== null && (
+                <div className="mt-3 rounded-xl border border-coral/30 bg-coral/5 p-3.5">
+                  <p className="font-display text-sm font-bold text-coral-deep">
+                    {t("setImportConfirmTitle", lang)}
+                  </p>
+                  <p className="mt-1 text-[12.5px] leading-[1.4] text-ink">
+                    {t("setImportConfirmBody", lang)}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={confirmImport}
+                      className="flex-1 rounded-xl bg-coral py-2.5 font-display text-sm font-bold text-white transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-coral/30"
+                    >
+                      {t("setImportReplace", lang)}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPendingImport(null)}
+                      className="flex-1 rounded-xl border border-line bg-paper py-2.5 font-display text-sm font-bold text-ink transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/30"
+                    >
+                      {t("cancel", lang)}
+                    </button>
+                  </div>
+                </div>
+              )}
             </Block>
           </Group>
         </div>
