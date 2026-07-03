@@ -1,7 +1,7 @@
 // Milestones — celebrate the human outcome, not the score (PRD §6.5).
 import type { AppState } from "../store/app";
 import { signsAllCanDo } from "../store/app";
-import { A1_SIGNS } from "../content/signs";
+import { A1_SIGNS, ALPHABET } from "../content/signs";
 import type { Lang } from "../types";
 import { pick } from "../i18n";
 
@@ -18,6 +18,9 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
   // "All of Unit 1" counts ONLY the 16 A1 signs (M4) — any 16 mastered signs
   // (e.g. alphabet letters) must not fire the unit milestone.
   const a1Mastered = A1_SIGNS.filter((s2) => (prog[s2.id]?.masteryLevel ?? 0) >= 3).length;
+  // Only the 28 seeded letters can reach mastery 3 (edge forms aren't gradable),
+  // so counting all of ALPHABET still tops out at exactly 28 (H22).
+  const alphaMastered = ALPHABET.filter((s2) => (prog[s2.id]?.masteryLevel ?? 0) >= 3).length;
   const familyCanDo = signsAllCanDo(s).length;
 
   const ladder: { at: number; value: number; emoji: string; en: string; ar: string }[] = [
@@ -26,7 +29,11 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
     { at: 10, value: mastered, emoji: "🤟", en: "10 signs mastered", ar: "١٠ إشارات متقنة" },
     { at: 5, value: familyCanDo, emoji: "👪", en: "5 signs your whole family can do", ar: "٥ إشارات تتقنها كل العائلة" },
     { at: 10, value: familyCanDo, emoji: "🏠", en: "10 signs your whole family can do", ar: "١٠ إشارات تتقنها كل العائلة" },
-    { at: 16, value: a1Mastered, emoji: "🏆", en: "All of Unit 1 mastered", ar: "كل الوحدة الأولى متقنة" },
+    // The whole-alphabet row sits BEFORE the word-unit row: the word unit needs
+    // Phase-2 signer content to be masterable (non-gradable words cap at 2), so
+    // it must never block the reachable alphabet milestone (H22).
+    { at: 28, value: alphaMastered, emoji: "🔤", en: "Whole alphabet mastered", ar: "الأبجدية كاملة متقنة" },
+    { at: 16, value: a1Mastered, emoji: "🏆", en: "All the word unit mastered", ar: "كل وحدة الكلمات متقنة" },
   ];
 
   const next = ladder.find((l) => l.value < l.at);
