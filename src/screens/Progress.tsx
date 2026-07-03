@@ -18,7 +18,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
-import { activeProfile, dueSignIds, GOAL_XP, streakFor, useApp } from "../store/app";
+import {
+  activeProfile,
+  dueSignIds,
+  GOAL_XP,
+  REVIEW_DAILY_CAP,
+  reviewsTodayFor,
+  streakFor,
+  useApp,
+} from "../store/app";
 import { useUi } from "../store/ui";
 import { Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
@@ -122,11 +130,11 @@ export function Progress() {
   }, [profile.streak]);
 
   const reviewCount = due.length;
-  // Practice-first: the review session opens the camera on the first due gradable
-  // sign (falls back to a generic camera open when none is gradable).
+  const reviewCapped = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
+  // Review opens the real 10-card session (H3) — mixed drills, daily cap, and a
+  // drain path for non-gradable due signs — not a single camera sign.
   function startReview() {
-    const firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id;
-    go({ name: "camera", targetSignId: firstDueGradable });
+    go({ name: "lesson", lessonId: "review" });
   }
 
   const TABS: { key: Tab; label: string }[] = [
@@ -192,6 +200,7 @@ export function Progress() {
               upcoming={upcoming}
               empty={empty}
               reviewCount={reviewCount}
+              reviewCapped={reviewCapped}
               onReview={startReview}
               onCamera={() => go({ name: "camera" })}
               onSign={(id) => go({ name: "camera", targetSignId: id })}
@@ -253,6 +262,7 @@ function OasisTab({
   upcoming,
   empty,
   reviewCount,
+  reviewCapped,
   onReview,
   onCamera,
   onSign,
@@ -273,6 +283,7 @@ function OasisTab({
   upcoming: [string, { due: string }][];
   empty: boolean;
   reviewCount: number;
+  reviewCapped: boolean;
   onReview: () => void;
   onCamera: () => void;
   onSign: (id: string) => void;
@@ -457,7 +468,7 @@ function OasisTab({
           </div>
         ) : (
           <div className="space-y-3">
-            {reviewCount > 0 && (
+            {reviewCount > 0 && !reviewCapped && (
               <button
                 type="button"
                 onClick={onReview}
@@ -466,6 +477,15 @@ function OasisTab({
                 <span>{pick(lang, "Start Review Session", "ابدأ جلسة المراجعة")}</span>
                 <Icon name="bolt" />
               </button>
+            )}
+            {/* Daily soft cap reached (H3) — honest done-for-today note, no endless queue. */}
+            {reviewCount > 0 && reviewCapped && (
+              <div className="flex w-full items-center gap-3 rounded-2xl border border-line bg-paper p-4">
+                <Icon name="task_alt" className="shrink-0 text-2xl text-teal" />
+                <p className="min-w-0 flex-1 font-display text-sm font-bold leading-snug text-ink">
+                  {t("reviewCapDone", lang)}
+                </p>
+              </div>
             )}
             {due.slice(0, 4).map((signId) => {
               const sign = signById(signId);
