@@ -339,7 +339,8 @@ const dict = {
   practiseAlphabet: { en: "Alphabet", ar: "الأبجدية" },
   practiseAlphabetSub: { en: "28 letters", ar: "٢٨ حرفًا" },
   practiseWords: { en: "Words", ar: "الكلمات" },
-  practiseWordsSub: { en: "4 camera · 12 watch", ar: "٤ بالكاميرا · ١٢ للمشاهدة" },
+  // M7: yes/no are motion signs — honest count is 2 gradable / 14 watch-only.
+  practiseWordsSub: { en: "2 camera · 14 watch", ar: "٢ بالكاميرا · ١٤ للمشاهدة" },
   practiseFreeCamera: { en: "Free camera", ar: "كاميرا حرّة" },
   practiseFreeCameraSub: { en: "Sign anything", ar: "أشِر أي شيء" },
   practiseReview: { en: "Review", ar: "مراجعة" },
@@ -508,6 +509,29 @@ const dict = {
   stFrameSub: { en: "Keep your hand centred", ar: "أبقِ يدك في المنتصف" },
   stFrameBanner: { en: "Your hand's out of frame", ar: "يدك خارج الإطار" },
   stFrameTip: { en: "Bring your whole hand into view", ar: "أدخِل يدك كاملةً إلى الرؤية" },
+
+  // ── Batch 6: real signer media (H23)
+  signRealRecording: { en: "Deaf signer recording", ar: "تسجيل مُشير أصمّ" },
+
+  // ── Batch 6: fingerspelling (M6)
+  fspTitle: { en: "Fingerspell", ar: "التهجئة بالإشارة" },
+  fspSubtitle: { en: "Type an Arabic word — watch it spelled letter by letter.", ar: "اكتب كلمة عربية — وشاهدها تُتهجّى حرفًا حرفًا." },
+  fspInputLabel: { en: "Arabic word", ar: "كلمة عربية" },
+  fspPlaceholder: { en: "مثال: سلام", ar: "مثال: سلام" },
+  fspEmpty: { en: "Type a word to begin — try your name.", ar: "اكتب كلمة للبدء — جرّب اسمك." },
+  fspPlay: { en: "Play", ar: "تشغيل" },
+  fspPause: { en: "Pause", ar: "إيقاف" },
+  fspSpeed: { en: "Speed", ar: "السرعة" },
+  fspSkippedNote: { en: "We can't fingerspell these characters yet, so they were skipped:", ar: "لا يمكننا تهجئة هذه الرموز بعد، لذا تجاوزناها:" },
+  fspRefOnly: { en: "Reference only — ة has no camera grading until a signer records it.", ar: "للاطلاع فقط — لا تقييم بالكاميرا لحرف التاء المربوطة حتى يسجّلها مُشير." },
+  fspPractiseAlong: { en: "Practise along", ar: "تدرّب معها" },
+  fspPractiseAlongSub: { en: "Camera-check each letter of your word", ar: "تحقّق بالكاميرا من كل حرف في كلمتك" },
+  fspLetterOf: { en: "Letter {i} of {n}", ar: "الحرف {i} من {n}" },
+  fspDone: { en: "You spelled the whole word!", ar: "تهجّيت الكلمة كاملة!" },
+  fspHomeCard: { en: "Spell your name", ar: "تهجَّ اسمك" },
+  fspHomeCardSub: { en: "Fingerspell any word, letter by letter", ar: "تهجَّ أي كلمة حرفًا حرفًا" },
+  practiseFingerspell: { en: "Fingerspell", ar: "التهجئة" },
+  practiseFingerspellSub: { en: "Spell any word", ar: "تهجَّ أي كلمة" },
 
   // error boundary (H12) — honest recovery, reset only as a confirmed last resort
   ebTitle: { en: "Something went wrong", ar: "حدث خطأ ما" },

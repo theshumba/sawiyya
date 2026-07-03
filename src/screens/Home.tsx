@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { num, pick, t } from "../i18n";
-import { signById, LESSONS, UNIT_A1_U1 } from "../content/signs";
+import { signById, LESSONS, UNITS } from "../content/signs";
 import {
   GOAL_XP,
   REVIEW_DAILY_CAP,
@@ -102,6 +102,10 @@ export function Home() {
   });
 
   const ms = nextMilestone(app, profile.id, lang);
+
+  // Unit banner follows the CURRENT lesson (H22): alphabet = Unit 1, words = Unit 2.
+  const unitIdx = Math.max(0, UNITS.findIndex((u) => u.id === nextLesson.unitId));
+  const unit = UNITS[unitIdx];
 
   // Winding horizontal offsets (design uses px translateX; mirror in RTL).
   const nodeOffsets = [0, 48, -48];
@@ -276,10 +280,10 @@ export function Home() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
             <div style={{ minWidth: 0 }}>
               <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F0C879", textTransform: "uppercase" }}>
-                {`${t("homeUnit", lang)} ${num(1, lang)}`}
+                {`${t("homeUnit", lang)} ${num(unitIdx + 1, lang)}`}
               </div>
               <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
-                {pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)}
+                {pick(lang, unit.titleEn, unit.titleAr)}
               </div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
@@ -340,6 +344,22 @@ export function Home() {
             <div className="min-w-0 flex-1">
               <p className="font-display font-bold text-ink">{t("camPractice", lang)}</p>
               <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
+            </div>
+            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+          </Card>
+
+          {/* Fingerspell entry (M6) — spell your name, letter by letter. */}
+          <Card
+            variant="elevated"
+            className="flex items-center gap-3 p-5"
+            onClick={() => go({ name: "fingerspell" })}
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
+              <Icon name="spellcheck" className="!text-2xl text-teal" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display font-bold text-ink">{t("fspHomeCard", lang)}</p>
+              <p className="text-sm text-muted">{t("fspHomeCardSub", lang)}</p>
             </div>
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
           </Card>

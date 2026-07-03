@@ -90,7 +90,21 @@ export function PractiseChooser() {
             <div className={TILE_SUB}>{t("practiseFreeCameraSub", lang)}</div>
           </button>
 
-          {/* 4 · Review — only when something is due AND under the daily cap;
+          {/* 4 · Fingerspell (M6) — spell any word letter by letter */}
+          <button
+            type="button"
+            onClick={() => go({ name: "fingerspell" })}
+            className={`${TILE_BASE} bg-teal-deep`}
+          >
+            {/* spellcheck glyph — never mirrors */}
+            <div className={CHIP} aria-hidden>
+              <Icon name="spellcheck" className="text-2xl leading-none" />
+            </div>
+            <div className={TILE_TITLE}>{t("practiseFingerspell", lang)}</div>
+            <div className={TILE_SUB}>{t("practiseFingerspellSub", lang)}</div>
+          </button>
+
+          {/* 5 · Review — only when something is due AND under the daily cap;
               opens a real review session (10 cards, mixed drills — H3). */}
           {due.length > 0 && !reviewCapReached && (
             <button

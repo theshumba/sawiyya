@@ -14,7 +14,8 @@ export type Screen =
   | { name: "devMetrics" }
   | { name: "firstSign" }
   | { name: "allSigns"; signId?: string }
-  | { name: "practiseChooser" };
+  | { name: "practiseChooser" }
+  | { name: "fingerspell" };
 
 interface UiState {
   screen: Screen;

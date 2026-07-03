@@ -17,6 +17,7 @@ import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
+import { Fingerspell } from "./screens/Fingerspell";
 
 /**
  * One-time honest notice when a corrupt saved blob was backed up and the app
@@ -108,6 +109,13 @@ export default function App() {
           <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
         )}
         {screen.name === "practiseChooser" && <PractiseChooser />}
+        {/* Fingerspell drives the camera in practise-along — same risky subtree
+            treatment as the other camera screens (H12). */}
+        {screen.name === "fingerspell" && (
+          <ErrorBoundary scope="section">
+            <Fingerspell />
+          </ErrorBoundary>
+        )}
         {screen.name === "settings" && <Settings />}
         {screen.name === "aiTransparency" && <AiTransparency />}
         {screen.name === "privacy" && <Privacy />}
