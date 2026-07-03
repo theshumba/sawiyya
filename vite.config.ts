@@ -17,23 +17,17 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       workbox: {
-        // Cache the app shell + the MediaPipe wasm/model so the recognizer
-        // works offline after first load. Frames never leave the device.
+        // Precache the app shell + the self-hosted MediaPipe wasm/model (H10) so
+        // the recognizer runs OFFLINE FROM INSTALL — zero runtime CDN dependency.
+        // Frames never leave the device. The 9.3MB no-SIMD wasm is vendored (still
+        // zero CDN) but EXCLUDED from precache: every real 2026 target device has
+        // WASM SIMD, so precaching both variants would spend ~9MB of install
+        // bandwidth nobody uses — a legacy no-SIMD device does one local fetch on
+        // first camera use instead.
         globPatterns: ["**/*.{js,css,html,svg,png,woff2,wasm,task,json}"],
+        globIgnores: ["**/vision_wasm_nosimd_internal.wasm"],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
         runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/(cdn\.jsdelivr\.net|storage\.googleapis\.com)\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "mediapipe-assets",
-              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 60 },
-              // Only cache real 200s. Caching opaque/zero-byte responses (status 0)
-              // let one bad CDN response brick the recognizer for 60 days, since
-              // CacheFirst would keep serving it without revalidating (M1).
-              cacheableResponse: { statuses: [200] },
-            },
-          },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: "CacheFirst",

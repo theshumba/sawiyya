@@ -10,9 +10,19 @@ import {
 } from "@mediapipe/tasks-vision";
 import type { LM } from "./normalize";
 
-const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
-const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+// Self-hosted MediaPipe (H10). The wasm runtime + the float16 hand_landmarker
+// model are vendored into public/mediapipe (provenance in public/mediapipe/
+// SOURCES.md) and service-worker precached, so the recognizer is fully offline
+// from install — ZERO runtime dependency on jsdelivr or Google storage. Paths
+// resolve against the document base, so this works at the repo root AND under
+// the /sawiyya/ project path. (Trailing slash on "mediapipe/" is load-bearing —
+// it makes "wasm" resolve as a child, not a sibling.) NOTE: routing here is
+// state/search-based, so document.baseURI is always the deploy root; if the app
+// ever adopts PATH-based routing, switch to import.meta.env.BASE_URL so a deep
+// path can't shift this resolution.
+const MP_BASE = new URL("mediapipe/", document.baseURI);
+const WASM_URL = new URL("wasm", MP_BASE).href;
+const MODEL_URL = new URL("hand_landmarker.task", MP_BASE).href;
 
 let landmarkerPromise: Promise<HandLandmarker> | null = null;
 
