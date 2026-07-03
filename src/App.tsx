@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { applyDir, langFromSearch, t } from "./i18n";
+import { applyDir, langFromSearch, t, type TKey } from "./i18n";
 import { activeProfile, RECOVERY_NOTICE_KEY, useApp } from "./store/app";
 import { Card, SpringButton } from "./components/dc";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useUi } from "./store/ui";
+import type { Screen } from "./store/ui";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
 import { Family } from "./screens/Family";
@@ -32,6 +33,21 @@ const LessonPlayer = lazy(() =>
 const Fingerspell = lazy(() =>
   import("./screens/Fingerspell").then((m) => ({ default: m.Fingerspell })),
 );
+
+// M16: SPA screen transitions were silent for screen readers — no focus move,
+// no announcement. A titled live region covers every route without requiring
+// every screen to carry a real <h1> (many use the <Title> component instead).
+const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
+  home: "navLearn",
+  camera: "navPractise",
+  allSigns: "navDictionary",
+  family: "navFamily",
+  progress: "navProgress",
+  settings: "setTitle",
+  practiseChooser: "practiseTitle",
+  fingerspell: "fspTitle",
+  flagPicker: "famFlagTitle",
+};
 
 /** Quiet centred loader shown while a lazy screen chunk resolves. */
 function ScreenLoading() {
@@ -94,6 +110,13 @@ export default function App() {
     applyDir(lang);
   }, [lang]);
 
+  // M16: announce the destination screen on every SPA route change.
+  const [announce, setAnnounce] = useState("");
+  useEffect(() => {
+    const key = SCREEN_TITLE_KEY[screen.name];
+    setAnnounce(key ? t(key, lang) : "");
+  }, [screen.name, lang]);
+
   if (!onboarded || !profile) {
     return (
       <>
@@ -106,6 +129,11 @@ export default function App() {
   return (
     <>
       {showRecovery && <RecoveryNotice onDismiss={dismissRecovery} />}
+      {/* M16: screen-change announcement — covers every route without requiring
+          each screen to carry a real <h1> (many use the <Title> component). */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {announce}
+      </span>
       <main>
         {/* One boundary for the lazy camera screens (M13); the eager screens
             below never suspend, so it only ever shows while a camera chunk loads. */}

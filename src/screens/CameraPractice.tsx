@@ -136,7 +136,7 @@ export function CameraPractice({
                   selected={s.id === signId}
                   state={practised(s.id) ? "trained" : "idle"}
                   onClick={() => choose(s.id)}
-                  ariaLabel={s.glossEn}
+                  ariaLabel={pick(lang, s.glossEn, s.glossAr)}
                   className="h-12 w-12 px-0 text-xl"
                 >
                   {s.code}

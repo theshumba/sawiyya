@@ -19,6 +19,7 @@ import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
 import { MonoLabel, SpringButton, toLocaleDigits } from "../components/dc";
+import { useDialog } from "../components/useDialog";
 
 type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit1" | "unit2";
 
@@ -137,6 +138,10 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   }, [filter, query, app.progress, app.flags, app.srs, profile?.id]);
 
   const selected = selectedId ? ALL_SIGNS.find((s) => s.id === selectedId) ?? null : null;
+  // H16: focus the mobile bottom-sheet on open, trap Tab, Escape/backdrop to
+  // dismiss, restore focus to the card that opened it. Desktop's docked panel
+  // is inline content, not a floating dialog, so it's untouched.
+  const sheetRef = useDialog<HTMLDivElement>(Boolean(selected), () => setSelectedId(null));
 
   // ── alphabet grid (§B / §5): a dedicated 4-col letter treatment folded into the
   // existing alphabet filter — progress + learned/current/locked cell states. ──────
@@ -175,8 +180,8 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
         {/* ── Page header: title + search (search reclaims the old Home-btn space) ── */}
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
           <div className="min-w-0">
-            <Title>{pick(lang, "Sign Dictionary", "القاموس")}</Title>
-            <p className="mt-1 font-sans text-sm font-semibold text-ink/60">
+            <Title as="h1">{pick(lang, "Sign Dictionary", "القاموس")}</Title>
+            <p className="mt-1 font-sans text-sm font-semibold text-ink/70">
               {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
             </p>
           </div>
@@ -185,10 +190,11 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
           </div>
         </header>
 
-        {/* ── Filter chips (live only) ──────────────────────────────────────────── */}
+        {/* ── Filter chips (live only, L11: role="group" — these are filters, not
+            tabs with an associated tabpanel/keyboard arrow-nav) ─────────────── */}
         <div
           className="no-scrollbar -mx-5 mb-6 flex items-center gap-[7px] overflow-x-auto px-5 pb-1 md:mx-0 md:px-0"
-          role="tablist"
+          role="group"
           aria-label={pick(lang, "Filter signs", "تصفية الإشارات")}
         >
           {FILTERS.map((f) => {
@@ -197,8 +203,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 aria-label={pick(lang, f.en, f.ar)}
                 onClick={() => setFilter(f.id)}
                 style={active ? { boxShadow: "0 3px 0 #0A4F4C" } : undefined}
@@ -208,7 +213,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
               >
                 {pick(lang, f.en, f.ar)}
                 {f.id === "learned" && learnedCount > 0 ? (
-                  <span className={active ? "text-paper/70" : "text-teal/60"}>
+                  <span className={active ? "text-paper/70" : "text-teal"}>
                     {" · "}
                     {toLocaleDigits(learnedCount, lang)}
                   </span>
@@ -358,7 +363,14 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
             onClick={() => setSelectedId(null)}
             className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm"
           />
-          <div className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift">
+          <div
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={pick(lang, selected.glossEn, selected.glossAr)}
+            tabIndex={-1}
+            className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none"
+          >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink/10" aria-hidden="true" />
             <DetailPanel
               sign={selected}
@@ -394,7 +406,7 @@ function SearchInput({
     <div className="relative">
       <Icon
         name="search"
-        className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal/60"
+        className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal"
       />
       <input
         type="search"
@@ -482,7 +494,7 @@ function SignCard({
       </div>
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
-        <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
+        <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
       </p>
       <p className={`text-[11px] font-bold uppercase tracking-widest md:text-xs ${meta.tone}`}>
         {pick(lang, meta.en, meta.ar)}
@@ -643,7 +655,7 @@ function DetailPanel({
         <div className="flex w-full items-start justify-between gap-3 md:flex-col md:items-center md:gap-3">
           <h2 className="font-display text-2xl font-black text-ink md:text-3xl">
             {title}
-            <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
+            <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
           </h2>
           <span className="mt-1 shrink-0 md:mt-0">
             <TypeBadge gradable={sign.cameraGradable} lang={lang} />
@@ -669,7 +681,7 @@ function DetailPanel({
 
       {/* how to sign — mono section label + hint block (single honest hint, no fabricated steps) */}
       <div className="mb-6" dir={rtl ? "rtl" : "ltr"}>
-        <MonoLabel className="flex items-center gap-2 text-teal">
+        <MonoLabel lang={lang} className="flex items-center gap-2 text-teal">
           <Icon name="info" className="text-base" />
           {pick(lang, "How to sign", "كيف تُؤدّى")}
         </MonoLabel>
@@ -685,7 +697,7 @@ function DetailPanel({
         </div>
         {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
         {sign.tier === "A1" && (
-          <p className="mt-2 px-1 text-[11px] italic leading-snug text-ink/50">
+          <p className="mt-2 px-1 text-[11px] italic leading-snug text-ink/70">
             {t("a1AslProvenance", lang)}
           </p>
         )}
@@ -706,7 +718,7 @@ function DetailPanel({
               <Icon name="visibility" className="text-2xl" />
               {t("signWatchPractise", lang)}
             </SpringButton>
-            <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/60">
+            <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/70">
               <Icon name="info" className="text-base text-teal" />
               {pick(lang, "This sign moves, so the camera can't grade it yet.", "هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.")}
             </p>

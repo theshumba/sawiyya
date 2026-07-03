@@ -18,7 +18,7 @@ import { SignGlyph } from "../components/SignGlyph";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
-import { Button, Card, Icon } from "../components/ui";
+import { Button, ScreenCard, Icon } from "../components/ui";
 import { toLocaleDigits, formatPercent } from "../components/dc";
 
 /** A scored drill outcome flows back up so the end card can show accuracy. */
@@ -140,7 +140,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     );
   }
 
-  const isCamera = drill!.type === "camera";
   const stepLabel =
     drill!.type === "watch"
       ? t("lsWatchStep", lang)
@@ -164,7 +163,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           drill={drill!}
           lang={lang}
           onDone={advance}
-          compact={isCamera}
         />
       </div>
     </ScreenShell>
@@ -240,12 +238,10 @@ function DrillFooter({ children }: { children: ReactNode }) {
 
 /** Bilingual gloss pair — primary in the active lang, secondary script after a dot. */
 function BilingualGloss({
-  lang,
   sign,
   className = "",
   dotClassName = "text-muted",
 }: {
-  lang: Lang;
   sign: Sign;
   className?: string;
   dotClassName?: string;
@@ -265,12 +261,10 @@ function Drill({
   drill,
   lang,
   onDone,
-  compact,
 }: {
   drill: DrillSpec;
   lang: Lang;
   onDone: (o: DrillOutcome) => void;
-  compact?: boolean;
 }) {
   const sign = signById(drill.signId);
   if (!sign) return null; // unreachable with valid content data
@@ -289,7 +283,6 @@ function Drill({
           review={drill.type === "review"}
           pool={drill.pool}
           onDone={onDone}
-          compact={compact}
         />
       );
     case "recall":
@@ -444,7 +437,6 @@ function ChoiceDrill({
   review = false,
   pool: poolOverride,
   onDone,
-  compact = false,
 }: {
   sign: Sign;
   lang: Lang;
@@ -454,7 +446,6 @@ function ChoiceDrill({
    *  met may appear as choices. Absent = the sign's whole tier. */
   pool?: string[];
   onDone: (o: DrillOutcome) => void;
-  compact?: boolean;
 }) {
   const { recordDrillResult } = useApp();
   const pool =
@@ -481,19 +472,19 @@ function ChoiceDrill({
 
       {/* question zone — one elevated paper card holding the demo medallion */}
       {mode === "recognise" ? (
-        <Card variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-4">
+        <ScreenCard variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-4">
           {/* recognise question medallion — spec §D fixes this card at ~150px */}
           <DemoFace sign={sign} lang={lang} compact />
-        </Card>
+        </ScreenCard>
       ) : (
-        <Card variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
+        <ScreenCard variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
           <p className="font-display text-[30px] font-extrabold leading-none text-teal">
             {pick(lang, sign.glossEn, sign.glossAr)}
           </p>
           <p className="mt-1.5 text-lg font-medium text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
             {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
           </p>
-        </Card>
+        </ScreenCard>
       )}
 
       {/* answers — one grid strategy: mobile single column, 2-col on desktop */}
@@ -554,12 +545,12 @@ function ChoiceDrill({
               {correct ? t("lsCorrect", lang) : t("lsSoftMiss", lang)}
             </p>
             {!correct && (
-              <Card className="mt-2 flex items-center gap-3 p-3">
+              <ScreenCard className="mt-2 flex items-center gap-3 p-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center" aria-hidden="true">
                   <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-full w-full rounded-lg object-cover" />
                 </span>
                 <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
-              </Card>
+              </ScreenCard>
             )}
           </div>
         )}
@@ -600,7 +591,7 @@ function ChoiceRow({
   const shell = {
     idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
     correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
-    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    wrong: "bg-coral-deep text-paper shadow-[0_3px_0_#9c3d2c]",
     dim: "bg-sand text-[#94A5A2]",
   }[state];
   return (
@@ -659,11 +650,11 @@ function ChoiceTile({
   const shell = {
     idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
     correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
-    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    wrong: "bg-coral-deep text-paper shadow-[0_3px_0_#9c3d2c]",
     dim: "bg-sand text-[#94A5A2]",
   }[state];
   const badge = {
-    idle: "bg-ink/5 text-ink/40",
+    idle: "bg-ink/5 text-ink/70",
     correct: "bg-white/20 text-white",
     wrong: "bg-white/20 text-white",
     dim: "bg-ink/5 text-[#94A5A2]",
@@ -849,7 +840,7 @@ function ResultsCard({
                   <SignGlyph sign={s} lang={lang} className="text-base" imgClassName="h-full w-full rounded object-cover" />
                 </span>
                 <span className="text-[12px] font-semibold text-ink">
-                  <BilingualGloss lang={lang} sign={s} />
+                  <BilingualGloss sign={s} />
                 </span>
               </button>
             ))}

@@ -35,6 +35,7 @@ import { Confetti, celebrate } from "../components/Confetti";
 import { Fanan } from "../components/Fanan";
 import { toLocaleDigits, formatPercent } from "../components/dc";
 import { SignGlyph } from "../components/SignGlyph";
+import { useDialog } from "../components/useDialog";
 import type { Lang, Metrics, Profile, Sign } from "../types";
 
 const DAY_LABELS_EN = ["M", "T", "W", "T", "F", "S", "S"];
@@ -88,7 +89,6 @@ export function Progress() {
   const totalTracked = A1_SIGNS.length + ALPHABET.length;
   const milestoneDone = a1Done + alphaTaught;
   const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
-  const oasisLevel = Math.max(1, Math.floor(mastered / 4) + 1);
 
   // Real weekly streak: which of the last 7 days (Mon..Sun anchor on today) the
   // active profile actually trained on, from profile.activeDays.
@@ -192,7 +192,6 @@ export function Progress() {
               milestoneDone={milestoneDone}
               totalTracked={totalTracked}
               growth={growth}
-              oasisLevel={oasisLevel}
               xp={profile.xp}
               streak={streak}
               week={week}
@@ -254,7 +253,6 @@ function OasisTab({
   milestoneDone,
   totalTracked,
   growth,
-  oasisLevel,
   xp,
   streak,
   week,
@@ -275,7 +273,6 @@ function OasisTab({
   milestoneDone: number;
   totalTracked: number;
   growth: number;
-  oasisLevel: number;
   xp: number;
   streak: number;
   week: { state: "active" | "missed" | "future"; today?: boolean }[];
@@ -425,7 +422,7 @@ function OasisTab({
                     <Icon name="check" fill className="text-[16px]" />
                     {d.today && <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />}
                   </span>
-                  <span className={`text-[11px] font-bold ${d.today ? "text-teal" : "text-teal/60"}`}>{label}</span>
+                  <span className="text-[11px] font-bold text-teal">{label}</span>
                 </div>
               );
             }
@@ -434,7 +431,7 @@ function OasisTab({
                 <span
                   className={`h-8 w-8 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
                 />
-                <span className="text-[11px] font-bold text-teal/60">{label}</span>
+                <span className="text-[11px] font-bold text-teal">{label}</span>
               </div>
             );
           })}
@@ -472,7 +469,7 @@ function OasisTab({
               <button
                 type="button"
                 onClick={onReview}
-                className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral py-4 font-display text-base font-bold text-white transition active:translate-y-1"
+                className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral-deep py-4 font-display text-base font-bold text-white transition active:translate-y-1"
               >
                 <span>{pick(lang, "Start Review Session", "ابدأ جلسة المراجعة")}</span>
                 <Icon name="bolt" />
@@ -573,11 +570,11 @@ function StatsTab({
           ))}
         </div>
         <div className="mt-3 flex items-center justify-end gap-[5px]">
-          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prLess", lang)}</span>
+          <span className="text-[10px] font-medium text-muted">{t("prLess", lang)}</span>
           {shades.map((s) => (
             <div key={s} className="rounded-[3px]" style={{ width: 11, height: 11, background: s }} />
           ))}
-          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prMore", lang)}</span>
+          <span className="text-[10px] font-medium text-muted">{t("prMore", lang)}</span>
         </div>
       </div>
     </div>
@@ -729,7 +726,7 @@ function LeagueTab({
                 className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
                 style={{ background: you ? "#FBF3EF" : "#FBF7EF", border: you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
               >
-                <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-[#94A5A2]" style={{ width: 18 }}>
+                <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-muted" style={{ width: 18 }}>
                   {toLocaleDigits(i + 1, lang)}
                 </span>
                 <div
@@ -802,7 +799,7 @@ function Constellation({
           );
         })}
       </div>
-      <p className="mt-5 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/60">
+      <p className="mt-5 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/90">
         {pick(lang, "Connect the signs to light the sky", "اربط الإشارات لتضيء السماء")}
       </p>
     </section>
@@ -840,13 +837,13 @@ function ForecastRow({
       </span>
       <span className="flex-grow">
         <span className="block text-base font-bold leading-tight text-ink">{pick(lang, sign.glossEn, sign.glossAr)}</span>
-        <span className="block text-xs font-semibold text-teal/70">
+        <span className="block text-xs font-semibold text-teal">
           {sign.type === "alphabet" ? pick(lang, "Alphabet", "الحروف") : pick(lang, "Sign review", "مراجعة إشارة")}
         </span>
       </span>
       <span
         className={`flex items-center gap-1 rounded-full px-3 py-1 ${
-          tone === "due" ? "bg-gold/10 text-gold" : "bg-teal/5 text-teal/70"
+          tone === "due" ? "bg-gold/10 text-gold" : "bg-teal/5 text-teal"
         }`}
       >
         <Icon name={tone === "due" ? "hourglass_top" : "hourglass_empty"} fill={tone === "due"} className="text-[14px]" />
@@ -874,6 +871,10 @@ function StreakCelebration({
 }) {
   const [burst, setBurst] = useState(0);
   const rtl = lang === "ar";
+  // H16: this full-screen celebration is a takeover overlay stacked on top of
+  // Progress — focus it on mount, trap Tab, Escape to dismiss, restore focus
+  // to Progress on close.
+  const dialogRef = useDialog<HTMLDivElement>(true, onContinue);
   useEffect(() => {
     setBurst((b) => b + 1);
     celebrate();
@@ -891,7 +892,14 @@ function StreakCelebration({
   void goalXp;
 
   return (
-    <div className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={pick(lang, "Streak celebration", "احتفال بالمواظبة")}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center focus:outline-none"
+    >
       <Confetti burst={burst} />
 
       {/* Stitch chrome — gold wordmark + close affordance. */}
@@ -909,7 +917,9 @@ function StreakCelebration({
         </button>
       </header>
 
-      <main className="relative z-10 flex w-full max-w-lg flex-col items-center">
+      {/* M17: not <main> — this celebration overlay is nested inside App.tsx's
+          <main>, which already owns the one landmark. */}
+      <div className="relative z-10 flex w-full max-w-lg flex-col items-center">
         <div className="relative mb-8 h-64 w-64 motion-safe:animate-rise md:h-72 md:w-72" style={{ filter: "drop-shadow(0 0 20px rgba(230,178,76,.4))" }}>
           <img alt="" aria-hidden="true" src="/brand/stitch-46.png" className="h-full w-full object-contain" />
         </div>
@@ -960,7 +970,7 @@ function StreakCelebration({
             {pick(lang, " is going to be so proud.", " فخوراً جداً بك.")}
           </p>
         </div>
-      </main>
+      </div>
 
       <footer className="fixed bottom-12 z-20 w-full max-w-md px-6">
         <button

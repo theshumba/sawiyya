@@ -23,12 +23,13 @@ import {
   xpTodayFor,
 } from "../store/app";
 import { useUi } from "../store/ui";
-import { Card, Icon, Eyebrow, Title } from "../components/ui";
+import { ScreenCard, Icon, Eyebrow, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { GoalCard } from "../components/GoalCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
+import { useDialog } from "../components/useDialog";
 import { nextMilestone } from "../lesson/milestones";
 import type { Lesson } from "../types";
 
@@ -61,6 +62,9 @@ export function Home() {
   const [openId, setOpenId] = useState<string | null>(null);
   const currentRef = useRef<HTMLDivElement | null>(null);
   const scrolled = useRef(false);
+  // H16: focus the sheet on open, trap Tab inside it, Escape/backdrop-click
+  // to dismiss, restore focus to the node button that opened it.
+  const sheetRef = useDialog<HTMLDivElement>(openId !== null, () => setOpenId(null));
 
   // Centre the current node on first mount (design scrollRef → scrollTop 210).
   useEffect(() => {
@@ -240,10 +244,11 @@ export function Home() {
         <div className="mx-auto max-w-xl" style={{ padding: "8px 20px 18px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div style={{ minWidth: 0 }}>
-              <div className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF" }}>
+              {/* M17: Home had zero headings — this greeting is the natural h1. */}
+              <h1 className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF", margin: 0 }}>
                 {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
-              </div>
+              </h1>
               <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.72)", marginTop: 3 }}>
                 {t("homeGreetSub", lang)}
               </div>
@@ -333,7 +338,7 @@ export function Home() {
         {/* Block D — secondary stack (functional contract; reskinned to tokens). */}
         <section className="mt-6 space-y-6 pb-2">
           {/* Slim secondary "Practise" link — keeps the camera route alive. */}
-          <Card
+          <ScreenCard
             variant="elevated"
             className="flex items-center gap-3 p-5"
             onClick={() => go({ name: "camera" })}
@@ -346,10 +351,10 @@ export function Home() {
               <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
             </div>
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </Card>
+          </ScreenCard>
 
           {/* Fingerspell entry (M6) — spell your name, letter by letter. */}
-          <Card
+          <ScreenCard
             variant="elevated"
             className="flex items-center gap-3 p-5"
             onClick={() => go({ name: "fingerspell" })}
@@ -362,7 +367,7 @@ export function Home() {
               <p className="text-sm text-muted">{t("fspHomeCardSub", lang)}</p>
             </div>
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </Card>
+          </ScreenCard>
 
           {/* Family flags — one compact FlagCard + a count deep-link to the Family tab. */}
           {flags.length > 0 &&
@@ -413,7 +418,7 @@ export function Home() {
               not a single camera sign. Past the daily cap it becomes an honest
               "done for today" note instead of an endless queue. */}
           {due.length > 0 && !reviewCapReached && (
-            <Card
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
               onClick={() => go({ name: "lesson", lessonId: "review" })}
@@ -428,17 +433,17 @@ export function Home() {
                 </p>
               </div>
               <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </Card>
+            </ScreenCard>
           )}
           {due.length > 0 && reviewCapReached && (
-            <Card variant="elevated" className="flex items-center gap-4 p-5">
+            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
                 <Icon name="task_alt" className="!text-3xl text-teal" />
               </span>
               <p className="min-w-0 flex-1 font-display font-bold text-ink">
                 {t("reviewCapDone", lang)}
               </p>
-            </Card>
+            </ScreenCard>
           )}
 
           {/* Empty queue, goal unmet → inject new content (M5 starvation fix):
@@ -451,7 +456,7 @@ export function Home() {
               const letter = letterId ? signById(letterId) : undefined;
               if (!letter) return null;
               return (
-                <Card
+                <ScreenCard
                   variant="elevated"
                   className="flex items-center gap-4 p-5"
                   onClick={() => go({ name: "camera", targetSignId: letter.id })}
@@ -464,7 +469,7 @@ export function Home() {
                     <p className="text-sm text-muted">{t("homeNewLetterSub", lang)}</p>
                   </div>
                   <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-                </Card>
+                </ScreenCard>
               );
             })()}
 
@@ -473,7 +478,7 @@ export function Home() {
           {flags.length === 0 &&
             due.length === 0 &&
             (goalProgress >= 1 || !nextNewLetterId(app, profile.id)) && (
-            <Card
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
               onClick={() => go({ name: "camera" })}
@@ -490,7 +495,7 @@ export function Home() {
                 </p>
               </div>
               <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </Card>
+            </ScreenCard>
           )}
 
           {/* Daily goal — the single GoalCard widget. */}
@@ -507,7 +512,7 @@ export function Home() {
 
           {/* Milestone — lightweight secondary card (tappable → camera practice). */}
           {ms && (
-            <Card
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
               onClick={() => go({ name: "camera" })}
@@ -524,7 +529,7 @@ export function Home() {
                   />
                 </div>
               </div>
-            </Card>
+            </ScreenCard>
           )}
         </section>
       </div>
@@ -568,15 +573,20 @@ export function Home() {
               style={{ position: "fixed", inset: 0, background: "rgba(22,48,46,.5)", zIndex: 40, display: "flex", alignItems: "flex-end" }}
             >
               <div
+                ref={sheetRef}
                 onClick={(e) => e.stopPropagation()}
-                className="mx-auto w-full max-w-xl animate-rise"
+                role="dialog"
+                aria-modal="true"
+                aria-label={openNode.title}
+                tabIndex={-1}
+                className="mx-auto w-full max-w-xl animate-rise focus:outline-none"
                 style={{ background: "#FBF7EF", borderRadius: "26px 26px 0 0", padding: "22px 22px 26px", boxShadow: "0 -10px 40px rgba(0,0,0,.2)" }}
               >
                 <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
                   <div style={{ width: 56, height: 56, flex: "none", borderRadius: st === "milestone" ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {st === "milestone" ? (
-                      <span style={{ fontSize: 26, lineHeight: 1 }}>🎁</span>
+                      <Icon name="card_giftcard" fill className="!text-2xl text-white" />
                     ) : locked ? (
                       <span style={{ position: "relative", display: "block", width: 16, height: 13, borderRadius: 3, background: "#FBF7EF" }}>
                         <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 12, height: 11, border: "2.5px solid #FBF7EF", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />

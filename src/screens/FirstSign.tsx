@@ -133,7 +133,9 @@ export function FirstSign() {
           و
         </span>
 
-        <main className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6">
+        {/* M17: not <main> — App.tsx's screen router already owns the one
+            <main> landmark. */}
+        <div className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6">
           {/* Fanan celebrate hero (never mirrors) with floating +10 XP + Day-1 streak badges */}
           <div className="fs-hero-float relative flex items-end justify-center">
             <Fanan pose="celebrate" scale={1.2} />
@@ -187,7 +189,7 @@ export function FirstSign() {
           <p className="animate-rise mx-auto mt-4 max-w-[280px] text-lg font-medium leading-relaxed text-sand/90">
             {t("fsDone", lang)}
           </p>
-        </main>
+        </div>
 
         {/* footer actions — one dominant next action ("Keep going" → Learn home) */}
         <footer className="relative z-20 w-full max-w-md px-8 pb-12 pt-8">
@@ -221,7 +223,9 @@ export function FirstSign() {
   // ——— PHASES: DEMO (watch) + LIVE (try) — chrome-light takeover ———
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
-      <main
+      {/* M17: not <main> — App.tsx's screen router already owns the one
+          <main> landmark. */}
+      <div
         className={`mx-auto flex min-h-[calc(100dvh-57px)] w-full flex-col px-5 pb-32 pt-6 md:px-6 ${
           step === "try" ? "max-w-3xl" : "max-w-2xl"
         }`}
@@ -259,7 +263,7 @@ export function FirstSign() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* ONE dominant next action — coral springy "Now you try" (watch/demo step only) */}
       {step === "watch" && (

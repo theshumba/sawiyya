@@ -12,7 +12,7 @@ import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { HandSkeleton, hasHandShape } from "../components/HandSkeleton";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
-import { Button, Card, Icon, Title } from "../components/ui";
+import { Button, ScreenCard, Icon, Title } from "../components/ui";
 import { toLocaleDigits } from "../components/dc";
 import { Confetti, celebrate } from "../components/Confetti";
 
@@ -172,7 +172,10 @@ export function Fingerspell() {
                       setPlaying(false);
                       setCursor(i);
                     }}
-                    aria-label={signById(s.signId)?.glossEn}
+                    aria-label={(() => {
+                      const sn = signById(s.signId);
+                      return sn ? pick(lang, sn.glossEn, sn.glossAr) : undefined;
+                    })()}
                     aria-current={i === safeCursor}
                     className={`flex h-12 w-12 items-center justify-center rounded-[13px] font-display text-xl font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                       i === safeCursor
@@ -189,7 +192,7 @@ export function Fingerspell() {
             {/* honest skipped-characters note */}
             {skipped.length > 0 && (
               <div className="mt-3 flex items-start gap-2 rounded-2xl border border-line bg-sand p-3">
-                <Icon name="info" className="mt-0.5 shrink-0 text-base leading-none text-ink/50" />
+                <Icon name="info" className="mt-0.5 shrink-0 text-base leading-none text-ink/70" />
                 <p className="text-[12.5px] leading-snug text-ink/70">
                   {t("fspSkippedNote", lang)}{" "}
                   <span dir="rtl" className="font-bold">
@@ -203,7 +206,11 @@ export function Fingerspell() {
             <div className="mt-5">
               {current && currentSign ? (
                 hasHandShape(currentSign.id) ? (
-                  <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-teal/15 via-paper to-gold/15 p-6">
+                  <div
+                    role="img"
+                    aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}
+                    className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-b from-teal/15 via-paper to-gold/15 p-6"
+                  >
                     <HandSkeleton
                       key={`${currentSign.id}-${safeCursor}`}
                       signId={currentSign.id}
@@ -223,20 +230,20 @@ export function Fingerspell() {
                 ) : (
                   // ة (and any future reference-only letter): the glyph + an honest note —
                   // never a fake handshape.
-                  <Card className="flex flex-col items-center gap-3 p-8 text-center">
-                    <span className="font-display text-7xl font-bold text-teal" role="img" aria-label={currentSign.glossEn}>
+                  <ScreenCard className="flex flex-col items-center gap-3 p-8 text-center">
+                    <span className="font-display text-7xl font-bold text-teal" role="img" aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}>
                       {current.char}
                     </span>
-                    <p className="max-w-[280px] text-xs italic leading-snug text-ink/50">
+                    <p className="max-w-[280px] text-xs italic leading-snug text-ink/70">
                       {t("fspRefOnly", lang)}
                     </p>
-                  </Card>
+                  </ScreenCard>
                 )
               ) : (
-                <Card className="flex flex-col items-center gap-2 p-8 text-center">
+                <ScreenCard className="flex flex-col items-center gap-2 p-8 text-center">
                   <Icon name="sign_language" className="text-5xl leading-none text-teal/30" />
                   <p className="text-sm text-muted">{t("fspEmpty", lang)}</p>
-                </Card>
+                </ScreenCard>
               )}
             </div>
 
@@ -276,13 +283,13 @@ export function Fingerspell() {
 
             {/* practise-along entry + finished note */}
             {practiseDone && (
-              <Card className="mt-4 flex items-center gap-3 bg-gold/15 p-4">
+              <ScreenCard className="mt-4 flex items-center gap-3 bg-gold/15 p-4">
                 <Icon name="celebration" fill className="shrink-0 text-2xl leading-none text-gold-deep" />
                 <p className="font-display font-bold text-ink">{t("fspDone", lang)}</p>
-              </Card>
+              </ScreenCard>
             )}
             {gradable.length > 0 && (
-              <Card
+              <ScreenCard
                 variant="elevated"
                 className="mt-4 flex items-center gap-4 p-5"
                 onClick={() => {
@@ -302,7 +309,7 @@ export function Fingerspell() {
                   </p>
                 </div>
                 <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-              </Card>
+              </ScreenCard>
             )}
           </>
         )}

@@ -130,7 +130,7 @@ export function FlagPicker() {
                 {`${heroRequestor.displayName} ${t("famFlagFrom", lang)}`}
               </span>
               <span
-                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-coral font-display text-[13px] font-bold text-paper"
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-coral-deep font-display text-[13px] font-bold text-paper"
                 aria-hidden="true"
               >
                 {initialOf(heroRequestor.displayName)}
@@ -151,7 +151,10 @@ export function FlagPicker() {
         </header>
 
         {/* ── Body ────────────────────────────────────────────────────── */}
-        <main className="mx-auto mt-4 max-w-3xl space-y-6 px-6">
+        {/* M17: not <main> — App.tsx's screen router already owns the one
+            <main> landmark; a screen-level second one is an invalid nested
+            landmark. */}
+        <div className="mx-auto mt-4 max-w-3xl space-y-6 px-6">
           {/* Search + sort */}
           <div className="space-y-4 rounded-3xl bg-paper p-5 shadow-lift">
             <div className="flex items-center gap-3">
@@ -187,9 +190,11 @@ export function FlagPicker() {
 
             {/* One group switcher — a single horizontally-scrolling Chip row at
                 ALL sizes (fixes the md dead-zone). */}
+            {/* L11: these are filter chips, not tabs — no tabpanel, no keyboard
+                arrow-nav — role="group" (Chip already sets aria-pressed). */}
             <div
               className="-mb-1 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
-              role="tablist"
+              role="group"
               aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}
             >
               {groups.map((gr) => {
@@ -269,7 +274,7 @@ export function FlagPicker() {
                           {pick(lang, sign.glossEn, sign.glossAr)}
                         </span>
                         <span
-                          className="block truncate font-display text-sm font-medium text-teal/60"
+                          className="block truncate font-display text-sm font-medium text-teal"
                           dir={lang === "ar" ? "ltr" : "rtl"}
                         >
                           {pick(lang, sign.glossAr, sign.glossEn)}
@@ -342,7 +347,7 @@ export function FlagPicker() {
               {/* Requestors */}
               {requestors.length > 0 && (
                 <div className="mb-6">
-                  <p className="mb-3 font-display text-xs font-bold uppercase tracking-wide text-teal/40">
+                  <p className="mb-3 font-display text-xs font-bold uppercase tracking-wide text-teal">
                     {pick(lang, "Requestors", "مَن طلبها")}
                   </p>
                   <div className="flex -space-x-3 overflow-hidden">
@@ -362,7 +367,7 @@ export function FlagPicker() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-3 text-xs text-teal/60">
+                  <p className="mt-3 text-xs text-teal">
                     {pick(
                       lang,
                       "Family members waiting for these signs",
@@ -403,7 +408,7 @@ export function FlagPicker() {
               )}
             </div>
           </div>
-        </main>
+        </div>
       </div>
 
       {/* ── Single "Done" affordance (flags persist on tap) ─────────────── */}

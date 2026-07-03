@@ -12,6 +12,7 @@ import { activeProfile, pinnedFlagSigns, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Screen } from "../store/ui";
 import { Avatar, Badge, Icon } from "./ui";
+import { useDialog } from "./useDialog";
 
 interface Tab {
   /** screen this tab routes to */
@@ -43,6 +44,9 @@ export function AppNav({ lang }: { lang: Lang }) {
   const screen = useUi((s) => s.screen);
   const go = useUi((s) => s.go);
   const [menuOpen, setMenuOpen] = useState(false);
+  // H16: focus the menu on open, trap Tab, Escape/backdrop to dismiss,
+  // restore focus to the profile button that opened it.
+  const menuRef = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
 
   const profile = activeProfile(app);
   const requests = profile
@@ -61,8 +65,11 @@ export function AppNav({ lang }: { lang: Lang }) {
         onClick={() => setMenuOpen(false)}
       />
       <div
+        ref={menuRef}
         role="menu"
-        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
+        aria-label={t("navProfile", lang)}
+        tabIndex={-1}
+        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
       >
         {profile && (
           <div className="flex items-center gap-3 border-b border-line px-4 py-3">
@@ -111,7 +118,7 @@ export function AppNav({ lang }: { lang: Lang }) {
             <Badge count={requests} />
           </span>
         )}
-        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`}>{t("navProfile", lang)}</span>
+        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>
       </button>
       {profileMenu}
     </div>
@@ -120,8 +127,8 @@ export function AppNav({ lang }: { lang: Lang }) {
   const tabButton = (tab: Tab, vertical: boolean) => {
     const active = isActive(tab);
     // Icon colour is independent of the label colour on the rail (design Block 5):
-    // active teal, inactive #B8C4C1 (icon) vs #8F9C99 (label).
-    const iconColor = active ? "text-teal" : "text-[#B8C4C1]";
+    // active teal, inactive muted (H15: was #B8C4C1/#8F9C99 — 1.68:1/2.66:1, both AA fails).
+    const iconColor = active ? "text-teal" : "text-muted";
     return (
       <button
         key={tab.name}
@@ -130,7 +137,7 @@ export function AppNav({ lang }: { lang: Lang }) {
         onClick={() => go({ name: tab.name } as Screen)}
         className={`flex min-h-[48px] min-w-[48px] items-center transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
           vertical
-            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-[#8F9C99] hover:bg-teal/5"}`
+            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-muted hover:bg-teal/5"}`
             : "flex-col justify-center gap-[5px] rounded-2xl px-2 py-1"
         }`}
       >
@@ -142,7 +149,7 @@ export function AppNav({ lang }: { lang: Lang }) {
           className={
             vertical
               ? "leading-none"
-              : `font-display text-[10px] leading-none ${active ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`
+              : `font-display text-[10px] leading-none ${active ? "font-bold text-teal" : "font-medium text-muted"}`
           }
         >
           {tab.label(lang)}

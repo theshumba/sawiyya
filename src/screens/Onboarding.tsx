@@ -248,8 +248,9 @@ export function Onboarding() {
           )}
         </div>
 
-        {/* Body (design Block C) */}
-        <div className="flex flex-1 flex-col overflow-y-auto px-6 pb-2 pt-3">
+        {/* Body (design Block C) — M17: Onboarding renders before a profile
+            exists, so it bypasses App.tsx's <main>; it needs its own. */}
+        <main className="flex flex-1 flex-col overflow-y-auto px-6 pb-2 pt-3">
           {/* s0 · Welcome (reskinned splash) */}
           {step === "splash" && (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -271,7 +272,7 @@ export function Onboarding() {
               <div className="animate-float">
                 <Fanan pose="cheer" scale={1.2} />
               </div>
-              <MonoLabel className="mt-3 text-coral">{t("obFananEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="mt-3 text-coral">{t("obFananEyebrow", lang)}</MonoLabel>
               <h1 className="mt-1.5 animate-rise font-display text-[32px] font-extrabold leading-[1.05] text-ink">
                 {t("obFananTitle", lang)}
               </h1>
@@ -463,7 +464,7 @@ export function Onboarding() {
           {/* s4 · How it works · camera + on-device privacy (merged — L20) */}
           {step === "camera" && (
             <div className="flex flex-1 flex-col">
-              <MonoLabel className="text-teal">{t("obCamEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="text-teal">{t("obCamEyebrow", lang)}</MonoLabel>
               <h1 className="mt-1.5 font-display text-[26px] font-extrabold leading-[1.1] text-ink">
                 {t("obCamTitle", lang)}
               </h1>
@@ -655,7 +656,7 @@ export function Onboarding() {
               </form>
             </div>
           )}
-        </div>
+        </main>
 
         {/* Footer CTA (design Block D) — name owns its own submit button. */}
         {step !== "name" && footer && (
