@@ -37,6 +37,9 @@ export interface Sign {
   hintAr: string;
   type: SignType;
   cameraGradable: boolean;
+  /** Real footage (H23) — the owner-gated Deaf-signer recording drops in here;
+   *  SignDemo renders it over every placeholder when present. */
+  media?: { type: "video"; src: string; poster?: string };
 }
 
 export interface Unit {
@@ -52,6 +55,9 @@ export type DrillType = "watch" | "recognise" | "recall" | "camera" | "review";
 export interface DrillSpec {
   type: DrillType;
   signId: string;
+  /** Recognise-drill distractor pool override (H22 checkpoints): only letters
+   *  the learner has MET may appear as choices. Absent = the tier default. */
+  pool?: string[];
 }
 
 export interface Lesson {
