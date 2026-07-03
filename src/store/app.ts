@@ -51,7 +51,6 @@ function uid(prefix: string): string {
 
 export interface AppState {
   onboarded: boolean;
-  householdName: string;
   profiles: Profile[];
   activeProfileId: string | null;
   /** profileId → signId → progress */
@@ -72,6 +71,8 @@ export interface AppState {
   switchProfile: (id: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   completeOnboarding: () => void;
+  /** Deactivate every active flag RAISED BY this profile (H7-scoped clear-all). */
+  clearFlags: (byProfileId: string) => void;
   /** Record a completed drill for the active profile: XP + streak + SRS + mastery. */
   recordDrillResult: (
     signId: string,
@@ -179,7 +180,29 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
         : (profiles[0]?.id ?? null),
     progress: isRecord(p.progress) ? (p.progress as AppState["progress"]) : {},
     srs: isRecord(p.srs) ? (p.srs as AppState["srs"]) : {},
-    flags: Array.isArray(p.flags) ? p.flags : [],
+    // Flags written before supporters/archived existed (pre-Batch-5) backfill
+    // cleanly; malformed entries are dropped rather than crashing selectors.
+    flags: Array.isArray(p.flags)
+      ? p.flags
+          .filter(isRecord)
+          .map((raw) => {
+            const f = raw as Partial<Flag>;
+            return {
+              id: typeof f.id === "string" ? f.id : uid("flag"),
+              raisedByProfileId:
+                typeof f.raisedByProfileId === "string" ? f.raisedByProfileId : "",
+              supporters: Array.isArray(f.supporters)
+                ? f.supporters.filter((x): x is string => typeof x === "string")
+                : [],
+              signId: typeof f.signId === "string" ? f.signId : "",
+              active: f.active !== false,
+              archived: f.archived === true,
+              createdAt:
+                typeof f.createdAt === "string" ? f.createdAt : new Date().toISOString(),
+            };
+          })
+          .filter((f) => f.signId !== "")
+      : [],
     metrics: {
       ...emptyMetrics,
       appFirstOpenAt: current.metrics.appFirstOpenAt,
@@ -192,7 +215,6 @@ export const useApp = create<AppState>()(
   persist(
     (set, get) => ({
       onboarded: false,
-      householdName: "",
       profiles: [],
       activeProfileId: null,
       progress: {},
@@ -310,11 +332,32 @@ export const useApp = create<AppState>()(
           }
           if (opts.selfMark) metrics.selfMarks += 1;
 
+          // 5. Flag auto-archive (M8): when every non-raiser HEARING member has
+          //    reached mastery ≥ 2 on a flagged sign, the flag archives — kept
+          //    in state as history, out of the queues and Home pins.
+          const flags = s.flags.map((f) => {
+            if (f.signId !== signId || !f.active || f.archived) return f;
+            const learners = s.profiles.filter(
+              (p) => p.id !== f.raisedByProfileId && p.role !== "deaf",
+            );
+            const done =
+              learners.length > 0 &&
+              learners.every((p) => {
+                const lvl =
+                  p.id === activeProfileId
+                    ? mastery
+                    : (s.progress[p.id]?.[signId]?.masteryLevel ?? 0);
+                return lvl >= 2;
+              });
+            return done ? { ...f, archived: true } : f;
+          });
+
           return {
             srs: { ...s.srs, [activeProfileId]: profileSrs },
             progress: { ...s.progress, [activeProfileId]: profileProg },
             profiles,
             metrics,
+            flags,
           };
         });
       },
@@ -348,25 +391,81 @@ export const useApp = create<AppState>()(
         set((s) => ({ metrics: { ...s.metrics, firstSignMs: ms } }));
       },
 
-      toggleFlag: (signId, raisedByProfileId) =>
+      toggleFlag: (signId, byProfileId) =>
         set((s) => {
-          const existing = s.flags.find((f) => f.signId === signId && f.active);
+          const existing = s.flags.find((f) => f.signId === signId && f.active && !f.archived);
+          const by = s.profiles.find((p) => p.id === byProfileId);
           if (existing) {
+            // H7: only the raiser or a deaf-role member can deactivate a flag.
+            // Anyone else tapping an already-flagged sign is a CO-REQUEST —
+            // added to supporters, never a silent toggle-off of the Deaf
+            // member's curriculum.
+            const canDeactivate =
+              existing.raisedByProfileId === byProfileId || by?.role === "deaf";
+            if (canDeactivate) {
+              return {
+                flags: s.flags.map((f) =>
+                  f.id === existing.id ? { ...f, active: false } : f,
+                ),
+              };
+            }
+            if (existing.supporters.includes(byProfileId)) return s;
             return {
               flags: s.flags.map((f) =>
-                f.id === existing.id ? { ...f, active: false } : f,
+                f.id === existing.id
+                  ? { ...f, supporters: [...f.supporters, byProfileId] }
+                  : f,
               ),
             };
           }
+
           const flag: Flag = {
             id: uid("flag"),
-            raisedByProfileId,
+            raisedByProfileId: byProfileId,
+            supporters: [],
             signId,
             active: true,
+            archived: false,
             createdAt: new Date().toISOString(),
           };
-          return { flags: [...s.flags, flag] };
+
+          // H4: "everyone's queue follows" must be true — seed a due-now card
+          // into every NON-RAISER profile's SRS (never overwriting an existing
+          // card, which would reset real scheduling history).
+          const srs = { ...s.srs };
+          for (const p of s.profiles) {
+            if (p.id === byProfileId) continue;
+            const cards = srs[p.id] ?? {};
+            if (!cards[signId]) srs[p.id] = { ...cards, [signId]: newStoredCard() };
+          }
+
+          // H6: flagging is the Deaf member's real participation — it counts as
+          // the raiser's active day (streak/day-set), without minting XP.
+          const today = todayKey();
+          const yesterday = yesterdayKey();
+          const profiles = s.profiles.map((p) => {
+            if (p.id !== byProfileId || p.lastActiveDay === today) return p;
+            return {
+              ...p,
+              streak: p.lastActiveDay === yesterday ? p.streak + 1 : 1,
+              lastActiveDay: today,
+              activeDays: [...p.activeDays, today].slice(-90),
+            };
+          });
+
+          return { flags: [...s.flags, flag], srs, profiles };
         }),
+
+      // H7: "Clear all" clears only the CALLER's own raised flags — never the
+      // Deaf member's curriculum.
+      clearFlags: (byProfileId) =>
+        set((s) => ({
+          flags: s.flags.map((f) =>
+            f.active && !f.archived && f.raisedByProfileId === byProfileId
+              ? { ...f, active: false }
+              : f,
+          ),
+        })),
 
       bumpMetric: (key, by = 1) =>
         set((s) => {
@@ -436,9 +535,9 @@ export function nextNewLetterId(s: AppState, profileId: string): string | null {
   return ALPHABET.find((l) => l.cameraGradable && !cards[l.id])?.id ?? null;
 }
 
-/** Signs flagged by Deaf family members, newest first (PRD §6.7). */
+/** Live flags, newest first (PRD §6.7) — archived flags are history, not queue. */
 export function activeFlags(s: AppState): Flag[] {
-  return s.flags.filter((f) => f.active).slice().reverse();
+  return s.flags.filter((f) => f.active && !f.archived).slice().reverse();
 }
 
 /** Due SRS cards for a profile — flagged signs jump the queue (PRD §6.6). */
@@ -462,10 +561,14 @@ export function pinnedFlagSigns(s: AppState, profileId: string): Flag[] {
   return activeFlags(s).filter((f) => (prog[f.signId]?.masteryLevel ?? 0) < 3);
 }
 
-/** Signs every household member has mastered — the shared board (PRD §6.7). */
+/** Signs the whole household can do — the shared board (PRD §6.7). H6: the Deaf
+ *  member directs the curriculum and already knows the signs, so the
+ *  intersection covers HEARING members only — the board must never sit empty
+ *  because the one person it's for "hasn't drilled" it. */
 export function signsAllCanDo(s: AppState): string[] {
-  if (s.profiles.length === 0) return [];
-  const sets = s.profiles.map((p) =>
+  const hearing = s.profiles.filter((p) => p.role !== "deaf");
+  if (hearing.length === 0) return [];
+  const sets = hearing.map((p) =>
     new Set(
       Object.entries(s.progress[p.id] ?? {})
         .filter(([, pr]) => pr.masteryLevel >= 3)
@@ -476,10 +579,13 @@ export function signsAllCanDo(s: AppState): string[] {
   return [...first].filter((id) => rest.every((set) => set.has(id)));
 }
 
-/** Household streak: consecutive days (ending today/yesterday) where every profile was active. */
+/** Household streak: consecutive days (ending today/yesterday) where every
+ *  HEARING profile was active (H6 — the Deaf member's day-set is excluded;
+ *  their flagging still marks their own active day for the member row). */
 export function householdStreak(s: AppState): number {
-  if (s.profiles.length === 0) return 0;
-  const daySets = s.profiles.map((p) => new Set(p.activeDays));
+  const hearing = s.profiles.filter((p) => p.role !== "deaf");
+  if (hearing.length === 0) return 0;
+  const daySets = hearing.map((p) => new Set(p.activeDays));
   const allActive = (key: string) => daySets.every((set) => set.has(key));
   let streak = 0;
   const cursor = new Date();

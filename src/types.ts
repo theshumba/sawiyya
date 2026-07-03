@@ -87,8 +87,14 @@ export interface StoredCard {
 export interface Flag {
   id: string;
   raisedByProfileId: string;
+  /** Members who co-requested the sign after it was already flagged (H7) —
+   *  tapping an existing flag never toggles it off for non-raisers. */
+  supporters: string[];
   signId: string;
   active: boolean;
+  /** Auto-set when every non-raiser hearing member reaches mastery ≥ 2 (M8);
+   *  archived flags leave the queues/pins but stay in state as history. */
+  archived: boolean;
   createdAt: string;
 }
 
