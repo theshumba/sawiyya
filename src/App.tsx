@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { applyDir, langFromSearch, t } from "./i18n";
 import { activeProfile, RECOVERY_NOTICE_KEY, useApp } from "./store/app";
 import { Card, SpringButton } from "./components/dc";
@@ -6,9 +6,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useUi } from "./store/ui";
 import { Home } from "./screens/Home";
 import { Onboarding } from "./screens/Onboarding";
-import { CameraPractice } from "./screens/CameraPractice";
-import { FirstSign } from "./screens/FirstSign";
-import { LessonPlayer } from "./screens/LessonPlayer";
 import { Family } from "./screens/Family";
 import { FlagPicker } from "./screens/FlagPicker";
 import { Progress } from "./screens/Progress";
@@ -17,7 +14,37 @@ import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
-import { Fingerspell } from "./screens/Fingerspell";
+
+// M13: the camera screens pull in the whole recognizer stack — @mediapipe
+// tasks-vision, CameraTrainer, the MLP — none of which the app shell needs on
+// boot. Lazy-load them so they land in their own chunk (with the dynamic-imported
+// seeds), fetched the first time a learner opens a camera. autoStart still fires
+// once the chunk resolves; the Suspense fallback only flashes on that first open.
+const CameraPractice = lazy(() =>
+  import("./screens/CameraPractice").then((m) => ({ default: m.CameraPractice })),
+);
+const FirstSign = lazy(() =>
+  import("./screens/FirstSign").then((m) => ({ default: m.FirstSign })),
+);
+const LessonPlayer = lazy(() =>
+  import("./screens/LessonPlayer").then((m) => ({ default: m.LessonPlayer })),
+);
+const Fingerspell = lazy(() =>
+  import("./screens/Fingerspell").then((m) => ({ default: m.Fingerspell })),
+);
+
+/** Quiet centred loader shown while a lazy screen chunk resolves. */
+function ScreenLoading() {
+  return (
+    <div className="flex min-h-[60dvh] items-center justify-center" role="status" aria-live="polite">
+      <span
+        className="h-8 w-8 animate-spin rounded-full border-[3px] border-line border-t-teal"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Loading… · جارٍ التحميل…</span>
+    </div>
+  );
+}
 
 /**
  * One-time honest notice when a corrupt saved blob was backed up and the app
@@ -80,6 +107,9 @@ export default function App() {
     <>
       {showRecovery && <RecoveryNotice onDismiss={dismissRecovery} />}
       <main>
+        {/* One boundary for the lazy camera screens (M13); the eager screens
+            below never suspend, so it only ever shows while a camera chunk loads. */}
+        <Suspense fallback={<ScreenLoading />}>
         {screen.name === "home" && <Home />}
         {/* Camera screens get their own boundary (H12): the MediaPipe/camera
             stack is the riskiest subtree, and "try again" just re-mounts it. */}
@@ -120,6 +150,7 @@ export default function App() {
         {screen.name === "aiTransparency" && <AiTransparency />}
         {screen.name === "privacy" && <Privacy />}
         {screen.name === "devMetrics" && <DevMetrics />}
+        </Suspense>
       </main>
     </>
   );

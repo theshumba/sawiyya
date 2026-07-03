@@ -2,7 +2,7 @@
 // no external tracking exists anywhere in the app.
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import { trainedClassIds } from "../recognizer/knn";
+import { userTaughtClassIds } from "../recognizer/knn";
 import { Card } from "../components/ui";
 
 export function DevMetrics() {
@@ -19,8 +19,9 @@ export function DevMetrics() {
     ["Lessons completed", String(m.lessonsCompleted)],
     ["Camera attempts (graded)", String(m.cameraAttempts)],
     ["Camera match rate", matchRate === null ? "—" : `${matchRate}%`],
+    ["…of which own-recording (KNN, not model)", String(m.ownRecordingMatches)],
     ["Self-mark rate", `${selfMarkRate}%`],
-    ["Handshapes taught to KNN", String(trainedClassIds().length)],
+    ["Handshapes you've taught (excl. seeds)", String(userTaughtClassIds().length)],
     ["Profiles", String(app.profiles.length)],
     ["Active flags", String(app.flags.filter((f) => f.active).length)],
     ["App first opened", m.appFirstOpenAt ? new Date(m.appFirstOpenAt).toLocaleString() : "—"],

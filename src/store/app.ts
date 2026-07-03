@@ -77,7 +77,15 @@ export interface AppState {
   recordDrillResult: (
     signId: string,
     outcome: SrsOutcome,
-    opts?: { selfMark?: boolean; camera?: boolean; matched?: boolean; watch?: boolean },
+    opts?: {
+      selfMark?: boolean;
+      camera?: boolean;
+      matched?: boolean;
+      watch?: boolean;
+      /** The match was confirmed only by the learner's own KNN recording, not
+       *  the dataset MLP — counted separately as ownRecordingMatches (M2). */
+      ownRecording?: boolean;
+    },
   ) => void;
   recordLessonComplete: () => void;
   /** Seed an SRS review card for a sign without XP/mastery (Dictionary "Add to Daily Review"). */
@@ -93,6 +101,7 @@ const emptyMetrics: Metrics = {
   drillsCompleted: 0,
   cameraAttempts: 0,
   cameraMatches: 0,
+  ownRecordingMatches: 0,
   selfMarks: 0,
   lessonsCompleted: 0,
 };
@@ -379,7 +388,12 @@ export const useApp = create<AppState>()(
           const metrics = { ...s.metrics, drillsCompleted: s.metrics.drillsCompleted + 1 };
           if (opts.camera) {
             metrics.cameraAttempts += 1;
-            if (opts.matched) metrics.cameraMatches += 1;
+            if (opts.matched) {
+              metrics.cameraMatches += 1;
+              // A real match, but confirmed only by the learner's own recording
+              // (the dataset model didn't agree) — counted honestly, apart (M2).
+              if (opts.ownRecording) metrics.ownRecordingMatches += 1;
+            }
           }
           if (opts.selfMark) metrics.selfMarks += 1;
 

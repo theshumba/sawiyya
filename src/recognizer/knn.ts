@@ -2,7 +2,10 @@
 // kinivi-style: record N samples of a handshape → classify live.
 // Samples live in localStorage; nothing ever leaves the device.
 import { euclidean } from "./normalize";
-import seedData from "./seeds/alphabet.json";
+import { getSeeds, type SampleStore } from "./seedStore";
+// The bundled ground-truth seeds live in seedStore (dynamic-imported, M13). Keep
+// exposing the test setter from here so existing knn tests import it unchanged.
+export { __setSeedsForTest } from "./seedStore";
 
 // v2 (2026-06-27): the normaliser became rotation-invariant (normalize.ts), which
 // changed the feature space. Teach samples recorded under v1 are in the OLD space and
@@ -38,17 +41,10 @@ export interface TargetClassification {
   };
 }
 
-type SampleStore = Record<string, number[][]>;
-
-// Bundled, read-only ground-truth vectors (alphabet). Never written to localStorage.
-let seeds: SampleStore = seedData as SampleStore;
-/** TEST-ONLY: replace the bundled seeds with a fixture. */
-export function __setSeedsForTest(s: SampleStore) {
-  seeds = s;
-}
-/** All stores read paths must span — seeds first, then the user's localStorage store. */
+/** All stores read paths must span — the bundled seeds (seedStore), then the
+ *  user's own localStorage teach store. */
 function readStores(): SampleStore[] {
-  return [seeds, store()];
+  return [getSeeds(), store()];
 }
 
 function load(): SampleStore {
@@ -134,6 +130,14 @@ export function trainedClassIds(): string[] {
   const ids = new Set<string>();
   for (const s of readStores()) for (const id of Object.keys(s)) ids.add(id);
   return [...ids].filter((id) => sampleCount(id) >= 4);
+}
+
+/** Handshapes the LEARNER personally taught — their own localStorage store only,
+ *  never the bundled seeds. This is the honest DevMetrics count (L2): the
+ *  seeds-inclusive trainedClassIds() always reads ≥ 28 for a brand-new user, so
+ *  "handshapes taught" looked pre-earned. */
+export function userTaughtClassIds(): string[] {
+  return Object.keys(store()).filter((id) => userTaughtCount(id) >= 4);
 }
 
 export function isTrained(classId: string): boolean {

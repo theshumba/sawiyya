@@ -76,13 +76,14 @@ export function Fingerspell() {
   // ── practise-along: real drill results, exactly like CameraPractice (H2/L5) ──
   const practiseStep = gradable[Math.min(practiseIdx, Math.max(0, gradable.length - 1))];
   const practiseSign = practiseStep ? signById(practiseStep.signId) : undefined;
-  const handleTrainerResult = (r: TrainerResult) => {
+  const handleTrainerResult = (r: TrainerResult, meta?: { ownRecording?: boolean }) => {
     if (practiseStep && r !== "skip") {
       // Self-mark rates 'hard', never 'good' (H2); skip records nothing (L5).
       app.recordDrillResult(practiseStep.signId, r === "match" ? "good" : "hard", {
         camera: true,
         matched: r === "match",
         selfMark: r === "selfMark",
+        ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
       });
     }
     if (r === "match") {

@@ -148,3 +148,40 @@ describe("streakFor read-time selector (M26)", () => {
     expect(streakFor({ ...baseProfile, streak: 0 } as never)).toBe(0);
   });
 });
+
+describe("own-recording match metric (M2)", () => {
+  async function withProfile() {
+    const app = await freshStore();
+    const g = app.useApp.getState();
+    const id = g.createProfile({
+      displayName: "Lea",
+      role: "parent",
+      dominantHand: "R",
+      language: "en",
+      dailyGoal: "regular",
+    });
+    g.completeOnboarding();
+    g.switchProfile(id);
+    return app;
+  }
+
+  it("counts a KNN-only pass separately, without inflating or hiding real camera matches", async () => {
+    const app = await withProfile();
+    const G = () => app.useApp.getState();
+
+    // A normal, model-confirmed camera match: a real match, NOT an own-recording one.
+    G().recordDrillResult("alpha-alif", "good", { camera: true, matched: true });
+    expect(G().metrics.cameraMatches).toBe(1);
+    expect(G().metrics.ownRecordingMatches).toBe(0);
+
+    // A match carried purely by the learner's own recording: still an honest match
+    // (cameraMatches counts it) but tracked separately so the pitch metric is truthful.
+    G().recordDrillResult("alpha-ba", "good", { camera: true, matched: true, ownRecording: true });
+    expect(G().metrics.cameraMatches).toBe(2);
+    expect(G().metrics.ownRecordingMatches).toBe(1);
+
+    // ownRecording only ever counts alongside a real matched camera pass.
+    G().recordDrillResult("alpha-ta", "hard", { camera: true, matched: false, selfMark: true });
+    expect(G().metrics.ownRecordingMatches).toBe(1);
+  });
+});

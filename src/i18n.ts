@@ -64,6 +64,9 @@ const dict = {
   camSign: { en: "Sign", ar: "أشِر" },
   camHold: { en: "Hold it steady…", ar: "ثبّت يدك…" },
   camMatch: { en: "✓ Connection made!", ar: "✓ وصلت!" },
+  // M2: honest disclosure when the confirming hold was carried only by the
+  // learner's OWN taught samples (KNN), not the dataset model.
+  camMatchOwn: { en: "Matched your own recording", ar: "طابَق تسجيلك الخاص" },
   camUnsure: { en: "Almost — the camera isn't sure, but your hands might be right. Try once more?", ar: "قريب — الكاميرا غير متأكدة، لكن ربما يداك صحيحتان. جرّب مرة أخرى؟" },
   camSelfMark: { en: "I signed it right", ar: "أدّيتها صح" },
   camSelfMarkSub: { en: "Mark it yourself — you know your hands.", ar: "قيّم نفسك — أنت أدرى بيديك." },

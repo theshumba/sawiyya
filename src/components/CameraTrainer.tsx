@@ -9,6 +9,8 @@ import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
 import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows } from "../recognizer/classifier";
+import { ensureSeeds, seedsLoaded } from "../recognizer/seedStore";
+import { stepHold, HOLD_MS } from "./holdGate";
 import { HandSkeleton } from "./HandSkeleton";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
@@ -17,7 +19,8 @@ import { formatPercent } from "./dc";
 
 export type TrainerResult = "match" | "selfMark" | "skip";
 
-const HOLD_FRAMES = 24; // consecutive matching frames to confirm (>1 s @20fps — no insta-pass)
+// L1: the hold gate (HOLD_MS + stepHold accumulator) lives in ./holdGate — a wall-
+// clock hold that's device-fps independent and confirms in ~1.2 s everywhere.
 const TEACH_TARGET = 24; // samples recorded in teach mode
 const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
 const SOFT_FAIL_MS = 20_000; // hand-VISIBLE ms without a confirmed match → soft fail (H2)
@@ -40,7 +43,7 @@ export function CameraTrainer({
 }: {
   sign: Sign;
   lang: Lang;
-  onResult: (result: TrainerResult) => void;
+  onResult: (result: TrainerResult, meta?: { ownRecording?: boolean }) => void;
   /** Soft fail (H2): fired ONCE per mount after 20s of hand-visible time with no
    *  confirmed match — the parent rates the card 'again'. The trainer itself
    *  shows "Still tricky" + replays the reference demo and lets them retry;
@@ -64,12 +67,26 @@ export function CameraTrainer({
   const [confidence, setConfidence] = useState(0);
   const [holdProgress, setHoldProgress] = useState(0);
   const [matched, setMatched] = useState(false);
+  // M2: true when the confirming hold was carried ONLY by the learner's own KNN
+  // recording, never the dataset MLP — the success UI says so honestly.
+  const [ownRecordingMatch, setOwnRecordingMatch] = useState(false);
   const [showUnsure, setShowUnsure] = useState(false);
   const [stillTricky, setStillTricky] = useState(false);
   const [dbg, setDbg] = useState("");
   const lastDbg = useRef("");
 
-  const consecutive = useRef(0);
+  // L1: wall-clock hold accumulator. heldMs = ms of CONTINUOUS matching accrued in
+  // the current streak (reset to 0 on any non-match frame); lastHoldTs = the prior
+  // matched frame's time. stepHold() caps each step so a stall can't insta-pass yet
+  // a low-fps device still accrues. Confirm once heldMs ≥ HOLD_MS.
+  const heldMs = useRef(0);
+  const lastHoldTs = useRef<number | null>(null);
+  // M2: did the dataset MLP confirm at any point during the current hold streak?
+  // If not (KNN carried it alone), the pass is disclosed as "your own recording".
+  const modelMatchedInHold = useRef(false);
+  // M13: the bundled seeds are dynamic-imported; a match can't confirm until they
+  // are resident (the OOD gate + KNN both read them). Almost always already true.
+  const seedsReady = useRef(seedsLoaded());
   const attemptFrames = useRef(0);
   const frameSkip = useRef(0);
   const finished = useRef(false);
@@ -107,7 +124,9 @@ export function CameraTrainer({
     if (!frame) {
       pushConfidence(0);
       pushHold(0);
-      consecutive.current = 0;
+      heldMs.current = 0; // hand lost — the hold streak breaks (L1)
+      lastHoldTs.current = null;
+      modelMatchedInHold.current = false;
       lastSeenTs.current = null; // hand lost — pause the soft-fail clock (H2)
       return;
     }
@@ -130,6 +149,17 @@ export function CameraTrainer({
     }
 
     // grade mode
+    // M13: the bundled seeds arrive on their own async chunk. Until they're
+    // resident the OOD gate + KNN have nothing to match against, so hold the
+    // grade path (meter at 0, soft-fail clock paused) rather than churn "0%".
+    // In practice the seeds win the race against the camera/model every time.
+    if (!seedsReady.current) {
+      pushConfidence(0);
+      pushHold(0);
+      heldMs.current = 0;
+      lastHoldTs.current = null;
+      return;
+    }
     attemptFrames.current += 1;
     if (attemptFrames.current > UNSURE_AFTER_FRAMES) setShowUnsure(true);
     // Soft fail (H2): 20s of hand-VISIBLE time with no confirmed match → tell the
@@ -144,7 +174,9 @@ export function CameraTrainer({
       if (visibleMs.current >= SOFT_FAIL_MS) {
         softFailFired.current = true;
         visibleMs.current = 0;
-        consecutive.current = 0;
+        heldMs.current = 0;
+        lastHoldTs.current = null;
+        modelMatchedInHold.current = false;
         setStillTricky(true);
         onSoftFail?.();
         setTimeout(() => setStillTricky(false), 3400);
@@ -157,11 +189,15 @@ export function CameraTrainer({
     // global argmax, which sticks the meter at 0% once another class is trained.
     let confidence: number;
     let matched: boolean;
+    // M2: track whether the DATASET MODEL confirmed this frame (vs the learner's
+    // own KNN recording carrying it), so a KNN-only pass can be disclosed honestly.
+    let mlpMatched = false;
     if (knowsModel) {
       // Primary: the dataset MLP (honest, geometry-only → skin-tone independent).
       const r = gradeWithModel(vec, sign.id);
       confidence = r.confidence;
       matched = r.matched;
+      mlpMatched = r.matched;
       let dbg = `MLP best=${r.debug?.bestClass ?? "—"} p=${Math.round((r.debug?.bestP ?? 0) * 100)}% targetP=${Math.round((r.debug?.targetP ?? 0) * 100)}%`;
       // Fallback: if the learner taught THEIR OWN version of this letter, let the
       // KNN over their samples confirm too — so it "works for my hands" even when
@@ -187,13 +223,33 @@ export function CameraTrainer({
       }
     }
     pushConfidence(confidence);
-    consecutive.current = matched ? consecutive.current + 1 : 0;
-    pushHold(Math.min(1, consecutive.current / HOLD_FRAMES));
-    if (consecutive.current >= HOLD_FRAMES) {
-      finished.current = true;
-      tracker.stop(); // release the camera the moment the match confirms
-      setMatched(true);
-      setTimeout(() => onResult("match"), 900);
+    // L1: confirm on ~HOLD_MS of CONTINUOUS matching time (device-fps independent).
+    // stepHold caps each frame step, so a stall can't insta-pass while a low-fps
+    // device still accrues (see holdGate.ts).
+    if (matched) {
+      const ts = frame.timeMs;
+      heldMs.current = stepHold(heldMs.current, lastHoldTs.current, ts);
+      lastHoldTs.current = ts;
+      if (mlpMatched) modelMatchedInHold.current = true;
+      pushHold(Math.min(1, heldMs.current / HOLD_MS));
+      if (heldMs.current >= HOLD_MS) {
+        finished.current = true;
+        tracker.stop(); // release the camera the moment the match confirms
+        // M2: if the dataset model never agreed across the whole hold, the
+        // learner's own recording carried it — disclose it (and count it apart).
+        // Scoped to knowsModel signs on purpose: the disclosure means "a calibrated
+        // model exists but didn't confirm this". Un-seeded word signs have no model
+        // to contrast with (they're taught-only by design), so they're not flagged.
+        const ownRecording = knowsModel && !modelMatchedInHold.current;
+        setOwnRecordingMatch(ownRecording);
+        setMatched(true);
+        setTimeout(() => onResult("match", { ownRecording }), 900);
+      }
+    } else {
+      heldMs.current = 0;
+      lastHoldTs.current = null;
+      modelMatchedInHold.current = false;
+      pushHold(0);
     }
   };
 
@@ -204,6 +260,23 @@ export function CameraTrainer({
     if (autoStart) void tracker.start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
+
+  // M13: pull the dynamic-imported seed chunk in the moment a camera screen mounts,
+  // so it's resident well before a hand is positioned. Idempotent + cached.
+  useEffect(() => {
+    if (seedsReady.current) return;
+    let alive = true;
+    void ensureSeeds()
+      .then(() => {
+        if (alive) seedsReady.current = true;
+      })
+      .catch(() => {
+        /* offline & never cached — grading stays paused; the camera UI still works */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const startTeach = () => {
     clearClass(sign.id);
@@ -469,7 +542,9 @@ export function CameraTrainer({
   // One aria-live region announces the screen-reader-relevant state changes
   // (match / teach progress / unsure / blocked) without forking the visuals.
   const liveMessage = matched
-    ? t("camMatch", lang)
+    ? ownRecordingMatch
+      ? t("camMatchOwn", lang)
+      : t("camMatch", lang)
     : stillTricky
       ? t("camStillTricky", lang)
       : tracker.status === "error"
@@ -618,9 +693,10 @@ export function CameraTrainer({
             <span className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-md md:hidden">
               {t("camHold", lang)}
             </span>
-            {/* desktop: pulsing "Hold steady for 2 seconds" caption */}
+            {/* desktop: pulsing "hold steady" caption — qualitative, no fixed
+                second-count so it can't contradict the ~1.2s time gate (L1). */}
             <p className="hidden animate-pulse text-center font-bold text-gold drop-shadow-md md:block">
-              {pick(lang, "Hold steady for 2 seconds…", "ثبّت يدك ثانيتين…")}
+              {t("camHold", lang)}
             </p>
           </div>
         )}
@@ -667,7 +743,9 @@ export function CameraTrainer({
                   variant="gold"
                   className="mt-3 w-full !py-3"
                   onClick={() => {
-                    consecutive.current = 0;
+                    heldMs.current = 0;
+                    lastHoldTs.current = null;
+                    modelMatchedInHold.current = false;
                     attemptFrames.current = 0;
                     setShowUnsure(false);
                     setMode("grade");
@@ -721,6 +799,13 @@ export function CameraTrainer({
             <p className="animate-rise font-display text-2xl font-extrabold text-paper">
               {t("camMatch", lang)}
             </p>
+            {/* M2: honest sub-line — the dataset model didn't confirm this; the
+                learner's own recording did. Kept celebratory (never-hard-fail). */}
+            {ownRecordingMatch && (
+              <p className="animate-rise -mt-1 max-w-[15rem] text-center font-sans text-[12.5px] font-medium leading-snug text-paper/85">
+                {t("camMatchOwn", lang)}
+              </p>
+            )}
             <div className="animate-rise rounded-2xl border border-line bg-sand px-4 py-2.5 text-center">
               <div className="font-display text-2xl font-extrabold leading-none text-teal">
                 {formatPercent(Math.max(confidence, meter) * 100, lang)}

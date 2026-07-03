@@ -43,7 +43,10 @@ export function CameraPractice({
   const progress = app.progress[profile.id] ?? {};
   const practised = (id: string) => (progress[id]?.masteryLevel ?? 0) >= 1;
 
-  const handleResult = (result: "match" | "selfMark" | "skip") => {
+  const handleResult = (
+    result: "match" | "selfMark" | "skip",
+    meta?: { ownRecording?: boolean },
+  ) => {
     if (result === "skip") {
       // Skip records NOTHING (L5) — consistent with the lesson drills.
       setRound((r) => r + 1);
@@ -56,6 +59,7 @@ export function CameraPractice({
       camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     if (result === "match") {
       celebrate();

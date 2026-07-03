@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   __setSeedsForTest,
+  addSample,
   classifyAgainst,
   isTrained,
   sampleCount,
   trainedClassIds,
+  userTaughtClassIds,
 } from "./knn";
 
 const v0 = (tail = 0) => [...Array(41).fill(0), tail];
@@ -40,5 +42,24 @@ describe("seeds base layer", () => {
   it("rejects an out-of-distribution handshape (the 'instant yes' bug)", () => {
     const wild = Array(42).fill(5); // far from every seed
     expect(classifyAgainst(wild, "alpha-alif").matched).toBe(false);
+  });
+});
+
+describe("user-only taught count (L2)", () => {
+  it("counts only handshapes the learner personally taught, never the bundled seeds", () => {
+    // Two seeded classes exist (beforeEach), but the user has taught nothing yet.
+    // The seeds-inclusive trainedClassIds() reads ≥2 here — the DevMetrics bug.
+    expect(trainedClassIds().length).toBeGreaterThanOrEqual(2);
+    expect(userTaughtClassIds()).toEqual([]);
+
+    // Teach a brand-new word sign with enough samples → it counts.
+    for (let i = 0; i < 6; i++) addSample("word-milk", v0(i / 100));
+    expect(userTaughtClassIds()).toEqual(["word-milk"]);
+
+    // A couple of stray user samples on a SEEDED class don't cross the floor, so
+    // the count stays honest (the seeds themselves never inflate it).
+    addSample("alpha-alif", v0());
+    addSample("alpha-alif", v0());
+    expect(userTaughtClassIds()).toEqual(["word-milk"]);
   });
 });

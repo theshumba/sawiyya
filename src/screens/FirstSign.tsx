@@ -76,13 +76,14 @@ export function FirstSign() {
   if (!sign) return null;
   const lang = profile.language;
 
-  const handleResult = (result: TrainerResult) => {
+  const handleResult = (result: TrainerResult, meta?: { ownRecording?: boolean }) => {
     setResult(result);
     // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
     app.recordDrillResult(sign.id, result === "match" ? "good" : "hard", {
       camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     app.markFirstSignTime(); // time-to-first-sign metric (G1)
     celebrate();

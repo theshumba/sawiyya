@@ -23,6 +23,12 @@ async function fresh() {
   const app = await import("../store/app");
   const engine = await import("./engine");
   const milestones = await import("./milestones");
+  // The bundled seeds are dynamic-imported (M13); the app pulls them in on
+  // camera-screen mount. The simulation grades against the real engine, so load
+  // them the same way — otherwise isTrained() reads empty and letters that should
+  // grade on camera fall back to recall.
+  const seedStore = await import("../recognizer/seedStore");
+  await seedStore.ensureSeeds();
   const pid = app.useApp.getState().createProfile({
     displayName: "Sim",
     role: "parent",

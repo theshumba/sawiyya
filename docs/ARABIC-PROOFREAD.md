@@ -153,3 +153,14 @@ Storage recovery notice (M21):
 ### App (`src/screens/Fingerspell.tsx` — inline pair)
 
 - Practise-along letter count suffix (inline) · "{n} letters" → **{n} حروف**
+
+## Step 4 — Batch 7 (engine hardening)
+
+### App (`src/i18n.ts`)
+
+- `camMatchOwn` (NEW — M2 honest disclosure when a match was confirmed only by the learner's OWN taught samples, not the dataset model) · "Matched your own recording" → **طابَق تسجيلك الخاص**
+  - *Proofread note:* conveys "this matched what YOU recorded", distinct from the celebratory `camMatch` ("✓ وصلت!"). Confirm phrasing / whether **طابَق تسجيلك** (shorter) reads more naturally.
+
+### App (`src/components/CameraTrainer.tsx` — removed literal)
+
+- L1 removed the stale desktop hold caption literal **ثبّت يدك ثانيتين…** ("hold steady two seconds") — the gate is now ~1.2 s, so the caption reuses the already-proofread `camHold` (**ثبّت يدك…**). No new string; noted for completeness.

@@ -403,7 +403,7 @@ function CameraDrill({
     softFailed.current = true;
     recordDrillResult(sign.id, "again", { camera: true, matched: false });
   };
-  const handleResult = (result: TrainerResult) => {
+  const handleResult = (result: TrainerResult, meta?: { ownRecording?: boolean }) => {
     if (result === "skip") {
       // Skip records NOTHING (L5) — skipping is not evidence either way.
       onDone({ xp: 0, scored: false, correct: false });
@@ -415,6 +415,7 @@ function CameraDrill({
       camera: true,
       matched,
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     onDone({
       xp: (matched ? 10 : 4) + (softFailed.current ? 4 : 0),

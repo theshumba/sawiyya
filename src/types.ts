@@ -110,6 +110,9 @@ export interface Metrics {
   drillsCompleted: number;
   cameraAttempts: number;
   cameraMatches: number;
+  /** Subset of cameraMatches confirmed ONLY by the learner's own KNN recording,
+   *  not the dataset MLP — surfaced honestly, tracked separately (M2). */
+  ownRecordingMatches: number;
   selfMarks: number;
   lessonsCompleted: number;
 }
