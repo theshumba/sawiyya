@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { pick, t } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
-import { activeProfile, streakFor, useApp } from "../store/app";
+import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
@@ -45,11 +45,15 @@ export function CameraPractice({
 
   const handleResult = (result: "match" | "selfMark" | "skip") => {
     if (result === "skip") {
+      // Skip records NOTHING (L5) — consistent with the lesson drills.
       setRound((r) => r + 1);
       return;
     }
-    app.recordDrillResult(signId, "good", {
-      camera: result === "match",
+    // Snapshot the due queue BEFORE rating — rating clears this sign's due state.
+    const dueBefore = dueSignIds(useApp.getState(), profile.id);
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    app.recordDrillResult(signId, result === "match" ? "good" : "hard", {
+      camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
     });
@@ -57,8 +61,22 @@ export function CameraPractice({
       celebrate();
       setBurst((b) => b + 1);
     }
-    setTimeout(() => setRound((r) => r + 1), result === "match" ? 600 : 0);
+    // After a match on a DUE sign, advance to the next due gradable sign instead
+    // of remounting the same one forever (H3) — the review actually drains.
+    const next =
+      result === "match" && dueBefore.includes(signId)
+        ? dueBefore.find((id) => id !== signId && signById(id)?.cameraGradable)
+        : undefined;
+    setTimeout(() => {
+      if (next) setSignId(next);
+      setRound((r) => r + 1);
+    }, result === "match" ? 600 : 0);
   };
+
+  // Soft fail (H2): the trainer fires this once per round (it remounts per round),
+  // so a struggling 20s attempt rates 'again' and reschedules sooner with help.
+  const handleSoftFail = () =>
+    app.recordDrillResult(signId, "again", { camera: true, matched: false });
 
   // pick a new target → remount the trainer
   const choose = (id: string) => {
@@ -138,6 +156,7 @@ export function CameraPractice({
           sign={sign}
           lang={lang}
           onResult={handleResult}
+          onSoftFail={handleSoftFail}
           autoStart={autoStart}
         />
       </div>

@@ -20,6 +20,7 @@ export type TrainerResult = "match" | "selfMark" | "skip";
 const HOLD_FRAMES = 24; // consecutive matching frames to confirm (>1 s @20fps — no insta-pass)
 const TEACH_TARGET = 24; // samples recorded in teach mode
 const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
+const SOFT_FAIL_MS = 20_000; // hand-VISIBLE ms without a confirmed match → soft fail (H2)
 
 const HOLD_RING_C = 2 * Math.PI * 36; // hold-to-confirm ring circumference
 
@@ -32,6 +33,7 @@ export function CameraTrainer({
   sign,
   lang,
   onResult,
+  onSoftFail,
   allowSkip = false,
   autoStart = false,
   exerciseLabel,
@@ -39,6 +41,11 @@ export function CameraTrainer({
   sign: Sign;
   lang: Lang;
   onResult: (result: TrainerResult) => void;
+  /** Soft fail (H2): fired ONCE per mount after 20s of hand-visible time with no
+   *  confirmed match — the parent rates the card 'again'. The trainer itself
+   *  shows "Still tricky" + replays the reference demo and lets them retry;
+   *  never a blocking fail screen. */
+  onSoftFail?: () => void;
   allowSkip?: boolean;
   autoStart?: boolean;
   /** Optional "EXERCISE 4 OF 12" progress label shown inside the prompt card
@@ -58,6 +65,7 @@ export function CameraTrainer({
   const [holdProgress, setHoldProgress] = useState(0);
   const [matched, setMatched] = useState(false);
   const [showUnsure, setShowUnsure] = useState(false);
+  const [stillTricky, setStillTricky] = useState(false);
   const [dbg, setDbg] = useState("");
   const lastDbg = useRef("");
 
@@ -66,6 +74,9 @@ export function CameraTrainer({
   const frameSkip = useRef(0);
   const finished = useRef(false);
   const teaching = useRef(false);
+  const visibleMs = useRef(0);
+  const lastSeenTs = useRef<number | null>(null);
+  const softFailFired = useRef(false);
 
   // refs so the per-frame callback never goes stale
   const modeRef = useRef(mode);
@@ -97,6 +108,7 @@ export function CameraTrainer({
       pushConfidence(0);
       pushHold(0);
       consecutive.current = 0;
+      lastSeenTs.current = null; // hand lost — pause the soft-fail clock (H2)
       return;
     }
     const mirror = frame.detectedHand === "Left"; // canonicalise both hands (§6.8)
@@ -120,6 +132,24 @@ export function CameraTrainer({
     // grade mode
     attemptFrames.current += 1;
     if (attemptFrames.current > UNSURE_AFTER_FRAMES) setShowUnsure(true);
+    // Soft fail (H2): 20s of hand-VISIBLE time with no confirmed match → tell the
+    // parent (rates 'again'), replay the reference demo, reset the clock. Once
+    // per mount; only for genuinely gradable signs.
+    if (sign.cameraGradable && !softFailFired.current) {
+      const nowTs = performance.now();
+      if (lastSeenTs.current !== null) {
+        visibleMs.current += Math.min(nowTs - lastSeenTs.current, 250);
+      }
+      lastSeenTs.current = nowTs;
+      if (visibleMs.current >= SOFT_FAIL_MS) {
+        softFailFired.current = true;
+        visibleMs.current = 0;
+        consecutive.current = 0;
+        setStillTricky(true);
+        onSoftFail?.();
+        setTimeout(() => setStillTricky(false), 3400);
+      }
+    }
     // The real engine: for the 28 seeded alphabet letters the trained MLP
     // (ground truth from real signers, ~98.7% held-out) is the primary grader.
     // For teach-mode / un-seeded signs we fall back to the live KNN over the
@@ -440,13 +470,15 @@ export function CameraTrainer({
   // (match / teach progress / unsure / blocked) without forking the visuals.
   const liveMessage = matched
     ? t("camMatch", lang)
-    : tracker.status === "error"
-      ? t("camBlocked", lang)
-      : mode === "teach" && teachPhase === "done"
-        ? t("camTeachDone", lang)
-        : showUnsure
-          ? t("camUnsure", lang)
-          : "";
+    : stillTricky
+      ? t("camStillTricky", lang)
+      : tracker.status === "error"
+        ? t("camBlocked", lang)
+        : mode === "teach" && teachPhase === "done"
+          ? t("camTeachDone", lang)
+          : showUnsure
+            ? t("camUnsure", lang)
+            : "";
 
   return (
     <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(300px,360px)] md:items-start md:gap-8">
@@ -645,6 +677,19 @@ export function CameraTrainer({
                 </Button>
               </>
             )}
+          </div>
+        )}
+
+        {/* soft fail (H2) — "Still tricky" + the reference demo replayed large over
+            the feed for a few seconds, then practice continues. Never blocking. */}
+        {stillTricky && !matched && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-teal-deep/85 p-6 text-center backdrop-blur-sm">
+            <div className="animate-pop-in flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
+              {referenceChip("text-7xl")}
+            </div>
+            <p className="animate-rise font-display text-xl font-extrabold text-paper">
+              {t("camStillTricky", lang)}
+            </p>
           </div>
         )}
 

@@ -2,7 +2,12 @@
 // Rules: mix receptive + productive; camera drills only for static gradable
 // signs; never hard-fail; SRS review items surface inside lessons.
 import type { AppState } from "../store/app";
-import { dueSignIds } from "../store/app";
+import {
+  dueSignIds,
+  reviewsTodayFor,
+  REVIEW_DAILY_CAP,
+  REVIEW_SESSION_SIZE,
+} from "../store/app";
 import { isTrained } from "../recognizer/knn";
 import { lessonById, signById } from "../content/signs";
 import type { DrillSpec } from "../types";
@@ -68,17 +73,25 @@ export function buildDrillQueue(
   return queue;
 }
 
-/** Pseudo-lesson: everything due for review (flag-priority order from dueSignIds). */
+/** Review session (H3 flood spreader): up to 10 cards per session, oldest-due
+ *  first (flagged signs keep their queue-jump from dueSignIds), mixed drill
+ *  types, hard-stopped by the daily soft cap of 30 — beyond it the queue is
+ *  empty and the UI shows "30 done today — the rest will wait for tomorrow". */
 function buildReviewQueue(state: AppState, profileId: string): DrillSpec[] {
+  const profile = state.profiles.find((p) => p.id === profileId);
+  const remaining = profile
+    ? Math.max(0, REVIEW_DAILY_CAP - reviewsTodayFor(profile))
+    : REVIEW_DAILY_CAP;
   return dueSignIds(state, profileId)
-    .slice(0, 10)
-    .map((signId) => {
+    .slice(0, Math.min(REVIEW_SESSION_SIZE, remaining))
+    .map((signId, i) => {
       const sign = signById(signId);
       // productive review via camera when the camera already knows the shape
       if (sign?.cameraGradable && isTrained(signId)) {
         return { type: "camera", signId } satisfies DrillSpec;
       }
-      return { type: "review", signId } satisfies DrillSpec;
+      // receptive mix for the rest: alternate recognise ("review") and recall
+      return { type: i % 2 === 0 ? "review" : "recall", signId } satisfies DrillSpec;
     });
 }
 

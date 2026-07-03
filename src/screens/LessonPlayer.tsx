@@ -6,7 +6,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
-import { activeProfile, streakFor, useApp } from "../store/app";
+import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign } from "../types";
 import { buildChoices, buildDrillQueue } from "../lesson/engine";
@@ -53,7 +53,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // Nothing to do (e.g. a review lesson with no due cards). Instead of bouncing
   // to a blank takeover with no escape, keep the close-to-home chrome and offer a
   // practice-first camera CTA so the screen is never a dead end (§5.1/§5.4).
+  // A review session emptied by the DAILY CAP (cards still due) says so honestly
+  // instead of pretending the queue is clear (H3).
   if (empty) {
+    const capped =
+      lessonId === "review" && dueSignIds(useApp.getState(), profileId).length > 0;
     return (
       <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
         <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center justify-center gap-5 px-6 pb-10 text-center">
@@ -62,10 +66,14 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </span>
           <div className="space-y-1.5">
             <h1 className="font-display text-2xl font-bold text-teal">
-              {pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
+              {capped
+                ? t("reviewCapDone", lang)
+                : pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
             </h1>
             <p className="text-muted">
-              {pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
+              {capped
+                ? pick(lang, "Spacing the load out is how it sticks — see you tomorrow.", "توزيع المراجعة هو سرّ ثباتها — نراك غدًا.")
+                : pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
             </p>
           </div>
           <Button
@@ -386,22 +394,43 @@ function CameraDrill({
   onDone: (o: DrillOutcome) => void;
 }) {
   const { recordDrillResult } = useApp();
+  const softFailed = useRef(false);
+  // Soft fail (H2): 20s hand-visible with no match → rate 'again' so FSRS
+  // reschedules sooner with help; the trainer replays the demo and they retry.
+  const handleSoftFail = () => {
+    softFailed.current = true;
+    recordDrillResult(sign.id, "again", { camera: true, matched: false });
+  };
   const handleResult = (result: TrainerResult) => {
     if (result === "skip") {
-      recordDrillResult(sign.id, "hard");
-      onDone({ xp: 4, scored: false, correct: false });
+      // Skip records NOTHING (L5) — skipping is not evidence either way.
+      onDone({ xp: 0, scored: false, correct: false });
       return;
     }
     const matched = result === "match";
-    recordDrillResult(sign.id, "good", {
-      camera: matched,
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    recordDrillResult(sign.id, matched ? "good" : "hard", {
+      camera: true,
       matched,
       selfMark: result === "selfMark",
     });
-    onDone({ xp: 10, scored: true, correct: true });
+    onDone({
+      xp: (matched ? 10 : 4) + (softFailed.current ? 4 : 0),
+      scored: true,
+      correct: matched,
+    });
   };
   // CameraTrainer owns the full-screen camera-practice chrome (its own design ref).
-  return <CameraTrainer sign={sign} lang={lang} onResult={handleResult} allowSkip autoStart />;
+  return (
+    <CameraTrainer
+      sign={sign}
+      lang={lang}
+      onResult={handleResult}
+      onSoftFail={handleSoftFail}
+      allowSkip
+      autoStart
+    />
+  );
 }
 
 /** recognise: sign → pick meaning · recall: meaning → pick sign. */

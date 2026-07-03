@@ -78,8 +78,9 @@ export function FirstSign() {
 
   const handleResult = (result: TrainerResult) => {
     setResult(result);
-    app.recordDrillResult(sign.id, "good", {
-      camera: result === "match",
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    app.recordDrillResult(sign.id, result === "match" ? "good" : "hard", {
+      camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
     });
@@ -88,6 +89,11 @@ export function FirstSign() {
     setBurst((b) => b + 1);
     setStep("celebrate");
   };
+
+  // Soft fail (H2): rate 'again' so the very first card reschedules with help;
+  // the trainer replays the demo in place — never a blocking fail screen.
+  const handleSoftFail = () =>
+    app.recordDrillResult(sign.id, "again", { camera: true, matched: false });
 
   // "Share this moment" — Web Share where available, silently no-op otherwise.
   const shareMoment = () => {
@@ -130,9 +136,11 @@ export function FirstSign() {
           {/* Fanan celebrate hero (never mirrors) with floating +10 XP + Day-1 streak badges */}
           <div className="fs-hero-float relative flex items-end justify-center">
             <Fanan pose="celebrate" scale={1.2} />
-            {/* +10 XP chip */}
+            {/* XP chip — honest amount: 10 for a camera match, 4 for a self-mark */}
             <div className="extruded-gold animate-rise absolute -end-6 top-2 flex rotate-12 items-center gap-1.5 rounded-2xl bg-gold px-4 py-2">
-              <span className="font-display text-xl font-bold text-teal-deep">+10</span>
+              <span className="font-display text-xl font-bold text-teal-deep">
+                +{toLocaleDigits(result === "match" ? 10 : 4, lang)}
+              </span>
               <span className="font-display text-[10px] font-bold tracking-tight text-teal-deep">
                 {t("xp", lang)}
               </span>
@@ -246,7 +254,7 @@ export function FirstSign() {
             </h1>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("fsLiveSub", lang)}</p>
             <div className="mt-4 w-full flex-1 md:max-w-xl">
-              <CameraTrainer sign={sign} lang={lang} onResult={handleResult} autoStart />
+              <CameraTrainer sign={sign} lang={lang} onResult={handleResult} onSoftFail={handleSoftFail} autoStart />
             </div>
           </div>
         )}
