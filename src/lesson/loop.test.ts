@@ -106,16 +106,25 @@ describe("rating semantics (M3, H2, M4)", () => {
     expect(p.cameraHits).toBeGreaterThanOrEqual(2);
   });
 
-  it("the at:16 unit milestone counts only A1 signs (M4)", async () => {
+  it("the word-unit milestone counts only A1 signs; the alphabet row gates first (M4/H22)", async () => {
     const S = await fresh();
-    // Master 16 alphabet letters — the unit milestone must NOT complete.
+    // Master 16 alphabet letters — the reachable whole-alphabet row gates next.
     const prog: Record<string, { masteryLevel: number; lastSeen: string }> = {};
     for (const l of SEEDED_LETTERS.slice(0, 16))
       prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
     S.useApp.setState((s) => ({ progress: { ...s.progress, [S.pid]: prog } }));
-    const ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
+    let ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
     expect(ms).not.toBeNull();
-    expect(ms!.label).toMatch(/Unit 1/);
+    expect(ms!.label).toMatch(/Whole alphabet/);
+    expect(ms!.progress).toBeCloseTo(16 / 28);
+
+    // Master all 28 — the word-unit row is next, and letters count ZERO toward it.
+    for (const l of SEEDED_LETTERS)
+      prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
+    S.useApp.setState((s) => ({ progress: { ...s.progress, [S.pid]: { ...prog } } }));
+    ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
+    expect(ms).not.toBeNull();
+    expect(ms!.label).toMatch(/word unit/);
     expect(ms!.progress).toBe(0); // zero A1 signs mastered — not 16/16
   });
 });
@@ -141,13 +150,13 @@ describe("review sessions (H3)", () => {
     const q = S.buildDrillQueue("review", S.useApp.getState(), S.pid);
     expect(q.length).toBe(10);
     expect(q.map((d) => d.signId)).toEqual(ids.slice(0, 10)); // oldest due first
-    // letters grade on camera; non-gradable words alternate recognise/recall
+    // letters grade on camera; visual-less words drill as RECALL — they have no
+    // honest stimulus to recognise until signer footage lands (H23)
     for (const d of q) {
       const isLetter = d.signId.startsWith("alpha-");
       if (isLetter) expect(d.type).toBe("camera");
-      else expect(["review", "recall"]).toContain(d.type);
+      else expect(d.type).toBe("recall");
     }
-    expect(q.some((d) => d.type === "review")).toBe(true);
     expect(q.some((d) => d.type === "recall")).toBe(true);
   });
 
