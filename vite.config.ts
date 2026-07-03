@@ -15,7 +15,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      // M14: apple-touch-icon isn't manifest-referenced, so it needs an explicit
+      // includeAssets entry to be copied + precached.
+      includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       workbox: {
         // Precache the app shell + the self-hosted MediaPipe wasm/model (H10) so
         // the recognizer runs OFFLINE FROM INSTALL — zero runtime CDN dependency.
@@ -24,20 +26,11 @@ export default defineConfig({
         // WASM SIMD, so precaching both variants would spend ~9MB of install
         // bandwidth nobody uses — a legacy no-SIMD device does one local fetch on
         // first camera use instead.
+        // L8: fonts are self-hosted now (public/fonts/, precached below via the
+        // woff2 glob) — no more runtime CacheFirst rule for fonts.googleapis.com.
         globPatterns: ["**/*.{js,css,html,svg,png,woff2,wasm,task,json}"],
         globIgnores: ["**/vision_wasm_nosimd_internal.wasm"],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts",
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
       manifest: {
         name: "Sawiyya — Learn to sign, together",
@@ -55,7 +48,10 @@ export default defineConfig({
         icons: [
           { src: "icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          // L9: dedicated full-bleed maskable icon (glyph kept inside the W3C
+          // safe-zone circle) — the "any" PNG has white corners + a tight glyph
+          // that an Android adaptive-icon mask was clipping.
+          { src: "icon-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
     }),
