@@ -76,6 +76,16 @@ Storage recovery notice (M21):
 
 - Notify-me confirmation (shown only after the PostHog event is captured) · "Interest noted ✓" → **سجّلنا اهتمامك ✓**
 
+## Step 1 — Batch 4 core loop (2026-07-03)
+
+### App (`src/i18n.ts` + inline pairs)
+
+- `camStillTricky` (new — 20s soft-fail banner, demo replays) · "Still tricky — let's see it again" → **ما زالت صعبة — لنشاهدها من جديد**
+- `reviewCapDone` (new — daily review cap reached) · "30 done today — the rest will wait for tomorrow" → **أنجزت ٣٠ مراجعة اليوم — والبقية تنتظر حتى الغد**
+- `homeNewLetter` (new — empty-queue new-content offer) · "Learn a new letter" → **تعلّم حرفًا جديدًا**
+- `homeNewLetterSub` (new) · "Nothing due right now — start the next letter" → **لا شيء مستحق الآن — ابدأ الحرف التالي**
+- LessonPlayer capped-review sub (inline) · "Spacing the load out is how it sticks — see you tomorrow." → **توزيع المراجعة هو سرّ ثباتها — نراك غدًا.**
+
 ## Step 0 — Adversarial review fixes (2026-07-03)
 
 ### Landing (`~/Desktop/Projects/sawiyya-landing/index.html`, `data-ar` attributes)
