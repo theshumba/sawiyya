@@ -111,3 +111,45 @@ Storage recovery notice (M21):
 - Hero sub (rewritten — replaces the Batch 1 entry above; the app's first graded content is the alphabet, not ILY) · "Real camera practice from the app — you start with the Arabic alphabet, and your first letter takes about 3 minutes." → **تمرين حقيقي بالكاميرا من التطبيق — تبدأ بالحروف الأبجدية، وحرفك الأول يستغرق نحو ٣ دقائق.**
 - Camera-mock goal (was "الإشارة: أحبّك") · "Sign: Alif" → **الإشارة: ألف**
 - Camera-mock success (was "أحسنت — هذه «أحبّك»!") · "Correct — that's Alif!" → **أحسنت — هذا حرف الألف!**
+
+## Step 3 — Batch 6 alphabet curriculum + fingerspelling (2026-07-03)
+
+### App (`src/content/signs.ts` — curriculum data)
+
+- `UNIT_ALPHA.titleAr` (new — alphabet unit banner) · "The Arabic Alphabet" → **الحروف العربية**
+- `alpha-u1-l1.titleAr` (new lesson title) · "Alif to Kha" → **من الألف إلى الخاء**
+- `alpha-u1-l2.titleAr` (new lesson title) · "Dal to Sad" → **من الدال إلى الصاد**
+- `alpha-u1-l3.titleAr` (new lesson title) · "Dad to Qaf" → **من الضاد إلى القاف**
+- `alpha-u1-l4.titleAr` (new lesson title) · "Kaf to Ya" → **من الكاف إلى الياء**
+
+### App (`src/lesson/milestones.ts` — inline pairs)
+
+- Whole-alphabet milestone (new, at 28) · "Whole alphabet mastered" → **الأبجدية كاملة متقنة**
+- Word-unit milestone (relabelled — the A1 unit is now Unit 2) · "All the word unit mastered" → **كل وحدة الكلمات متقنة**
+
+### App (`src/i18n.ts`)
+
+- `signRealRecording` (new — pill on real signer footage, H23) · "Deaf signer recording" → **تسجيل مُشير أصمّ**
+- `fspTitle` (new — Fingerspell screen) · "Fingerspell" → **التهجئة بالإشارة**
+- `fspSubtitle` (new) · "Type an Arabic word — watch it spelled letter by letter." → **اكتب كلمة عربية — وشاهدها تُتهجّى حرفًا حرفًا.**
+- `fspInputLabel` (new) · "Arabic word" → **كلمة عربية**
+- `fspPlaceholder` (new — Arabic in both langs by design) · **مثال: سلام**
+- `fspEmpty` (new) · "Type a word to begin — try your name." → **اكتب كلمة للبدء — جرّب اسمك.**
+- `fspPlay` (new) · "Play" → **تشغيل**
+- `fspPause` (new) · "Pause" → **إيقاف**
+- `fspSpeed` (new — speed group aria label) · "Speed" → **السرعة**
+- `fspSkippedNote` (new — honest unsignable-characters note) · "We can't fingerspell these characters yet, so they were skipped:" → **لا يمكننا تهجئة هذه الرموز بعد، لذا تجاوزناها:**
+- `fspRefOnly` (new — ة reference-only card) · "Reference only — ة has no camera grading until a signer records it." → **للاطلاع فقط — لا تقييم بالكاميرا لحرف التاء المربوطة حتى يسجّلها مُشير.**
+- `fspPractiseAlong` (new) · "Practise along" → **تدرّب معها**
+- `fspPractiseAlongSub` (new) · "Camera-check each letter of your word" → **تحقّق بالكاميرا من كل حرف في كلمتك**
+- `fspLetterOf` (new — exercise label, {i}/{n} localised digits) · "Letter {i} of {n}" → **الحرف {i} من {n}**
+- `fspDone` (new — practise-along finished) · "You spelled the whole word!" → **تهجّيت الكلمة كاملة!**
+- `fspHomeCard` (new — Home entry card) · "Spell your name" → **تهجَّ اسمك**
+- `fspHomeCardSub` (new) · "Fingerspell any word, letter by letter" → **تهجَّ أي كلمة حرفًا حرفًا**
+- `practiseFingerspell` (new — Practise hub tile) · "Fingerspell" → **التهجئة**
+- `practiseFingerspellSub` (new) · "Spell any word" → **تهجَّ أي كلمة**
+- `practiseWordsSub` (UPDATED — M7 honest count after yes/no became watch-only) · "2 camera · 14 watch" → **٢ بالكاميرا · ١٤ للمشاهدة**
+
+### App (`src/screens/Fingerspell.tsx` — inline pair)
+
+- Practise-along letter count suffix (inline) · "{n} letters" → **{n} حروف**

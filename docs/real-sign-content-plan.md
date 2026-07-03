@@ -76,6 +76,35 @@ unchanged; only the *demonstration* layer becomes real.
 - **Phase 2b:** the **31 alphabet** stills/clips (28 seeded + first ground truth for the 3 edge forms). ~same shoot, batch.
 - **Phase 2c:** expand units with new filmed content as the course grows (Unit 2 list TBD — defined when Batch 6 lands the alphabet curriculum).
 
+## 6b. Unit 2 candidate signs (defined with Batch 6, 2026-07-03 — owner-gated shoot)
+
+The next word unit after "Family & First Words", to be filmed **in the same
+half-day shoot** as Phase 2a/2b and verified as QSL by the signer (same rule:
+nothing ships until the signer records + verifies it). ~14 everyday signs,
+picked for daily family utility:
+
+| # | Gloss (EN) | Gloss (AR) | Why |
+|---|---|---|---|
+| 1 | Water | ماء | most-requested daily need |
+| 2 | Eat / food | أكل | mealtime staple |
+| 3 | Drink | شرب | pairs with water/milk |
+| 4 | Come | تعال | summoning across a room |
+| 5 | Go | اذهب | directions & transitions |
+| 6 | Where? | أين؟ | first question word |
+| 7 | What? | ماذا؟ | second question word |
+| 8 | Wait | انتظر | safety + patience |
+| 9 | Look / watch | انظر | attention-getting |
+| 10 | Home / house | بيت | places vocabulary opener |
+| 11 | School | مدرسة | the child's day |
+| 12 | Play | لعب | connection through play |
+| 13 | Hurt / pain | ألم | health & safety critical |
+| 14 | Bathroom | حمّام | daily-need essential |
+
+Static-handshape candidates among these (if any survive QSL verification as
+truly static) may also become camera-gradable; the rest ship watch-only, same
+as the A1 dynamics. The list is a **proposal for the signer** — they correct,
+replace or re-order it as the QSL expert.
+
 ## 7. Honesty guardrail
 
 Until a sign is filmed, keep the **explicit placeholder** (don't dress an icon up as a real
