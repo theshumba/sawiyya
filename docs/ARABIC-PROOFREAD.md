@@ -75,3 +75,12 @@ Storage recovery notice (M21):
 ### Landing (`~/Desktop/Projects/sawiyya-landing/index.html`, notify-me pills)
 
 - Notify-me confirmation (shown only after the PostHog event is captured) · "Interest noted ✓" → **سجّلنا اهتمامك ✓**
+
+## Step 0 — Adversarial review fixes (2026-07-03)
+
+### Landing (`~/Desktop/Projects/sawiyya-landing/index.html`, `data-ar` attributes)
+
+- Hero showcase pill (was "QSL"/"قطر" — removed the ASL-as-QSL mislabel) · "Live demo" → **عرض مباشر**
+- Hero sub (rewritten — replaces the Batch 1 entry above; the app's first graded content is the alphabet, not ILY) · "Real camera practice from the app — you start with the Arabic alphabet, and your first letter takes about 3 minutes." → **تمرين حقيقي بالكاميرا من التطبيق — تبدأ بالحروف الأبجدية، وحرفك الأول يستغرق نحو ٣ دقائق.**
+- Camera-mock goal (was "الإشارة: أحبّك") · "Sign: Alif" → **الإشارة: ألف**
+- Camera-mock success (was "أحسنت — هذه «أحبّك»!") · "Correct — that's Alif!" → **أحسنت — هذا حرف الألف!**
