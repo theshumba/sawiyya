@@ -350,6 +350,12 @@ function WatchDrill({
           <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
             {pick(lang, sign.hintEn, sign.hintAr)}
           </p>
+          {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+          {sign.tier === "A1" && (
+            <p className="mt-1 text-[11px] italic leading-snug text-muted">
+              {t("a1AslProvenance", lang)}
+            </p>
+          )}
         </div>
       </div>
 
@@ -490,6 +496,13 @@ function ChoiceDrill({
           );
         })}
       </div>
+
+      {/* Honest provenance: recall tiles surface A1 hints, which are ASL-adapted (C3). */}
+      {mode === "recall" && choices.some((id) => signById(id)?.tier === "A1") && (
+        <p className="mx-auto mt-3 w-full max-w-md px-1 text-[11px] italic leading-snug text-muted">
+          {t("a1AslProvenance", lang)}
+        </p>
+      )}
 
       {/* soft feedback band — never a hard fail (PRD §8) */}
       <div aria-live="polite" className="mx-auto w-full max-w-md">
