@@ -63,6 +63,7 @@ describe("persist versioning + rehydrate normalizer (H13)", () => {
     expect(p!.displayName).toBe("Amal");
     expect(p!.xp).toBe(120); // real data survives
     expect(p!.xpToday).toBe(0); // missing key backfilled
+    expect(p!.reviewsToday).toBe(0); // missing key backfilled (H3 cap counter)
     expect(p!.activeDays).toEqual([]); // missing key backfilled
     expect(s.metrics.drillsCompleted).toBe(0); // whole missing object backfilled
     expect(s.progress["p-old-1"].iloveyou.masteryLevel).toBe(3);
