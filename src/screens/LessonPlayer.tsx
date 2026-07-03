@@ -201,6 +201,7 @@ function LessonProgress({
         <div
           className="h-2 flex-1 overflow-hidden rounded-full bg-line"
           role="progressbar"
+          aria-label={pick(lang, "Lesson progress", "تقدّم الدرس")}
           aria-valuenow={Math.round(pct * 100)}
           aria-valuemin={0}
           aria-valuemax={100}

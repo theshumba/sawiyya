@@ -32,11 +32,13 @@
   /* Extruded "pressable" depth — flat top face, hard darker bottom edge.
      Values mirrored from the approved Stitch design (stitch-v2-brand). */
   .extruded-coral {
-    box-shadow: 0 6px 0 0 #b54530;
+    /* H15: face darkened to coral-deep #B54834 — edge one step darker again
+       (matches spring-coral) so the extrusion stays visible. */
+    box-shadow: 0 6px 0 0 #9c3d2c;
   }
   .extruded-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 #b54530;
+    box-shadow: 0 2px 0 0 #9c3d2c;
   }
   .extruded-teal {
     box-shadow: 0 6px 0 0 #0a4f4c;
@@ -75,7 +77,7 @@
     box-shadow: 0 5px 0 #0a4f4c;
   }
   .spring-coral {
-    /* H15: the face is now coral-deep (#c54f3a) — one shade darker so the
+    /* H15: the face is now coral-deep (#B54834) — one shade darker so the
        extruded edge stays visible instead of matching the face exactly. */
     box-shadow: 0 5px 0 #9c3d2c;
   }

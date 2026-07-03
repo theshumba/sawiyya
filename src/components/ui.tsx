@@ -59,7 +59,7 @@ type ButtonSize = "sm" | "md" | "lg";
 // Extruded "pressable" buttons — flat top face + hard darker bottom edge,
 // depressing on :active (mirrored from the approved Stitch design).
 // H15: white-on-coral (DEFAULT #E8654C) measured 3.28:1 — below AA 4.5:1 for
-// text. coral-deep (#C54F3A) holds the same hue at 4.93:1.
+// text. coral-deep (#B54834) holds the same hue at 5.33:1 white / 4.99:1 paper.
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-coral-deep text-white extruded-coral",
   secondary: "bg-teal text-white extruded-teal",

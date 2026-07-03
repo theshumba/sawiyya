@@ -73,7 +73,14 @@ export function Home() {
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const el = currentRef.current;
     const id = window.setTimeout(() => {
-      el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      // Manual centring instead of scrollIntoView: Chromium moves the
+      // sequential-focus starting point to a scrollIntoView target, which made
+      // the first Tab land on the current node instead of the skip link (L13).
+      const r = el.getBoundingClientRect();
+      window.scrollTo({
+        top: window.scrollY + r.top - (window.innerHeight - r.height) / 2,
+        behavior: reduce ? "auto" : "smooth",
+      });
     }, 380);
     return () => window.clearTimeout(id);
   }, []);
@@ -227,7 +234,9 @@ export function Home() {
       ? { font: "700 13px/1.2 Rubik,sans-serif", color: "#16302E", marginTop: 9, textAlign: "center" }
       : {
           font: "500 12px/1.2 'Readex Pro',sans-serif",
-          color: status === "locked" || status === "milestone" ? "#A9B8B5" : "#5C726F",
+          // H15: #A9B8B5 (1.79:1) and #5C726F (4.49:1) both fail AA on sand —
+          // one passing muted tone; the circle treatment still marks locked.
+          color: "#566B68",
           marginTop: 9,
           textAlign: "center",
         };
@@ -249,7 +258,7 @@ export function Home() {
                 {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
               </h1>
-              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.72)", marginTop: 3 }}>
+              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.9)", marginTop: 3 }}>
                 {t("homeGreetSub", lang)}
               </div>
             </div>
@@ -262,13 +271,13 @@ export function Home() {
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
             {stats.map((s, i) => (
-              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.12)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
+              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.08)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
                 {s.marker}
                 <div>
                   <div className="font-display" style={{ fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
                     {s.value}
                   </div>
-                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "rgba(251,247,239,.7)", marginTop: 2 }}>
+                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "#FBF7EF", marginTop: 2 }}>
                     {s.label}
                   </div>
                 </div>
@@ -284,7 +293,7 @@ export function Home() {
           {/* B1 · Unit banner (teal). */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F0C879", textTransform: "uppercase" }}>
+              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F6E3BC", textTransform: "uppercase" }}>
                 {`${t("homeUnit", lang)} ${num(unitIdx + 1, lang)}`}
               </div>
               <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
@@ -308,7 +317,7 @@ export function Home() {
               >
                 <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
                   {isCurrent && (
-                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#E8654C", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #C54F3A", whiteSpace: "nowrap", zIndex: 3 }}>
+                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#B54834", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #9C3D2C", whiteSpace: "nowrap", zIndex: 3 }}>
                       {t("homeStartBadge", lang)}
                     </div>
                   )}

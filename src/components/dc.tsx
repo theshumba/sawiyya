@@ -29,7 +29,7 @@ export type SpringSize = "sm" | "md" | "lg";
 
 /** Fill + deep-tone spring-shadow classes (HANDOFF §Shape). Ghost = flat sand.
  *  H15: paper-on-coral (DEFAULT #E8654C) measured 3.28:1 — below AA 4.5:1;
- *  coral-deep (#C54F3A) holds the same hue at 4.62:1 for paper / 4.93:1 for white. */
+ *  coral-deep (#B54834) holds the same hue at 4.99:1 for paper / 5.33:1 for white. */
 const springFill: Record<SpringVariant, string> = {
   teal: "bg-teal text-paper spring spring-teal",
   coral: "bg-coral-deep text-paper spring spring-coral",

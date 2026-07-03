@@ -42,6 +42,7 @@ function ProgressHeader({ step, lang }: { step: Step; lang: "en" | "ar" }) {
       <div
         className="h-[7px] flex-1 overflow-hidden rounded-full bg-line"
         role="progressbar"
+        aria-label={pick(lang, "First-sign progress", "تقدّم الإشارة الأولى")}
         aria-valuemin={1}
         aria-valuemax={4}
         aria-valuenow={num}

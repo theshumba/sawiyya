@@ -5,7 +5,7 @@
 //
 // Replaces the old BottomNav + every hand-rolled in-screen rail/top-bar, which
 // drifted (same destination, different icons) and caused re-skin regressions.
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import { t } from "../i18n";
 import type { Lang } from "../types";
 import { activeProfile, pinnedFlagSigns, useApp } from "../store/app";
@@ -46,7 +46,15 @@ export function AppNav({ lang }: { lang: Lang }) {
   const [menuOpen, setMenuOpen] = useState(false);
   // H16: focus the menu on open, trap Tab, Escape/backdrop to dismiss,
   // restore focus to the profile button that opened it.
-  const menuRef = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
+  // The menu renders TWICE (mobile bottom bar + desktop rail — CSS hides one),
+  // so each instance needs its own dialog ref: a single shared ref binds to the
+  // last-mounted (desktop) copy, and on mobile that copy is display:none, which
+  // silently no-ops every focus call. The hidden instance's hook is harmless —
+  // focus() on a hidden node does nothing and its Tab trap sees no focusables.
+  // Mobile is declared first to match DOM order (its effect must claim focus
+  // before the hidden desktop instance captures a stale restore target).
+  const menuRefMobile = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
+  const menuRefDesktop = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
 
   const profile = activeProfile(app);
   const requests = profile
@@ -56,7 +64,7 @@ export function AppNav({ lang }: { lang: Lang }) {
   const isActive = (tab: Tab) => tab.active.includes(screen.name);
 
   // shared profile menu (Progress + Settings live here, not in the tab bar)
-  const profileMenu = menuOpen && (
+  const profileMenu = (menuRef: RefObject<HTMLDivElement>) => menuOpen && (
     <>
       <button
         type="button"
@@ -102,7 +110,7 @@ export function AppNav({ lang }: { lang: Lang }) {
     </>
   );
 
-  const profileButton = (
+  const profileButton = (menuRef: RefObject<HTMLDivElement>) => (
     <div className="relative flex flex-col items-center justify-center">
       <button
         type="button"
@@ -120,7 +128,7 @@ export function AppNav({ lang }: { lang: Lang }) {
         )}
         <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>
       </button>
-      {profileMenu}
+      {profileMenu(menuRef)}
     </div>
   );
 
@@ -167,7 +175,7 @@ export function AppNav({ lang }: { lang: Lang }) {
       >
         <div className="mx-auto flex max-w-md items-start justify-around px-2 pb-4 pt-[9px]">
           {TABS.map((tab) => tabButton(tab, false))}
-          {profileButton}
+          {profileButton(menuRefMobile)}
         </div>
       </nav>
 
@@ -183,7 +191,7 @@ export function AppNav({ lang }: { lang: Lang }) {
           </span>
         </div>
         {TABS.map((tab) => tabButton(tab, true))}
-        <div className="mt-auto">{profileButton}</div>
+        <div className="mt-auto">{profileButton(menuRefDesktop)}</div>
       </nav>
     </>
   );

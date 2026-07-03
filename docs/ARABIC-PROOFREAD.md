@@ -166,9 +166,11 @@ Storage recovery notice (M21):
 
 ## Step 5 — Batch 8 a11y & polish (2026-07-03)
 
-### App (`src/i18n.ts`)
+### App (`src/i18n.ts` + inline pairs)
 
-- `skipToContent` (NEW — the only new string this batch; keyboard/screen-reader skip link, first focusable element on every screen) · "Skip to content" → **تخطَّ إلى المحتوى**
+- `skipToContent` (NEW — keyboard/screen-reader skip link, first focusable element on every screen) · "Skip to content" → **تخطَّ إلى المحتوى**
+- LessonPlayer progress-bar aria-label (NEW inline — screen-reader only) · "Lesson progress" → **تقدّم الدرس**
+- FirstSign progress-bar aria-label (NEW inline — screen-reader only) · "First-sign progress" → **تقدّم الإشارة الأولى**
 - `stNoCamTitle` (previously shipped but DEAD — now live UI: the camera-denied/absent fallback, H21) · "No camera? No problem." → **لا كاميرا؟ لا مشكلة.**
 - `stNoCamBody` (same — now live; EN edited "signer demo" → "sign demo" to match the Batch-1 truth rename, AR unchanged) · "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available." → **يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا.**
 - `stBrowseSigns` (same — now live; routes to the dictionary) · "Browse the signs →" → **تصفّح الإشارات ←**

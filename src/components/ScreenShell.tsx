@@ -27,10 +27,16 @@ export function ScreenShell({
   onClose?: () => void;
 }) {
   // Skip link (L13) — first focusable element on every screen; sr-only until
-  // keyboard focus, then a visible pill. Targets the content wrapper below.
+  // keyboard focus, then a visible pill. Explicit focus() because Chrome only
+  // scrolls to a same-page fragment — it doesn't move focus to a tabindex=-1
+  // target — and preventDefault keeps the SPA's URL free of a stray #content.
   const skipLink = (
     <a
       href="#content"
+      onClick={(e) => {
+        e.preventDefault();
+        document.getElementById("content")?.focus();
+      }}
       className="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-teal focus:px-4 focus:py-2 focus:font-bold focus:text-paper focus:outline-none focus:ring-2 focus:ring-gold"
     >
       {t("skipToContent", lang)}

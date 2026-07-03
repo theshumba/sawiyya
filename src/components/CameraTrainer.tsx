@@ -600,20 +600,23 @@ export function CameraTrainer({
           </div>
         </div>
 
-        {/* status pills */}
+        {/* status pills — hidden in the error state: "looking for a hand…"
+            would be dishonest over the H21 no-camera fallback. */}
         <div className="absolute inset-x-3 top-3 z-10 flex items-center justify-between" dir="ltr">
-          <span className="flex items-center gap-1.5 rounded-full bg-teal/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
-            <Icon
-              name="back_hand"
-              fill
-              className={`text-sm leading-none ${tracker.handVisible ? "text-gold" : "text-white/50"}`}
-            />
-            {tracker.status === "loading"
-              ? t("camLoading", lang)
-              : tracker.handVisible
-                ? t("camHandSeen", lang)
-                : t("camLooking", lang)}
-          </span>
+          {tracker.status !== "error" && (
+            <span className="flex items-center gap-1.5 rounded-full bg-teal/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
+              <Icon
+                name="back_hand"
+                fill
+                className={`text-sm leading-none ${tracker.handVisible ? "text-gold" : "text-white/50"}`}
+              />
+              {tracker.status === "loading"
+                ? t("camLoading", lang)
+                : tracker.handVisible
+                  ? t("camHandSeen", lang)
+                  : t("camLooking", lang)}
+            </span>
+          )}
           {tracker.status === "running" && (
             <span className="rounded-lg bg-black/40 px-2 py-1 font-display text-[10px] font-bold text-white/80">
               {toLocaleDigits(tracker.fps, lang)} FPS

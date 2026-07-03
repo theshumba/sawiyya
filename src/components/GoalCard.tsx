@@ -52,6 +52,7 @@ export function GoalCard({
         <div
           className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-ink/10"
           role="progressbar"
+          aria-label={label}
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
