@@ -102,9 +102,10 @@ export function FlagPicker() {
     .map((f) => signById(f.signId))
     .filter((s): s is Sign => Boolean(s));
 
-  const clearAll = () => {
-    flaggedSigns.forEach((s) => app.toggleFlag(s.id, profile.id));
-  };
+  // H7: clearing is scoped to the CALLER's own raised flags — tapping this can
+  // never wipe the Deaf member's curriculum.
+  const clearMine = () => app.clearFlags(profile.id);
+  const flagFor = (signId: string) => flags.find((f) => f.signId === signId);
 
   // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
   const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
@@ -226,6 +227,8 @@ export function FlagPicker() {
             <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3" role="list">
               {signs.map((sign) => {
                 const flagged = flaggedIds.has(sign.id);
+                const flag = flagged ? flagFor(sign.id) : undefined;
+                const iSupport = flag?.supporters.includes(profile.id) ?? false;
                 return (
                   <li key={sign.id}>
                     <button
@@ -275,7 +278,9 @@ export function FlagPicker() {
 
                       {flagged && (
                         <span className="mt-1 text-xs font-semibold text-coral">
-                          {t("famFlagged", lang)}
+                          {/* H7: honest per-role state — a non-raiser's tap on a
+                              flagged sign co-requests, it never unflags. */}
+                          {iSupport ? t("famCoRequested", lang) : t("famFlagged", lang)}
                         </span>
                       )}
                     </button>
@@ -309,10 +314,14 @@ export function FlagPicker() {
                     <li key={s.id}>
                       <button
                         type="button"
+                        // H5: gradable → camera on THIS sign; otherwise its own
+                        // dictionary/watch detail (never a wrong camera target).
                         onClick={() =>
-                          go({ name: "camera", targetSignId: s.cameraGradable ? s.id : undefined })
+                          s.cameraGradable
+                            ? go({ name: "camera", targetSignId: s.id })
+                            : go({ name: "allSigns", signId: s.id })
                         }
-                        aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
+                        aria-label={pick(lang, s.glossEn, s.glossAr)}
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
                         <span aria-hidden="true">
@@ -365,14 +374,19 @@ export function FlagPicker() {
 
               {flaggedSigns.length > 0 && (
                 <div className="space-y-2">
-                  {/* Practice-first: take the family straight into the camera on the
-                      first gradable flagged sign (generic open when none gradable).
-                      B15 · coral spring CTA — "learn it together". */}
+                  {/* Practice-first: straight into the camera on the first gradable
+                      flagged sign; when NONE is gradable, open the first flagged
+                      sign's own watch/dictionary detail (H5 — never a wrong
+                      camera target). B15 · coral spring CTA. */}
                   <SpringButton
                     variant="coral"
                     size="lg"
                     full
-                    onClick={() => go({ name: "camera", targetSignId: firstFlaggedGradable })}
+                    onClick={() =>
+                      firstFlaggedGradable
+                        ? go({ name: "camera", targetSignId: firstFlaggedGradable })
+                        : go({ name: "allSigns", signId: flaggedSigns[0]?.id })
+                    }
                     className="gap-2"
                   >
                     <Icon name="videocam" />
@@ -380,10 +394,10 @@ export function FlagPicker() {
                   </SpringButton>
                   <button
                     type="button"
-                    onClick={clearAll}
+                    onClick={clearMine}
                     className="w-full rounded-2xl py-3 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
                   >
-                    {pick(lang, "Clear all", "مسح الكل")}
+                    {t("famClearMine", lang)}
                   </button>
                 </div>
               )}

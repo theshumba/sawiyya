@@ -104,7 +104,9 @@ export default function App() {
         {screen.name === "family" && <Family />}
         {screen.name === "flagPicker" && <FlagPicker />}
         {screen.name === "progress" && <Progress />}
-        {screen.name === "allSigns" && <AllSigns />}
+        {screen.name === "allSigns" && (
+          <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
+        )}
         {screen.name === "practiseChooser" && <PractiseChooser />}
         {screen.name === "settings" && <Settings />}
         {screen.name === "aiTransparency" && <AiTransparency />}

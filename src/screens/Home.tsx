@@ -365,8 +365,9 @@ export function Home() {
                     >
                       {pick(
                         lang,
-                        `${num(slice.length, lang)} family requests`,
-                        `${num(slice.length, lang)} طلبات العائلة`,
+                        // L7: the real count, not the display slice's capped 3.
+                        `${num(flags.length, lang)} family requests`,
+                        `${num(flags.length, lang)} طلبات العائلة`,
                       )}
                       <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
                     </button>
@@ -376,11 +377,12 @@ export function Home() {
                     requestedBy={by ? `${by.displayName} ${t("homeNeeds", lang)}` : undefined}
                     lang={lang}
                     compact
+                    // H5: camera only when gradable; otherwise the sign's OWN
+                    // dictionary/watch detail — never the generic Alif camera.
                     onClick={() =>
-                      go({
-                        name: "camera",
-                        targetSignId: sign.cameraGradable ? sign.id : undefined,
-                      })
+                      sign.cameraGradable
+                        ? go({ name: "camera", targetSignId: sign.id })
+                        : go({ name: "allSigns", signId: sign.id })
                     }
                   />
                 </section>

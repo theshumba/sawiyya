@@ -13,7 +13,7 @@ export type Screen =
   | { name: "privacy" }
   | { name: "devMetrics" }
   | { name: "firstSign" }
-  | { name: "allSigns" }
+  | { name: "allSigns"; signId?: string }
   | { name: "practiseChooser" };
 
 interface UiState {

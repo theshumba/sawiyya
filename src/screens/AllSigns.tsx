@@ -70,7 +70,7 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
   );
 }
 
-export function AllSigns() {
+export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   const app = useApp();
   const go = useUi((s) => s.go);
   const toggleFlag = useApp((s) => s.toggleFlag);
@@ -81,13 +81,15 @@ export function AllSigns() {
 
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Deep-linkable detail (H5): flagged non-gradable signs land here on their
+  // exact watch/dictionary surface instead of the wrong camera target.
+  const [selectedId, setSelectedId] = useState<string | null>(initialSignId ?? null);
 
   // ── live status off the real stores (mastery / flags / SRS due) ──────────────
   const progress = (profile && app.progress[profile.id]) || {};
   const cards = (profile && app.srs[profile.id]) || {};
   const flaggedIds = useMemo(
-    () => new Set(app.flags.filter((f) => f.active).map((f) => f.signId)),
+    () => new Set(app.flags.filter((f) => f.active && !f.archived).map((f) => f.signId)),
     [app.flags],
   );
 
