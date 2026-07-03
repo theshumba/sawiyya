@@ -6,8 +6,7 @@ import { Fragment, type ReactNode } from "react";
 import { pick, t } from "../i18n";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import type { Lang } from "../types";
-import { Button, Card, Icon } from "../components/ui";
+import { Button, ScreenCard, Icon } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 
 /* ----------------------------------------------------------------- *
@@ -26,7 +25,7 @@ function AiCard({
   body: string;
 }) {
   return (
-    <Card variant="elevated" className="flex h-full flex-col items-center p-6 text-center motion-safe:animate-pop-in">
+    <ScreenCard variant="elevated" className="flex h-full flex-col items-center p-6 text-center motion-safe:animate-pop-in">
       <div className="mb-5 flex h-40 w-40 items-center justify-center md:h-44 md:w-44">
         <img src={img} alt="" className="h-full w-full object-contain" loading="lazy" />
       </div>
@@ -35,7 +34,7 @@ function AiCard({
         {subtitle}
       </h4>
       <p className="mt-3 text-[15px] leading-relaxed text-ink/80">{body}</p>
-    </Card>
+    </ScreenCard>
   );
 }
 
@@ -105,7 +104,9 @@ export function AiTransparency() {
       title={T("How the AI works", "كيف يعمل الذكاء الاصطناعي")}
       onClose={() => go({ name: "settings" })}
     >
-      <main className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8 md:py-12">
+      {/* M17: not <main> — ScreenShell's takeover header already renders the
+          real <h1> from `title`; App.tsx's screen router owns the one <main>. */}
+      <div className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8 md:py-12">
         {/* Intro — one reconciled bilingual heading story */}
         <section className="space-y-4 text-center">
           <span className="font-label inline-block rounded-full border-2 border-gold/30 bg-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-teal-deep">
@@ -179,7 +180,7 @@ export function AiTransparency() {
         </div>
 
         {/* "You're always right" — hero band carrying the ONE dominant CTA. */}
-        <Card
+        <ScreenCard
           variant="elevated"
           className="flex flex-col items-center gap-6 border-4 border-gold p-8 text-center motion-safe:animate-pop-in md:flex-row md:p-8 md:text-start rtl:md:flex-row-reverse"
         >
@@ -198,7 +199,7 @@ export function AiTransparency() {
               </Button>
             </div>
           </div>
-        </Card>
+        </ScreenCard>
 
         {/* Secondary link to the privacy promise (demoted). */}
         <div className="flex justify-center">
@@ -210,7 +211,7 @@ export function AiTransparency() {
             {T("Read the privacy promise", "اقرأ وعد الخصوصية")}
           </button>
         </div>
-      </main>
+      </div>
     </ScreenShell>
   );
 }
@@ -231,7 +232,7 @@ function PrivacyCard({
   iconTone?: "sand" | "gold";
 }) {
   return (
-    <Card variant="elevated" className={`flex flex-col gap-4 p-6 ${className}`}>
+    <ScreenCard variant="elevated" className={`flex flex-col gap-4 p-6 ${className}`}>
       <div
         className={`flex h-16 w-16 items-center justify-center rounded-2xl border-2 ${
           iconTone === "gold" ? "border-gold/20 bg-gold/10 text-gold" : "border-teal/10 bg-sand text-teal"
@@ -240,7 +241,7 @@ function PrivacyCard({
         <Icon name={icon ?? "shield"} fill className="text-4xl" />
       </div>
       {children}
-    </Card>
+    </ScreenCard>
   );
 }
 
@@ -317,8 +318,8 @@ export function Privacy() {
         </div>
       </section>
 
-      {/* Cards */}
-      <main className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8">
+      {/* Cards — M17: not <main>, see the AiTransparency screen above. */}
+      <div className="mx-auto w-full max-w-md space-y-6 px-5 py-8 md:max-w-5xl md:px-8">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <PrivacyCard icon="videocam_off" iconTone="sand">
             <h3 className="font-display text-xl font-bold text-ink">
@@ -345,7 +346,7 @@ export function Privacy() {
           </PrivacyCard>
 
           {/* What we keep on your device — itemised storage detail. */}
-          <Card variant="elevated" className="flex flex-col gap-6 p-6 md:col-span-2 md:flex-row md:items-center md:gap-12">
+          <ScreenCard variant="elevated" className="flex flex-col gap-6 p-6 md:col-span-2 md:flex-row md:items-center md:gap-12">
             <div className="flex-1 space-y-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal/10 bg-sand text-teal">
@@ -379,10 +380,10 @@ export function Privacy() {
                 />
               </ul>
             </div>
-          </Card>
+          </ScreenCard>
 
           {/* Erase everything — the ONE clearly-destructive control. */}
-          <Card variant="flat" className="flex flex-col items-center gap-5 border-4 border-coral/20 p-6 text-center md:col-span-2 md:flex-row md:justify-between md:text-start">
+          <ScreenCard variant="flat" className="flex flex-col items-center gap-5 border-4 border-coral/20 p-6 text-center md:col-span-2 md:flex-row md:justify-between md:text-start">
             <div>
               <h3 className="font-display text-xl font-bold text-ink">{T("Erase everything", "امسح كل شيء")}</h3>
               <p className="mt-1 text-[15px] text-ink/60">
@@ -398,7 +399,7 @@ export function Privacy() {
                 {T("Delete Local Data", "حذف البيانات المحلية")}
               </span>
             </Button>
-          </Card>
+          </ScreenCard>
         </div>
 
         {/* Secondary link (demoted). */}
@@ -412,7 +413,7 @@ export function Privacy() {
             <Icon name="open_in_new" className="text-lg" />
           </button>
         </div>
-      </main>
+      </div>
     </ScreenShell>
   );
 }

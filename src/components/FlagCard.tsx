@@ -5,7 +5,7 @@
 // in via onClick) — this is presentation only.
 import { pick } from "../i18n";
 import type { Lang, Sign } from "../types";
-import { Card, Icon } from "./ui";
+import { ScreenCard, Icon } from "./ui";
 import { SignGlyph } from "./SignGlyph";
 
 export function FlagCard({
@@ -24,7 +24,7 @@ export function FlagCard({
 }) {
   const gloss = pick(lang, sign.glossEn, sign.glossAr);
   return (
-    <Card variant="elevated" onClick={onClick} className="flex items-center gap-4 p-4">
+    <ScreenCard variant="elevated" onClick={onClick} className="flex items-center gap-4 p-4">
       <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sand">
         <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-12 w-12 rounded-lg object-cover" />
       </span>
@@ -38,6 +38,6 @@ export function FlagCard({
       </div>
       {!compact && onClick && <Icon name="videocam" className="text-2xl text-coral" />}
       {compact && <Icon name="arrow_forward" className="text-xl text-teal rtl:rotate-180" />}
-    </Card>
+    </ScreenCard>
   );
 }

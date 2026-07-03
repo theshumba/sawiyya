@@ -3,7 +3,7 @@
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { userTaughtClassIds } from "../recognizer/knn";
-import { Card } from "../components/ui";
+import { ScreenCard } from "../components/ui";
 
 export function DevMetrics() {
   const app = useApp();
@@ -41,14 +41,14 @@ export function DevMetrics() {
         </button>
       </header>
       <p className="mt-1 text-sm text-muted">Local-only counters. Nothing here is transmitted anywhere.</p>
-      <Card className="mt-5 divide-y divide-line">
+      <ScreenCard className="mt-5 divide-y divide-line">
         {rows.map(([label, value]) => (
           <div key={label} className="flex items-center justify-between gap-4 px-4 py-3">
             <span className="text-sm font-medium text-muted">{label}</span>
             <span className="font-display font-bold">{value}</span>
           </div>
         ))}
-      </Card>
+      </ScreenCard>
     </div>
   );
 }

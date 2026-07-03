@@ -147,6 +147,14 @@ own padding via `className`.
 <Card onClick={open} ariaPressed={selected} className="p-4">…</Card>
 ```
 
+> **M25:** `src/components/ui.tsx` also exports `ScreenCard` — a distinct
+> flat/elevated/selected general screen-content card (Home, LessonPlayer,
+> Fingerspell, DevMetrics, InfoPages, FlagCard, GoalCard). It used to be
+> misnamed `Card` there too, which is what "most screens import both" meant;
+> the rename is the whole fix — both card systems stay, now unambiguous.
+> `ui.tsx`'s `Pill` was a true duplicate (identical API, fewer tones) and is
+> gone — it now just re-exports this one.
+
 ### Pill
 
 ```

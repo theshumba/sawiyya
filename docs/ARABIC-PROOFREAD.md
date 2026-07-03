@@ -15,7 +15,6 @@ Format: `location` · EN → **AR**
 - `obCamBody` · "Watch the handshape demo, then sign it back. Fanan checks your handshape live." → **شاهد عرض شكل اليد ثم أعِد الإشارة. يتحقّق فَنَن من إشارتك مباشرة.**
 - `aboutTitle` · "Built to meet the Deaf community as equals" → **بُني للقاء مجتمع الصمّ كأنداد**
 - `aboutCredits` · "The 28-letter alphabet is graded from real signers' hands in the open Zenodo ArSL dataset (CC-BY-4.0) — thank you to everyone who contributed to it. Recordings by Deaf Qatari signers arrive in Phase 2." → **تُقيَّم الحروف الـ٢٨ من أيدي مُشيرين حقيقيين في مجموعة بيانات Zenodo ArSL المفتوحة (CC-BY-4.0) — شكرًا لكل من ساهم فيها. تسجيلات مُشيرين قطريين صُمّ قادمة في المرحلة الثانية.**
-- `famFlagSub` · "Pick the signs your family needs most. They jump to the top of everyone's queue." → **اختر الإشارات التي تحتاجها عائلتك أكثر. ستتصدر قائمة الجميع.**
 - `prLeagueBody` · "Growing together." → **ننمو معًا.**
 - `prLeagueSolo` (new) · "It's just you so far — add family members and you'll grow here together." → **أنت وحدك حتى الآن — أضف أفراد عائلتك لتنموا هنا معًا.**
 - `practiseWordsSub` · "4 camera · 12 watch" → **٤ بالكاميرا · ١٢ للمشاهدة**
@@ -164,3 +163,30 @@ Storage recovery notice (M21):
 ### App (`src/components/CameraTrainer.tsx` — removed literal)
 
 - L1 removed the stale desktop hold caption literal **ثبّت يدك ثانيتين…** ("hold steady two seconds") — the gate is now ~1.2 s, so the caption reuses the already-proofread `camHold` (**ثبّت يدك…**). No new string; noted for completeness.
+
+## Step 5 — Batch 8 a11y & polish (2026-07-03)
+
+### App (`src/i18n.ts`)
+
+- `skipToContent` (NEW — the only new string this batch; keyboard/screen-reader skip link, first focusable element on every screen) · "Skip to content" → **تخطَّ إلى المحتوى**
+- `stNoCamTitle` (previously shipped but DEAD — now live UI: the camera-denied/absent fallback, H21) · "No camera? No problem." → **لا كاميرا؟ لا مشكلة.**
+- `stNoCamBody` (same — now live; EN edited "signer demo" → "sign demo" to match the Batch-1 truth rename, AR unchanged) · "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available." → **يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا.**
+- `stBrowseSigns` (same — now live; routes to the dictionary) · "Browse the signs →" → **تصفّح الإشارات ←**
+
+### Housekeeping (no proofread needed)
+
+- M24 deleted 176 dead i18n keys — none were listed here except `famFlagSub` (Batch 1), which has been pruned from this document.
+- M20/L12 localised the remaining aria-labels and Eastern-Arabic numerals (camera chips, FPS pill, teach counter, reset toast) — all reuse strings already listed above; no new Arabic.
+- Everything else in Batch 8 was visual/behavioural (contrast tokens, focus management, landmarks, fonts) — no string changes.
+
+---
+
+## Handoff — how to review (M29, for Ahmed)
+
+**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, 2026-07-02 → 2026-07-03) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
+
+1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
+2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).
+3. Digits: UI numerals render as Eastern Arabic (٣، ٢٨…) via `toLocaleDigits`; placeholders like `{n}` are substituted at runtime.
+4. RTL: arrows in copy (←) are pre-mirrored; the app mirrors layout automatically. Flag anything that reads backwards in context.
+5. Reply with corrections as `key · current → suggested`; they can be applied in one pass.
