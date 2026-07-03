@@ -54,7 +54,9 @@ const RATING: Record<SrsOutcome, Grade> = {
   easy: Rating.Easy,
 };
 
-/** Rate a card and get its next state. Never-hard-fail: self-marks rate "good". */
+/** Rate a card and get its next state. Never-hard-fail is a UI rule (no blocking
+ *  fail screens) — the SCHEDULER hears the truth: camera match → "good",
+ *  self-mark → "hard", 20s soft fail → "again" (H2). */
 export function rateCard(stored: StoredCard, outcome: SrsOutcome, now = new Date()): StoredCard {
   const result = f.next(toCard(stored), now, RATING[outcome]);
   return toStored(result.card);

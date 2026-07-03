@@ -15,6 +15,10 @@ export interface Profile {
   language: Lang;
   xp: number;
   xpToday: number;
+  /** Reviews (drills on already-due cards) done today — feeds the daily soft cap
+   *  (H3). Like xpToday it resets lazily via lastActiveDay; read through
+   *  reviewsTodayFor. */
+  reviewsToday: number;
   streak: number;
   lastActiveDay: string | null; // YYYY-MM-DD
   activeDays: string[]; // recent active days (cap ~90) — feeds shared streak
@@ -61,6 +65,10 @@ export interface Lesson {
 export interface SignProgress {
   masteryLevel: number; // 0 none · 1 seen · 2 practised · 3 mastered
   lastSeen: string;
+  /** Camera-confirmed successes — mastery 3 requires ≥ 2 (M4). Self-marks and
+   *  watch reps never increment this. Optional: blobs written before this field
+   *  read as 0. */
+  cameraHits?: number;
 }
 
 /** ts-fsrs Card with dates serialised to ISO strings for localStorage. */

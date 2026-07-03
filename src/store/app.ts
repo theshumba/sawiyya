@@ -13,7 +13,14 @@ import type {
   SignProgress,
   StoredCard,
 } from "../types";
+import { ALPHABET } from "../content/signs";
 import { isDue, newStoredCard, rateCard, type SrsOutcome } from "./srs";
+
+/** Daily soft cap on reviews (H3 flood spreader) and per-session card count. */
+export const REVIEW_DAILY_CAP = 30;
+export const REVIEW_SESSION_SIZE = 10;
+/** ts-fsrs State.Review — a card that has graduated out of (re)learning. */
+const FSRS_STATE_REVIEW = 2;
 
 export const GOAL_XP: Record<DailyGoal, number> = {
   casual: 20, // ~3 min
@@ -151,6 +158,7 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           language: pr.language ?? "en",
           xp: finiteOr(pr.xp, 0),
           xpToday: finiteOr(pr.xpToday, 0),
+          reviewsToday: finiteOr(pr.reviewsToday, 0),
           streak: finiteOr(pr.streak, 0),
           lastActiveDay: typeof pr.lastActiveDay === "string" ? pr.lastActiveDay : null,
           activeDays: Array.isArray(pr.activeDays)
@@ -204,6 +212,7 @@ export const useApp = create<AppState>()(
           language,
           xp: 0,
           xpToday: 0,
+          reviewsToday: 0,
           streak: 0,
           lastActiveDay: null,
           activeDays: [],
@@ -232,29 +241,44 @@ export const useApp = create<AppState>()(
         const today = todayKey();
         const yesterday = yesterdayKey();
         set((s) => {
-          // 1. SRS
-          const profileSrs = { ...(s.srs[activeProfileId] ?? {}) };
-          const card = profileSrs[signId] ?? newStoredCard();
-          profileSrs[signId] = rateCard(card, outcome);
+          // 1. SRS — watch drills NEVER rate the card (M3): passive exposure must
+          //    not schedule recall or count as it. Everything else rates; drilling
+          //    an already-due card is by definition a review (feeds the H3 cap).
+          const prevSrs = s.srs[activeProfileId] ?? {};
+          const profileSrs = { ...prevSrs };
+          const wasReview = !opts.watch && !!prevSrs[signId] && isDue(prevSrs[signId]);
+          let ratedCard: StoredCard | null = null;
+          if (!opts.watch) {
+            ratedCard = rateCard(profileSrs[signId] ?? newStoredCard(), outcome);
+            profileSrs[signId] = ratedCard;
+          }
 
-          // 2. Mastery: 1 seen → 2 practised → 3 mastered (3+ *successful* reps)
+          // 2. Mastery: 1 seen → 2 practised → 3 mastered. Level 3 is gated hard
+          //    (M4): FSRS state Review AND stability ≥ 2 days AND ≥ 2 camera-
+          //    confirmed successes — watch reps and self-marks can never farm it.
           const profileProg = { ...(s.progress[activeProfileId] ?? {}) };
-          const prev = profileProg[signId]?.masteryLevel ?? 0;
-          const success = !opts.watch && (outcome === "good" || outcome === "easy");
-          // ts-fsrs `reps` counts every review including "again"/lapses; subtract
-          // lapses so mastery reflects successful recall, not raw attempts (#6).
-          const ratedCard = profileSrs[signId];
-          const successfulReps = ratedCard.reps - ratedCard.lapses;
-          const mastery = opts.watch
-            ? Math.max(prev, 1)
-            : success
-              ? successfulReps >= 3
+          const prevP = profileProg[signId];
+          const prev = prevP?.masteryLevel ?? 0;
+          const cameraHits = (prevP?.cameraHits ?? 0) + (opts.camera && opts.matched ? 1 : 0);
+          const mastered =
+            ratedCard !== null &&
+            ratedCard.state === FSRS_STATE_REVIEW &&
+            ratedCard.stability >= 2 &&
+            cameraHits >= 2;
+          const mastery =
+            opts.watch || outcome === "again"
+              ? Math.max(prev, 1)
+              : mastered
                 ? 3
-                : Math.max(prev, 2)
-              : Math.max(prev, 1);
-          profileProg[signId] = { masteryLevel: mastery, lastSeen: new Date().toISOString() };
+                : Math.max(prev, 2);
+          profileProg[signId] = {
+            masteryLevel: mastery,
+            lastSeen: new Date().toISOString(),
+            cameraHits,
+          };
 
           // 3. XP + streak (no hearts, no punishment — XP even on a miss)
+          const success = !opts.watch && (outcome === "good" || outcome === "easy");
           const xpGain = opts.watch ? 5 : success ? 10 : 4;
           const profiles = s.profiles.map((p) => {
             if (p.id !== activeProfileId) return p;
@@ -271,6 +295,7 @@ export const useApp = create<AppState>()(
               ...p,
               xp: p.xp + xpGain,
               xpToday: newDay ? xpGain : p.xpToday + xpGain,
+              reviewsToday: (newDay ? 0 : p.reviewsToday) + (wasReview ? 1 : 0),
               streak,
               lastActiveDay: today,
               activeDays,
@@ -389,6 +414,26 @@ export function streakFor(p: Profile): number {
   return p.lastActiveDay === todayKey() || p.lastActiveDay === yesterdayKey()
     ? p.streak
     : 0;
+}
+
+/**
+ * Reviews done today, derived at read time like xpToday — the stored counter is
+ * only reset inside recordDrillResult on a new day's first drill, so a fresh
+ * morning reads 0 here even before that reset lands (H3 daily cap).
+ */
+export function reviewsTodayFor(p: Profile): number {
+  return p.lastActiveDay === todayKey() ? p.reviewsToday : 0;
+}
+
+/**
+ * Next new letter to learn when the queue is empty (M5 starvation fix): the
+ * first letter in curriculum order with no SRS card yet for this profile.
+ * ALPHABET is in standard Arabic order — the same order the Step-3 letter
+ * groups follow — and edge forms (not cameraGradable) are skipped.
+ */
+export function nextNewLetterId(s: AppState, profileId: string): string | null {
+  const cards = s.srs[profileId] ?? {};
+  return ALPHABET.find((l) => l.cameraGradable && !cards[l.id])?.id ?? null;
 }
 
 /** Signs flagged by Deaf family members, newest first (PRD §6.7). */
