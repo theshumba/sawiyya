@@ -15,7 +15,8 @@ import { HandSkeleton } from "./HandSkeleton";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
 import { Fanan, type FananPose } from "./Fanan";
-import { formatPercent } from "./dc";
+import { formatPercent, toLocaleDigits } from "./dc";
+import { useUi } from "../store/ui";
 
 export type TrainerResult = "match" | "selfMark" | "skip";
 
@@ -254,6 +255,7 @@ export function CameraTrainer({
   };
 
   const tracker = useHandTracker(onFrame);
+  const { go } = useUi();
 
   // auto-start camera when asked (lesson flow) — browsers allow this after a tap navigation
   useEffect(() => {
@@ -384,7 +386,7 @@ export function CameraTrainer({
             "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)",
         }}
       >
-        <span className="absolute inset-inline-start-3 top-3 rounded-lg bg-black/30 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
+        <span className="absolute start-3 top-3 rounded-lg bg-black/30 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
           ● {t("loopSignerCap", lang)}
         </span>
         <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
@@ -469,6 +471,7 @@ export function CameraTrainer({
           <div
             className="h-[13px] w-full overflow-hidden rounded-full bg-line"
             role="progressbar"
+            aria-label={holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}
             aria-valuenow={Math.round(meter * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -501,12 +504,12 @@ export function CameraTrainer({
               <Icon name="check_circle" className="text-base leading-none" />
               {t("camSelfMark", lang)}
             </span>
-            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-teal/50">
+            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-teal">
               {t("camSelfMarkSub", lang)}
             </span>
           </Button>
           {allowSkip && (
-            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal/60">
+            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal">
               {t("camSkip", lang)}
             </Button>
           )}
@@ -540,7 +543,10 @@ export function CameraTrainer({
   );
 
   // One aria-live region announces the screen-reader-relevant state changes
-  // (match / teach progress / unsure / blocked) without forking the visuals.
+  // (match / teach progress / unsure / blocked / hand visibility) without
+  // forking the visuals (M19). Hand-visibility only re-fires on an actual
+  // flip (pushed via setHandVisibleIfChanged in useHandTracker), so this
+  // can't spam a screen reader every frame.
   const liveMessage = matched
     ? ownRecordingMatch
       ? t("camMatchOwn", lang)
@@ -548,12 +554,16 @@ export function CameraTrainer({
     : stillTricky
       ? t("camStillTricky", lang)
       : tracker.status === "error"
-        ? t("camBlocked", lang)
+        ? `${t("stNoCamTitle", lang)} ${t("stNoCamBody", lang)}`
         : mode === "teach" && teachPhase === "done"
           ? t("camTeachDone", lang)
           : showUnsure
             ? t("camUnsure", lang)
-            : "";
+            : mode === "grade" && tracker.status === "running"
+              ? tracker.handVisible
+                ? t("camHandSeen", lang)
+                : t("camLooking", lang)
+              : "";
 
   return (
     <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(300px,360px)] md:items-start md:gap-8">
@@ -606,7 +616,7 @@ export function CameraTrainer({
           </span>
           {tracker.status === "running" && (
             <span className="rounded-lg bg-black/40 px-2 py-1 font-display text-[10px] font-bold text-white/80">
-              {tracker.fps} FPS
+              {toLocaleDigits(tracker.fps, lang)} FPS
             </span>
           )}
         </div>
@@ -632,15 +642,37 @@ export function CameraTrainer({
           </div>
         )}
 
-        {/* camera blocked */}
+        {/* H21: camera blocked/absent — the demo-day safety net. Never a dead
+            end and never fake grading (the meter/hold ring below are gated on
+            tracker.status==="running", so they simply can't render here) —
+            instead still show the reference handshape and an honest way
+            forward: watch the demo or browse the full dictionary camera-free. */}
         {tracker.status === "error" && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <Icon name="videocam_off" className="text-5xl leading-none text-white/70" />
-            <p className="font-semibold text-white">{t("camBlocked", lang)}</p>
-            <p className="text-xs text-white/60">{tracker.error}</p>
-            <Button variant="gold" onClick={() => void tracker.start()}>
-              {t("camTryAgain", lang)}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3.5 p-6 text-center">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold/50 bg-white/10 p-2 backdrop-blur-md">
+              {referenceChip("text-5xl")}
+            </div>
+            <div className="max-w-[15rem] space-y-1">
+              <p className="font-display text-lg font-extrabold text-white">{t("stNoCamTitle", lang)}</p>
+              <p className="text-sm leading-snug text-white/70">{t("stNoCamBody", lang)}</p>
+            </div>
+            <Button variant="gold" onClick={() => go({ name: "allSigns", signId: sign.id })}>
+              {t("stBrowseSigns", lang)}
             </Button>
+            <button
+              type="button"
+              onClick={() => void tracker.start()}
+              className="text-xs font-semibold text-white/60 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              {t("camTryAgain", lang)}
+            </button>
+            {/* L14: the raw browser error string stays behind ?debug — every
+                learner sees the bilingual honest copy above instead. */}
+            {DEBUG && tracker.error && (
+              <p className="max-w-[15rem] font-mono text-[10px] text-white/40" dir="ltr">
+                [{tracker.errorKind}] {tracker.error}
+              </p>
+            )}
           </div>
         )}
 
@@ -720,12 +752,19 @@ export function CameraTrainer({
               <>
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-display font-bold">{t("camTeachHold", lang)}</p>
-                  {/* samples counter chip */}
+                  {/* samples counter chip (M20/L12: Eastern-Arabic digits in ar) */}
                   <span className="shrink-0 rounded-full bg-teal-deep px-2.5 py-1 font-display text-xs font-bold uppercase tracking-wide text-gold">
-                    {captured}/{TEACH_TARGET} {t("camSamples", lang)}
+                    {toLocaleDigits(captured, lang)}/{toLocaleDigits(TEACH_TARGET, lang)} {t("camSamples", lang)}
                   </span>
                 </div>
-                <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-white/20">
+                <div
+                  className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-white/20"
+                  role="progressbar"
+                  aria-label={t("camTeachHold", lang)}
+                  aria-valuenow={captured}
+                  aria-valuemin={0}
+                  aria-valuemax={TEACH_TARGET}
+                >
                   <div
                     className="h-full rounded-full bg-gold transition-all"
                     style={{ width: `${(captured / TEACH_TARGET) * 100}%`, boxShadow: "0 0 10px rgba(230,178,76,.6)" }}

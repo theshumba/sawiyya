@@ -51,6 +51,17 @@ function getLandmarker(): Promise<HandLandmarker> {
 }
 
 export type TrackerStatus = "idle" | "loading" | "running" | "error";
+// H21/L14: coarse bucket for the getUserMedia/landmarker failure so the UI can
+// show honest bilingual copy instead of the raw browser error string.
+export type TrackerErrorKind = "denied" | "notfound" | "unreadable" | "other";
+
+function classifyError(e: unknown): TrackerErrorKind {
+  const name = e instanceof DOMException ? e.name : undefined;
+  if (name === "NotAllowedError" || name === "SecurityError") return "denied";
+  if (name === "NotFoundError" || name === "OverconstrainedError") return "notfound";
+  if (name === "NotReadableError" || name === "AbortError") return "unreadable";
+  return "other";
+}
 
 export interface FrameInfo {
   landmarks: LM[];
@@ -67,6 +78,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
 
   const [status, setStatus] = useState<TrackerStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [errorKind, setErrorKind] = useState<TrackerErrorKind | null>(null);
   const [fps, setFps] = useState(0);
   const [handVisible, setHandVisible] = useState(false);
 
@@ -96,6 +108,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
     const cancelled = () => gen !== startGen.current;
     setStatus("loading");
     setError(null);
+    setErrorKind(null);
     try {
       const landmarker = await getLandmarker();
       if (cancelled()) return;
@@ -150,6 +163,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
         setHandVisibleIfChanged(false);
         setStatus("error");
         setError(e instanceof Error ? e.message : String(e));
+        setErrorKind(classifyError(e));
       };
 
       const loop = (t: number) => {
@@ -204,11 +218,12 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
         running.current = false; // allow retry after a failed start
         setStatus("error");
         setError(e instanceof Error ? e.message : String(e));
+        setErrorKind(classifyError(e));
       }
     }
   }, []);
 
   useEffect(() => stop, [stop]);
 
-  return { videoRef, canvasRef, status, error, fps, handVisible, start, stop };
+  return { videoRef, canvasRef, status, error, errorKind, fps, handVisible, start, stop };
 }
