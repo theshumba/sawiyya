@@ -11,6 +11,7 @@ import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign } from "../types";
 import { buildChoices, buildDrillQueue } from "../lesson/engine";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
+import { HandSkeleton, hasHandShape } from "../components/HandSkeleton";
 import { Confetti, celebrate } from "../components/Confetti";
 import { SignDemo } from "../components/SignDemo";
 import { SignGlyph } from "../components/SignGlyph";
@@ -286,6 +287,7 @@ function Drill({
           lang={lang}
           mode="recognise"
           review={drill.type === "review"}
+          pool={drill.pool}
           onDone={onDone}
           compact={compact}
         />
@@ -439,6 +441,7 @@ function ChoiceDrill({
   lang,
   mode,
   review = false,
+  pool: poolOverride,
   onDone,
   compact = false,
 }: {
@@ -446,11 +449,15 @@ function ChoiceDrill({
   lang: Lang;
   mode: "recognise" | "recall";
   review?: boolean;
+  /** Distractor pool override (H22 checkpoints) — only letters the learner has
+   *  met may appear as choices. Absent = the sign's whole tier. */
+  pool?: string[];
   onDone: (o: DrillOutcome) => void;
   compact?: boolean;
 }) {
   const { recordDrillResult } = useApp();
-  const pool = (sign.type === "alphabet" ? ALPHABET : A1_SIGNS).map((s) => s.id);
+  const pool =
+    poolOverride ?? (sign.type === "alphabet" ? ALPHABET : A1_SIGNS).map((s) => s.id);
   const [choices] = useState(() => buildChoices(sign.id, pool));
   const [picked, setPicked] = useState<string | null>(null);
   const correct = picked === sign.id;
@@ -697,13 +704,35 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
         className="animate-pop-in flex items-center justify-center overflow-hidden rounded-full bg-paper"
         style={{ width: 104, height: 104, boxShadow: "0 10px 26px rgba(0,0,0,.22)" }}
       >
-        {sign.id === "iloveyou" ? (
+        {sign.media ? (
+          // Real signer footage (H23) — the honest stimulus when it exists.
+          <video
+            src={sign.media.src}
+            poster={sign.media.poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-cover"
+            aria-label={t("lsRecogniseTitle", lang)}
+          />
+        ) : sign.id === "iloveyou" ? (
           // ILY hand illustration (stitch-34) — the AI-generated "signer" photo is retired (C2).
           <img
             src="brand/stitch-34.png"
             alt={t("lsRecogniseTitle", lang)}
             className="h-4/5 w-4/5 object-contain"
           />
+        ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
+          // The HANDSHAPE is the question (H22) — showing the letter glyph here
+          // would print the answer on the stimulus.
+          <span
+            className="flex h-full w-full items-center justify-center p-2"
+            role="img"
+            aria-label={t("lsRecogniseTitle", lang)}
+          >
+            <HandSkeleton signId={sign.id} className="h-full w-full text-teal" />
+          </span>
         ) : sign.type === "alphabet" ? (
           <span
             className="font-display text-[56px] font-bold text-teal"

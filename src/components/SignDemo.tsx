@@ -31,7 +31,21 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
           style={{ background: "radial-gradient(circle at 50% 32%, rgba(255,255,255,.7), transparent 62%)" }}
           aria-hidden="true"
         />
-        {sign.id === "iloveyou" ? (
+        {sign.media ? (
+          // REAL signer footage (H23) — replaces every placeholder the moment the
+          // owner-gated recording drops into signs.ts. Muted loop; replay remounts.
+          <video
+            key={`v-${replayKey}`}
+            src={sign.media.src}
+            poster={sign.media.poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="relative z-10 h-full w-full object-cover"
+            aria-label={gloss}
+          />
+        ) : sign.id === "iloveyou" ? (
           // The ILY hand ILLUSTRATION (stitch-54). The AI-generated "signer" photo
           // (stitch-30) is retired — we never present a generated person as a Deaf signer.
           <img
@@ -84,7 +98,17 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
 
       {/* footnote — honest placeholder (PRD §11). Tag pill + italic line. */}
       {!compact ? (
-        hasHandShape(sign.id) ? (
+        sign.media ? (
+          // Real footage needs no disclaimer — just say plainly what it is (H23).
+          <div className="mt-5 flex flex-col items-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
+              <Icon name="videocam" fill className="text-xs leading-none text-teal" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-teal">
+                {t("signRealRecording", lang)}
+              </span>
+            </span>
+          </div>
+        ) : hasHandShape(sign.id) ? (
           // Honest: this IS real data — the averaged handshape from real signers.
           <div className="mt-5 flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
