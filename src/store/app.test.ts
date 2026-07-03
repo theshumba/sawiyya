@@ -57,7 +57,8 @@ describe("persist versioning + rehydrate normalizer (H13)", () => {
     const s = useApp.getState();
 
     expect(s.onboarded).toBe(true);
-    expect(s.householdName).toBe("Bayt Amal");
+    // (householdName was dead state — deleted in Batch 5 / L7; old blobs still
+    // carrying it are simply ignored.)
     const p = activeProfile(s);
     expect(p).not.toBeNull();
     expect(p!.displayName).toBe("Amal");
