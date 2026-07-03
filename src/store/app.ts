@@ -138,6 +138,57 @@ function finiteOr(n: unknown, fallback: number): number {
   return typeof n === "number" && Number.isFinite(n) ? n : fallback;
 }
 
+// Deep-normalize the nested per-profile maps: a hand-edited or stale import
+// (H8) can carry ANY shape here, and one null card would crash isDue on the
+// Home render path — bricking boot behind the error boundary. Malformed
+// entries are dropped (a dropped card simply resurfaces as new); malformed
+// numbers coerce (an invalid `due` string self-heals to due-now via L16).
+function normalizeProgress(v: unknown): AppState["progress"] {
+  if (!isRecord(v)) return {};
+  const out: AppState["progress"] = {};
+  for (const [pid, signs] of Object.entries(v)) {
+    if (!isRecord(signs)) continue;
+    const clean: Record<string, SignProgress> = {};
+    for (const [sid, sp] of Object.entries(signs)) {
+      if (!isRecord(sp)) continue;
+      const p = sp as Partial<SignProgress>;
+      clean[sid] = {
+        masteryLevel: finiteOr(p.masteryLevel, 0),
+        lastSeen: typeof p.lastSeen === "string" ? p.lastSeen : new Date().toISOString(),
+        cameraHits: finiteOr(p.cameraHits, 0),
+      };
+    }
+    out[pid] = clean;
+  }
+  return out;
+}
+
+function normalizeSrs(v: unknown): AppState["srs"] {
+  if (!isRecord(v)) return {};
+  const out: AppState["srs"] = {};
+  for (const [pid, cards] of Object.entries(v)) {
+    if (!isRecord(cards)) continue;
+    const clean: Record<string, StoredCard> = {};
+    for (const [sid, c] of Object.entries(cards)) {
+      if (!isRecord(c)) continue;
+      const k = c as Partial<StoredCard>;
+      clean[sid] = {
+        due: typeof k.due === "string" ? k.due : new Date().toISOString(),
+        stability: finiteOr(k.stability, 0),
+        difficulty: finiteOr(k.difficulty, 0),
+        elapsed_days: finiteOr(k.elapsed_days, 0),
+        scheduled_days: finiteOr(k.scheduled_days, 0),
+        reps: finiteOr(k.reps, 0),
+        lapses: finiteOr(k.lapses, 0),
+        state: finiteOr(k.state, 0),
+        last_review: typeof k.last_review === "string" ? k.last_review : undefined,
+      };
+    }
+    out[pid] = clean;
+  }
+  return out;
+}
+
 /**
  * Rehydrate normalizer: whatever shape the persisted blob has, the state that
  * reaches the app is complete. Backfills keys added after a blob was written
@@ -178,8 +229,8 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
       typeof p.activeProfileId === "string" && profiles.some((pr) => pr.id === p.activeProfileId)
         ? p.activeProfileId
         : (profiles[0]?.id ?? null),
-    progress: isRecord(p.progress) ? (p.progress as AppState["progress"]) : {},
-    srs: isRecord(p.srs) ? (p.srs as AppState["srs"]) : {},
+    progress: normalizeProgress(p.progress),
+    srs: normalizeSrs(p.srs),
     // Flags written before supporters/archived existed (pre-Batch-5) backfill
     // cleanly; malformed entries are dropped rather than crashing selectors.
     flags: Array.isArray(p.flags)
@@ -439,19 +490,24 @@ export const useApp = create<AppState>()(
             if (!cards[signId]) srs[p.id] = { ...cards, [signId]: newStoredCard() };
           }
 
-          // H6: flagging is the Deaf member's real participation — it counts as
-          // the raiser's active day (streak/day-set), without minting XP.
+          // H6: flagging is the DEAF member's real participation — it counts as
+          // their active day (streak/day-set) without minting XP. Scoped to the
+          // deaf role per the pinned decision: a hearing member must not be able
+          // to farm the household streak by flagging instead of practising.
           const today = todayKey();
           const yesterday = yesterdayKey();
-          const profiles = s.profiles.map((p) => {
-            if (p.id !== byProfileId || p.lastActiveDay === today) return p;
-            return {
-              ...p,
-              streak: p.lastActiveDay === yesterday ? p.streak + 1 : 1,
-              lastActiveDay: today,
-              activeDays: [...p.activeDays, today].slice(-90),
-            };
-          });
+          const profiles =
+            by?.role === "deaf"
+              ? s.profiles.map((p) => {
+                  if (p.id !== byProfileId || p.lastActiveDay === today) return p;
+                  return {
+                    ...p,
+                    streak: p.lastActiveDay === yesterday ? p.streak + 1 : 1,
+                    lastActiveDay: today,
+                    activeDays: [...p.activeDays, today].slice(-90),
+                  };
+                })
+              : s.profiles;
 
           return { flags: [...s.flags, flag], srs, profiles };
         }),
@@ -576,7 +632,14 @@ export function signsAllCanDo(s: AppState): string[] {
     ),
   );
   const [first, ...rest] = sets;
-  return [...first].filter((id) => rest.every((set) => set.has(id)));
+  const mastered = [...first].filter((id) => rest.every((set) => set.has(id)));
+  // M8: a completed (archived) flag "celebrates into the honeycomb" — the
+  // family finished the Deaf member's request. Without this, non-gradable
+  // signs (mastery capped at 2 — no camera confirmation possible) could
+  // archive out of the flag list yet never reach the ≥3 board: the sign
+  // would silently vanish instead of celebrating.
+  const archivedSigns = s.flags.filter((f) => f.archived).map((f) => f.signId);
+  return [...new Set([...mastered, ...archivedSigns])];
 }
 
 /** Household streak: consecutive days (ending today/yesterday) where every

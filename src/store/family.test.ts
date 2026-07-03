@@ -130,7 +130,7 @@ describe("deaf-role exclusions (H6)", () => {
     expect(S.householdStreak(S.useApp.getState())).toBe(1);
   });
 
-  it("flagging counts as the raiser's active day (streak, day-set) without XP", async () => {
+  it("flagging counts as the DEAF raiser's active day (streak, day-set) without XP", async () => {
     const S = await fresh();
     S.useApp.getState().toggleFlag("milk", S.deafId);
     const noor = S.useApp.getState().profiles.find((p) => p.id === S.deafId)!;
@@ -138,6 +138,15 @@ describe("deaf-role exclusions (H6)", () => {
     expect(noor.activeDays).toContain(S.todayKey());
     expect(S.streakFor(noor)).toBe(1);
     expect(noor.xp).toBe(0); // participation, not points
+  });
+
+  it("a HEARING raiser gets no active-day credit from flagging (no streak farming)", async () => {
+    const S = await fresh();
+    S.useApp.getState().toggleFlag("hello", S.amalId);
+    const amal = S.useApp.getState().profiles.find((p) => p.id === S.amalId)!;
+    expect(amal.lastActiveDay).toBeNull();
+    expect(amal.activeDays).toHaveLength(0);
+    expect(S.streakFor(amal)).toBe(0); // hearing members earn days by practising
   });
 });
 
@@ -157,6 +166,9 @@ describe("flag auto-archive (M8)", () => {
     expect(f.archived).toBe(true); // kept in state as history…
     expect(S.activeFlags(S.useApp.getState())).toHaveLength(0); // …out of the queues
     expect(S.pinnedFlagSigns(S.useApp.getState(), S.amalId)).toHaveLength(0);
+    // …and the sign CELEBRATES INTO the honeycomb (pinned M8) even though a
+    // non-gradable sign's mastery caps at 2 — never a silent vanish.
+    expect(S.signsAllCanDo(S.useApp.getState())).toContain("milk");
   });
 
   it("never archives while the raiser is the only household member", async () => {
@@ -205,6 +217,37 @@ describe("household export/import (H8)", () => {
     expect(
       S.parseHouseholdImport(JSON.stringify({ schema: "sawiyya.household.v1", state: [] })).ok,
     ).toBe(false);
+  });
+});
+
+describe("malformed import survives rehydrate (H8 + H13)", () => {
+  it("drops null/garbage nested srs+progress entries instead of crashing isDue at boot", async () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        state: {
+          onboarded: true,
+          profiles: [],
+          activeProfileId: null,
+          // a hand-edited export: valid JSON + schema, hostile nested shapes
+          progress: { "p-x": { hello: null, milk: { masteryLevel: "nine" } }, bad: 7 },
+          srs: { "p-x": { "alpha-alif": null, hello: { due: 42 }, milk: "oops" } },
+          flags: [],
+          metrics: {},
+        },
+        version: 1,
+      }),
+    );
+    vi.resetModules();
+    const app = await import("./app");
+    const s = app.useApp.getState();
+    expect(s.srs["p-x"]["alpha-alif"]).toBeUndefined(); // null card dropped
+    expect(s.srs["p-x"].milk).toBeUndefined(); // string card dropped
+    expect(typeof s.srs["p-x"].hello.due).toBe("string"); // bad due coerced
+    expect(s.progress["p-x"].hello).toBeUndefined();
+    expect(s.progress["p-x"].milk.masteryLevel).toBe(0); // NaN mastery coerced
+    // the Home render path must not throw on this blob
+    expect(() => app.dueSignIds(s, "p-x")).not.toThrow();
   });
 });
 

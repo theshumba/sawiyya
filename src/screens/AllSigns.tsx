@@ -92,6 +92,14 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
     () => new Set(app.flags.filter((f) => f.active && !f.archived).map((f) => f.signId)),
     [app.flags],
   );
+  // H7 honesty for the detail panel's flag control: who is the caller to this flag?
+  const flagRoleOf = (signId: string): FlagRole => {
+    if (!profile) return "none";
+    const f = app.flags.find((x) => x.signId === signId && x.active && !x.archived);
+    if (!f) return "none";
+    if (f.raisedByProfileId === profile.id || profile.role === "deaf") return "owner";
+    return f.supporters.includes(profile.id) ? "supporter" : "other";
+  };
 
   const statusOf = (sign: Sign): Status => {
     const mastery = progress[sign.id]?.masteryLevel ?? 0;
@@ -319,6 +327,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
                   sign={selected}
                   status={statusOf(selected)}
                   flagged={flaggedIds.has(selected.id)}
+                  flagRole={flagRoleOf(selected.id)}
                   lang={lang}
                   rtl={rtl}
                   variant="panel"
@@ -355,6 +364,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
               sign={selected}
               status={statusOf(selected)}
               flagged={flaggedIds.has(selected.id)}
+              flagRole={flagRoleOf(selected.id)}
               lang={lang}
               rtl={rtl}
               variant="sheet"
@@ -482,10 +492,16 @@ function SignCard({
 }
 
 // ── Detail (shared by mobile sheet + desktop panel) ──────────────────────────────
+/** The caller's relationship to this sign's live flag (H7 honesty):
+ *  none = unflagged · owner = can deactivate (raiser or deaf role) ·
+ *  other = can co-request · supporter = already co-requested. */
+type FlagRole = "none" | "owner" | "other" | "supporter";
+
 function DetailPanel({
   sign,
   status,
   flagged,
+  flagRole,
   lang,
   rtl,
   variant,
@@ -497,6 +513,7 @@ function DetailPanel({
   sign: Sign;
   status: Status;
   flagged: boolean;
+  flagRole: FlagRole;
   lang: Lang;
   rtl: boolean;
   variant: "sheet" | "panel";
@@ -510,6 +527,16 @@ function DetailPanel({
   const hint = pick(lang, sign.hintEn, sign.hintAr);
   const isPanel = variant === "panel";
   const tags = categoryTags(sign, lang);
+  // H7: a non-raiser tapping an existing flag CO-REQUESTS (the store never
+  // toggles it off for them) — so the control must say that, not "Remove".
+  const flagLabel =
+    flagRole === "owner"
+      ? pick(lang, "Remove from family list", "أزِل من قائمة العائلة")
+      : flagRole === "supporter"
+        ? t("famCoRequested", lang)
+        : flagRole === "other"
+          ? t("famAskToo", lang)
+          : pick(lang, "Add to family list", "أضِف إلى قائمة العائلة");
 
   // Honest graded/motion signal: teal barber-stripe for camera-graded signs,
   // gold barber-stripe for motion (watch-&-practise) signs (§C · B1).
@@ -545,12 +572,11 @@ function DetailPanel({
         <button
           type="button"
           onClick={onToggleFlag}
-          aria-pressed={flagged}
-          aria-label={
-            flagged
-              ? pick(lang, "Remove from family list", "أزِل من قائمة العائلة")
-              : pick(lang, "Add to family list", "أضِف إلى قائمة العائلة")
-          }
+          // pressed = the CALLER's own engagement (owner/supporter), not the
+          // household's — an "other" member isn't pressed until they co-request.
+          aria-pressed={flagRole === "owner" || flagRole === "supporter"}
+          aria-label={flagLabel}
+          title={flagLabel}
           className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral md:flex ${
             flagged
               ? "border-coral/30 bg-coral/10 text-coral-deep"
@@ -704,7 +730,8 @@ function DetailPanel({
           <button
             type="button"
             onClick={onToggleFlag}
-            aria-pressed={flagged}
+            aria-pressed={flagRole === "owner" || flagRole === "supporter"}
+            aria-label={flagLabel}
             className={`flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
               flagged
                 ? "bg-teal text-white extruded-teal"
@@ -712,7 +739,13 @@ function DetailPanel({
             }`}
           >
             <Icon name="push_pin" fill={flagged} />
-            {flagged ? pick(lang, "Flagged", "محدّدة") : pick(lang, "Flag", "حدّد")}
+            {flagRole === "owner"
+              ? pick(lang, "Flagged", "محدّدة")
+              : flagRole === "supporter"
+                ? t("famCoRequested", lang)
+                : flagRole === "other"
+                  ? t("famAskToo", lang)
+                  : pick(lang, "Flag", "حدّد")}
           </button>
           <SpringButton variant="ghost" size="md" full onClick={handleShare} className="flex-1 gap-2">
             <Icon name="share" />

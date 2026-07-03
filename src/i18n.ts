@@ -199,6 +199,7 @@ const dict = {
   famDataLocal: { en: "Your family's data lives on this device — export it from Settings to move or back it up.", ar: "بيانات عائلتك محفوظة على هذا الجهاز — صدّرها من الإعدادات لنقلها أو نسخها احتياطيًا." },
   famClearMine: { en: "Clear my flags", ar: "مسح إشاراتي" },
   famCoRequested: { en: "You asked for this too", ar: "طلبتها أنت أيضًا" },
+  famAskToo: { en: "Ask for this too", ar: "اطلبها أنت أيضًا" },
   setHousehold: { en: "Household data", ar: "بيانات الأسرة" },
   setExport: { en: "Export household (JSON file)", ar: "تصدير بيانات الأسرة (ملف JSON)" },
   setExportDone: { en: "Saved — keep the file somewhere safe.", ar: "تم الحفظ — احتفظ بالملف في مكان آمن." },

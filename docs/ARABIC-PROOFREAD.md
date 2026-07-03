@@ -93,6 +93,7 @@ Storage recovery notice (M21):
 - `famDataLocal` (new — single-device disclosure, Family + Settings) · "Your family's data lives on this device — export it from Settings to move or back it up." → **بيانات عائلتك محفوظة على هذا الجهاز — صدّرها من الإعدادات لنقلها أو نسخها احتياطيًا.**
 - `famClearMine` (new — H7-scoped clear) · "Clear my flags" → **مسح إشاراتي**
 - `famCoRequested` (new — non-raiser tap on an existing flag) · "You asked for this too" → **طلبتها أنت أيضًا**
+- `famAskToo` (new — dictionary detail co-request affordance) · "Ask for this too" → **اطلبها أنت أيضًا**
 - `setHousehold` (new — Settings group) · "Household data" → **بيانات الأسرة**
 - `setExport` (new) · "Export household (JSON file)" → **تصدير بيانات الأسرة (ملف JSON)**
 - `setExportDone` (new) · "Saved — keep the file somewhere safe." → **تم الحفظ — احتفظ بالملف في مكان آمن.**
