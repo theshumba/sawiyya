@@ -12,9 +12,12 @@ import { num, pick, t } from "../i18n";
 import { signById, LESSONS, UNIT_A1_U1 } from "../content/signs";
 import {
   GOAL_XP,
+  REVIEW_DAILY_CAP,
   activeProfile,
   dueSignIds,
+  nextNewLetterId,
   pinnedFlagSigns,
+  reviewsTodayFor,
   streakFor,
   useApp,
   xpTodayFor,
@@ -85,6 +88,7 @@ export function Home() {
     LESSONS.find((l) => l.signIds.some((id) => (prog[id]?.masteryLevel ?? 0) < 2)) ?? LESSONS[0];
 
   const due = dueSignIds(app, profile.id);
+  const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
   const flags = pinnedFlagSigns(app, profile.id).filter(
     (f) => f.raisedByProfileId !== profile.id,
   );
@@ -383,15 +387,14 @@ export function Home() {
               );
             })()}
 
-          {/* Review-due — routes straight to the camera on the first due sign. */}
-          {due.length > 0 && (
+          {/* Review-due — opens a real review SESSION (10 cards, mixed drills — H3),
+              not a single camera sign. Past the daily cap it becomes an honest
+              "done for today" note instead of an endless queue. */}
+          {due.length > 0 && !reviewCapReached && (
             <Card
               variant="elevated"
               className="flex items-center gap-4 p-5"
-              onClick={() => {
-                const first = due.map(signById).find((s) => s?.cameraGradable)?.id;
-                go({ name: "camera", targetSignId: first });
-              }}
+              onClick={() => go({ name: "lesson", lessonId: "review" })}
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
                 <Icon name="history" className="!text-3xl text-gold-deep" />
@@ -405,9 +408,49 @@ export function Home() {
               <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
             </Card>
           )}
+          {due.length > 0 && reviewCapReached && (
+            <Card variant="elevated" className="flex items-center gap-4 p-5">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
+                <Icon name="task_alt" className="!text-3xl text-teal" />
+              </span>
+              <p className="min-w-0 flex-1 font-display font-bold text-ink">
+                {t("reviewCapDone", lang)}
+              </p>
+            </Card>
+          )}
 
-          {/* Empty state — nothing flagged AND nothing due. */}
-          {flags.length === 0 && due.length === 0 && (
+          {/* Empty queue, goal unmet → inject new content (M5 starvation fix):
+              offer the next letter in curriculum order that has no SRS card. */}
+          {flags.length === 0 &&
+            due.length === 0 &&
+            goalProgress < 1 &&
+            (() => {
+              const letterId = nextNewLetterId(app, profile.id);
+              const letter = letterId ? signById(letterId) : undefined;
+              if (!letter) return null;
+              return (
+                <Card
+                  variant="elevated"
+                  className="flex items-center gap-4 p-5"
+                  onClick={() => go({ name: "camera", targetSignId: letter.id })}
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-extrabold text-teal">
+                    {letter.code}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display font-bold text-ink">{t("homeNewLetter", lang)}</p>
+                    <p className="text-sm text-muted">{t("homeNewLetterSub", lang)}</p>
+                  </div>
+                  <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+                </Card>
+              );
+            })()}
+
+          {/* Empty state — nothing flagged, nothing due, and either the goal is met
+              or every letter already has a card. */}
+          {flags.length === 0 &&
+            due.length === 0 &&
+            (goalProgress >= 1 || !nextNewLetterId(app, profile.id)) && (
             <Card
               variant="elevated"
               className="flex items-center gap-4 p-5"
@@ -484,16 +527,19 @@ export function Home() {
           const btnSh = locked ? "none" : st === "done" ? "0 5px 0 #0A4F4C" : "0 5px 0 #C54F3A";
           const onAction = () => {
             if (st === "current" && openNode.lesson) {
-              // Practice-first: open camera on the lesson's first gradable sign;
-              // fall back to the lesson only when none is gradable.
-              const target = lessonCameraTarget(openNode.lesson);
-              if (target) go({ name: "camera", targetSignId: target });
-              else go({ name: "lesson", lessonId: openNode.lesson.id });
+              // The lesson is the primary path (H1): LessonPlayer mixes watch,
+              // quiz and camera drills via engine.ts, so non-gradable signs can
+              // reach mastery and the path actually completes. The old
+              // practice-first camera route deadlocked Lesson 1 forever; the
+              // camera stays one tap below as the secondary action.
+              go({ name: "lesson", lessonId: openNode.lesson.id });
             } else if (st === "done" && openNode.lesson) {
               go({ name: "camera", targetSignId: lessonCameraTarget(openNode.lesson) });
             }
             setOpenId(null);
           };
+          const cameraTarget =
+            st === "current" && openNode.lesson ? lessonCameraTarget(openNode.lesson) : undefined;
           return (
             <div
               onClick={() => setOpenId(null)}
@@ -535,6 +581,21 @@ export function Home() {
                 >
                   {btnLabel}
                 </button>
+                {/* Secondary: straight to camera practice on the lesson's first
+                    gradable sign (the demoted practice-first route — H1). */}
+                {cameraTarget && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      go({ name: "camera", targetSignId: cameraTarget });
+                      setOpenId(null);
+                    }}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                    style={{ display: "block", width: "100%", marginTop: 10, textAlign: "center", font: "700 14px/1 Rubik,sans-serif", padding: 12, borderRadius: 14, border: "2px solid #0F6E6A", background: "transparent", color: "#0F6E6A", cursor: "pointer" }}
+                  >
+                    {t("practiceCamera", lang)}
+                  </button>
+                )}
               </div>
             </div>
           );
