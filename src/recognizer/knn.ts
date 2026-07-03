@@ -65,6 +65,29 @@ function store(): SampleStore {
   return cache;
 }
 
+// M22: the in-memory cache is only ever written by THIS tab's own save() —
+// another tab's teach session was invisible until a full reload. `storage`
+// only fires in other tabs, so dropping the cache here can't race our own
+// scheduleSave()/save() writes.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORE_KEY || event.key === null) cache = null;
+  });
+}
+
+/** L15: full reset-training wipe. `trainedClassIds()` only surfaces classes
+ *  with ≥4 samples (the credible-KNN floor), so the Settings reset button's
+ *  old per-id loop left partially-taught (<4 sample) classes behind — this
+ *  clears the whole store outright, partial or not. */
+export function clearAll() {
+  cache = {};
+  try {
+    localStorage.removeItem(STORE_KEY);
+  } catch {
+    /* best effort — in-memory cache is already cleared */
+  }
+}
+
 function save() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify(store()));

@@ -13,19 +13,19 @@ import {
   parseHouseholdImport,
 } from "../store/household";
 import { useUi } from "../store/ui";
-import { clearClass, trainedClassIds } from "../recognizer/knn";
+import { clearAll, trainedClassIds } from "../recognizer/knn";
 import type { DailyGoal, Hand, Lang } from "../types";
 import { Icon, Logo } from "../components/ui";
-import { Card, MonoLabel } from "../components/dc";
+import { Card, MonoLabel, toLocaleDigits } from "../components/dc";
 import { Fanan } from "../components/Fanan";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 
 // Grouped section — mono eyebrow above a paper card (0 2px 0 hairline shadow).
-function Group({ title, children }: { title: string; children: React.ReactNode }) {
+function Group({ title, lang, children }: { title: string; lang: Lang; children: React.ReactNode }) {
   return (
     <section>
-      <MonoLabel className="mb-2 block px-1 text-[#94A5A2]">{title}</MonoLabel>
+      <MonoLabel lang={lang} className="mb-2 block px-1 text-muted">{title}</MonoLabel>
       <Card className="overflow-hidden rounded-2xl">{children}</Card>
     </section>
   );
@@ -80,8 +80,12 @@ export function Settings() {
       ),
     );
     if (!ok) return;
-    ids.forEach((id) => clearClass(id));
-    setResetMsg(pick(lang, `Cleared ${ids.length} trained sign(s)`, `تم مسح ${ids.length} إشارة مدرّبة`));
+    // L15: a full wipe, not per-id — trainedClassIds() only counts classes
+    // with ≥4 samples, so a per-id loop over it left partially-taught classes
+    // (1-3 samples) behind despite the "erase all" promise.
+    clearAll();
+    const n = toLocaleDigits(ids.length, lang);
+    setResetMsg(pick(lang, `Cleared ${n} trained sign(s)`, `تم مسح ${n} إشارة مدرّبة`));
     window.setTimeout(() => setResetMsg(null), 3000);
   };
 
@@ -132,7 +136,7 @@ export function Settings() {
 
   const NameField = (
     <div>
-      <label htmlFor="set-name" className="mb-2 block text-xs font-bold uppercase tracking-[0.1em] text-[#94A5A2]">
+      <label htmlFor="set-name" className="mb-2 block text-xs font-bold uppercase tracking-[0.1em] text-muted">
         {pick(lang, "Your name", "اسمك")}
       </label>
       <input
@@ -253,28 +257,28 @@ export function Settings() {
     >
       <div className="mx-auto w-full max-w-xl space-y-1 px-5 pb-16 pt-4 md:px-8">
         {/* ── Account ───────────────────────────────────────────────── */}
-        <Group title={pick(lang, "Account", "الحساب")}>
+        <Group lang={lang} title={pick(lang, "Account", "الحساب")}>
           <Block>{NameField}</Block>
           <ChipRow chip="bg-gold" label={t("setProfiles", lang)} onClick={() => go({ name: "family" })} last />
         </Group>
 
         {/* ── Preferences ──────────────────────────────────────────── */}
         <div className="pt-4">
-          <Group title={pick(lang, "Preferences", "التفضيلات")}>
+          <Group lang={lang} title={pick(lang, "Preferences", "التفضيلات")}>
             <Block>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[#94A5A2]">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
                 {pick(lang, "Language", "اللغة")}
               </p>
               {LanguageToggle}
             </Block>
             <Block>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[#94A5A2]">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
                 {pick(lang, "Signing hand", "يد الإشارة")}
               </p>
               {HandCards}
             </Block>
             <Block last>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-[#94A5A2]">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
                 {pick(lang, "Daily goal", "الهدف اليومي")}
               </p>
               {GoalList}
@@ -284,7 +288,7 @@ export function Settings() {
 
         {/* ── Camera & Privacy ─────────────────────────────────────── */}
         <div className="pt-4">
-          <Group title={pick(lang, "Camera & privacy", "الكاميرا والخصوصية")}>
+          <Group lang={lang} title={pick(lang, "Camera & privacy", "الكاميرا والخصوصية")}>
             <Block>
               <p className="text-[13px] leading-relaxed text-muted">
                 {pick(
@@ -354,7 +358,7 @@ export function Settings() {
         {/* ── Household data (H8) — the whole household lives in this browser's
             storage; export is the backup, import the restore. ─────────── */}
         <div className="pt-4">
-          <Group title={t("setHousehold", lang)}>
+          <Group lang={lang} title={t("setHousehold", lang)}>
             <Block>
               <button
                 type="button"
@@ -427,7 +431,7 @@ export function Settings() {
 
         {/* ── About ────────────────────────────────────────────────── */}
         <div className="pt-4">
-          <Group title={pick(lang, "About", "حول")}>
+          <Group lang={lang} title={pick(lang, "About", "حول")}>
             <ChipRow
               chip="bg-gold"
               label={pick(lang, "Manage profiles", "إدارة الملفات")}
@@ -458,7 +462,7 @@ export function Settings() {
           </div>
 
           <div className="mt-5 rounded-[18px] border border-line bg-paper p-[18px] text-start shadow-[0_2px_0_#EDE3D2]">
-            <MonoLabel className="text-coral">{t("aboutCreditsLbl", lang)}</MonoLabel>
+            <MonoLabel lang={lang} className="text-coral">{t("aboutCreditsLbl", lang)}</MonoLabel>
             <p className="mt-2 text-sm font-medium leading-relaxed text-ink">{t("aboutCredits", lang)}</p>
           </div>
 
@@ -471,14 +475,14 @@ export function Settings() {
               className="flex flex-col items-center gap-2 rounded-2xl p-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/30"
             >
               <Logo size={30} />
-              <span className="text-[11px] font-medium leading-relaxed text-[#94A5A2]">
+              <span className="text-[11px] font-medium leading-relaxed text-muted">
                 {pick(lang, "Sawiyya · v1.0 · سويّة", "سويّة · Sawiyya · v1.0")}
                 <br />
                 {pick(lang, "Together as Equals", "معاً على قدم المساواة")}
               </span>
             </button>
-            <span className="text-[11px] font-medium text-[#94A5A2]">{t("aboutVersion", lang)}</span>
-            <span className="text-[11px] font-medium text-ink/30">
+            <span className="text-[11px] font-medium text-muted">{t("aboutVersion", lang)}</span>
+            <span className="text-[11px] font-medium text-muted">
               {pick(lang, "© 2026 Sawiyya", "© ٢٠٢٦ سويّة")}
             </span>
           </div>
@@ -514,7 +518,7 @@ function ChipRow({
       <span className="flex-1 text-sm font-semibold leading-tight text-ink transition-colors group-hover:text-coral">
         {label}
       </span>
-      {value && <span className="text-xs font-medium text-[#94A5A2]">{value}</span>}
+      {value && <span className="text-xs font-medium text-muted">{value}</span>}
       <Icon
         name="chevron_right"
         className="text-[#C7D0CE] transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"

@@ -557,6 +557,19 @@ export const useApp = create<AppState>()(
   ),
 );
 
+// M22: a second tab's write was last-write-wins over whatever the first tab
+// held in memory — a card rated in tab A vanished the moment tab B's next
+// action re-saved its stale snapshot. `storage` only fires in OTHER tabs (per
+// the spec), so re-reading from localStorage here can't create a self-loop.
+// `event.key === null` covers `localStorage.clear()`.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORE_KEY || event.key === null) {
+      void useApp.persist.rehydrate();
+    }
+  });
+}
+
 // ── selectors ────────────────────────────────────────────────────────────────
 export function activeProfile(s: AppState): Profile | null {
   return s.profiles.find((p) => p.id === s.activeProfileId) ?? null;
