@@ -135,6 +135,9 @@ const dict = {
   back: { en: "Back", ar: "رجوع" },
   close: { en: "Close", ar: "إغلاق" },
   skipToContent: { en: "Skip to content", ar: "تخطَّ إلى المحتوى" },
+  // M16 screen-reader route announcements for screens without a nav/title key
+  srLesson: { en: "Lesson", ar: "الدرس" },
+  srFirstSign: { en: "Your first sign", ar: "إشارتك الأولى" },
   cancel: { en: "Cancel", ar: "إلغاء" },
   save: { en: "Save", ar: "حفظ" },
   xp: { en: "XP", ar: "نقطة" },

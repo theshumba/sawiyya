@@ -71,21 +71,32 @@ function store(): SampleStore {
 // scheduleSave()/save() writes.
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key === STORE_KEY || event.key === null) cache = null;
+    if (event.key !== STORE_KEY && event.key !== null) return;
+    // A pending debounced save means THIS tab holds just-captured samples that
+    // aren't in localStorage yet — dropping the cache now would make the
+    // imminent save() re-serialise the other tab's snapshot and silently lose
+    // them mid-teach. Keep the cache; our write wins (the same last-write-wins
+    // rule as everywhere else in M22).
+    if (saveTimer) return;
+    cache = null;
   });
 }
 
 /** L15: full reset-training wipe. `trainedClassIds()` only surfaces classes
  *  with ≥4 samples (the credible-KNN floor), so the Settings reset button's
  *  old per-id loop left partially-taught (<4 sample) classes behind — this
- *  clears the whole store outright, partial or not. */
-export function clearAll() {
+ *  clears the whole store outright, partial or not.
+ *  Returns how many classes (partial included) were wiped, so the reset toast
+ *  can report the truth instead of the ≥4-sample count. */
+export function clearAll(): number {
+  const wiped = Object.keys(store()).length;
   cache = {};
   try {
     localStorage.removeItem(STORE_KEY);
   } catch {
     /* best effort — in-memory cache is already cleared */
   }
+  return wiped;
 }
 
 function save() {

@@ -13,7 +13,7 @@ import {
   parseHouseholdImport,
 } from "../store/household";
 import { useUi } from "../store/ui";
-import { clearAll, trainedClassIds } from "../recognizer/knn";
+import { clearAll } from "../recognizer/knn";
 import type { DailyGoal, Hand, Lang } from "../types";
 import { Icon, Logo } from "../components/ui";
 import { Card, MonoLabel, toLocaleDigits } from "../components/dc";
@@ -71,7 +71,6 @@ export function Settings() {
   // Live wiring: wipe this device's on-device handshape training (recognizer/knn).
   // Irreversible → confirm dialog first (spec §5.10).
   const resetTraining = () => {
-    const ids = trainedClassIds();
     const ok = window.confirm(
       pick(
         lang,
@@ -82,9 +81,11 @@ export function Settings() {
     if (!ok) return;
     // L15: a full wipe, not per-id — trainedClassIds() only counts classes
     // with ≥4 samples, so a per-id loop over it left partially-taught classes
-    // (1-3 samples) behind despite the "erase all" promise.
-    clearAll();
-    const n = toLocaleDigits(ids.length, lang);
+    // (1-3 samples) behind despite the "erase all" promise. The toast counts
+    // what clearAll() actually wiped (partial classes included) — counting
+    // trainedClassIds() could say "Cleared 0" after erasing real partial
+    // training.
+    const n = toLocaleDigits(clearAll(), lang);
     setResetMsg(pick(lang, `Cleared ${n} trained sign(s)`, `تم مسح ${n} إشارة مدرّبة`));
     window.setTimeout(() => setResetMsg(null), 3000);
   };

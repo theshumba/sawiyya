@@ -39,6 +39,7 @@ const Fingerspell = lazy(() =>
 // every screen to carry a real <h1> (many use the <Title> component instead).
 const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
   home: "navLearn",
+  lesson: "srLesson",
   camera: "navPractise",
   allSigns: "navDictionary",
   family: "navFamily",
@@ -47,6 +48,11 @@ const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
   practiseChooser: "practiseTitle",
   fingerspell: "fspTitle",
   flagPicker: "famFlagTitle",
+  firstSign: "srFirstSign",
+  aiTransparency: "setAi",
+  privacy: "setPrivacy",
+  // devMetrics deliberately unmapped — dev-only English counters screen; a
+  // learner-facing announcement for it would be wrong.
 };
 
 /** Quiet centred loader shown while a lazy screen chunk resolves. */
