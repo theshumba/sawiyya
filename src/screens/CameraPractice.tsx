@@ -5,9 +5,8 @@
 import { useState } from "react";
 import { pick, t } from "../i18n";
 import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import { isTrained } from "../recognizer/knn";
 import { CameraTrainer } from "../components/CameraTrainer";
 import { Confetti, celebrate } from "../components/Confetti";
 import { Icon, Title } from "../components/ui";
@@ -18,7 +17,15 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 
 const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
-export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
+// autoStart: the onboarding alphabet fast-path opens the camera immediately
+// (no extra "Start camera" tap — L20); the browser permission prompt still gates.
+export function CameraPractice({
+  initialSignId,
+  autoStart = false,
+}: {
+  initialSignId?: string;
+  autoStart?: boolean;
+}) {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
@@ -30,23 +37,50 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
   const lang = profile.language;
   const sign = signById(signId);
   if (!sign) return null;
+  // Star chips only for targets THIS profile has practised successfully — the
+  // recognizer's isTrained() counts bundled seeds, which would star all 28
+  // letters for a brand-new user (C6-class fabricated achievement).
+  const progress = app.progress[profile.id] ?? {};
+  const practised = (id: string) => (progress[id]?.masteryLevel ?? 0) >= 1;
 
-  const handleResult = (result: "match" | "selfMark" | "skip") => {
+  const handleResult = (
+    result: "match" | "selfMark" | "skip",
+    meta?: { ownRecording?: boolean },
+  ) => {
     if (result === "skip") {
+      // Skip records NOTHING (L5) — consistent with the lesson drills.
       setRound((r) => r + 1);
       return;
     }
-    app.recordDrillResult(signId, "good", {
-      camera: result === "match",
+    // Snapshot the due queue BEFORE rating — rating clears this sign's due state.
+    const dueBefore = dueSignIds(useApp.getState(), profile.id);
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    app.recordDrillResult(signId, result === "match" ? "good" : "hard", {
+      camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     if (result === "match") {
       celebrate();
       setBurst((b) => b + 1);
     }
-    setTimeout(() => setRound((r) => r + 1), result === "match" ? 600 : 0);
+    // After a match on a DUE sign, advance to the next due gradable sign instead
+    // of remounting the same one forever (H3) — the review actually drains.
+    const next =
+      result === "match" && dueBefore.includes(signId)
+        ? dueBefore.find((id) => id !== signId && signById(id)?.cameraGradable)
+        : undefined;
+    setTimeout(() => {
+      if (next) setSignId(next);
+      setRound((r) => r + 1);
+    }, result === "match" ? 600 : 0);
   };
+
+  // Soft fail (H2): the trainer fires this once per round (it remounts per round),
+  // so a struggling 20s attempt rates 'again' and reschedules sooner with help.
+  const handleSoftFail = () =>
+    app.recordDrillResult(signId, "again", { camera: true, matched: false });
 
   // pick a new target → remount the trainer
   const choose = (id: string) => {
@@ -73,7 +107,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sand px-2.5 py-1.5">
             <span className="h-3.5 w-3.5 rounded-full bg-coral" aria-hidden="true" />
             <span className="font-display text-[13px] font-bold leading-none text-ink">
-              {toLocaleDigits(profile.streak, lang)}
+              {toLocaleDigits(streakFor(profile), lang)}
             </span>
           </span>
         </header>
@@ -86,7 +120,7 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
               <Chip
                 key={s.id}
                 selected={s.id === signId}
-                state={isTrained(s.id) ? "trained" : "idle"}
+                state={practised(s.id) ? "trained" : "idle"}
                 onClick={() => choose(s.id)}
               >
                 {pick(lang, s.glossEn, s.glossAr)}
@@ -100,9 +134,9 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
                 <Chip
                   key={s.id}
                   selected={s.id === signId}
-                  state={isTrained(s.id) ? "trained" : "idle"}
+                  state={practised(s.id) ? "trained" : "idle"}
                   onClick={() => choose(s.id)}
-                  ariaLabel={s.glossEn}
+                  ariaLabel={pick(lang, s.glossEn, s.glossAr)}
                   className="h-12 w-12 px-0 text-xl"
                 >
                   {s.code}
@@ -121,7 +155,14 @@ export function CameraPractice({ initialSignId }: { initialSignId?: string }) {
           />
         </div>
 
-        <CameraTrainer key={`${signId}-${round}`} sign={sign} lang={lang} onResult={handleResult} />
+        <CameraTrainer
+          key={`${signId}-${round}`}
+          sign={sign}
+          lang={lang}
+          onResult={handleResult}
+          onSoftFail={handleSoftFail}
+          autoStart={autoStart}
+        />
       </div>
     </ScreenShell>
   );

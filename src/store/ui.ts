@@ -4,7 +4,7 @@ import { create } from "zustand";
 export type Screen =
   | { name: "home" }
   | { name: "lesson"; lessonId: string; reviewOnly?: boolean }
-  | { name: "camera"; targetSignId?: string }
+  | { name: "camera"; targetSignId?: string; autoStart?: boolean }
   | { name: "family" }
   | { name: "flagPicker" }
   | { name: "progress" }
@@ -13,8 +13,9 @@ export type Screen =
   | { name: "privacy" }
   | { name: "devMetrics" }
   | { name: "firstSign" }
-  | { name: "allSigns" }
-  | { name: "practiseChooser" };
+  | { name: "allSigns"; signId?: string }
+  | { name: "practiseChooser" }
+  | { name: "fingerspell" };
 
 interface UiState {
   screen: Screen;

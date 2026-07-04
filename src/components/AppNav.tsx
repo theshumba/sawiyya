@@ -5,13 +5,14 @@
 //
 // Replaces the old BottomNav + every hand-rolled in-screen rail/top-bar, which
 // drifted (same destination, different icons) and caused re-skin regressions.
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import { t } from "../i18n";
 import type { Lang } from "../types";
 import { activeProfile, pinnedFlagSigns, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Screen } from "../store/ui";
 import { Avatar, Badge, Icon } from "./ui";
+import { useDialog } from "./useDialog";
 
 interface Tab {
   /** screen this tab routes to */
@@ -43,6 +44,17 @@ export function AppNav({ lang }: { lang: Lang }) {
   const screen = useUi((s) => s.screen);
   const go = useUi((s) => s.go);
   const [menuOpen, setMenuOpen] = useState(false);
+  // H16: focus the menu on open, trap Tab, Escape/backdrop to dismiss,
+  // restore focus to the profile button that opened it.
+  // The menu renders TWICE (mobile bottom bar + desktop rail — CSS hides one),
+  // so each instance needs its own dialog ref: a single shared ref binds to the
+  // last-mounted (desktop) copy, and on mobile that copy is display:none, which
+  // silently no-ops every focus call. The hidden instance's hook is harmless —
+  // focus() on a hidden node does nothing and its Tab trap sees no focusables.
+  // Mobile is declared first to match DOM order (its effect must claim focus
+  // before the hidden desktop instance captures a stale restore target).
+  const menuRefMobile = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
+  const menuRefDesktop = useDialog<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
 
   const profile = activeProfile(app);
   const requests = profile
@@ -52,7 +64,7 @@ export function AppNav({ lang }: { lang: Lang }) {
   const isActive = (tab: Tab) => tab.active.includes(screen.name);
 
   // shared profile menu (Progress + Settings live here, not in the tab bar)
-  const profileMenu = menuOpen && (
+  const profileMenu = (menuRef: RefObject<HTMLDivElement>) => menuOpen && (
     <>
       <button
         type="button"
@@ -61,8 +73,11 @@ export function AppNav({ lang }: { lang: Lang }) {
         onClick={() => setMenuOpen(false)}
       />
       <div
+        ref={menuRef}
         role="menu"
-        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
+        aria-label={t("navProfile", lang)}
+        tabIndex={-1}
+        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
       >
         {profile && (
           <div className="flex items-center gap-3 border-b border-line px-4 py-3">
@@ -95,7 +110,7 @@ export function AppNav({ lang }: { lang: Lang }) {
     </>
   );
 
-  const profileButton = (
+  const profileButton = (menuRef: RefObject<HTMLDivElement>) => (
     <div className="relative flex flex-col items-center justify-center">
       <button
         type="button"
@@ -108,20 +123,20 @@ export function AppNav({ lang }: { lang: Lang }) {
         {profile ? <Avatar emoji={profile.emoji} size="sm" /> : <Icon name="account_circle" className="text-2xl text-teal" />}
         {requests > 0 && (
           <span className="absolute end-1 top-0">
-            <Badge count={requests} />
+            <Badge count={requests} lang={lang} />
           </span>
         )}
-        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`}>{t("navProfile", lang)}</span>
+        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>
       </button>
-      {profileMenu}
+      {profileMenu(menuRef)}
     </div>
   );
 
   const tabButton = (tab: Tab, vertical: boolean) => {
     const active = isActive(tab);
     // Icon colour is independent of the label colour on the rail (design Block 5):
-    // active teal, inactive #B8C4C1 (icon) vs #8F9C99 (label).
-    const iconColor = active ? "text-teal" : "text-[#B8C4C1]";
+    // active teal, inactive muted (H15: was #B8C4C1/#8F9C99 — 1.68:1/2.66:1, both AA fails).
+    const iconColor = active ? "text-teal" : "text-muted";
     return (
       <button
         key={tab.name}
@@ -130,7 +145,7 @@ export function AppNav({ lang }: { lang: Lang }) {
         onClick={() => go({ name: tab.name } as Screen)}
         className={`flex min-h-[48px] min-w-[48px] items-center transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
           vertical
-            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-[#8F9C99] hover:bg-teal/5"}`
+            ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-muted hover:bg-teal/5"}`
             : "flex-col justify-center gap-[5px] rounded-2xl px-2 py-1"
         }`}
       >
@@ -142,7 +157,7 @@ export function AppNav({ lang }: { lang: Lang }) {
           className={
             vertical
               ? "leading-none"
-              : `font-display text-[10px] leading-none ${active ? "font-bold text-teal" : "font-medium text-[#8F9C99]"}`
+              : `font-display text-[10px] leading-none ${active ? "font-bold text-teal" : "font-medium text-muted"}`
           }
         >
           {tab.label(lang)}
@@ -160,7 +175,7 @@ export function AppNav({ lang }: { lang: Lang }) {
       >
         <div className="mx-auto flex max-w-md items-start justify-around px-2 pb-4 pt-[9px]">
           {TABS.map((tab) => tabButton(tab, false))}
-          {profileButton}
+          {profileButton(menuRefMobile)}
         </div>
       </nav>
 
@@ -176,7 +191,7 @@ export function AppNav({ lang }: { lang: Lang }) {
           </span>
         </div>
         {TABS.map((tab) => tabButton(tab, true))}
-        <div className="mt-auto">{profileButton}</div>
+        <div className="mt-auto">{profileButton(menuRefDesktop)}</div>
       </nav>
     </>
   );

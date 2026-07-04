@@ -6,9 +6,15 @@
 //   • Everyday QSL signs — teach-mode (gradable subset)
 //   • More dialects — coming soon (no fabricated data, decision #6)
 import { pick, t, num } from "../i18n";
-import { activeProfile, dueSignIds, useApp } from "../store/app";
+import {
+  REVIEW_DAILY_CAP,
+  activeProfile,
+  dueSignIds,
+  reviewsTodayFor,
+  useApp,
+} from "../store/app";
 import { useUi } from "../store/ui";
-import { A1_SIGNS, signById } from "../content/signs";
+import { A1_SIGNS } from "../content/signs";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Icon } from "../components/ui";
@@ -35,7 +41,7 @@ export function PractiseChooser() {
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const due = dueSignIds(app, profile.id);
-  const firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id;
+  const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
 
   return (
     <ScreenShell lang={lang}>
@@ -64,7 +70,7 @@ export function PractiseChooser() {
           <button
             type="button"
             onClick={() => go({ name: "camera", targetSignId: GRADABLE_SIGNS[0]?.id })}
-            className={`${TILE_BASE} bg-coral`}
+            className={`${TILE_BASE} bg-coral-deep`}
           >
             {/* 🤟 handshape — never mirrors */}
             <div className={CHIP} aria-hidden>🤟</div>
@@ -84,12 +90,26 @@ export function PractiseChooser() {
             <div className={TILE_SUB}>{t("practiseFreeCameraSub", lang)}</div>
           </button>
 
-          {/* 4 · Review — only when something is due; straight into the camera on
-              the first due gradable sign (practice-first). */}
-          {due.length > 0 && (
+          {/* 4 · Fingerspell (M6) — spell any word letter by letter */}
+          <button
+            type="button"
+            onClick={() => go({ name: "fingerspell" })}
+            className={`${TILE_BASE} bg-teal-deep`}
+          >
+            {/* spellcheck glyph — never mirrors */}
+            <div className={CHIP} aria-hidden>
+              <Icon name="spellcheck" className="text-2xl leading-none" />
+            </div>
+            <div className={TILE_TITLE}>{t("practiseFingerspell", lang)}</div>
+            <div className={TILE_SUB}>{t("practiseFingerspellSub", lang)}</div>
+          </button>
+
+          {/* 5 · Review — only when something is due AND under the daily cap;
+              opens a real review session (10 cards, mixed drills — H3). */}
+          {due.length > 0 && !reviewCapReached && (
             <button
               type="button"
-              onClick={() => go({ name: "camera", targetSignId: firstDueGradable })}
+              onClick={() => go({ name: "lesson", lessonId: "review" })}
               className={`${TILE_BASE} bg-teal-deep`}
             >
               <div className={CHIP} aria-hidden>↺</div>
@@ -101,11 +121,12 @@ export function PractiseChooser() {
           )}
         </div>
 
-        {/* B3 · Review-due banner — richer honest-review surface (gated by due>0) */}
-        {due.length > 0 && (
+        {/* B3 · Review-due banner — opens the session; past the daily cap it turns
+            into the honest "30 done today" note instead of an endless queue (H3). */}
+        {due.length > 0 && !reviewCapReached && (
           <button
             type="button"
-            onClick={() => go({ name: "camera", targetSignId: firstDueGradable })}
+            onClick={() => go({ name: "lesson", lessonId: "review" })}
             className="mt-[14px] flex w-full items-center gap-3 rounded-[18px] bg-teal p-[15px] text-start shadow-[0_4px_0_#0A4F4C] transition-transform ease-spring duration-200 active:translate-y-[3px] active:shadow-[0_1px_0_#0A4F4C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
           >
             {/* Fanan wave — never mirrors */}
@@ -124,6 +145,14 @@ export function PractiseChooser() {
               {num(due.length, lang)}
             </div>
           </button>
+        )}
+        {due.length > 0 && reviewCapReached && (
+          <div className="mt-[14px] flex w-full items-center gap-3 rounded-[18px] border border-line bg-paper p-[15px]">
+            <Icon name="task_alt" className="shrink-0 text-2xl text-teal" />
+            <p className="min-w-0 flex-1 font-display text-[14px] font-bold leading-[1.25] text-ink">
+              {t("reviewCapDone", lang)}
+            </p>
+          </div>
         )}
 
         {/* B2b · Everyday QSL signs — teach-mode gradable subset (SignGlyph tiles) */}

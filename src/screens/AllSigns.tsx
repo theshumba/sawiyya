@@ -19,6 +19,7 @@ import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
 import { MonoLabel, SpringButton, toLocaleDigits } from "../components/dc";
+import { useDialog } from "../components/useDialog";
 
 type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit1" | "unit2";
 
@@ -70,7 +71,7 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
   );
 }
 
-export function AllSigns() {
+export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   const app = useApp();
   const go = useUi((s) => s.go);
   const toggleFlag = useApp((s) => s.toggleFlag);
@@ -81,15 +82,25 @@ export function AllSigns() {
 
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Deep-linkable detail (H5): flagged non-gradable signs land here on their
+  // exact watch/dictionary surface instead of the wrong camera target.
+  const [selectedId, setSelectedId] = useState<string | null>(initialSignId ?? null);
 
   // ── live status off the real stores (mastery / flags / SRS due) ──────────────
   const progress = (profile && app.progress[profile.id]) || {};
   const cards = (profile && app.srs[profile.id]) || {};
   const flaggedIds = useMemo(
-    () => new Set(app.flags.filter((f) => f.active).map((f) => f.signId)),
+    () => new Set(app.flags.filter((f) => f.active && !f.archived).map((f) => f.signId)),
     [app.flags],
   );
+  // H7 honesty for the detail panel's flag control: who is the caller to this flag?
+  const flagRoleOf = (signId: string): FlagRole => {
+    if (!profile) return "none";
+    const f = app.flags.find((x) => x.signId === signId && x.active && !x.archived);
+    if (!f) return "none";
+    if (f.raisedByProfileId === profile.id || profile.role === "deaf") return "owner";
+    return f.supporters.includes(profile.id) ? "supporter" : "other";
+  };
 
   const statusOf = (sign: Sign): Status => {
     const mastery = progress[sign.id]?.masteryLevel ?? 0;
@@ -127,6 +138,10 @@ export function AllSigns() {
   }, [filter, query, app.progress, app.flags, app.srs, profile?.id]);
 
   const selected = selectedId ? ALL_SIGNS.find((s) => s.id === selectedId) ?? null : null;
+  // H16: focus the mobile bottom-sheet on open, trap Tab, Escape/backdrop to
+  // dismiss, restore focus to the card that opened it. Desktop's docked panel
+  // is inline content, not a floating dialog, so it's untouched.
+  const sheetRef = useDialog<HTMLDivElement>(Boolean(selected), () => setSelectedId(null));
 
   // ── alphabet grid (§B / §5): a dedicated 4-col letter treatment folded into the
   // existing alphabet filter — progress + learned/current/locked cell states. ──────
@@ -156,6 +171,7 @@ export function AllSigns() {
   // to nothing else fights it; falls back silently when no gradable flag exists.
   const flaggedCount = flaggedIds.size;
   const firstGradableFlag = ALL_SIGNS.find((s) => flaggedIds.has(s.id) && s.cameraGradable);
+  const firstFlaggedId = ALL_SIGNS.find((s) => flaggedIds.has(s.id))?.id;
 
   if (!profile) return <NoProfileFallback />;
 
@@ -165,8 +181,8 @@ export function AllSigns() {
         {/* ── Page header: title + search (search reclaims the old Home-btn space) ── */}
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
           <div className="min-w-0">
-            <Title>{pick(lang, "Sign Dictionary", "القاموس")}</Title>
-            <p className="mt-1 font-sans text-sm font-semibold text-ink/60">
+            <Title as="h1">{pick(lang, "Sign Dictionary", "القاموس")}</Title>
+            <p className="mt-1 font-sans text-sm font-semibold text-ink/70">
               {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
             </p>
           </div>
@@ -175,10 +191,11 @@ export function AllSigns() {
           </div>
         </header>
 
-        {/* ── Filter chips (live only) ──────────────────────────────────────────── */}
+        {/* ── Filter chips (live only, L11: role="group" — these are filters, not
+            tabs with an associated tabpanel/keyboard arrow-nav) ─────────────── */}
         <div
           className="no-scrollbar -mx-5 mb-6 flex items-center gap-[7px] overflow-x-auto px-5 pb-1 md:mx-0 md:px-0"
-          role="tablist"
+          role="group"
           aria-label={pick(lang, "Filter signs", "تصفية الإشارات")}
         >
           {FILTERS.map((f) => {
@@ -187,8 +204,7 @@ export function AllSigns() {
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 aria-label={pick(lang, f.en, f.ar)}
                 onClick={() => setFilter(f.id)}
                 style={active ? { boxShadow: "0 3px 0 #0A4F4C" } : undefined}
@@ -198,7 +214,7 @@ export function AllSigns() {
               >
                 {pick(lang, f.en, f.ar)}
                 {f.id === "learned" && learnedCount > 0 ? (
-                  <span className={active ? "text-paper/70" : "text-teal/60"}>
+                  <span className={active ? "text-paper/70" : "text-teal"}>
                     {" · "}
                     {toLocaleDigits(learnedCount, lang)}
                   </span>
@@ -214,9 +230,15 @@ export function AllSigns() {
             variant="teal"
             size="lg"
             full
-            // Target the first gradable flagged sign; when none is gradable, still
-            // open the camera (generic) so flagged-but-non-gradable isn't a dead end.
-            onClick={() => (firstGradableFlag ? practiceSign(firstGradableFlag) : go({ name: "camera" }))}
+            // Target the first gradable flagged sign; when none is gradable open
+            // the first flagged sign's OWN detail (watch surface) — the old
+            // generic-camera fallback dropped learners onto Alif, the wrong
+            // sign entirely (H5).
+            onClick={() =>
+              firstGradableFlag
+                ? practiceSign(firstGradableFlag)
+                : setSelectedId(firstFlaggedId ?? null)
+            }
             className="mb-6 gap-3"
           >
             <Icon name="videocam" className="text-2xl" />
@@ -317,6 +339,7 @@ export function AllSigns() {
                   sign={selected}
                   status={statusOf(selected)}
                   flagged={flaggedIds.has(selected.id)}
+                  flagRole={flagRoleOf(selected.id)}
                   lang={lang}
                   rtl={rtl}
                   variant="panel"
@@ -347,12 +370,20 @@ export function AllSigns() {
             onClick={() => setSelectedId(null)}
             className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm"
           />
-          <div className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift">
+          <div
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={pick(lang, selected.glossEn, selected.glossAr)}
+            tabIndex={-1}
+            className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none"
+          >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink/10" aria-hidden="true" />
             <DetailPanel
               sign={selected}
               status={statusOf(selected)}
               flagged={flaggedIds.has(selected.id)}
+              flagRole={flagRoleOf(selected.id)}
               lang={lang}
               rtl={rtl}
               variant="sheet"
@@ -382,7 +413,7 @@ function SearchInput({
     <div className="relative">
       <Icon
         name="search"
-        className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal/60"
+        className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal"
       />
       <input
         type="search"
@@ -470,7 +501,7 @@ function SignCard({
       </div>
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
-        <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
+        <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
       </p>
       <p className={`text-[11px] font-bold uppercase tracking-widest md:text-xs ${meta.tone}`}>
         {pick(lang, meta.en, meta.ar)}
@@ -480,10 +511,16 @@ function SignCard({
 }
 
 // ── Detail (shared by mobile sheet + desktop panel) ──────────────────────────────
+/** The caller's relationship to this sign's live flag (H7 honesty):
+ *  none = unflagged · owner = can deactivate (raiser or deaf role) ·
+ *  other = can co-request · supporter = already co-requested. */
+type FlagRole = "none" | "owner" | "other" | "supporter";
+
 function DetailPanel({
   sign,
   status,
   flagged,
+  flagRole,
   lang,
   rtl,
   variant,
@@ -495,6 +532,7 @@ function DetailPanel({
   sign: Sign;
   status: Status;
   flagged: boolean;
+  flagRole: FlagRole;
   lang: Lang;
   rtl: boolean;
   variant: "sheet" | "panel";
@@ -508,6 +546,16 @@ function DetailPanel({
   const hint = pick(lang, sign.hintEn, sign.hintAr);
   const isPanel = variant === "panel";
   const tags = categoryTags(sign, lang);
+  // H7: a non-raiser tapping an existing flag CO-REQUESTS (the store never
+  // toggles it off for them) — so the control must say that, not "Remove".
+  const flagLabel =
+    flagRole === "owner"
+      ? pick(lang, "Remove from family list", "أزِل من قائمة العائلة")
+      : flagRole === "supporter"
+        ? t("famCoRequested", lang)
+        : flagRole === "other"
+          ? t("famAskToo", lang)
+          : pick(lang, "Add to family list", "أضِف إلى قائمة العائلة");
 
   // Honest graded/motion signal: teal barber-stripe for camera-graded signs,
   // gold barber-stripe for motion (watch-&-practise) signs (§C · B1).
@@ -543,12 +591,11 @@ function DetailPanel({
         <button
           type="button"
           onClick={onToggleFlag}
-          aria-pressed={flagged}
-          aria-label={
-            flagged
-              ? pick(lang, "Remove from family list", "أزِل من قائمة العائلة")
-              : pick(lang, "Add to family list", "أضِف إلى قائمة العائلة")
-          }
+          // pressed = the CALLER's own engagement (owner/supporter), not the
+          // household's — an "other" member isn't pressed until they co-request.
+          aria-pressed={flagRole === "owner" || flagRole === "supporter"}
+          aria-label={flagLabel}
+          title={flagLabel}
           className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral md:flex ${
             flagged
               ? "border-coral/30 bg-coral/10 text-coral-deep"
@@ -615,7 +662,7 @@ function DetailPanel({
         <div className="flex w-full items-start justify-between gap-3 md:flex-col md:items-center md:gap-3">
           <h2 className="font-display text-2xl font-black text-ink md:text-3xl">
             {title}
-            <span className="text-ink/50"> · {sign.code ? sign.code : sign.glossAr}</span>
+            <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
           </h2>
           <span className="mt-1 shrink-0 md:mt-0">
             <TypeBadge gradable={sign.cameraGradable} lang={lang} />
@@ -641,7 +688,7 @@ function DetailPanel({
 
       {/* how to sign — mono section label + hint block (single honest hint, no fabricated steps) */}
       <div className="mb-6" dir={rtl ? "rtl" : "ltr"}>
-        <MonoLabel className="flex items-center gap-2 text-teal">
+        <MonoLabel lang={lang} className="flex items-center gap-2 text-teal">
           <Icon name="info" className="text-base" />
           {pick(lang, "How to sign", "كيف تُؤدّى")}
         </MonoLabel>
@@ -655,6 +702,12 @@ function DetailPanel({
           </span>
           <p className="text-[13.5px] leading-relaxed text-ink">{hint}</p>
         </div>
+        {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+        {sign.tier === "A1" && (
+          <p className="mt-2 px-1 text-[11px] italic leading-snug text-ink/70">
+            {t("a1AslProvenance", lang)}
+          </p>
+        )}
       </div>
 
       {/* actions — camera CTA gated by cameraGradable; motion signs get the honest
@@ -672,7 +725,7 @@ function DetailPanel({
               <Icon name="visibility" className="text-2xl" />
               {t("signWatchPractise", lang)}
             </SpringButton>
-            <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/60">
+            <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/70">
               <Icon name="info" className="text-base text-teal" />
               {pick(lang, "This sign moves, so the camera can't grade it yet.", "هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.")}
             </p>
@@ -696,7 +749,8 @@ function DetailPanel({
           <button
             type="button"
             onClick={onToggleFlag}
-            aria-pressed={flagged}
+            aria-pressed={flagRole === "owner" || flagRole === "supporter"}
+            aria-label={flagLabel}
             className={`flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
               flagged
                 ? "bg-teal text-white extruded-teal"
@@ -704,7 +758,13 @@ function DetailPanel({
             }`}
           >
             <Icon name="push_pin" fill={flagged} />
-            {flagged ? pick(lang, "Flagged", "محدّدة") : pick(lang, "Flag", "حدّد")}
+            {flagRole === "owner"
+              ? pick(lang, "Flagged", "محدّدة")
+              : flagRole === "supporter"
+                ? t("famCoRequested", lang)
+                : flagRole === "other"
+                  ? t("famAskToo", lang)
+                  : pick(lang, "Flag", "حدّد")}
           </button>
           <SpringButton variant="ghost" size="md" full onClick={handleShare} className="flex-1 gap-2">
             <Icon name="share" />

@@ -7,9 +7,11 @@
 // the water, swaying palms), live planted/palms tiles, a next-milestone bar, the
 // live weekly streak, the Alphabet Constellation and the "Coming Up" SRS
 // forecast with its designed empty state. STATS/ACHIEVEMENTS/LEAGUE adopt the
-// design's card language; where the current app has no data source (avg
-// accuracy, minutes, the family league) they render the design's literal mock
-// values as static placeholders — flagged for a future data hook.
+// design's card language and are ALL live store data (C6): accuracy derives
+// from app.metrics with an honest "—" empty state, achievements from real
+// mastery/streak counts, and the league binds to app.profiles with a solo
+// empty state. Only the heatmap's intensity is binary, pending a per-day
+// volume source.
 //
 // Live data preserved: mastery/seen counts, A1 + alphabet ring progress, due +
 // upcoming SRS cards, profile streak/xp/goal, real weekly activeDays. Navigation
@@ -18,8 +20,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
-import { activeProfile, dueSignIds, GOAL_XP, useApp } from "../store/app";
-import { isTrained } from "../recognizer/knn";
+import {
+  activeProfile,
+  dueSignIds,
+  GOAL_XP,
+  REVIEW_DAILY_CAP,
+  reviewsTodayFor,
+  streakFor,
+  useApp,
+} from "../store/app";
 import { useUi } from "../store/ui";
 import { Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
@@ -27,7 +36,9 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Confetti, celebrate } from "../components/Confetti";
 import { Fanan } from "../components/Fanan";
 import { toLocaleDigits, formatPercent } from "../components/dc";
-import type { Lang, Sign } from "../types";
+import { SignGlyph } from "../components/SignGlyph";
+import { useDialog } from "../components/useDialog";
+import type { Lang, Metrics, Profile, Sign } from "../types";
 
 const DAY_LABELS_EN = ["M", "T", "W", "T", "F", "S", "S"];
 const DAY_LABELS_AR = ["إث", "ث", "أر", "خ", "ج", "س", "ح"];
@@ -62,7 +73,13 @@ export function Progress() {
   const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
   const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
   const a1Done = A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length;
-  const alphaTaught = ALPHABET.filter((s) => isTrained(s.id)).length;
+  // Letters THIS profile actually practised successfully — from the store, never
+  // the recognizer's isTrained() (bundled seeds mark all 28 letters trained for a
+  // brand-new user; rendering that as progress is a C6-class fabrication).
+  const alphaLit = new Set(
+    ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id),
+  );
+  const alphaTaught = alphaLit.size;
   const due = dueSignIds(app, profile.id);
   const upcoming = Object.entries(app.srs[profile.id] ?? {})
     .filter(([, c]) => new Date(c.due).getTime() > Date.now())
@@ -74,7 +91,6 @@ export function Progress() {
   const totalTracked = A1_SIGNS.length + ALPHABET.length;
   const milestoneDone = a1Done + alphaTaught;
   const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
-  const oasisLevel = Math.max(1, Math.floor(mastered / 4) + 1);
 
   // Real weekly streak: which of the last 7 days (Mon..Sun anchor on today) the
   // active profile actually trained on, from profile.activeDays.
@@ -102,6 +118,8 @@ export function Progress() {
   );
 
   const goalXp = GOAL_XP[profile.dailyGoal];
+  // Read-time streak: a lapsed learner sees 0, not their stale pre-lapse count (M26).
+  const streak = streakFor(profile);
 
   // Streak celebration: fire once when arriving with a fresh streak milestone.
   const [celebrating, setCelebrating] = useState(false);
@@ -114,11 +132,11 @@ export function Progress() {
   }, [profile.streak]);
 
   const reviewCount = due.length;
-  // Practice-first: the review session opens the camera on the first due gradable
-  // sign (falls back to a generic camera open when none is gradable).
+  const reviewCapped = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
+  // Review opens the real 10-card session (H3) — mixed drills, daily cap, and a
+  // drain path for non-gradable due signs — not a single camera sign.
   function startReview() {
-    const firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id;
-    go({ name: "camera", targetSignId: firstDueGradable });
+    go({ name: "lesson", lessonId: "review" });
   }
 
   const TABS: { key: Tab; label: string }[] = [
@@ -137,7 +155,9 @@ export function Progress() {
       <div className="mx-auto max-w-2xl px-4 py-4 md:px-6">
         {/* ── Tab bar (Block B) ──────────────────────────────────────────────── */}
         <div
-          role="tablist"
+          // L11-pattern: these switch in-page views without tabpanel wiring or
+          // arrow-key roving — pressed buttons, not ARIA tabs.
+          role="group"
           aria-label={pick(lang, "Progress views", "أوجه التقدّم")}
           className="flex flex-wrap gap-2 rounded-[18px] border border-line bg-paper p-3"
           style={{ boxShadow: "0 2px 0 #EDE3D2" }}
@@ -148,14 +168,13 @@ export function Progress() {
               <button
                 key={x.key}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 onClick={() => setTab(x.key)}
                 className="rounded-[12px] px-[14px] py-[10px] font-display text-[12px] font-bold leading-none transition-all ease-standard duration-200"
                 style={
                   active
                     ? { background: "#0F6E6A", color: "#FBF7EF", boxShadow: "0 3px 0 #0A4F4C" }
-                    : { background: "#F6EFE3", color: "#5C726F", boxShadow: "inset 0 0 0 1px #EDE3D2" }
+                    : { background: "#F6EFE3", color: "#566B68", boxShadow: "inset 0 0 0 1px #EDE3D2" }
                 }
               >
                 {x.label}
@@ -172,29 +191,44 @@ export function Progress() {
               rtl={rtl}
               mastered={mastered}
               alphaTaught={alphaTaught}
+              alphaLit={alphaLit}
               milestoneDone={milestoneDone}
               totalTracked={totalTracked}
               growth={growth}
-              oasisLevel={oasisLevel}
               xp={profile.xp}
-              streak={profile.streak}
+              streak={streak}
               week={week}
               due={due}
               upcoming={upcoming}
               empty={empty}
               reviewCount={reviewCount}
+              reviewCapped={reviewCapped}
               onReview={startReview}
               onCamera={() => go({ name: "camera" })}
               onSign={(id) => go({ name: "camera", targetSignId: id })}
             />
           )}
           {tab === "stats" && (
-            <StatsTab lang={lang} mastered={mastered} bestStreak={profile.streak} heat={heat} />
+            <StatsTab lang={lang} mastered={mastered} streak={streak} heat={heat} metrics={app.metrics} />
           )}
           {tab === "achieve" && (
-            <AchievementsTab lang={lang} seen={seen} mastered={mastered} streak={profile.streak} alphaTaught={alphaTaught} />
+            <AchievementsTab
+              lang={lang}
+              seen={seen}
+              mastered={mastered}
+              streak={streak}
+              alphaTaught={alphaTaught}
+              flagsRaised={app.flags.length}
+            />
           )}
-          {tab === "league" && <LeagueTab lang={lang} />}
+          {tab === "league" && (
+            <LeagueTab
+              lang={lang}
+              profiles={app.profiles}
+              activeProfileId={app.activeProfileId}
+              onAddFamily={() => go({ name: "family" })}
+            />
+          )}
         </div>
       </div>
 
@@ -218,10 +252,10 @@ function OasisTab({
   rtl,
   mastered,
   alphaTaught,
+  alphaLit,
   milestoneDone,
   totalTracked,
   growth,
-  oasisLevel,
   xp,
   streak,
   week,
@@ -229,6 +263,7 @@ function OasisTab({
   upcoming,
   empty,
   reviewCount,
+  reviewCapped,
   onReview,
   onCamera,
   onSign,
@@ -237,10 +272,10 @@ function OasisTab({
   rtl: boolean;
   mastered: number;
   alphaTaught: number;
+  alphaLit: Set<string>;
   milestoneDone: number;
   totalTracked: number;
   growth: number;
-  oasisLevel: number;
   xp: number;
   streak: number;
   week: { state: "active" | "missed" | "future"; today?: boolean }[];
@@ -248,6 +283,7 @@ function OasisTab({
   upcoming: [string, { due: string }][];
   empty: boolean;
   reviewCount: number;
+  reviewCapped: boolean;
   onReview: () => void;
   onCamera: () => void;
   onSign: (id: string) => void;
@@ -389,7 +425,7 @@ function OasisTab({
                     <Icon name="check" fill className="text-[16px]" />
                     {d.today && <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />}
                   </span>
-                  <span className={`text-[11px] font-bold ${d.today ? "text-teal" : "text-teal/60"}`}>{label}</span>
+                  <span className="text-[11px] font-bold text-teal">{label}</span>
                 </div>
               );
             }
@@ -398,7 +434,7 @@ function OasisTab({
                 <span
                   className={`h-8 w-8 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
                 />
-                <span className="text-[11px] font-bold text-teal/60">{label}</span>
+                <span className="text-[11px] font-bold text-teal">{label}</span>
               </div>
             );
           })}
@@ -406,7 +442,7 @@ function OasisTab({
       </div>
 
       {/* The Constellation — live alphabet ring. */}
-      <Constellation lang={lang} alphaTaught={alphaTaught} onTap={onSign} />
+      <Constellation lang={lang} alphaTaught={alphaTaught} alphaLit={alphaLit} onTap={onSign} />
 
       {/* Coming Up — SRS forecast with designed empty state. */}
       <section className="space-y-3">
@@ -432,15 +468,24 @@ function OasisTab({
           </div>
         ) : (
           <div className="space-y-3">
-            {reviewCount > 0 && (
+            {reviewCount > 0 && !reviewCapped && (
               <button
                 type="button"
                 onClick={onReview}
-                className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral py-4 font-display text-base font-bold text-white transition active:translate-y-1"
+                className="extruded-coral flex w-full items-center justify-center gap-3 rounded-2xl bg-coral-deep py-4 font-display text-base font-bold text-white transition active:translate-y-1"
               >
                 <span>{pick(lang, "Start Review Session", "ابدأ جلسة المراجعة")}</span>
                 <Icon name="bolt" />
               </button>
+            )}
+            {/* Daily soft cap reached (H3) — honest done-for-today note, no endless queue. */}
+            {reviewCount > 0 && reviewCapped && (
+              <div className="flex w-full items-center gap-3 rounded-2xl border border-line bg-paper p-4">
+                <Icon name="task_alt" className="shrink-0 text-2xl text-teal" />
+                <p className="min-w-0 flex-1 font-display text-sm font-bold leading-snug text-ink">
+                  {t("reviewCapDone", lang)}
+                </p>
+              </div>
             )}
             {due.slice(0, 4).map((signId) => {
               const sign = signById(signId);
@@ -478,25 +523,32 @@ function OasisTab({
   );
 }
 
-// ── STATS tab — grid + month heatmap. Accuracy/minutes have no source → static
-// placeholders (flag for future data hook). ────────────────────────────────────
+// ── STATS tab — grid + month heatmap. Every number is real store data (C6):
+// camera accuracy derives from metrics; drills replace the un-tracked "minutes"
+// (never render a number the store can't back — "—" until data exists). ────────
 function StatsTab({
   lang,
   mastered,
-  bestStreak,
+  streak,
   heat,
+  metrics,
 }: {
   lang: Lang;
   mastered: number;
-  bestStreak: number;
+  streak: number;
   heat: number[];
+  metrics: Metrics;
 }) {
   const shades = ["#EDE3D2", "#9DC6C2", "#3E9A93", "#0F6E6A"];
+  const accuracy =
+    metrics.cameraAttempts > 0
+      ? formatPercent(Math.round((100 * metrics.cameraMatches) / metrics.cameraAttempts), lang)
+      : "—";
   const cells: { val: string; label: string; color: string }[] = [
     { val: toLocaleDigits(mastered, lang), label: t("prStatMastered", lang), color: "#0F6E6A" },
-    { val: formatPercent(92, lang), label: t("prAvgAccuracy", lang), color: "#0F6E6A" }, // static placeholder
-    { val: toLocaleDigits(340, lang), label: t("prMinutesSigned", lang), color: "#C89A3D" }, // static placeholder
-    { val: toLocaleDigits(bestStreak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
+    { val: accuracy, label: t("prAvgAccuracy", lang), color: "#0F6E6A" },
+    { val: toLocaleDigits(metrics.drillsCompleted, lang), label: t("prDrillsDone", lang), color: "#C89A3D" },
+    { val: toLocaleDigits(streak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
   ];
   return (
     <div className="space-y-0">
@@ -521,38 +573,45 @@ function StatsTab({
           ))}
         </div>
         <div className="mt-3 flex items-center justify-end gap-[5px]">
-          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prLess", lang)}</span>
+          <span className="text-[10px] font-medium text-muted">{t("prLess", lang)}</span>
           {shades.map((s) => (
             <div key={s} className="rounded-[3px]" style={{ width: 11, height: 11, background: s }} />
           ))}
-          <span className="text-[10px] font-medium text-[#94A5A2]">{t("prMore", lang)}</span>
+          <span className="text-[10px] font-medium text-muted">{t("prMore", lang)}</span>
         </div>
       </div>
     </div>
   );
 }
 
-// ── ACHIEVEMENTS tab — earned states derived from live progress where possible;
-// family flag stays a placeholder (no household-badge store yet). ───────────────
+// ── ACHIEVEMENTS tab — every earned state derives from live store data (C6);
+// the family-flag badge unlocks when the household has raised a flag. ───────────
 function AchievementsTab({
   lang,
   seen,
   mastered,
   streak,
   alphaTaught,
+  flagsRaised,
 }: {
   lang: Lang;
   seen: number;
   mastered: number;
   streak: number;
   alphaTaught: number;
+  flagsRaised: number;
 }) {
   const items: { glyph: string; name: string; status: string; earned: boolean }[] = [
     { glyph: "🌱", name: t("prAchFirstSign", lang), status: t("prUnlocked", lang), earned: seen >= 1 },
     { glyph: "🔥", name: t("prAch7Day", lang), status: t("prUnlocked", lang), earned: streak >= 7 },
     { glyph: "🤟", name: t("prAch5Words", lang), status: t("prUnlocked", lang), earned: mastered >= 5 },
     { glyph: "أ", name: t("prAchAlphabetStarted", lang), status: t("prUnlocked", lang), earned: alphaTaught >= 1 },
-    { glyph: "👪", name: t("prAchFamilyFlag", lang), status: pick(lang, "2 / 5 signs", "٢ / ٥ إشارات"), earned: false }, // placeholder
+    {
+      glyph: "👪",
+      name: t("prAchFamilyFlag", lang),
+      status: flagsRaised > 0 ? t("prUnlocked", lang) : "—",
+      earned: flagsRaised > 0,
+    },
     {
       glyph: "🏆",
       name: t("prAchWholeAlphabet", lang),
@@ -607,17 +666,26 @@ function AchievementsTab({
   );
 }
 
-// ── FAMILY LEAGUE tab — warm-by-design, off by default. Static placeholder: the
-// app has no household/family-league data source yet (flag for future hook). ────
-function LeagueTab({ lang }: { lang: Lang }) {
-  const members: { nameEn: string; nameAr: string; initEn: string; initAr: string; xp: number; bg: string; you?: boolean }[] = [
-    { nameEn: "Mama", nameAr: "ماما", initEn: "M", initAr: "م", xp: 240, bg: "#0F6E6A" },
-    { nameEn: "Layla", nameAr: "ليلى", initEn: "L", initAr: "ل", xp: 180, bg: "#E6B24C", you: true },
-    { nameEn: "Sara", nameAr: "سارة", initEn: "S", initAr: "س", xp: 120, bg: "#0A4F4C" },
-    { nameEn: "Baba", nameAr: "بابا", initEn: "B", initAr: "ب", xp: 90, bg: "#E8654C" },
-  ];
-  const max = 240;
-  const [competing, setCompeting] = useState(false); // visual only — needs a real household setting to persist.
+// ── FAMILY LEAGUE tab — bound to the REAL household profiles in the store (C6).
+// Solo users get an honest empty state; no fabricated members, no phantom toggle.
+const LEAGUE_AVATAR_BG = ["#E6B24C", "#0F6E6A", "#E8654C", "#0A4F4C"];
+
+function LeagueTab({
+  lang,
+  profiles,
+  activeProfileId,
+  onAddFamily,
+}: {
+  lang: Lang;
+  profiles: Profile[];
+  activeProfileId: string | null;
+  onAddFamily: () => void;
+}) {
+  const ranked = [...profiles].sort((a, b) => b.xp - a.xp);
+  const max = Math.max(1, ...ranked.map((p) => p.xp));
+  const colorFor = (p: Profile) =>
+    LEAGUE_AVATAR_BG[Math.max(0, profiles.findIndex((x) => x.id === p.id)) % LEAGUE_AVATAR_BG.length];
+  const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
 
   return (
     <div>
@@ -633,62 +701,58 @@ function LeagueTab({ lang }: { lang: Lang }) {
         <span className="text-[12px] font-semibold leading-[1.3] text-teal">{t("prLeagueWarm", lang)}</span>
       </div>
 
-      {/* Ranked rows */}
-      <div className="mt-[14px] flex flex-col gap-[10px]">
-        {members.map((m, i) => (
-          <div
-            key={m.nameEn}
-            className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
-            style={{ background: m.you ? "#FBF3EF" : "#FBF7EF", border: m.you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
+      {profiles.length <= 1 ? (
+        // Honest empty state — one learner is not a league.
+        <div className="mt-[14px] flex flex-col items-center gap-3 rounded-[16px] border border-line bg-paper p-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gold/15 text-gold-deep">
+            <Icon name="family_restroom" fill className="text-3xl" />
+          </span>
+          <p className="max-w-[280px] text-sm leading-relaxed text-muted">{t("prLeagueSolo", lang)}</p>
+          <button
+            type="button"
+            onClick={onAddFamily}
+            className="mt-1 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
-            <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-[#94A5A2]" style={{ width: 18 }}>
-              {toLocaleDigits(i + 1, lang)}
-            </span>
-            <div
-              className="flex flex-none items-center justify-center font-display text-[15px] font-extrabold"
-              style={{ width: 38, height: 38, borderRadius: "50%", background: m.bg, color: m.bg === "#E6B24C" ? "#16302E" : "#FBF7EF" }}
-            >
-              {pick(lang, m.initEn, m.initAr)}
-            </div>
-            <div className="flex-1">
-              <div className="font-display text-[14px] font-bold leading-[1.1] text-ink">{pick(lang, m.nameEn, m.nameAr)}</div>
-              <div className="mt-[5px] h-[6px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
-                <div className="h-full rounded-full" style={{ width: `${Math.round((m.xp / max) * 100)}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }} />
-              </div>
-            </div>
-            <span className="flex-none font-display text-[14px] font-extrabold leading-none text-teal">{toLocaleDigits(m.xp, lang)}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Competition toggle */}
-      <div className="mt-4 flex items-center justify-between rounded-[14px] border border-line bg-paper px-[14px] py-[13px]">
-        <div>
-          <div className="font-display text-[13px] font-bold leading-[1.1] text-ink">{t("prCompetition", lang)}</div>
-          <div className="mt-[2px] text-[11px] leading-[1.2] text-[#94A5A2]">{t("prCompetitionHint", lang)}</div>
+            <Icon name="person_add" className="text-lg" />
+            {t("famAdd", lang)}
+          </button>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={competing}
-          aria-label={t("prCompetition", lang)}
-          onClick={() => setCompeting((v) => !v)}
-          className="relative flex-none transition-colors duration-200"
-          style={{ width: 46, height: 27, borderRadius: 99, background: competing ? "#0F6E6A" : "#D6CDBB" }}
-        >
-          <span
-            className="absolute top-[3px] transition-all duration-200"
-            style={{
-              insetInlineStart: competing ? 22 : 3,
-              width: 21,
-              height: 21,
-              borderRadius: "50%",
-              background: "#FBF7EF",
-              boxShadow: "0 1px 3px rgba(0,0,0,.25)",
-            }}
-          />
-        </button>
-      </div>
+      ) : (
+        // Ranked rows — real names, real XP, "you" = the active profile.
+        <div className="mt-[14px] flex flex-col gap-[10px]">
+          {ranked.map((p, i) => {
+            const you = p.id === activeProfileId;
+            const bg = colorFor(p);
+            return (
+              <div
+                key={p.id}
+                className="flex items-center gap-[11px] rounded-[15px] px-[13px] py-[11px]"
+                style={{ background: you ? "#FBF3EF" : "#FBF7EF", border: you ? "1px solid #F5C9BE" : "1px solid #EDE3D2" }}
+              >
+                <span className="flex-none text-center font-display text-[15px] font-extrabold leading-none text-muted" style={{ width: 18 }}>
+                  {toLocaleDigits(i + 1, lang)}
+                </span>
+                <div
+                  className="flex flex-none items-center justify-center font-display text-[15px] font-extrabold"
+                  style={{ width: 38, height: 38, borderRadius: "50%", background: bg, color: bg === "#E6B24C" ? "#16302E" : "#FBF7EF" }}
+                  aria-hidden="true"
+                >
+                  {initialOf(p.displayName)}
+                </div>
+                <div className="flex-1">
+                  <div className="font-display text-[14px] font-bold leading-[1.1] text-ink">
+                    <bdi>{p.displayName}</bdi>
+                  </div>
+                  <div className="mt-[5px] h-[6px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.round((p.xp / max) * 100)}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }} />
+                  </div>
+                </div>
+                <span className="flex-none font-display text-[14px] font-extrabold leading-none text-teal">{toLocaleDigits(p.xp, lang)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -698,10 +762,12 @@ function LeagueTab({ lang }: { lang: Lang }) {
 function Constellation({
   lang,
   alphaTaught,
+  alphaLit,
   onTap,
 }: {
   lang: Lang;
   alphaTaught: number;
+  alphaLit: Set<string>;
   onTap: (signId: string) => void;
 }) {
   return (
@@ -714,7 +780,7 @@ function Constellation({
       </header>
       <div className="grid grid-cols-5 gap-4" dir="ltr">
         {ALPHABET.map((s, i) => {
-          const lit = isTrained(s.id);
+          const lit = alphaLit.has(s.id);
           return (
             <button
               key={s.id}
@@ -736,7 +802,7 @@ function Constellation({
           );
         })}
       </div>
-      <p className="mt-5 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/60">
+      <p className="mt-5 text-center font-display text-xs font-bold uppercase tracking-wide text-paper/90">
         {pick(lang, "Connect the signs to light the sky", "اربط الإشارات لتضيء السماء")}
       </p>
     </section>
@@ -767,19 +833,20 @@ function ForecastRow({
       style={{ boxShadow: "0 2px 0 #EDE3D2" }}
     >
       <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-teal/5 bg-sand">
-        <span className="text-3xl" aria-hidden="true">
-          {sign.type === "alphabet" ? sign.code : sign.emoji}
+        {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
+        <span aria-hidden="true">
+          <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-10 w-10 object-contain" />
         </span>
       </span>
       <span className="flex-grow">
         <span className="block text-base font-bold leading-tight text-ink">{pick(lang, sign.glossEn, sign.glossAr)}</span>
-        <span className="block text-xs font-semibold text-teal/70">
+        <span className="block text-xs font-semibold text-teal">
           {sign.type === "alphabet" ? pick(lang, "Alphabet", "الحروف") : pick(lang, "Sign review", "مراجعة إشارة")}
         </span>
       </span>
       <span
         className={`flex items-center gap-1 rounded-full px-3 py-1 ${
-          tone === "due" ? "bg-gold/10 text-gold" : "bg-teal/5 text-teal/70"
+          tone === "due" ? "bg-gold/10 text-gold" : "bg-teal/5 text-teal"
         }`}
       >
         <Icon name={tone === "due" ? "hourglass_top" : "hourglass_empty"} fill={tone === "due"} className="text-[14px]" />
@@ -807,6 +874,10 @@ function StreakCelebration({
 }) {
   const [burst, setBurst] = useState(0);
   const rtl = lang === "ar";
+  // H16: this full-screen celebration is a takeover overlay stacked on top of
+  // Progress — focus it on mount, trap Tab, Escape to dismiss, restore focus
+  // to Progress on close.
+  const dialogRef = useDialog<HTMLDivElement>(true, onContinue);
   useEffect(() => {
     setBurst((b) => b + 1);
     celebrate();
@@ -824,7 +895,14 @@ function StreakCelebration({
   void goalXp;
 
   return (
-    <div className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={pick(lang, "Streak celebration", "احتفال بالمواظبة")}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center focus:outline-none"
+    >
       <Confetti burst={burst} />
 
       {/* Stitch chrome — gold wordmark + close affordance. */}
@@ -842,7 +920,9 @@ function StreakCelebration({
         </button>
       </header>
 
-      <main className="relative z-10 flex w-full max-w-lg flex-col items-center">
+      {/* M17: not <main> — this celebration overlay is nested inside App.tsx's
+          <main>, which already owns the one landmark. */}
+      <div className="relative z-10 flex w-full max-w-lg flex-col items-center">
         <div className="relative mb-8 h-64 w-64 motion-safe:animate-rise md:h-72 md:w-72" style={{ filter: "drop-shadow(0 0 20px rgba(230,178,76,.4))" }}>
           <img alt="" aria-hidden="true" src="/brand/stitch-46.png" className="h-full w-full object-contain" />
         </div>
@@ -893,7 +973,7 @@ function StreakCelebration({
             {pick(lang, " is going to be so proud.", " فخوراً جداً بك.")}
           </p>
         </div>
-      </main>
+      </div>
 
       <footer className="fixed bottom-12 z-20 w-full max-w-md px-6">
         <button

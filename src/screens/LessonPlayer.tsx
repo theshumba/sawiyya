@@ -6,18 +6,19 @@ import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { pick, t } from "../i18n";
 import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign } from "../types";
 import { buildChoices, buildDrillQueue } from "../lesson/engine";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
+import { HandSkeleton, hasHandShape } from "../components/HandSkeleton";
 import { Confetti, celebrate } from "../components/Confetti";
 import { SignDemo } from "../components/SignDemo";
 import { SignGlyph } from "../components/SignGlyph";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
-import { Button, Card, Icon } from "../components/ui";
+import { Button, ScreenCard, Icon } from "../components/ui";
 import { toLocaleDigits, formatPercent } from "../components/dc";
 
 /** A scored drill outcome flows back up so the end card can show accuracy. */
@@ -53,7 +54,11 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // Nothing to do (e.g. a review lesson with no due cards). Instead of bouncing
   // to a blank takeover with no escape, keep the close-to-home chrome and offer a
   // practice-first camera CTA so the screen is never a dead end (§5.1/§5.4).
+  // A review session emptied by the DAILY CAP (cards still due) says so honestly
+  // instead of pretending the queue is clear (H3).
   if (empty) {
+    const capped =
+      lessonId === "review" && dueSignIds(useApp.getState(), profileId).length > 0;
     return (
       <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
         <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center justify-center gap-5 px-6 pb-10 text-center">
@@ -62,10 +67,14 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </span>
           <div className="space-y-1.5">
             <h1 className="font-display text-2xl font-bold text-teal">
-              {pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
+              {capped
+                ? t("reviewCapDone", lang)
+                : pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
             </h1>
             <p className="text-muted">
-              {pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
+              {capped
+                ? pick(lang, "Spacing the load out is how it sticks — see you tomorrow.", "توزيع المراجعة هو سرّ ثباتها — نراك غدًا.")
+                : pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
             </p>
           </div>
           <Button
@@ -122,7 +131,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           signIds={signIds}
           xp={xpEarned.current}
           accuracy={accuracy}
-          streak={profile.streak}
+          streak={streakFor(profile)}
           burst={burst}
           onContinue={() => go({ name: "home" })}
           onPractice={(targetSignId) => go({ name: "camera", targetSignId })}
@@ -131,7 +140,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     );
   }
 
-  const isCamera = drill!.type === "camera";
   const stepLabel =
     drill!.type === "watch"
       ? t("lsWatchStep", lang)
@@ -145,7 +153,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
         <LessonProgress
           index={index}
           total={queue.length}
-          streak={profile.streak}
+          streak={streakFor(profile)}
           lang={lang}
           stepLabel={stepLabel}
         />
@@ -155,7 +163,6 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           drill={drill!}
           lang={lang}
           onDone={advance}
-          compact={isCamera}
         />
       </div>
     </ScreenShell>
@@ -194,6 +201,7 @@ function LessonProgress({
         <div
           className="h-2 flex-1 overflow-hidden rounded-full bg-line"
           role="progressbar"
+          aria-label={pick(lang, "Lesson progress", "تقدّم الدرس")}
           aria-valuenow={Math.round(pct * 100)}
           aria-valuemin={0}
           aria-valuemax={100}
@@ -231,12 +239,10 @@ function DrillFooter({ children }: { children: ReactNode }) {
 
 /** Bilingual gloss pair — primary in the active lang, secondary script after a dot. */
 function BilingualGloss({
-  lang,
   sign,
   className = "",
   dotClassName = "text-muted",
 }: {
-  lang: Lang;
   sign: Sign;
   className?: string;
   dotClassName?: string;
@@ -256,12 +262,10 @@ function Drill({
   drill,
   lang,
   onDone,
-  compact,
 }: {
   drill: DrillSpec;
   lang: Lang;
   onDone: (o: DrillOutcome) => void;
-  compact?: boolean;
 }) {
   const sign = signById(drill.signId);
   if (!sign) return null; // unreachable with valid content data
@@ -278,8 +282,8 @@ function Drill({
           lang={lang}
           mode="recognise"
           review={drill.type === "review"}
+          pool={drill.pool}
           onDone={onDone}
-          compact={compact}
         />
       );
     case "recall":
@@ -350,6 +354,12 @@ function WatchDrill({
           <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
             {pick(lang, sign.hintEn, sign.hintAr)}
           </p>
+          {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+          {sign.tier === "A1" && (
+            <p className="mt-1 text-[11px] italic leading-snug text-muted">
+              {t("a1AslProvenance", lang)}
+            </p>
+          )}
         </div>
       </div>
 
@@ -380,22 +390,44 @@ function CameraDrill({
   onDone: (o: DrillOutcome) => void;
 }) {
   const { recordDrillResult } = useApp();
-  const handleResult = (result: TrainerResult) => {
+  const softFailed = useRef(false);
+  // Soft fail (H2): 20s hand-visible with no match → rate 'again' so FSRS
+  // reschedules sooner with help; the trainer replays the demo and they retry.
+  const handleSoftFail = () => {
+    softFailed.current = true;
+    recordDrillResult(sign.id, "again", { camera: true, matched: false });
+  };
+  const handleResult = (result: TrainerResult, meta?: { ownRecording?: boolean }) => {
     if (result === "skip") {
-      recordDrillResult(sign.id, "hard");
-      onDone({ xp: 4, scored: false, correct: false });
+      // Skip records NOTHING (L5) — skipping is not evidence either way.
+      onDone({ xp: 0, scored: false, correct: false });
       return;
     }
     const matched = result === "match";
-    recordDrillResult(sign.id, "good", {
-      camera: matched,
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    recordDrillResult(sign.id, matched ? "good" : "hard", {
+      camera: true,
       matched,
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
-    onDone({ xp: 10, scored: true, correct: true });
+    onDone({
+      xp: (matched ? 10 : 4) + (softFailed.current ? 4 : 0),
+      scored: true,
+      correct: matched,
+    });
   };
   // CameraTrainer owns the full-screen camera-practice chrome (its own design ref).
-  return <CameraTrainer sign={sign} lang={lang} onResult={handleResult} allowSkip autoStart />;
+  return (
+    <CameraTrainer
+      sign={sign}
+      lang={lang}
+      onResult={handleResult}
+      onSoftFail={handleSoftFail}
+      allowSkip
+      autoStart
+    />
+  );
 }
 
 /** recognise: sign → pick meaning · recall: meaning → pick sign. */
@@ -404,18 +436,21 @@ function ChoiceDrill({
   lang,
   mode,
   review = false,
+  pool: poolOverride,
   onDone,
-  compact = false,
 }: {
   sign: Sign;
   lang: Lang;
   mode: "recognise" | "recall";
   review?: boolean;
+  /** Distractor pool override (H22 checkpoints) — only letters the learner has
+   *  met may appear as choices. Absent = the sign's whole tier. */
+  pool?: string[];
   onDone: (o: DrillOutcome) => void;
-  compact?: boolean;
 }) {
   const { recordDrillResult } = useApp();
-  const pool = (sign.type === "alphabet" ? ALPHABET : A1_SIGNS).map((s) => s.id);
+  const pool =
+    poolOverride ?? (sign.type === "alphabet" ? ALPHABET : A1_SIGNS).map((s) => s.id);
   const [choices] = useState(() => buildChoices(sign.id, pool));
   const [picked, setPicked] = useState<string | null>(null);
   const correct = picked === sign.id;
@@ -438,19 +473,19 @@ function ChoiceDrill({
 
       {/* question zone — one elevated paper card holding the demo medallion */}
       {mode === "recognise" ? (
-        <Card variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-4">
+        <ScreenCard variant="elevated" className="mx-auto w-full max-w-md overflow-hidden p-3 md:p-4">
           {/* recognise question medallion — spec §D fixes this card at ~150px */}
           <DemoFace sign={sign} lang={lang} compact />
-        </Card>
+        </ScreenCard>
       ) : (
-        <Card variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
+        <ScreenCard variant="elevated" className="mx-auto w-full max-w-md bg-teal/5 px-6 py-6 text-center md:py-8">
           <p className="font-display text-[30px] font-extrabold leading-none text-teal">
             {pick(lang, sign.glossEn, sign.glossAr)}
           </p>
           <p className="mt-1.5 text-lg font-medium text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
             {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
           </p>
-        </Card>
+        </ScreenCard>
       )}
 
       {/* answers — one grid strategy: mobile single column, 2-col on desktop */}
@@ -473,6 +508,7 @@ function ChoiceDrill({
               state={state}
               labelEn={pick("en", choice.glossEn, choice.glossAr)}
               labelAr={pick("ar", choice.glossEn, choice.glossAr)}
+              lang={lang}
               disabled={picked !== null}
               onClick={() => choose(id)}
             />
@@ -481,14 +517,25 @@ function ChoiceDrill({
               key={id}
               n={i + 1}
               state={state}
-              glyph={(choice.type === "alphabet" ? choice.code : choice.emoji) ?? choice.emoji}
-              hint={pick(lang, choice.hintEn, choice.hintAr)}
+              sign={choice}
+              lang={lang}
+              // Letter hints literally name their letter ("… for the letter \u0627")
+              // while the recall stimulus shows that same letter — printing the
+              // answer on a tile. The skeleton alone is the honest choice face.
+              hint={choice.type === "alphabet" ? undefined : pick(lang, choice.hintEn, choice.hintAr)}
               disabled={picked !== null}
               onClick={() => choose(id)}
             />
           );
         })}
       </div>
+
+      {/* Honest provenance: recall tiles surface A1 hints, which are ASL-adapted (C3). */}
+      {mode === "recall" && choices.some((id) => signById(id)?.tier === "A1") && (
+        <p className="mx-auto mt-3 w-full max-w-md px-1 text-[11px] italic leading-snug text-muted">
+          {t("a1AslProvenance", lang)}
+        </p>
+      )}
 
       {/* soft feedback band — never a hard fail (PRD §8) */}
       <div aria-live="polite" className="mx-auto w-full max-w-md">
@@ -503,12 +550,12 @@ function ChoiceDrill({
               {correct ? t("lsCorrect", lang) : t("lsSoftMiss", lang)}
             </p>
             {!correct && (
-              <Card className="mt-2 flex items-center gap-3 p-3">
+              <ScreenCard className="mt-2 flex items-center gap-3 p-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center" aria-hidden="true">
                   <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-full w-full rounded-lg object-cover" />
                 </span>
                 <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
-              </Card>
+              </ScreenCard>
             )}
           </div>
         )}
@@ -535,6 +582,7 @@ function ChoiceRow({
   state,
   labelEn,
   labelAr,
+  lang,
   disabled,
   onClick,
 }: {
@@ -542,6 +590,7 @@ function ChoiceRow({
   state: "idle" | "correct" | "wrong" | "dim";
   labelEn: string;
   labelAr: string;
+  lang: Lang;
   disabled: boolean;
   onClick: () => void;
 }) {
@@ -549,7 +598,7 @@ function ChoiceRow({
   const shell = {
     idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
     correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
-    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    wrong: "bg-coral-deep text-paper shadow-[0_3px_0_#9c3d2c]",
     dim: "bg-sand text-[#94A5A2]",
   }[state];
   return (
@@ -575,7 +624,7 @@ function ChoiceRow({
           aria-hidden="true"
         />
       )}
-      <span className="sr-only">{n}. </span>
+      <span className="sr-only">{toLocaleDigits(n, lang)}. </span>
       <span>
         {labelEn}
         <span className={`mx-2 ${state === "correct" || state === "wrong" ? "opacity-70" : "text-teal/30"}`}>·</span>
@@ -585,19 +634,24 @@ function ChoiceRow({
   );
 }
 
-/** Tile answer (recall) — large glyph + hint, 2-col grid, numbered corner. */
+/** Tile answer (recall) — sign glyph (via SignGlyph, no emoji-as-sign) + hint,
+ *  2-col grid, numbered corner. */
 function ChoiceTile({
   n,
   state,
-  glyph,
+  sign,
+  lang,
   hint,
   disabled,
   onClick,
 }: {
   n: number;
   state: "idle" | "correct" | "wrong" | "dim";
-  glyph: string;
-  hint: string;
+  sign: Sign;
+  lang: Lang;
+  /** Absent for alphabet choices — letter hints name their letter, which would
+   *  print the recall answer on the tile. */
+  hint?: string;
   disabled: boolean;
   onClick: () => void;
 }) {
@@ -605,11 +659,11 @@ function ChoiceTile({
   const shell = {
     idle: "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]",
     correct: "bg-teal text-paper shadow-[0_3px_0_#0A4F4C]",
-    wrong: "bg-coral text-paper shadow-[0_3px_0_#C54F3A]",
+    wrong: "bg-coral-deep text-paper shadow-[0_3px_0_#9c3d2c]",
     dim: "bg-sand text-[#94A5A2]",
   }[state];
   const badge = {
-    idle: "bg-ink/5 text-ink/40",
+    idle: "bg-ink/5 text-ink/70",
     correct: "bg-white/20 text-white",
     wrong: "bg-white/20 text-white",
     dim: "bg-ink/5 text-[#94A5A2]",
@@ -623,16 +677,18 @@ function ChoiceTile({
       className={`relative flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-[15px] px-4 py-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
       <span className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}>
-        {n}
+        {toLocaleDigits(n, lang)}
       </span>
-      <span className="text-[32px] leading-none" aria-hidden="true">
-        {glyph}
+      <span className="flex h-12 items-center justify-center leading-none" aria-hidden="true">
+        <SignGlyph sign={sign} lang={lang} className="text-[32px]" imgClassName="h-10 w-10 object-contain" />
       </span>
-      <span
-        className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
-      >
-        {hint.length > 38 ? `${hint.slice(0, 38)}…` : hint}
-      </span>
+      {hint !== undefined && (
+        <span
+          className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
+        >
+          {hint.length > 38 ? `${hint.slice(0, 38)}…` : hint}
+        </span>
+      )}
     </button>
   );
 }
@@ -651,12 +707,35 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
         className="animate-pop-in flex items-center justify-center overflow-hidden rounded-full bg-paper"
         style={{ width: 104, height: 104, boxShadow: "0 10px 26px rgba(0,0,0,.22)" }}
       >
-        {sign.id === "iloveyou" ? (
-          <img
-            src="brand/stitch-30.png"
-            alt={t("lsRecogniseTitle", lang)}
+        {sign.media ? (
+          // Real signer footage (H23) — the honest stimulus when it exists.
+          <video
+            src={sign.media.src}
+            poster={sign.media.poster}
+            autoPlay
+            muted
+            loop
+            playsInline
             className="h-full w-full object-cover"
+            aria-label={t("lsRecogniseTitle", lang)}
           />
+        ) : sign.id === "iloveyou" ? (
+          // ILY hand illustration (stitch-34) — the AI-generated "signer" photo is retired (C2).
+          <img
+            src="brand/stitch-34.png"
+            alt={t("lsRecogniseTitle", lang)}
+            className="h-4/5 w-4/5 object-contain"
+          />
+        ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
+          // The HANDSHAPE is the question (H22) — showing the letter glyph here
+          // would print the answer on the stimulus.
+          <span
+            className="flex h-full w-full items-center justify-center p-2"
+            role="img"
+            aria-label={t("lsRecogniseTitle", lang)}
+          >
+            <HandSkeleton signId={sign.id} className="h-full w-full text-teal" />
+          </span>
         ) : sign.type === "alphabet" ? (
           <span
             className="font-display text-[56px] font-bold text-teal"
@@ -772,7 +851,7 @@ function ResultsCard({
                   <SignGlyph sign={s} lang={lang} className="text-base" imgClassName="h-full w-full rounded object-cover" />
                 </span>
                 <span className="text-[12px] font-semibold text-ink">
-                  <BilingualGloss lang={lang} sign={s} />
+                  <BilingualGloss sign={s} />
                 </span>
               </button>
             ))}

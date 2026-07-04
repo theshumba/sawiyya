@@ -9,22 +9,27 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { num, pick, t } from "../i18n";
-import { signById, LESSONS, UNIT_A1_U1 } from "../content/signs";
+import { signById, LESSONS, UNITS } from "../content/signs";
 import {
   GOAL_XP,
+  REVIEW_DAILY_CAP,
   activeProfile,
   dueSignIds,
+  nextNewLetterId,
   pinnedFlagSigns,
+  reviewsTodayFor,
+  streakFor,
   useApp,
   xpTodayFor,
 } from "../store/app";
 import { useUi } from "../store/ui";
-import { Card, Icon, Eyebrow, Title } from "../components/ui";
+import { ScreenCard, Icon, Eyebrow, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { GoalCard } from "../components/GoalCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
+import { useDialog } from "../components/useDialog";
 import { nextMilestone } from "../lesson/milestones";
 import type { Lesson } from "../types";
 
@@ -57,6 +62,9 @@ export function Home() {
   const [openId, setOpenId] = useState<string | null>(null);
   const currentRef = useRef<HTMLDivElement | null>(null);
   const scrolled = useRef(false);
+  // H16: focus the sheet on open, trap Tab inside it, Escape/backdrop-click
+  // to dismiss, restore focus to the node button that opened it.
+  const sheetRef = useDialog<HTMLDivElement>(openId !== null, () => setOpenId(null));
 
   // Centre the current node on first mount (design scrollRef → scrollTop 210).
   useEffect(() => {
@@ -65,7 +73,14 @@ export function Home() {
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const el = currentRef.current;
     const id = window.setTimeout(() => {
-      el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      // Manual centring instead of scrollIntoView: Chromium moves the
+      // sequential-focus starting point to a scrollIntoView target, which made
+      // the first Tab land on the current node instead of the skip link (L13).
+      const r = el.getBoundingClientRect();
+      window.scrollTo({
+        top: window.scrollY + r.top - (window.innerHeight - r.height) / 2,
+        behavior: reduce ? "auto" : "smooth",
+      });
     }, 380);
     return () => window.clearTimeout(id);
   }, []);
@@ -84,6 +99,7 @@ export function Home() {
     LESSONS.find((l) => l.signIds.some((id) => (prog[id]?.masteryLevel ?? 0) < 2)) ?? LESSONS[0];
 
   const due = dueSignIds(app, profile.id);
+  const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
   const flags = pinnedFlagSigns(app, profile.id).filter(
     (f) => f.raisedByProfileId !== profile.id,
   );
@@ -97,6 +113,10 @@ export function Home() {
   });
 
   const ms = nextMilestone(app, profile.id, lang);
+
+  // Unit banner follows the CURRENT lesson (H22): alphabet = Unit 1, words = Unit 2.
+  const unitIdx = Math.max(0, UNITS.findIndex((u) => u.id === nextLesson.unitId));
+  const unit = UNITS[unitIdx];
 
   // Winding horizontal offsets (design uses px translateX; mirror in RTL).
   const nodeOffsets = [0, 48, -48];
@@ -125,7 +145,7 @@ export function Home() {
       marker: (
         <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#E8654C", flex: "none" }} />
       ),
-      value: num(profile.streak, lang),
+      value: num(streakFor(profile), lang), // read-time: lapsed streaks show 0, not stale (M26)
       label: t("homeStreak", lang),
     },
     {
@@ -214,7 +234,9 @@ export function Home() {
       ? { font: "700 13px/1.2 Rubik,sans-serif", color: "#16302E", marginTop: 9, textAlign: "center" }
       : {
           font: "500 12px/1.2 'Readex Pro',sans-serif",
-          color: status === "locked" || status === "milestone" ? "#A9B8B5" : "#5C726F",
+          // H15: #A9B8B5 (1.79:1) and #5C726F (4.49:1) both fail AA on sand —
+          // one passing muted tone; the circle treatment still marks locked.
+          color: "#566B68",
           marginTop: 9,
           textAlign: "center",
         };
@@ -231,11 +253,12 @@ export function Home() {
         <div className="mx-auto max-w-xl" style={{ padding: "8px 20px 18px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div style={{ minWidth: 0 }}>
-              <div className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF" }}>
+              {/* M17: Home had zero headings — this greeting is the natural h1. */}
+              <h1 className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF", margin: 0 }}>
                 {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
-              </div>
-              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.72)", marginTop: 3 }}>
+              </h1>
+              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.9)", marginTop: 3 }}>
                 {t("homeGreetSub", lang)}
               </div>
             </div>
@@ -248,13 +271,13 @@ export function Home() {
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
             {stats.map((s, i) => (
-              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.12)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
+              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.08)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
                 {s.marker}
                 <div>
                   <div className="font-display" style={{ fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
                     {s.value}
                   </div>
-                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "rgba(251,247,239,.7)", marginTop: 2 }}>
+                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "#FBF7EF", marginTop: 2 }}>
                     {s.label}
                   </div>
                 </div>
@@ -270,11 +293,11 @@ export function Home() {
           {/* B1 · Unit banner (teal). */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F0C879", textTransform: "uppercase" }}>
-                {`${t("homeUnit", lang)} ${num(1, lang)}`}
+              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F6E3BC", textTransform: "uppercase" }}>
+                {`${t("homeUnit", lang)} ${num(unitIdx + 1, lang)}`}
               </div>
               <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
-                {pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)}
+                {pick(lang, unit.titleEn, unit.titleAr)}
               </div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
@@ -294,7 +317,7 @@ export function Home() {
               >
                 <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
                   {isCurrent && (
-                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#E8654C", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #C54F3A", whiteSpace: "nowrap", zIndex: 3 }}>
+                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#B54834", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #9C3D2C", whiteSpace: "nowrap", zIndex: 3 }}>
                       {t("homeStartBadge", lang)}
                     </div>
                   )}
@@ -324,7 +347,7 @@ export function Home() {
         {/* Block D — secondary stack (functional contract; reskinned to tokens). */}
         <section className="mt-6 space-y-6 pb-2">
           {/* Slim secondary "Practise" link — keeps the camera route alive. */}
-          <Card
+          <ScreenCard
             variant="elevated"
             className="flex items-center gap-3 p-5"
             onClick={() => go({ name: "camera" })}
@@ -337,7 +360,23 @@ export function Home() {
               <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
             </div>
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </Card>
+          </ScreenCard>
+
+          {/* Fingerspell entry (M6) — spell your name, letter by letter. */}
+          <ScreenCard
+            variant="elevated"
+            className="flex items-center gap-3 p-5"
+            onClick={() => go({ name: "fingerspell" })}
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
+              <Icon name="spellcheck" className="!text-2xl text-teal" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display font-bold text-ink">{t("fspHomeCard", lang)}</p>
+              <p className="text-sm text-muted">{t("fspHomeCardSub", lang)}</p>
+            </div>
+            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+          </ScreenCard>
 
           {/* Family flags — one compact FlagCard + a count deep-link to the Family tab. */}
           {flags.length > 0 &&
@@ -360,8 +399,9 @@ export function Home() {
                     >
                       {pick(
                         lang,
-                        `${num(slice.length, lang)} family requests`,
-                        `${num(slice.length, lang)} طلبات العائلة`,
+                        // L7: the real count, not the display slice's capped 3.
+                        `${num(flags.length, lang)} family requests`,
+                        `${num(flags.length, lang)} طلبات العائلة`,
                       )}
                       <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
                     </button>
@@ -371,26 +411,26 @@ export function Home() {
                     requestedBy={by ? `${by.displayName} ${t("homeNeeds", lang)}` : undefined}
                     lang={lang}
                     compact
+                    // H5: camera only when gradable; otherwise the sign's OWN
+                    // dictionary/watch detail — never the generic Alif camera.
                     onClick={() =>
-                      go({
-                        name: "camera",
-                        targetSignId: sign.cameraGradable ? sign.id : undefined,
-                      })
+                      sign.cameraGradable
+                        ? go({ name: "camera", targetSignId: sign.id })
+                        : go({ name: "allSigns", signId: sign.id })
                     }
                   />
                 </section>
               );
             })()}
 
-          {/* Review-due — routes straight to the camera on the first due sign. */}
-          {due.length > 0 && (
-            <Card
+          {/* Review-due — opens a real review SESSION (10 cards, mixed drills — H3),
+              not a single camera sign. Past the daily cap it becomes an honest
+              "done for today" note instead of an endless queue. */}
+          {due.length > 0 && !reviewCapReached && (
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
-              onClick={() => {
-                const first = due.map(signById).find((s) => s?.cameraGradable)?.id;
-                go({ name: "camera", targetSignId: first });
-              }}
+              onClick={() => go({ name: "lesson", lessonId: "review" })}
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
                 <Icon name="history" className="!text-3xl text-gold-deep" />
@@ -402,12 +442,52 @@ export function Home() {
                 </p>
               </div>
               <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </Card>
+            </ScreenCard>
+          )}
+          {due.length > 0 && reviewCapReached && (
+            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
+                <Icon name="task_alt" className="!text-3xl text-teal" />
+              </span>
+              <p className="min-w-0 flex-1 font-display font-bold text-ink">
+                {t("reviewCapDone", lang)}
+              </p>
+            </ScreenCard>
           )}
 
-          {/* Empty state — nothing flagged AND nothing due. */}
-          {flags.length === 0 && due.length === 0 && (
-            <Card
+          {/* Empty queue, goal unmet → inject new content (M5 starvation fix):
+              offer the next letter in curriculum order that has no SRS card. */}
+          {flags.length === 0 &&
+            due.length === 0 &&
+            goalProgress < 1 &&
+            (() => {
+              const letterId = nextNewLetterId(app, profile.id);
+              const letter = letterId ? signById(letterId) : undefined;
+              if (!letter) return null;
+              return (
+                <ScreenCard
+                  variant="elevated"
+                  className="flex items-center gap-4 p-5"
+                  onClick={() => go({ name: "camera", targetSignId: letter.id })}
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-extrabold text-teal">
+                    {letter.code}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display font-bold text-ink">{t("homeNewLetter", lang)}</p>
+                    <p className="text-sm text-muted">{t("homeNewLetterSub", lang)}</p>
+                  </div>
+                  <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+                </ScreenCard>
+              );
+            })()}
+
+          {/* Empty state — nothing flagged, nothing due, and either the goal is met
+              or every letter already has a card. */}
+          {flags.length === 0 &&
+            due.length === 0 &&
+            (goalProgress >= 1 || !nextNewLetterId(app, profile.id)) && (
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
               onClick={() => go({ name: "camera" })}
@@ -424,7 +504,7 @@ export function Home() {
                 </p>
               </div>
               <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </Card>
+            </ScreenCard>
           )}
 
           {/* Daily goal — the single GoalCard widget. */}
@@ -441,7 +521,7 @@ export function Home() {
 
           {/* Milestone — lightweight secondary card (tappable → camera practice). */}
           {ms && (
-            <Card
+            <ScreenCard
               variant="elevated"
               className="flex items-center gap-4 p-5"
               onClick={() => go({ name: "camera" })}
@@ -458,7 +538,7 @@ export function Home() {
                   />
                 </div>
               </div>
-            </Card>
+            </ScreenCard>
           )}
         </section>
       </div>
@@ -483,31 +563,39 @@ export function Home() {
           const btnSh = locked ? "none" : st === "done" ? "0 5px 0 #0A4F4C" : "0 5px 0 #C54F3A";
           const onAction = () => {
             if (st === "current" && openNode.lesson) {
-              // Practice-first: open camera on the lesson's first gradable sign;
-              // fall back to the lesson only when none is gradable.
-              const target = lessonCameraTarget(openNode.lesson);
-              if (target) go({ name: "camera", targetSignId: target });
-              else go({ name: "lesson", lessonId: openNode.lesson.id });
+              // The lesson is the primary path (H1): LessonPlayer mixes watch,
+              // quiz and camera drills via engine.ts, so non-gradable signs can
+              // reach mastery and the path actually completes. The old
+              // practice-first camera route deadlocked Lesson 1 forever; the
+              // camera stays one tap below as the secondary action.
+              go({ name: "lesson", lessonId: openNode.lesson.id });
             } else if (st === "done" && openNode.lesson) {
               go({ name: "camera", targetSignId: lessonCameraTarget(openNode.lesson) });
             }
             setOpenId(null);
           };
+          const cameraTarget =
+            st === "current" && openNode.lesson ? lessonCameraTarget(openNode.lesson) : undefined;
           return (
             <div
               onClick={() => setOpenId(null)}
               style={{ position: "fixed", inset: 0, background: "rgba(22,48,46,.5)", zIndex: 40, display: "flex", alignItems: "flex-end" }}
             >
               <div
+                ref={sheetRef}
                 onClick={(e) => e.stopPropagation()}
-                className="mx-auto w-full max-w-xl animate-rise"
+                role="dialog"
+                aria-modal="true"
+                aria-label={openNode.title}
+                tabIndex={-1}
+                className="mx-auto w-full max-w-xl animate-rise focus:outline-none"
                 style={{ background: "#FBF7EF", borderRadius: "26px 26px 0 0", padding: "22px 22px 26px", boxShadow: "0 -10px 40px rgba(0,0,0,.2)" }}
               >
                 <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
                   <div style={{ width: 56, height: 56, flex: "none", borderRadius: st === "milestone" ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {st === "milestone" ? (
-                      <span style={{ fontSize: 26, lineHeight: 1 }}>🎁</span>
+                      <Icon name="card_giftcard" fill className="!text-2xl text-white" />
                     ) : locked ? (
                       <span style={{ position: "relative", display: "block", width: 16, height: 13, borderRadius: 3, background: "#FBF7EF" }}>
                         <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 12, height: 11, border: "2.5px solid #FBF7EF", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />
@@ -534,6 +622,21 @@ export function Home() {
                 >
                   {btnLabel}
                 </button>
+                {/* Secondary: straight to camera practice on the lesson's first
+                    gradable sign (the demoted practice-first route — H1). */}
+                {cameraTarget && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      go({ name: "camera", targetSignId: cameraTarget });
+                      setOpenId(null);
+                    }}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                    style={{ display: "block", width: "100%", marginTop: 10, textAlign: "center", font: "700 14px/1 Rubik,sans-serif", padding: 12, borderRadius: 14, border: "2px solid #0F6E6A", background: "transparent", color: "#0F6E6A", cursor: "pointer" }}
+                  >
+                    {t("practiceCamera", lang)}
+                  </button>
+                )}
               </div>
             </div>
           );

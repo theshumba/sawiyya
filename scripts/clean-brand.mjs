@@ -12,7 +12,8 @@ const shell = readdirSync(cacheDir).filter((d) => d.startsWith("chromium_headles
 const executablePath = join(cacheDir, shell, "chrome-headless-shell-mac-arm64/chrome-headless-shell");
 
 const BRAND = "public/brand";
-const RAW = join(BRAND, "_raw");
+// Pristine raw exports live OUTSIDE public/ so they never ship or get precached (H9).
+const RAW = "design/brand-raw";
 mkdirSync(RAW, { recursive: true });
 
 // files passed on argv, else all used assets listed in /tmp/used.txt

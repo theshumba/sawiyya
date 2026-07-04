@@ -14,21 +14,21 @@ import {
   householdStreak,
   profilesActiveToday,
   signsAllCanDo,
+  streakFor,
   todayKey,
   useApp,
 } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Persona } from "../types";
 import { Icon } from "../components/ui";
-import { Card, Pill, SpringButton } from "../components/dc";
+import { Card, Pill, SpringButton, formatPercent } from "../components/dc";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
 
-/** Practice-first deep-link target for a sign id — gated so non-gradable/dynamic
- *  signs open the generic camera instead of polluting the recognizer. */
-const cameraTargetFor = (sign: { id: string; cameraGradable: boolean }): string | undefined =>
-  sign.cameraGradable ? sign.id : undefined;
+// H5: a flagged sign must open ITS OWN surface — camera only when gradable,
+// otherwise the sign's dictionary/watch detail. The old generic-camera fallback
+// dropped learners onto Alif, the wrong sign entirely.
 
 const ROLES: { value: Persona; emoji: string }[] = [
   { value: "parent", emoji: "👨‍👩‍👧" },
@@ -70,6 +70,10 @@ export function Family() {
 
   const flags = activeFlags(app);
   const board = signsAllCanDo(app);
+  const goToSign = (sign: { id: string; cameraGradable: boolean }) =>
+    sign.cameraGradable
+      ? go({ name: "camera", targetSignId: sign.id })
+      : go({ name: "allSigns", signId: sign.id });
   const sharedStreak = householdStreak(app);
   const activeToday = profilesActiveToday(app);
   const deafMembers = app.profiles.filter((p) => p.role === "deaf");
@@ -152,7 +156,7 @@ export function Family() {
                 <span className="mt-[5px] flex items-center justify-center gap-[3px]">
                   <span className="h-[9px] w-[9px] rounded-full bg-coral" aria-hidden="true" />
                   <span className="font-display text-[11px] font-bold text-muted">
-                    {num(p.streak, lang)}
+                    {num(streakFor(p), lang)}
                   </span>
                 </span>
               </button>
@@ -215,7 +219,7 @@ export function Family() {
         {/* B7 · "Learning together" — the Deaf member's flags lead the household ── */}
         <section className="mt-[22px]">
           {/* Coral flagged badge + flagger hero line (distinct from the teal eyebrow). */}
-          <span className="inline-block rounded-full bg-coral px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wide text-paper">
+          <span className="inline-block rounded-full bg-coral-deep px-3 py-1 font-display text-[11px] font-bold uppercase tracking-wide text-paper">
             {t("homeFlagged", lang)}
           </span>
           {flagger && (
@@ -255,12 +259,19 @@ export function Family() {
                     ? pick(lang, "You flagged it — for your family", "رفعتها — لعائلتك")
                     : pick(lang, `Flagged by ${by.displayName} — for you`, `رفعها ${by.displayName} — لك`)
                   : pick(lang, "Flagged for your family", "مطلوبة لعائلتك");
+                // M8: the assigner sees each learner's mastery on the flagged
+                // sign — one dot (0–3) per non-raiser hearing member.
+                const learners = app.profiles.filter(
+                  (p) => p.id !== f.raisedByProfileId && p.role !== "deaf",
+                );
+                const dotColor = (lvl: number) =>
+                  lvl >= 3 ? "#0F6E6A" : lvl === 2 ? "#E6B24C" : lvl === 1 ? "#F0C879" : "#EDE3D2";
                 return (
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
-                    aria-label={`${gloss} — ${t("practiceCamera", lang)}`}
+                    onClick={() => goToSign(sign)}
+                    aria-label={`${gloss} — ${sign.cameraGradable ? t("practiceCamera", lang) : t("lsWatchTitle", lang)}`}
                     className="flex items-center gap-[11px] rounded-[15px] border border-line bg-paper p-3 text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-[13px] bg-sand">
@@ -278,6 +289,22 @@ export function Family() {
                       <span className="mt-0.5 block truncate font-sans text-[12px] leading-[1.3] text-muted">
                         {byline}
                       </span>
+                      {learners.length > 0 && (
+                        <span className="mt-1.5 flex items-center gap-1">
+                          {learners.map((p) => {
+                            const lvl = app.progress[p.id]?.[f.signId]?.masteryLevel ?? 0;
+                            return (
+                              <span
+                                key={p.id}
+                                title={`${p.displayName} · ${num(lvl, lang)}/3`}
+                                aria-label={`${p.displayName} · ${num(lvl, lang)}/3`}
+                                className="h-2.5 w-2.5 flex-none rounded-full"
+                                style={{ backgroundColor: dotColor(lvl) }}
+                              />
+                            );
+                          })}
+                        </span>
+                      )}
                     </span>
                     {by && (
                       <span
@@ -317,8 +344,13 @@ export function Family() {
           </SpringButton>
 
           {/* B10 · League note — warm, no-rankings tone. */}
-          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-[#94A5A2]">
+          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-muted">
             {t("famLeagueNote", lang)}
+          </p>
+          {/* H8 · honest single-device disclosure — the whole household lives in
+              this browser's storage; export (Settings) is the only backup. */}
+          <p className="mt-2 text-center font-sans text-[11px] leading-[1.4] text-muted">
+            {t("famDataLocal", lang)}
           </p>
         </section>
 
@@ -346,13 +378,16 @@ export function Family() {
                       <button
                         key={signId}
                         type="button"
-                        onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
-                        aria-label={`${pick(lang, sign.glossEn, sign.glossAr)} — ${t("practiceCamera", lang)}`}
+                        onClick={() => goToSign(sign)}
+                        aria-label={pick(lang, sign.glossEn, sign.glossAr)}
                         className={`${cellClass} transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal`}
                         style={{ animationDelay: `${i * 40}ms` }}
                         title={pick(lang, sign.glossEn, sign.glossAr)}
                       >
-                        <span aria-hidden="true">{sign.type === "alphabet" ? sign.code : sign.emoji}</span>
+                        {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
+                        <span aria-hidden="true">
+                          <SignGlyph sign={sign} lang={lang} className="text-lg" imgClassName="h-6 w-6 object-contain" />
+                        </span>
                       </button>
                     );
                   }
@@ -373,10 +408,12 @@ export function Family() {
                     <Pill
                       key={signId}
                       tone="gold"
-                      onClick={() => go({ name: "camera", targetSignId: cameraTargetFor(sign) })}
-                      ariaLabel={`${pick(lang, sign.glossEn, sign.glossAr)} — ${t("practiceCamera", lang)}`}
+                      onClick={() => goToSign(sign)}
+                      ariaLabel={pick(lang, sign.glossEn, sign.glossAr)}
                     >
-                      <span aria-hidden="true">{sign.type === "alphabet" ? sign.code : sign.emoji}</span>
+                      <span aria-hidden="true">
+                        <SignGlyph sign={sign} lang={lang} className="text-base" imgClassName="h-5 w-5 object-contain" />
+                      </span>
                       {pick(lang, sign.glossEn, sign.glossAr)}
                     </Pill>
                   );
@@ -401,7 +438,7 @@ export function Family() {
                       )}
                     </span>
                     <span className="block font-sans text-xs text-muted">
-                      {num(Math.round(boardPct * 100), lang)}%{" "}
+                      {formatPercent(Math.round(boardPct * 100), lang)}{" "}
                       {pick(lang, "there", "من الطريق")}
                     </span>
                   </span>

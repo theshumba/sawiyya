@@ -1,6 +1,7 @@
 // Brand UI primitives — Sawiyya design system (Brand Identity §2–4).
 // Soft geometry, meeting-curve radii, teal+coral anchors, gold celebration.
 import type { ReactNode } from "react";
+import { toLocaleDigits } from "./dc";
 
 export function Logo({ size = 36 }: { size?: number }) {
   // "The Seen (س)" — three signing fingers rising from the meeting bowl,
@@ -58,8 +59,10 @@ type ButtonSize = "sm" | "md" | "lg";
 
 // Extruded "pressable" buttons — flat top face + hard darker bottom edge,
 // depressing on :active (mirrored from the approved Stitch design).
+// H15: white-on-coral (DEFAULT #E8654C) measured 3.28:1 — below AA 4.5:1 for
+// text. coral-deep (#B54834) holds the same hue at 5.33:1 white / 4.99:1 paper.
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-coral text-white extruded-coral",
+  primary: "bg-coral-deep text-white extruded-coral",
   secondary: "bg-teal text-white extruded-teal",
   gold: "bg-gold text-ink extruded-gold",
   ghost: "bg-transparent text-teal border-2 border-teal/30 active:scale-[.98]",
@@ -109,15 +112,22 @@ export function Button({
   );
 }
 
-type CardVariant = "flat" | "elevated" | "selected";
+type ScreenCardVariant = "flat" | "elevated" | "selected";
 
-const cardVariants: Record<CardVariant, string> = {
+const screenCardVariants: Record<ScreenCardVariant, string> = {
   flat: "bg-paper border border-line",
   elevated: "bg-paper border border-line shadow-soft",
   selected: "bg-teal/5 border-2 border-teal ring-4 ring-teal/10",
 };
 
-export function Card({
+// M25: this is a DIFFERENT visual language from dc.tsx's `Card` (rounded-3xl +
+// soft/selected states here vs a fixed rounded-[20px] hard-shadow "paper"
+// look there) — not a duplicate to merge, just named distinctly so an import
+// makes clear which system a screen is drawing from. dc.tsx's Card is the one
+// DESIGN-SYSTEM.md calls canonical for new work; this one is the general
+// screen-content card used across Home/LessonPlayer/Fingerspell/DevMetrics/
+// InfoPages.
+export function ScreenCard({
   children,
   className = "",
   onClick,
@@ -128,11 +138,11 @@ export function Card({
   children: ReactNode;
   className?: string;
   onClick?: () => void;
-  variant?: CardVariant;
+  variant?: ScreenCardVariant;
   ariaPressed?: boolean;
   ariaLabel?: string;
 }) {
-  const base = `${cardVariants[variant]} rounded-3xl ${className}`;
+  const base = `${screenCardVariants[variant]} rounded-3xl ${className}`;
   if (onClick) {
     return (
       <button
@@ -149,41 +159,9 @@ export function Card({
   return <div className={base}>{children}</div>;
 }
 
-export function Pill({
-  children,
-  tone = "teal",
-  className = "",
-  onClick,
-  ariaLabel,
-}: {
-  children: ReactNode;
-  tone?: "teal" | "gold" | "coral" | "muted";
-  className?: string;
-  /** optional tap target — renders the pill as a button when provided */
-  onClick?: () => void;
-  ariaLabel?: string;
-}) {
-  const tones = {
-    teal: "bg-teal/10 text-teal",
-    gold: "bg-gold/20 text-ink",
-    coral: "bg-coral/10 text-coral",
-    muted: "bg-ink/5 text-muted",
-  };
-  const base = `inline-flex items-center gap-1.5 text-sm font-semibold rounded-full px-3 py-1.5 ${tones[tone]} ${className}`;
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={ariaLabel}
-        className={`${base} transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal`}
-      >
-        {children}
-      </button>
-    );
-  }
-  return <span className={base}>{children}</span>;
-}
+// M25: dc.tsx's Pill is a strict superset (same props, 2 extra tones) — no
+// second implementation to maintain.
+export { Pill } from "./dc";
 
 /** Daily-goal / progress ring (SVG, brand gold on teal track). */
 export function ProgressRing({
@@ -224,27 +202,6 @@ export function ProgressRing({
   );
 }
 
-/** Lesson progress bar with the brand "meeting curve" fill. */
-export function MeetingBar({ progress }: { progress: number }) {
-  // Thick inset track, glossy gold fill with a leading glow (Stitch design).
-  return (
-    <div
-      className="h-4 w-full rounded-full bg-ink/10 shadow-inner overflow-hidden"
-      role="progressbar"
-      aria-valuenow={Math.round(progress * 100)}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <div
-        className="relative h-full rounded-full bg-gold transition-all duration-500"
-        style={{ width: `${Math.max(6, progress * 100)}%`, boxShadow: "0 0 10px rgba(230,178,76,.7)" }}
-      >
-        <span className="absolute inset-x-1.5 top-0.5 h-1 rounded-full bg-white/40" aria-hidden="true" />
-      </div>
-    </div>
-  );
-}
-
 // ── Added for the redesign (spec §3/§4) — additive primitives ────────────────
 
 /** Profile avatar — emoji glyph in a brand chip. Used by the shared header. */
@@ -271,35 +228,41 @@ export function Avatar({
 /** Notification dot / count bubble — e.g. family-request count on the profile button. */
 export function Badge({
   count,
+  lang,
   className = "",
 }: {
   count?: number;
+  /** L12: Eastern-Arabic digits in ar. Omit for langless call sites (Latin). */
+  lang?: "en" | "ar";
   className?: string;
 }) {
   if (count !== undefined && count <= 0) return null;
+  const shown =
+    count === undefined ? "" : count > 9 ? (lang === "ar" ? "٩+" : "9+") : toLocaleDigits(count, lang ?? "en");
   return (
     <span
-      className={`inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-coral px-1 font-display text-[10px] font-bold leading-none text-white ${className}`}
+      className={`inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-coral-deep px-1 font-display text-[10px] font-bold leading-none text-white ${className}`}
       aria-hidden="true"
     >
-      {count !== undefined ? (count > 9 ? "9+" : count) : ""}
+      {shown}
     </span>
   );
 }
 
 /** Typed text primitives (spec §4.2) — one type ramp instead of per-screen ad-hoc sizes.
  *  Eyebrow drops uppercase/tracking in Arabic (uppercasing Arabic is wrong). */
-export function Title({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <h2 className={`font-display text-2xl font-bold leading-tight text-ink md:text-3xl ${className}`}>{children}</h2>;
-}
-export function Subtitle({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <p className={`font-display text-lg font-semibold text-ink ${className}`}>{children}</p>;
-}
-export function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <p className={`font-sans text-base leading-relaxed text-ink/80 ${className}`}>{children}</p>;
-}
-export function Caption({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <p className={`text-sm text-muted ${className}`}>{children}</p>;
+export function Title({
+  children,
+  className = "",
+  as: As = "h2",
+}: {
+  children: ReactNode;
+  className?: string;
+  /** M17: most screens use Title as a secondary heading (h2); a screen with
+   *  no other <h1> (e.g. AllSigns) can promote its page title to h1. */
+  as?: "h1" | "h2";
+}) {
+  return <As className={`font-display text-2xl font-bold leading-tight text-ink md:text-3xl ${className}`}>{children}</As>;
 }
 export function Eyebrow({
   children,

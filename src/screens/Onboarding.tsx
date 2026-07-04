@@ -1,13 +1,13 @@
 // Onboarding — reskinned to the "Sawiyya Onboarding.dc.html" design language.
 // The functional 7-step machine (splash/lang/learn/why/hand/goal/name) and all
-// its wiring are PRESERVED (design/rebuild-source/specs/onboarding.md §1); the
-// design's inert moments — meet-Fanan, your-why, camera, on-device privacy and
-// reminders — are threaded in as additive steps that only advance the flow.
+// its wiring are PRESERVED (design/rebuild-source/specs/onboarding.md §1).
+// Trimmed per L20: the inert "your why" step is cut, camera + on-device privacy
+// are one screen, and the reminders step is honest (a real .ics download — H20).
 // Every step is re-dressed in the device-column visual system: springy amber
 // progress, Fanan poses per screen, teal/coral selection chips and the signature
 // hard-shadow footer CTA. Bilingual EN(LTR)/AR(RTL) via logical properties.
-import { useState } from "react";
-import { pick, t, applyDir } from "../i18n";
+import { useEffect, useState } from "react";
+import { pick, t, applyDir, langFromSearch } from "../i18n";
 import { PERSONA_TAGLINE } from "../content/signs";
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
@@ -15,17 +15,17 @@ import type { DailyGoal, Hand, Lang, Persona } from "../types";
 import { Fanan } from "../components/Fanan";
 import { SpringButton, MonoLabel } from "../components/dc";
 
-// Extended step machine: the original 7 steps (splash/lang/learn/why/hand/goal/
-// name — every real createProfile input) plus the design's inert moments.
+// Step machine: the original 7 steps (splash/lang/learn/why/hand/goal/name —
+// every real createProfile input) plus the design moments that earn their
+// keep. Trimmed per L20: the inert "your why" chips are cut, and the camera
+// how-it-works + on-device privacy screens are merged into one.
 type Step =
   | "splash"
   | "meet"
   | "lang"
   | "learn"
   | "why"
-  | "why2"
   | "camera"
-  | "privacy"
   | "hand"
   | "goal"
   | "reminders"
@@ -52,15 +52,6 @@ const GOALS: { value: DailyGoal; key: "obCasual" | "obRegular" | "obSerious"; ic
   { value: "serious", key: "obSerious", icon: "forest" },
 ];
 
-// "Your why" — inert reason chips (design s4). Local state only, advance-only.
-const WHY: { value: string; key: "obWhyFamily" | "obWhyWork" | "obWhyCuriosity" | "obWhyPerson" | "obWhyCommunity" }[] = [
-  { value: "family", key: "obWhyFamily" },
-  { value: "work", key: "obWhyWork" },
-  { value: "curiosity", key: "obWhyCuriosity" },
-  { value: "person", key: "obWhyPerson" },
-  { value: "community", key: "obWhyCommunity" },
-];
-
 // Choice-card affordance (PRESERVE §1 — retuned to the new paper/hairline look).
 const cardBase =
   "relative flex w-full items-center rounded-2xl border border-line bg-paper text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 shadow-[0_2px_0_#EDE3D2]";
@@ -68,6 +59,39 @@ const cardBase =
 // Selected / unselected hard-shadow chip skins (design's teal-fill vs hairline).
 const chipSel = "bg-teal text-paper shadow-[0_4px_0_#0A4F4C]";
 const chipIdle = "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]";
+
+// Real daily reminder via the user's own calendar (H20): Sawiyya sends no
+// notifications (no push, no email — everything stays on-device), so the only
+// honest offer is a downloadable .ics with a daily RRULE that the user's own
+// calendar app owns from then on.
+function downloadReminderIcs(lang: Lang) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const start = new Date();
+  start.setDate(start.getDate() + 1); // first occurrence: tomorrow
+  const dtStart = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T180000`;
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Sawiyya//Daily practice reminder//EN",
+    "BEGIN:VEVENT",
+    `UID:sawiyya-daily-practice-${Date.now()}@sawiyya.com`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART:${dtStart}`, // floating local time — 6:00 pm wherever the user is
+    "DURATION:PT10M",
+    "RRULE:FREQ=DAILY",
+    `SUMMARY:${t("obRemindEventTitle", lang)}`,
+    "URL:https://theshumba.github.io/sawiyya/",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sawiyya-daily-practice.ics";
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 function CheckGlyph() {
   // Never mirrors (HANDOFF §2) — physical direction locked.
@@ -82,15 +106,26 @@ export function Onboarding() {
   const { createProfile, completeOnboarding } = useApp();
   const { go } = useUi();
   const [step, setStep] = useState<Step>("splash");
-  const [lang, setLang] = useState<Lang>("en");
+  // Landing→app handoff (M27): honour ?lang=ar so an Arabic visitor's first-run
+  // opens Arabic/RTL from the splash, not English LTR until the language step.
+  const [lang, setLang] = useState<Lang>(() => langFromSearch(window.location.search) ?? "en");
+  useEffect(() => {
+    applyDir(lang);
+    // mount-only: the language step calls applyDir itself on later changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [persona, setPersona] = useState<Persona>("parent");
   const [hand, setHand] = useState<Hand>("R");
   const [goal, setGoal] = useState<DailyGoal>("regular");
   const [name, setName] = useState("");
-  // Inert "your why" reason (design s4) — shapes nothing yet, advance-only.
-  const [reason, setReason] = useState("");
+  // Reminder .ics downloaded this session (label feedback only — the user's
+  // calendar app owns the reminder from here).
+  const [icsDownloaded, setIcsDownloaded] = useState(false);
 
-  const finish = (overrides?: { skipAll?: boolean; destination?: { name: "camera"; targetSignId?: string } }) => {
+  const finish = (overrides?: {
+    skipAll?: boolean;
+    destination?: { name: "camera"; targetSignId?: string; autoStart?: boolean };
+  }) => {
     const displayName = name.trim() || (lang === "ar" ? "أنا" : "Me");
     createProfile({
       displayName,
@@ -118,9 +153,7 @@ export function Onboarding() {
     "lang",
     "learn",
     "why",
-    "why2",
     "camera",
-    "privacy",
     "hand",
     "goal",
     "reminders",
@@ -150,19 +183,15 @@ export function Onboarding() {
             ? { label: t("obContinue", lang), onClick: () => setStep("why"), variant: "teal" }
             : step === "why"
               ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
-              : step === "why2"
-                ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
-                : step === "camera"
-                  ? { label: t("obCamCta", lang), onClick: advance, variant: "teal" }
-                  : step === "privacy"
-                    ? { label: t("obPrivacyCta", lang), onClick: advance, variant: "teal" }
-                    : step === "hand"
-                      ? { label: t("obContinue", lang), onClick: () => setStep("goal"), variant: "teal" }
-                      : step === "goal"
-                        ? { label: t("obGoalCta", lang), onClick: () => setStep("reminders"), variant: "teal" }
-                        : step === "reminders"
-                          ? { label: t("obRemindCta", lang), onClick: advance, variant: "teal" }
-                          : null;
+              : step === "camera"
+                ? { label: t("obCamCta", lang), onClick: advance, variant: "teal" }
+                : step === "hand"
+                  ? { label: t("obContinue", lang), onClick: () => setStep("goal"), variant: "teal" }
+                  : step === "goal"
+                    ? { label: t("obGoalCta", lang), onClick: () => setStep("reminders"), variant: "teal" }
+                    : step === "reminders"
+                      ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
+                      : null;
 
   return (
     <div className={`flex min-h-screen w-full justify-center ${dark ? "bg-sand" : "bg-paper"}`}>
@@ -219,8 +248,9 @@ export function Onboarding() {
           )}
         </div>
 
-        {/* Body (design Block C) */}
-        <div className="flex flex-1 flex-col overflow-y-auto px-6 pb-2 pt-3">
+        {/* Body (design Block C) — M17: Onboarding renders before a profile
+            exists, so it bypasses App.tsx's <main>; it needs its own. */}
+        <main className="flex flex-1 flex-col overflow-y-auto px-6 pb-2 pt-3">
           {/* s0 · Welcome (reskinned splash) */}
           {step === "splash" && (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -242,7 +272,7 @@ export function Onboarding() {
               <div className="animate-float">
                 <Fanan pose="cheer" scale={1.2} />
               </div>
-              <MonoLabel className="mt-3 text-coral">{t("obFananEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="mt-3 text-coral">{t("obFananEyebrow", lang)}</MonoLabel>
               <h1 className="mt-1.5 animate-rise font-display text-[32px] font-extrabold leading-[1.05] text-ink">
                 {t("obFananTitle", lang)}
               </h1>
@@ -304,7 +334,9 @@ export function Onboarding() {
                 {/* Arabic alphabet — finishes straight into camera on alpha-alif. */}
                 <button
                   type="button"
-                  onClick={() => finish({ destination: { name: "camera", targetSignId: "alpha-alif" } })}
+                  onClick={() =>
+                    finish({ destination: { name: "camera", targetSignId: "alpha-alif", autoStart: true } })
+                  }
                   className={`${cardBase} gap-4 p-4`}
                 >
                   <span
@@ -429,45 +461,10 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* s4 · Your why (inert) */}
-          {step === "why2" && (
-            <div className="flex flex-1 flex-col">
-              <div className="flex items-center gap-3">
-                <Fanan pose="think" scale={0.56} />
-                <div>
-                  <h1 className="font-display text-[24px] font-extrabold leading-[1.08] text-ink">
-                    {t("obWhyTitle", lang)}
-                  </h1>
-                  <p className="mt-1 text-[13px] leading-[1.35] text-muted">{t("obWhyBody", lang)}</p>
-                </div>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2.5">
-                {WHY.map((w) => {
-                  const active = reason === w.value;
-                  return (
-                    <button
-                      key={w.value}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setReason(w.value)}
-                      className={`rounded-full px-[15px] py-[11px] text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
-                        active
-                          ? "bg-coral text-paper shadow-[0_3px_0_#C54F3A]"
-                          : "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]"
-                      }`}
-                    >
-                      {t(w.key, lang)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* s5 · How it works · camera (inert mock) */}
+          {/* s4 · How it works · camera + on-device privacy (merged — L20) */}
           {step === "camera" && (
             <div className="flex flex-1 flex-col">
-              <MonoLabel className="text-teal">{t("obCamEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="text-teal">{t("obCamEyebrow", lang)}</MonoLabel>
               <h1 className="mt-1.5 font-display text-[26px] font-extrabold leading-[1.1] text-ink">
                 {t("obCamTitle", lang)}
               </h1>
@@ -501,53 +498,9 @@ export function Onboarding() {
                 </div>
               </div>
               <p className="mt-4 text-[14px] leading-[1.45] text-muted">{t("obCamBody", lang)}</p>
-            </div>
-          )}
-
-          {/* s6 · On-device privacy (headline moment) */}
-          {step === "privacy" && (
-            <div className="flex flex-1 flex-col items-center justify-center gap-1.5 text-center">
-              <div
-                className="relative flex h-[118px] w-[118px] items-center justify-center rounded-[36px] bg-teal"
-                style={{ boxShadow: "0 12px 30px rgba(15,110,106,.3)" }}
-              >
-                <span aria-hidden="true" className="absolute inset-0 rounded-[36px] bg-teal/30 animate-ping" />
-                {/* Lock — never mirrors (HANDOFF §2). */}
-                <div className="relative" style={{ width: 44, height: 52, borderRadius: 8, background: "#FBF7EF" }}>
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: -18,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: 30,
-                      height: 30,
-                      border: "6px solid #FBF7EF",
-                      borderBottom: "none",
-                      borderRadius: "16px 16px 0 0",
-                    }}
-                  />
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: 18,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: 9,
-                      height: 14,
-                      borderRadius: 3,
-                      background: "#0F6E6A",
-                    }}
-                  />
-                </div>
-              </div>
-              <h1 className="mt-5 animate-rise font-display text-[27px] font-extrabold leading-[1.1] text-ink">
-                {t("obPrivacyTitle", lang)}
-              </h1>
-              <p className="mt-1 max-w-[250px] text-[15px] leading-[1.5] text-muted">{t("obPrivacyBody", lang)}</p>
-              <div className="mt-3.5 inline-flex items-center gap-2 rounded-full border border-line bg-sand px-3.5 py-2.5">
+              {/* On-device privacy, folded in from the old standalone step (L20). */}
+              <p className="mt-3 text-[14px] leading-[1.45] text-muted">{t("obPrivacyBody", lang)}</p>
+              <div className="mt-3.5 inline-flex items-center gap-2 self-start rounded-full border border-line bg-sand px-3.5 py-2.5">
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full bg-success"
                   style={{ boxShadow: "0 0 0 4px rgba(31,138,91,.2)" }}
@@ -631,7 +584,8 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* s8 · Reminders (inert) */}
+          {/* s8 · Daily reminder — honest (H20): the app sends no notifications,
+              so the offer is a real .ics the user's own calendar takes over. */}
           {step === "reminders" && (
             <div className="flex flex-1 flex-col items-center text-center">
               <div className="mt-2">
@@ -641,6 +595,7 @@ export function Onboarding() {
                 {t("obRemindTitle", lang)}
               </h1>
               <p className="mt-1.5 text-[14px] leading-[1.45] text-muted">{t("obRemindBody", lang)}</p>
+              {/* Calendar-event preview — exactly what the .ics creates. */}
               <div
                 className="mt-5 flex w-full items-center gap-3 rounded-[18px] border border-line bg-paper p-3.5 text-start"
                 style={{ boxShadow: "0 6px 18px rgba(22,48,46,.08)" }}
@@ -648,10 +603,26 @@ export function Onboarding() {
                 {/* App-icon tile — never mirrors (HANDOFF §2). */}
                 <div className="h-[38px] w-[38px] shrink-0 rounded-[11px] bg-gold" />
                 <div className="min-w-0 flex-1">
-                  <div className="font-display text-[12px] font-bold text-ink">Sawiyya · {t("obRemindNow", lang)}</div>
-                  <p className="mt-0.5 text-[12px] leading-[1.35] text-muted">{t("obRemindSample", lang)}</p>
+                  <div className="font-display text-[12px] font-bold text-ink">
+                    {t("obRemindEventTitle", lang)}
+                  </div>
+                  <p className="mt-0.5 text-[12px] leading-[1.35] text-muted">{t("obRemindEventWhen", lang)}</p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  downloadReminderIcs(lang);
+                  setIcsDownloaded(true);
+                }}
+                className={`mt-4 rounded-full px-5 py-3 text-[14px] font-bold transition active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
+                  icsDownloaded
+                    ? "bg-paper text-success shadow-[inset_0_0_0_1px_#EDE3D2]"
+                    : "bg-paper text-teal shadow-[inset_0_0_0_1px_#EDE3D2]"
+                }`}
+              >
+                {icsDownloaded ? t("obRemindCalDone", lang) : t("obRemindCal", lang)}
+              </button>
             </div>
           )}
 
@@ -685,7 +656,7 @@ export function Onboarding() {
               </form>
             </div>
           )}
-        </div>
+        </main>
 
         {/* Footer CTA (design Block D) — name owns its own submit button. */}
         {step !== "name" && footer && (

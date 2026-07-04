@@ -2,7 +2,10 @@
 // kinivi-style: record N samples of a handshape → classify live.
 // Samples live in localStorage; nothing ever leaves the device.
 import { euclidean } from "./normalize";
-import seedData from "./seeds/alphabet.json";
+import { getSeeds, type SampleStore } from "./seedStore";
+// The bundled ground-truth seeds live in seedStore (dynamic-imported, M13). Keep
+// exposing the test setter from here so existing knn tests import it unchanged.
+export { __setSeedsForTest } from "./seedStore";
 
 // v2 (2026-06-27): the normaliser became rotation-invariant (normalize.ts), which
 // changed the feature space. Teach samples recorded under v1 are in the OLD space and
@@ -38,17 +41,10 @@ export interface TargetClassification {
   };
 }
 
-type SampleStore = Record<string, number[][]>;
-
-// Bundled, read-only ground-truth vectors (alphabet). Never written to localStorage.
-let seeds: SampleStore = seedData as SampleStore;
-/** TEST-ONLY: replace the bundled seeds with a fixture. */
-export function __setSeedsForTest(s: SampleStore) {
-  seeds = s;
-}
-/** All stores read paths must span — seeds first, then the user's localStorage store. */
+/** All stores read paths must span — the bundled seeds (seedStore), then the
+ *  user's own localStorage teach store. */
 function readStores(): SampleStore[] {
-  return [seeds, store()];
+  return [getSeeds(), store()];
 }
 
 function load(): SampleStore {
@@ -67,6 +63,40 @@ let cache: SampleStore | null = null;
 function store(): SampleStore {
   if (!cache) cache = load();
   return cache;
+}
+
+// M22: the in-memory cache is only ever written by THIS tab's own save() —
+// another tab's teach session was invisible until a full reload. `storage`
+// only fires in other tabs, so dropping the cache here can't race our own
+// scheduleSave()/save() writes.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key !== STORE_KEY && event.key !== null) return;
+    // A pending debounced save means THIS tab holds just-captured samples that
+    // aren't in localStorage yet — dropping the cache now would make the
+    // imminent save() re-serialise the other tab's snapshot and silently lose
+    // them mid-teach. Keep the cache; our write wins (the same last-write-wins
+    // rule as everywhere else in M22).
+    if (saveTimer) return;
+    cache = null;
+  });
+}
+
+/** L15: full reset-training wipe. `trainedClassIds()` only surfaces classes
+ *  with ≥4 samples (the credible-KNN floor), so the Settings reset button's
+ *  old per-id loop left partially-taught (<4 sample) classes behind — this
+ *  clears the whole store outright, partial or not.
+ *  Returns how many classes (partial included) were wiped, so the reset toast
+ *  can report the truth instead of the ≥4-sample count. */
+export function clearAll(): number {
+  const wiped = Object.keys(store()).length;
+  cache = {};
+  try {
+    localStorage.removeItem(STORE_KEY);
+  } catch {
+    /* best effort — in-memory cache is already cleared */
+  }
+  return wiped;
 }
 
 function save() {
@@ -134,6 +164,14 @@ export function trainedClassIds(): string[] {
   const ids = new Set<string>();
   for (const s of readStores()) for (const id of Object.keys(s)) ids.add(id);
   return [...ids].filter((id) => sampleCount(id) >= 4);
+}
+
+/** Handshapes the LEARNER personally taught — their own localStorage store only,
+ *  never the bundled seeds. This is the honest DevMetrics count (L2): the
+ *  seeds-inclusive trainedClassIds() always reads ≥ 28 for a brand-new user, so
+ *  "handshapes taught" looked pre-earned. */
+export function userTaughtClassIds(): string[] {
+  return Object.keys(store()).filter((id) => userTaughtCount(id) >= 4);
 }
 
 export function isTrained(classId: string): boolean {

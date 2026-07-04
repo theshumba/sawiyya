@@ -6,7 +6,7 @@
 // Keeps the Math.max(6,…) fill floor so an empty bar still reads as a track.
 import type { Lang } from "../types";
 import { formatPercent } from "./dc";
-import { Card, ProgressRing } from "./ui";
+import { ScreenCard, ProgressRing } from "./ui";
 
 export function GoalCard({
   label,
@@ -33,7 +33,7 @@ export function GoalCard({
     lang ?? (typeof document !== "undefined" && document.documentElement.lang === "ar" ? "ar" : "en");
   const pct = Math.round(Math.min(1, progress) * 100);
   return (
-    <Card variant="elevated" onClick={onClick} className="flex items-center gap-4 p-5">
+    <ScreenCard variant="elevated" onClick={onClick} className="flex items-center gap-4 p-5">
       <ProgressRing progress={progress} size={64} stroke={7}>
         {done ? (
           // Goal-met check — physical glyph, never mirrors (HANDOFF §2). Springs in.
@@ -52,6 +52,7 @@ export function GoalCard({
         <div
           className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-ink/10"
           role="progressbar"
+          aria-label={label}
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
@@ -62,6 +63,6 @@ export function GoalCard({
           />
         </div>
       </div>
-    </Card>
+    </ScreenCard>
   );
 }

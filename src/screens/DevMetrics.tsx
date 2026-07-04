@@ -2,8 +2,8 @@
 // no external tracking exists anywhere in the app.
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import { trainedClassIds } from "../recognizer/knn";
-import { Card } from "../components/ui";
+import { userTaughtClassIds } from "../recognizer/knn";
+import { ScreenCard } from "../components/ui";
 
 export function DevMetrics() {
   const app = useApp();
@@ -19,8 +19,9 @@ export function DevMetrics() {
     ["Lessons completed", String(m.lessonsCompleted)],
     ["Camera attempts (graded)", String(m.cameraAttempts)],
     ["Camera match rate", matchRate === null ? "—" : `${matchRate}%`],
+    ["…of which own-recording (KNN, not model)", String(m.ownRecordingMatches)],
     ["Self-mark rate", `${selfMarkRate}%`],
-    ["Handshapes taught to KNN", String(trainedClassIds().length)],
+    ["Handshapes you've taught (excl. seeds)", String(userTaughtClassIds().length)],
     ["Profiles", String(app.profiles.length)],
     ["Active flags", String(app.flags.filter((f) => f.active).length)],
     ["App first opened", m.appFirstOpenAt ? new Date(m.appFirstOpenAt).toLocaleString() : "—"],
@@ -40,14 +41,14 @@ export function DevMetrics() {
         </button>
       </header>
       <p className="mt-1 text-sm text-muted">Local-only counters. Nothing here is transmitted anywhere.</p>
-      <Card className="mt-5 divide-y divide-line">
+      <ScreenCard className="mt-5 divide-y divide-line">
         {rows.map(([label, value]) => (
           <div key={label} className="flex items-center justify-between gap-4 px-4 py-3">
             <span className="text-sm font-medium text-muted">{label}</span>
             <span className="font-display font-bold">{value}</span>
           </div>
         ))}
-      </Card>
+      </ScreenCard>
     </div>
   );
 }

@@ -31,27 +31,38 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
           style={{ background: "radial-gradient(circle at 50% 32%, rgba(255,255,255,.7), transparent 62%)" }}
           aria-hidden="true"
         />
-        {sign.id === "iloveyou" ? (
-          <>
-            {/* Mobile: warm signer photo (stitch-30). Desktop Stitch: the ILY hand
-                illustration on its transparent checkerboard (stitch-54). */}
-            <img
-              key={`m-${replayKey}`}
-              src="brand/stitch-30.png"
-              alt={gloss}
-              className="animate-pop-in relative z-10 h-full w-full object-cover md:hidden"
-            />
-            <img
-              key={`d-${replayKey}`}
-              src="brand/stitch-54.png"
-              alt={gloss}
-              className="animate-pop-in relative z-10 hidden h-full w-full object-contain p-4 drop-shadow-2xl md:block"
-            />
-          </>
+        {sign.media ? (
+          // REAL signer footage (H23) — replaces every placeholder the moment the
+          // owner-gated recording drops into signs.ts. Muted loop; replay remounts.
+          <video
+            key={`v-${replayKey}`}
+            src={sign.media.src}
+            poster={sign.media.poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="relative z-10 h-full w-full object-cover"
+            aria-label={gloss}
+          />
+        ) : sign.id === "iloveyou" ? (
+          // The ILY hand ILLUSTRATION (stitch-54). The AI-generated "signer" photo
+          // (stitch-30) is retired — we never present a generated person as a Deaf signer.
+          <img
+            key={`d-${replayKey}`}
+            src="brand/stitch-54.png"
+            alt={gloss}
+            className="animate-pop-in relative z-10 h-full w-full object-contain p-4 drop-shadow-2xl"
+          />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // REAL averaged handshape (Zenodo ArSL geometry) — the hand, not the glyph.
           // The Arabic letter rides along as a small gold label for context.
-          <div key={replayKey} className="animate-pop-in relative z-10 flex h-full w-full items-center justify-center p-3">
+          <div
+            key={replayKey}
+            role="img"
+            aria-label={gloss}
+            className="animate-pop-in relative z-10 flex h-full w-full items-center justify-center p-3"
+          >
             <HandSkeleton signId={sign.id} className={`text-teal ${compact ? "h-4/5 w-4/5" : "h-full w-full"}`} />
             <span
               className="absolute bottom-2 end-2 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/70 font-display text-xl font-black text-teal backdrop-blur-sm"
@@ -92,7 +103,17 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
 
       {/* footnote — honest placeholder (PRD §11). Tag pill + italic line. */}
       {!compact ? (
-        hasHandShape(sign.id) ? (
+        sign.media ? (
+          // Real footage needs no disclaimer — just say plainly what it is (H23).
+          <div className="mt-5 flex flex-col items-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
+              <Icon name="videocam" fill className="text-xs leading-none text-teal" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-teal">
+                {t("signRealRecording", lang)}
+              </span>
+            </span>
+          </div>
+        ) : hasHandShape(sign.id) ? (
           // Honest: this IS real data — the averaged handshape from real signers.
           <div className="mt-5 flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
@@ -101,24 +122,27 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
                 {pick(lang, "Real signer handshape", "شكل يد حقيقي")}
               </span>
             </span>
-            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
               {pick(
                 lang,
                 "Average hand from real signers (Zenodo ArSL). Deaf-signer video lands in Phase 2.",
-                "متوسط اليد من توقيعات حقيقية (Zenodo ArSL). فيديو من شخص أصمّ في المرحلة 2.",
+                "متوسط اليد من مُشيرين حقيقيين (Zenodo ArSL). فيديو من شخص أصمّ في المرحلة الثانية.",
               )}
             </p>
           </div>
         ) : (
           <div className="mt-5 flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
-              <Icon name="info" className="text-xs leading-none text-ink/60" />
-              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/60">
-                {pick(lang, "Demo placeholder", "عرض مؤقت")}
+              <Icon name="info" className="text-xs leading-none text-ink/70" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/70">
+                {sign.tier === "A1"
+                  ? pick(lang, "Unverified as QSL", "غير معتمدة بلغة الإشارة القطرية")
+                  : pick(lang, "Demo placeholder", "عرض مؤقت")}
               </span>
             </span>
-            <p className="max-w-[260px] text-xs italic leading-snug text-ink/40">
-              {t("lsDemoPlaceholder", lang)}
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
+              {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+              {sign.tier === "A1" ? t("a1AslProvenance", lang) : t("lsDemoPlaceholder", lang)}
             </p>
           </div>
         )

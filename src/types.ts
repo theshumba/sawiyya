@@ -15,6 +15,10 @@ export interface Profile {
   language: Lang;
   xp: number;
   xpToday: number;
+  /** Reviews (drills on already-due cards) done today — feeds the daily soft cap
+   *  (H3). Like xpToday it resets lazily via lastActiveDay; read through
+   *  reviewsTodayFor. */
+  reviewsToday: number;
   streak: number;
   lastActiveDay: string | null; // YYYY-MM-DD
   activeDays: string[]; // recent active days (cap ~90) — feeds shared streak
@@ -33,6 +37,9 @@ export interface Sign {
   hintAr: string;
   type: SignType;
   cameraGradable: boolean;
+  /** Real footage (H23) — the owner-gated Deaf-signer recording drops in here;
+   *  SignDemo renders it over every placeholder when present. */
+  media?: { type: "video"; src: string; poster?: string };
 }
 
 export interface Unit {
@@ -48,6 +55,9 @@ export type DrillType = "watch" | "recognise" | "recall" | "camera" | "review";
 export interface DrillSpec {
   type: DrillType;
   signId: string;
+  /** Recognise-drill distractor pool override (H22 checkpoints): only letters
+   *  the learner has MET may appear as choices. Absent = the tier default. */
+  pool?: string[];
 }
 
 export interface Lesson {
@@ -61,6 +71,10 @@ export interface Lesson {
 export interface SignProgress {
   masteryLevel: number; // 0 none · 1 seen · 2 practised · 3 mastered
   lastSeen: string;
+  /** Camera-confirmed successes — mastery 3 requires ≥ 2 (M4). Self-marks and
+   *  watch reps never increment this. Optional: blobs written before this field
+   *  read as 0. */
+  cameraHits?: number;
 }
 
 /** ts-fsrs Card with dates serialised to ISO strings for localStorage. */
@@ -79,8 +93,14 @@ export interface StoredCard {
 export interface Flag {
   id: string;
   raisedByProfileId: string;
+  /** Members who co-requested the sign after it was already flagged (H7) —
+   *  tapping an existing flag never toggles it off for non-raisers. */
+  supporters: string[];
   signId: string;
   active: boolean;
+  /** Auto-set when every non-raiser hearing member reaches mastery ≥ 2 (M8);
+   *  archived flags leave the queues/pins but stay in state as history. */
+  archived: boolean;
   createdAt: string;
 }
 
@@ -90,6 +110,9 @@ export interface Metrics {
   drillsCompleted: number;
   cameraAttempts: number;
   cameraMatches: number;
+  /** Subset of cameraMatches confirmed ONLY by the learner's own KNN recording,
+   *  not the dataset MLP — surfaced honestly, tracked separately (M2). */
+  ownRecordingMatches: number;
   selfMarks: number;
   lessonsCompleted: number;
 }

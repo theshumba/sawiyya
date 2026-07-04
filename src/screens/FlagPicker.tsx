@@ -19,6 +19,7 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { SpringButton } from "../components/dc";
 import { Chip } from "../components/Tile";
+import { SignGlyph } from "../components/SignGlyph";
 import type { Sign } from "../types";
 
 const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
@@ -101,9 +102,10 @@ export function FlagPicker() {
     .map((f) => signById(f.signId))
     .filter((s): s is Sign => Boolean(s));
 
-  const clearAll = () => {
-    flaggedSigns.forEach((s) => app.toggleFlag(s.id, profile.id));
-  };
+  // H7: clearing is scoped to the CALLER's own raised flags — tapping this can
+  // never wipe the Deaf member's curriculum.
+  const clearMine = () => app.clearFlags(profile.id);
+  const flagFor = (signId: string) => flags.find((f) => f.signId === signId);
 
   // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
   const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
@@ -128,7 +130,7 @@ export function FlagPicker() {
                 {`${heroRequestor.displayName} ${t("famFlagFrom", lang)}`}
               </span>
               <span
-                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-coral font-display text-[13px] font-bold text-paper"
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-coral-deep font-display text-[13px] font-bold text-paper"
                 aria-hidden="true"
               >
                 {initialOf(heroRequestor.displayName)}
@@ -149,7 +151,10 @@ export function FlagPicker() {
         </header>
 
         {/* ── Body ────────────────────────────────────────────────────── */}
-        <main className="mx-auto mt-4 max-w-3xl space-y-6 px-6">
+        {/* M17: not <main> — App.tsx's screen router already owns the one
+            <main> landmark; a screen-level second one is an invalid nested
+            landmark. */}
+        <div className="mx-auto mt-4 max-w-3xl space-y-6 px-6">
           {/* Search + sort */}
           <div className="space-y-4 rounded-3xl bg-paper p-5 shadow-lift">
             <div className="flex items-center gap-3">
@@ -185,9 +190,11 @@ export function FlagPicker() {
 
             {/* One group switcher — a single horizontally-scrolling Chip row at
                 ALL sizes (fixes the md dead-zone). */}
+            {/* L11: these are filter chips, not tabs — no tabpanel, no keyboard
+                arrow-nav — role="group" (Chip already sets aria-pressed). */}
             <div
               className="-mb-1 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
-              role="tablist"
+              role="group"
               aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}
             >
               {groups.map((gr) => {
@@ -225,6 +232,8 @@ export function FlagPicker() {
             <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3" role="list">
               {signs.map((sign) => {
                 const flagged = flaggedIds.has(sign.id);
+                const flag = flagged ? flagFor(sign.id) : undefined;
+                const iSupport = flag?.supporters.includes(profile.id) ?? false;
                 return (
                   <li key={sign.id}>
                     <button
@@ -253,8 +262,9 @@ export function FlagPicker() {
                           flagged ? "bg-sand" : "bg-sand/50"
                         }`}
                       >
-                        <span className="text-5xl" aria-hidden="true">
-                          {sign.emoji}
+                        {/* SignGlyph — real handshape / letter / honest icon (H14, no emoji-as-sign). */}
+                        <span aria-hidden="true">
+                          <SignGlyph sign={sign} lang={lang} className="text-5xl" imgClassName="h-16 w-16 object-contain" />
                         </span>
                       </span>
 
@@ -264,7 +274,7 @@ export function FlagPicker() {
                           {pick(lang, sign.glossEn, sign.glossAr)}
                         </span>
                         <span
-                          className="block truncate font-display text-sm font-medium text-teal/60"
+                          className="block truncate font-display text-sm font-medium text-teal"
                           dir={lang === "ar" ? "ltr" : "rtl"}
                         >
                           {pick(lang, sign.glossAr, sign.glossEn)}
@@ -273,7 +283,9 @@ export function FlagPicker() {
 
                       {flagged && (
                         <span className="mt-1 text-xs font-semibold text-coral">
-                          {t("famFlagged", lang)}
+                          {/* H7: honest per-role state — a non-raiser's tap on a
+                              flagged sign co-requests, it never unflags. */}
+                          {iSupport ? t("famCoRequested", lang) : t("famFlagged", lang)}
                         </span>
                       )}
                     </button>
@@ -292,10 +304,11 @@ export function FlagPicker() {
                   <Icon name="push_pin" fill className="text-2xl" />
                 </span>
                 <h3 className="font-display text-xl font-bold leading-tight text-teal">
+                  {/* Honest count — no fabricated weekly time-box (M9). */}
                   {pick(
                     lang,
-                    `${num(flaggedSigns.length, lang)} signs flagged for this week`,
-                    `${num(flaggedSigns.length, lang)} إشارات محدّدة لهذا الأسبوع`,
+                    `${num(flaggedSigns.length, lang)} signs flagged for your family`,
+                    `${num(flaggedSigns.length, lang)} إشارات محدّدة لعائلتك`,
                   )}
                 </h3>
               </div>
@@ -306,13 +319,19 @@ export function FlagPicker() {
                     <li key={s.id}>
                       <button
                         type="button"
+                        // H5: gradable → camera on THIS sign; otherwise its own
+                        // dictionary/watch detail (never a wrong camera target).
                         onClick={() =>
-                          go({ name: "camera", targetSignId: s.cameraGradable ? s.id : undefined })
+                          s.cameraGradable
+                            ? go({ name: "camera", targetSignId: s.id })
+                            : go({ name: "allSigns", signId: s.id })
                         }
-                        aria-label={`${pick(lang, s.glossEn, s.glossAr)} — ${t("practiceCamera", lang)}`}
+                        aria-label={pick(lang, s.glossEn, s.glossAr)}
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
-                        <span className="text-2xl" aria-hidden="true">{s.emoji}</span>
+                        <span aria-hidden="true">
+                          <SignGlyph sign={s} lang={lang} className="text-2xl" imgClassName="h-8 w-8 object-contain" />
+                        </span>
                         <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
                         <Icon name="videocam" className="text-xl text-coral" />
                       </button>
@@ -328,7 +347,7 @@ export function FlagPicker() {
               {/* Requestors */}
               {requestors.length > 0 && (
                 <div className="mb-6">
-                  <p className="mb-3 font-display text-xs font-bold uppercase tracking-wide text-teal/40">
+                  <p className="mb-3 font-display text-xs font-bold uppercase tracking-wide text-teal">
                     {pick(lang, "Requestors", "مَن طلبها")}
                   </p>
                   <div className="flex -space-x-3 overflow-hidden">
@@ -348,7 +367,7 @@ export function FlagPicker() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-3 text-xs text-teal/60">
+                  <p className="mt-3 text-xs text-teal">
                     {pick(
                       lang,
                       "Family members waiting for these signs",
@@ -360,14 +379,19 @@ export function FlagPicker() {
 
               {flaggedSigns.length > 0 && (
                 <div className="space-y-2">
-                  {/* Practice-first: take the family straight into the camera on the
-                      first gradable flagged sign (generic open when none gradable).
-                      B15 · coral spring CTA — "learn it together". */}
+                  {/* Practice-first: straight into the camera on the first gradable
+                      flagged sign; when NONE is gradable, open the first flagged
+                      sign's own watch/dictionary detail (H5 — never a wrong
+                      camera target). B15 · coral spring CTA. */}
                   <SpringButton
                     variant="coral"
                     size="lg"
                     full
-                    onClick={() => go({ name: "camera", targetSignId: firstFlaggedGradable })}
+                    onClick={() =>
+                      firstFlaggedGradable
+                        ? go({ name: "camera", targetSignId: firstFlaggedGradable })
+                        : go({ name: "allSigns", signId: flaggedSigns[0]?.id })
+                    }
                     className="gap-2"
                   >
                     <Icon name="videocam" />
@@ -375,16 +399,16 @@ export function FlagPicker() {
                   </SpringButton>
                   <button
                     type="button"
-                    onClick={clearAll}
+                    onClick={clearMine}
                     className="w-full rounded-2xl py-3 font-display font-bold text-teal transition hover:bg-teal/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
                   >
-                    {pick(lang, "Clear all", "مسح الكل")}
+                    {t("famClearMine", lang)}
                   </button>
                 </div>
               )}
             </div>
           </div>
-        </main>
+        </div>
       </div>
 
       {/* ── Single "Done" affordance (flags persist on tap) ─────────────── */}

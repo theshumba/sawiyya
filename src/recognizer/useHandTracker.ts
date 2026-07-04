@@ -1,4 +1,4 @@
-// MediaPipe HandLandmarker hook — lifted from the proven spike (spike.html).
+// MediaPipe HandLandmarker hook — lifted from the proven spike (tools/archive/spike.html).
 // 21 landmarks per frame, fully on-device; the landmarker is a module
 // singleton so screens share one model download (then SW-cached offline).
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,9 +10,19 @@ import {
 } from "@mediapipe/tasks-vision";
 import type { LM } from "./normalize";
 
-const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
-const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+// Self-hosted MediaPipe (H10). The wasm runtime + the float16 hand_landmarker
+// model are vendored into public/mediapipe (provenance in public/mediapipe/
+// SOURCES.md) and service-worker precached, so the recognizer is fully offline
+// from install — ZERO runtime dependency on jsdelivr or Google storage. Paths
+// resolve against the document base, so this works at the repo root AND under
+// the /sawiyya/ project path. (Trailing slash on "mediapipe/" is load-bearing —
+// it makes "wasm" resolve as a child, not a sibling.) NOTE: routing here is
+// state/search-based, so document.baseURI is always the deploy root; if the app
+// ever adopts PATH-based routing, switch to import.meta.env.BASE_URL so a deep
+// path can't shift this resolution.
+const MP_BASE = new URL("mediapipe/", document.baseURI);
+const WASM_URL = new URL("wasm", MP_BASE).href;
+const MODEL_URL = new URL("hand_landmarker.task", MP_BASE).href;
 
 let landmarkerPromise: Promise<HandLandmarker> | null = null;
 
@@ -41,6 +51,17 @@ function getLandmarker(): Promise<HandLandmarker> {
 }
 
 export type TrackerStatus = "idle" | "loading" | "running" | "error";
+// H21/L14: coarse bucket for the getUserMedia/landmarker failure so the UI can
+// show honest bilingual copy instead of the raw browser error string.
+export type TrackerErrorKind = "denied" | "notfound" | "unreadable" | "other";
+
+function classifyError(e: unknown): TrackerErrorKind {
+  const name = e instanceof DOMException ? e.name : undefined;
+  if (name === "NotAllowedError" || name === "SecurityError") return "denied";
+  if (name === "NotFoundError" || name === "OverconstrainedError") return "notfound";
+  if (name === "NotReadableError" || name === "AbortError") return "unreadable";
+  return "other";
+}
 
 export interface FrameInfo {
   landmarks: LM[];
@@ -57,6 +78,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
 
   const [status, setStatus] = useState<TrackerStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [errorKind, setErrorKind] = useState<TrackerErrorKind | null>(null);
   const [fps, setFps] = useState(0);
   const [handVisible, setHandVisible] = useState(false);
 
@@ -86,6 +108,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
     const cancelled = () => gen !== startGen.current;
     setStatus("loading");
     setError(null);
+    setErrorKind(null);
     try {
       const landmarker = await getLandmarker();
       if (cancelled()) return;
@@ -129,38 +152,57 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
         }
       };
 
+      // One detectForVideo throw must not silently kill the rAF loop while the
+      // UI still says "running" (M23) — fail loudly into the existing error UI
+      // and rebuild the landmarker next start, in case the graph is corrupted.
+      const failLoop = (e: unknown) => {
+        running.current = false;
+        landmarkerPromise = null; // force a fresh landmarker on the next start()
+        media.getTracks().forEach((tr) => tr.stop());
+        stream.current = null;
+        setHandVisibleIfChanged(false);
+        setStatus("error");
+        setError(e instanceof Error ? e.message : String(e));
+        setErrorKind(classifyError(e));
+      };
+
       const loop = (t: number) => {
         if (!running.current || myLoop !== activeLoop) return; // superseded by a newer loop
-        // Some mobile Safari builds report videoWidth 0 until metadata fires, leaving
-        // the overlay canvas 0×0 all session; lazily size it once dimensions exist (M4).
-        if ((canvas.width === 0 || canvas.height === 0) && video.videoWidth > 0) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-        }
-        if (video.currentTime !== lastVideoTime) {
-          lastVideoTime = video.currentTime;
-          const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (res.landmarks && res.landmarks.length > 0) {
-            setHandVisibleIfChanged(true);
-            const lm = res.landmarks[0];
-            draw.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, {
-              color: "#E6B24C",
-              lineWidth: 4,
-            });
-            draw.drawLandmarks(lm, {
-              color: "#FBF7EF",
-              fillColor: "#E8654C",
-              radius: 5,
-              lineWidth: 1,
-            });
-            const detectedHand =
-              (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
-            onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
-          } else {
-            setHandVisibleIfChanged(false);
-            onFrameRef.current(null);
+        try {
+          // Some mobile Safari builds report videoWidth 0 until metadata fires, leaving
+          // the overlay canvas 0×0 all session; lazily size it once dimensions exist (M4).
+          if ((canvas.width === 0 || canvas.height === 0) && video.videoWidth > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
           }
+          if (video.currentTime !== lastVideoTime) {
+            lastVideoTime = video.currentTime;
+            const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (res.landmarks && res.landmarks.length > 0) {
+              setHandVisibleIfChanged(true);
+              const lm = res.landmarks[0];
+              draw.drawConnectors(lm, HandLandmarker.HAND_CONNECTIONS, {
+                color: "#E6B24C",
+                lineWidth: 4,
+              });
+              draw.drawLandmarks(lm, {
+                color: "#FBF7EF",
+                fillColor: "#E8654C",
+                radius: 5,
+                lineWidth: 1,
+              });
+              const detectedHand =
+                (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
+              onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
+            } else {
+              setHandVisibleIfChanged(false);
+              onFrameRef.current(null);
+            }
+          }
+        } catch (e) {
+          failLoop(e);
+          return;
         }
         frames += 1;
         if (t - fpsT > 500) {
@@ -176,11 +218,12 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
         running.current = false; // allow retry after a failed start
         setStatus("error");
         setError(e instanceof Error ? e.message : String(e));
+        setErrorKind(classifyError(e));
       }
     }
   }, []);
 
   useEffect(() => stop, [stop]);
 
-  return { videoRef, canvasRef, status, error, fps, handVisible, start, stop };
+  return { videoRef, canvasRef, status, error, errorKind, fps, handVisible, start, stop };
 }

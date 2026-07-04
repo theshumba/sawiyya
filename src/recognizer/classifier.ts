@@ -7,6 +7,18 @@
 // of matching the user's own taught samples. Wire it into the grading loop as an
 // additional/primary signal alongside the existing KNN.
 import model from "./seeds/alphabet-model.json";
+import { nearestSeedDistance } from "./seedStore";
+
+// Out-of-distribution gate (M1). The softmax below runs over a CLOSED set of 28
+// letters, so a junk / non-letter hand is normalised into "some letter" and can
+// clear tau with high confidence — the KNN path guards this with a distance gate,
+// the MLP did not. We additionally require the frame to sit within the target
+// class's real seed cloud. 0.65 reuses knn.ts DISTANCE_GATE; because this checks
+// the NEAREST single seed (vs the KNN's mean of the top-K) it is strictly more
+// permissive than the already-calibrated KNN gate, so it can only reject hands
+// that are far from EVERY real example of the letter — the calibrated TA/FA
+// numbers (tau, held-out FA) are untouched. Do NOT retrain to tune this.
+const OOD_GATE = 0.65;
 
 const { classes, D, H, W1, b1, W2, b2, tau } = model as {
   classes: string[]; D: number; H: number;
@@ -73,9 +85,10 @@ export function classify(vec: number[]): MlpResult {
 export interface ModelGrade {
   /** softmax probability of the TARGET letter (the meter value) */
   confidence: number;
-  /** target holds the most softmax mass AND clears the calibrated tau */
+  /** target holds the most softmax mass, clears the calibrated tau, AND the frame
+   *  sits inside the target's real seed cloud (OOD gate, M1) */
   matched: boolean;
-  debug?: { bestClass: string; bestP: number; targetP: number };
+  debug?: { bestClass: string; bestP: number; targetP: number; seedD: number };
 }
 
 /**
@@ -89,9 +102,13 @@ export function gradeWithModel(vec: number[], targetId: string): ModelGrade {
   if (vec.length === 0) return { confidence: 0, matched: false };
   const r = classify(vec);
   const targetP = r.probOf(targetId);
+  // Additive OOD conjunct (M1): the frame must also sit within the target's real
+  // seed cloud, or a confidently-misclassified junk hand clears tau (see OOD_GATE).
+  const seedD = nearestSeedDistance(vec, targetId);
+  const inDistribution = seedD <= OOD_GATE;
   return {
     confidence: targetP,
-    matched: r.classId === targetId && targetP >= MODEL_TAU,
-    debug: { bestClass: r.classId, bestP: r.confidence, targetP },
+    matched: r.classId === targetId && targetP >= MODEL_TAU && inDistribution,
+    debug: { bestClass: r.classId, bestP: r.confidence, targetP, seedD },
   };
 }

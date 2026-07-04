@@ -7,19 +7,24 @@ import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
-import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount, userTaughtCount } from "../recognizer/knn";
+import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows } from "../recognizer/classifier";
+import { ensureSeeds, seedsLoaded } from "../recognizer/seedStore";
+import { stepHold, HOLD_MS } from "./holdGate";
 import { HandSkeleton } from "./HandSkeleton";
 import { useHandTracker, type FrameInfo } from "../recognizer/useHandTracker";
 import { Button, Icon } from "./ui";
 import { Fanan, type FananPose } from "./Fanan";
-import { formatPercent } from "./dc";
+import { formatPercent, toLocaleDigits } from "./dc";
+import { useUi } from "../store/ui";
 
 export type TrainerResult = "match" | "selfMark" | "skip";
 
-const HOLD_FRAMES = 24; // consecutive matching frames to confirm (>1 s @20fps — no insta-pass)
+// L1: the hold gate (HOLD_MS + stepHold accumulator) lives in ./holdGate — a wall-
+// clock hold that's device-fps independent and confirms in ~1.2 s everywhere.
 const TEACH_TARGET = 24; // samples recorded in teach mode
 const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
+const SOFT_FAIL_MS = 20_000; // hand-VISIBLE ms without a confirmed match → soft fail (H2)
 
 const HOLD_RING_C = 2 * Math.PI * 36; // hold-to-confirm ring circumference
 
@@ -32,13 +37,19 @@ export function CameraTrainer({
   sign,
   lang,
   onResult,
+  onSoftFail,
   allowSkip = false,
   autoStart = false,
   exerciseLabel,
 }: {
   sign: Sign;
   lang: Lang;
-  onResult: (result: TrainerResult) => void;
+  onResult: (result: TrainerResult, meta?: { ownRecording?: boolean }) => void;
+  /** Soft fail (H2): fired ONCE per mount after 20s of hand-visible time with no
+   *  confirmed match — the parent rates the card 'again'. The trainer itself
+   *  shows "Still tricky" + replays the reference demo and lets them retry;
+   *  never a blocking fail screen. */
+  onSoftFail?: () => void;
   allowSkip?: boolean;
   autoStart?: boolean;
   /** Optional "EXERCISE 4 OF 12" progress label shown inside the prompt card
@@ -57,15 +68,33 @@ export function CameraTrainer({
   const [confidence, setConfidence] = useState(0);
   const [holdProgress, setHoldProgress] = useState(0);
   const [matched, setMatched] = useState(false);
+  // M2: true when the confirming hold was carried ONLY by the learner's own KNN
+  // recording, never the dataset MLP — the success UI says so honestly.
+  const [ownRecordingMatch, setOwnRecordingMatch] = useState(false);
   const [showUnsure, setShowUnsure] = useState(false);
+  const [stillTricky, setStillTricky] = useState(false);
   const [dbg, setDbg] = useState("");
   const lastDbg = useRef("");
 
-  const consecutive = useRef(0);
+  // L1: wall-clock hold accumulator. heldMs = ms of CONTINUOUS matching accrued in
+  // the current streak (reset to 0 on any non-match frame); lastHoldTs = the prior
+  // matched frame's time. stepHold() caps each step so a stall can't insta-pass yet
+  // a low-fps device still accrues. Confirm once heldMs ≥ HOLD_MS.
+  const heldMs = useRef(0);
+  const lastHoldTs = useRef<number | null>(null);
+  // M2: did the dataset MLP confirm at any point during the current hold streak?
+  // If not (KNN carried it alone), the pass is disclosed as "your own recording".
+  const modelMatchedInHold = useRef(false);
+  // M13: the bundled seeds are dynamic-imported; a match can't confirm until they
+  // are resident (the OOD gate + KNN both read them). Almost always already true.
+  const seedsReady = useRef(seedsLoaded());
   const attemptFrames = useRef(0);
   const frameSkip = useRef(0);
   const finished = useRef(false);
   const teaching = useRef(false);
+  const visibleMs = useRef(0);
+  const lastSeenTs = useRef<number | null>(null);
+  const softFailFired = useRef(false);
 
   // refs so the per-frame callback never goes stale
   const modeRef = useRef(mode);
@@ -96,7 +125,10 @@ export function CameraTrainer({
     if (!frame) {
       pushConfidence(0);
       pushHold(0);
-      consecutive.current = 0;
+      heldMs.current = 0; // hand lost — the hold streak breaks (L1)
+      lastHoldTs.current = null;
+      modelMatchedInHold.current = false;
+      lastSeenTs.current = null; // hand lost — pause the soft-fail clock (H2)
       return;
     }
     const mirror = frame.detectedHand === "Left"; // canonicalise both hands (§6.8)
@@ -107,7 +139,11 @@ export function CameraTrainer({
       frameSkip.current = (frameSkip.current + 1) % 3;
       if (frameSkip.current !== 0) return; // sample every 3rd frame for variety
       addSample(sign.id, vec);
-      const n = sampleCount(sign.id);
+      // USER samples only: sampleCount() spans the 40 bundled seeds too, so on
+      // a seeded letter "teach my hand" used to insta-complete at 41/24 after
+      // ONE captured frame — falsely announcing "Learned!" while leaving the
+      // learner below the >=8 own-samples floor the M2 teach-blend needs.
+      const n = userTaughtCount(sign.id);
       setCaptured(n);
       if (n >= TEACH_TARGET) {
         teaching.current = false;
@@ -118,8 +154,39 @@ export function CameraTrainer({
     }
 
     // grade mode
+    // M13: the bundled seeds arrive on their own async chunk. Until they're
+    // resident the OOD gate + KNN have nothing to match against, so hold the
+    // grade path (meter at 0, soft-fail clock paused) rather than churn "0%".
+    // In practice the seeds win the race against the camera/model every time.
+    if (!seedsReady.current) {
+      pushConfidence(0);
+      pushHold(0);
+      heldMs.current = 0;
+      lastHoldTs.current = null;
+      return;
+    }
     attemptFrames.current += 1;
     if (attemptFrames.current > UNSURE_AFTER_FRAMES) setShowUnsure(true);
+    // Soft fail (H2): 20s of hand-VISIBLE time with no confirmed match → tell the
+    // parent (rates 'again'), replay the reference demo, reset the clock. Once
+    // per mount; only for genuinely gradable signs.
+    if (sign.cameraGradable && !softFailFired.current) {
+      const nowTs = performance.now();
+      if (lastSeenTs.current !== null) {
+        visibleMs.current += Math.min(nowTs - lastSeenTs.current, 250);
+      }
+      lastSeenTs.current = nowTs;
+      if (visibleMs.current >= SOFT_FAIL_MS) {
+        softFailFired.current = true;
+        visibleMs.current = 0;
+        heldMs.current = 0;
+        lastHoldTs.current = null;
+        modelMatchedInHold.current = false;
+        setStillTricky(true);
+        onSoftFail?.();
+        setTimeout(() => setStillTricky(false), 3400);
+      }
+    }
     // The real engine: for the 28 seeded alphabet letters the trained MLP
     // (ground truth from real signers, ~98.7% held-out) is the primary grader.
     // For teach-mode / un-seeded signs we fall back to the live KNN over the
@@ -127,11 +194,15 @@ export function CameraTrainer({
     // global argmax, which sticks the meter at 0% once another class is trained.
     let confidence: number;
     let matched: boolean;
+    // M2: track whether the DATASET MODEL confirmed this frame (vs the learner's
+    // own KNN recording carrying it), so a KNN-only pass can be disclosed honestly.
+    let mlpMatched = false;
     if (knowsModel) {
       // Primary: the dataset MLP (honest, geometry-only → skin-tone independent).
       const r = gradeWithModel(vec, sign.id);
       confidence = r.confidence;
       matched = r.matched;
+      mlpMatched = r.matched;
       let dbg = `MLP best=${r.debug?.bestClass ?? "—"} p=${Math.round((r.debug?.bestP ?? 0) * 100)}% targetP=${Math.round((r.debug?.targetP ?? 0) * 100)}%`;
       // Fallback: if the learner taught THEIR OWN version of this letter, let the
       // KNN over their samples confirm too — so it "works for my hands" even when
@@ -157,23 +228,61 @@ export function CameraTrainer({
       }
     }
     pushConfidence(confidence);
-    consecutive.current = matched ? consecutive.current + 1 : 0;
-    pushHold(Math.min(1, consecutive.current / HOLD_FRAMES));
-    if (consecutive.current >= HOLD_FRAMES) {
-      finished.current = true;
-      tracker.stop(); // release the camera the moment the match confirms
-      setMatched(true);
-      setTimeout(() => onResult("match"), 900);
+    // L1: confirm on ~HOLD_MS of CONTINUOUS matching time (device-fps independent).
+    // stepHold caps each frame step, so a stall can't insta-pass while a low-fps
+    // device still accrues (see holdGate.ts).
+    if (matched) {
+      const ts = frame.timeMs;
+      heldMs.current = stepHold(heldMs.current, lastHoldTs.current, ts);
+      lastHoldTs.current = ts;
+      if (mlpMatched) modelMatchedInHold.current = true;
+      pushHold(Math.min(1, heldMs.current / HOLD_MS));
+      if (heldMs.current >= HOLD_MS) {
+        finished.current = true;
+        tracker.stop(); // release the camera the moment the match confirms
+        // M2: if the dataset model never agreed across the whole hold, the
+        // learner's own recording carried it — disclose it (and count it apart).
+        // Scoped to knowsModel signs on purpose: the disclosure means "a calibrated
+        // model exists but didn't confirm this". Un-seeded word signs have no model
+        // to contrast with (they're taught-only by design), so they're not flagged.
+        const ownRecording = knowsModel && !modelMatchedInHold.current;
+        setOwnRecordingMatch(ownRecording);
+        setMatched(true);
+        setTimeout(() => onResult("match", { ownRecording }), 900);
+      }
+    } else {
+      heldMs.current = 0;
+      lastHoldTs.current = null;
+      modelMatchedInHold.current = false;
+      pushHold(0);
     }
   };
 
   const tracker = useHandTracker(onFrame);
+  const { go } = useUi();
 
   // auto-start camera when asked (lesson flow) — browsers allow this after a tap navigation
   useEffect(() => {
     if (autoStart) void tracker.start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
+
+  // M13: pull the dynamic-imported seed chunk in the moment a camera screen mounts,
+  // so it's resident well before a hand is positioned. Idempotent + cached.
+  useEffect(() => {
+    if (seedsReady.current) return;
+    let alive = true;
+    void ensureSeeds()
+      .then(() => {
+        if (alive) seedsReady.current = true;
+      })
+      .catch(() => {
+        /* offline & never cached — grading stays paused; the camera UI still works */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const startTeach = () => {
     clearClass(sign.id);
@@ -281,7 +390,7 @@ export function CameraTrainer({
             "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)",
         }}
       >
-        <span className="absolute inset-inline-start-3 top-3 rounded-lg bg-black/30 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
+        <span className="absolute start-3 top-3 rounded-lg bg-black/30 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
           ● {t("loopSignerCap", lang)}
         </span>
         <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
@@ -313,6 +422,12 @@ export function CameraTrainer({
             <p className="mt-1 font-sans text-[12.5px] leading-[1.4] text-ink">
               {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
+            {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+            {sign.tier === "A1" && (
+              <p className="mt-1 font-sans text-[11px] italic leading-snug text-muted">
+                {t("a1AslProvenance", lang)}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -360,6 +475,7 @@ export function CameraTrainer({
           <div
             className="h-[13px] w-full overflow-hidden rounded-full bg-line"
             role="progressbar"
+            aria-label={holdProgress > 0 ? t("camHold", lang) : t("camConfidence", lang)}
             aria-valuenow={Math.round(meter * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -392,12 +508,12 @@ export function CameraTrainer({
               <Icon name="check_circle" className="text-base leading-none" />
               {t("camSelfMark", lang)}
             </span>
-            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-teal/50">
+            <span className="mt-0.5 block text-[10px] font-normal uppercase tracking-widest text-teal">
               {t("camSelfMarkSub", lang)}
             </span>
           </Button>
           {allowSkip && (
-            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal/60">
+            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal">
               {t("camSkip", lang)}
             </Button>
           )}
@@ -431,16 +547,27 @@ export function CameraTrainer({
   );
 
   // One aria-live region announces the screen-reader-relevant state changes
-  // (match / teach progress / unsure / blocked) without forking the visuals.
+  // (match / teach progress / unsure / blocked / hand visibility) without
+  // forking the visuals (M19). Hand-visibility only re-fires on an actual
+  // flip (pushed via setHandVisibleIfChanged in useHandTracker), so this
+  // can't spam a screen reader every frame.
   const liveMessage = matched
-    ? t("camMatch", lang)
-    : tracker.status === "error"
-      ? t("camBlocked", lang)
-      : mode === "teach" && teachPhase === "done"
-        ? t("camTeachDone", lang)
-        : showUnsure
-          ? t("camUnsure", lang)
-          : "";
+    ? ownRecordingMatch
+      ? t("camMatchOwn", lang)
+      : t("camMatch", lang)
+    : stillTricky
+      ? t("camStillTricky", lang)
+      : tracker.status === "error"
+        ? `${t("stNoCamTitle", lang)} ${t("stNoCamBody", lang)}`
+        : mode === "teach" && teachPhase === "done"
+          ? t("camTeachDone", lang)
+          : showUnsure
+            ? t("camUnsure", lang)
+            : mode === "grade" && tracker.status === "running"
+              ? tracker.handVisible
+                ? t("camHandSeen", lang)
+                : t("camLooking", lang)
+              : "";
 
   return (
     <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(300px,360px)] md:items-start md:gap-8">
@@ -477,23 +604,26 @@ export function CameraTrainer({
           </div>
         </div>
 
-        {/* status pills */}
+        {/* status pills — hidden in the error state: "looking for a hand…"
+            would be dishonest over the H21 no-camera fallback. */}
         <div className="absolute inset-x-3 top-3 z-10 flex items-center justify-between" dir="ltr">
-          <span className="flex items-center gap-1.5 rounded-full bg-teal/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
-            <Icon
-              name="back_hand"
-              fill
-              className={`text-sm leading-none ${tracker.handVisible ? "text-gold" : "text-white/50"}`}
-            />
-            {tracker.status === "loading"
-              ? t("camLoading", lang)
-              : tracker.handVisible
-                ? t("camHandSeen", lang)
-                : t("camLooking", lang)}
-          </span>
+          {tracker.status !== "error" && (
+            <span className="flex items-center gap-1.5 rounded-full bg-teal/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
+              <Icon
+                name="back_hand"
+                fill
+                className={`text-sm leading-none ${tracker.handVisible ? "text-gold" : "text-white/50"}`}
+              />
+              {tracker.status === "loading"
+                ? t("camLoading", lang)
+                : tracker.handVisible
+                  ? t("camHandSeen", lang)
+                  : t("camLooking", lang)}
+            </span>
+          )}
           {tracker.status === "running" && (
             <span className="rounded-lg bg-black/40 px-2 py-1 font-display text-[10px] font-bold text-white/80">
-              {tracker.fps} FPS
+              {toLocaleDigits(tracker.fps, lang)} FPS
             </span>
           )}
         </div>
@@ -519,15 +649,37 @@ export function CameraTrainer({
           </div>
         )}
 
-        {/* camera blocked */}
+        {/* H21: camera blocked/absent — the demo-day safety net. Never a dead
+            end and never fake grading (the meter/hold ring below are gated on
+            tracker.status==="running", so they simply can't render here) —
+            instead still show the reference handshape and an honest way
+            forward: watch the demo or browse the full dictionary camera-free. */}
         {tracker.status === "error" && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <Icon name="videocam_off" className="text-5xl leading-none text-white/70" />
-            <p className="font-semibold text-white">{t("camBlocked", lang)}</p>
-            <p className="text-xs text-white/60">{tracker.error}</p>
-            <Button variant="gold" onClick={() => void tracker.start()}>
-              {t("camTryAgain", lang)}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3.5 p-6 text-center">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold/50 bg-white/10 p-2 backdrop-blur-md">
+              {referenceChip("text-5xl")}
+            </div>
+            <div className="max-w-[15rem] space-y-1">
+              <p className="font-display text-lg font-extrabold text-white">{t("stNoCamTitle", lang)}</p>
+              <p className="text-sm leading-snug text-white/70">{t("stNoCamBody", lang)}</p>
+            </div>
+            <Button variant="gold" onClick={() => go({ name: "allSigns", signId: sign.id })}>
+              {t("stBrowseSigns", lang)}
             </Button>
+            <button
+              type="button"
+              onClick={() => void tracker.start()}
+              className="text-xs font-semibold text-white/60 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              {t("camTryAgain", lang)}
+            </button>
+            {/* L14: the raw browser error string stays behind ?debug — every
+                learner sees the bilingual honest copy above instead. */}
+            {DEBUG && tracker.error && (
+              <p className="max-w-[15rem] font-mono text-[10px] text-white/40" dir="ltr">
+                [{tracker.errorKind}] {tracker.error}
+              </p>
+            )}
           </div>
         )}
 
@@ -580,9 +732,10 @@ export function CameraTrainer({
             <span className="text-xs font-bold uppercase tracking-widest text-white drop-shadow-md md:hidden">
               {t("camHold", lang)}
             </span>
-            {/* desktop: pulsing "Hold steady for 2 seconds" caption */}
+            {/* desktop: pulsing "hold steady" caption — qualitative, no fixed
+                second-count so it can't contradict the ~1.2s time gate (L1). */}
             <p className="hidden animate-pulse text-center font-bold text-gold drop-shadow-md md:block">
-              {pick(lang, "Hold steady for 2 seconds…", "ثبّت يدك ثانيتين…")}
+              {t("camHold", lang)}
             </p>
           </div>
         )}
@@ -606,12 +759,19 @@ export function CameraTrainer({
               <>
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-display font-bold">{t("camTeachHold", lang)}</p>
-                  {/* samples counter chip */}
+                  {/* samples counter chip (M20/L12: Eastern-Arabic digits in ar) */}
                   <span className="shrink-0 rounded-full bg-teal-deep px-2.5 py-1 font-display text-xs font-bold uppercase tracking-wide text-gold">
-                    {captured}/{TEACH_TARGET} {t("camSamples", lang)}
+                    {toLocaleDigits(captured, lang)}/{toLocaleDigits(TEACH_TARGET, lang)} {t("camSamples", lang)}
                   </span>
                 </div>
-                <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-white/20">
+                <div
+                  className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-white/20"
+                  role="progressbar"
+                  aria-label={t("camTeachHold", lang)}
+                  aria-valuenow={captured}
+                  aria-valuemin={0}
+                  aria-valuemax={TEACH_TARGET}
+                >
                   <div
                     className="h-full rounded-full bg-gold transition-all"
                     style={{ width: `${(captured / TEACH_TARGET) * 100}%`, boxShadow: "0 0 10px rgba(230,178,76,.6)" }}
@@ -629,7 +789,9 @@ export function CameraTrainer({
                   variant="gold"
                   className="mt-3 w-full !py-3"
                   onClick={() => {
-                    consecutive.current = 0;
+                    heldMs.current = 0;
+                    lastHoldTs.current = null;
+                    modelMatchedInHold.current = false;
                     attemptFrames.current = 0;
                     setShowUnsure(false);
                     setMode("grade");
@@ -639,6 +801,19 @@ export function CameraTrainer({
                 </Button>
               </>
             )}
+          </div>
+        )}
+
+        {/* soft fail (H2) — "Still tricky" + the reference demo replayed large over
+            the feed for a few seconds, then practice continues. Never blocking. */}
+        {stillTricky && !matched && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-teal-deep/85 p-6 text-center backdrop-blur-sm">
+            <div className="animate-pop-in flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
+              {referenceChip("text-7xl")}
+            </div>
+            <p className="animate-rise font-display text-xl font-extrabold text-paper">
+              {t("camStillTricky", lang)}
+            </p>
           </div>
         )}
 
@@ -670,12 +845,24 @@ export function CameraTrainer({
             <p className="animate-rise font-display text-2xl font-extrabold text-paper">
               {t("camMatch", lang)}
             </p>
+            {/* M2: honest sub-line — the dataset model didn't confirm this; the
+                learner's own recording did. Kept celebratory (never-hard-fail). */}
+            {ownRecordingMatch && (
+              <p className="animate-rise -mt-1 max-w-[15rem] text-center font-sans text-[12.5px] font-medium leading-snug text-paper/85">
+                {t("camMatchOwn", lang)}
+              </p>
+            )}
+            {/* Real number only: meter saturates to 1.0 at the moment of match
+                (heldMs >= HOLD_MS), so Math.max(confidence, meter) printed a
+                fabricated "100% Accuracy" on EVERY match. `confidence` still
+                holds the last matched frame's true score — show that, labelled
+                as what it is. */}
             <div className="animate-rise rounded-2xl border border-line bg-sand px-4 py-2.5 text-center">
               <div className="font-display text-2xl font-extrabold leading-none text-teal">
-                {formatPercent(Math.max(confidence, meter) * 100, lang)}
+                {formatPercent(confidence * 100, lang)}
               </div>
               <div className="mt-1 font-sans text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
-                {t("accuracy", lang)}
+                {t("camConfidence", lang)}
               </div>
             </div>
           </div>

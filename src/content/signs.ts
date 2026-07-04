@@ -65,6 +65,10 @@ export const ALPHABET: Sign[] = [
 ];
 
 // ── A1 · Unit 1 — "Family & First Words" (PRD §19 candidate set) ─────────────
+// PROVENANCE (C3, disclosed in-app via i18n `a1AslProvenance`): these word-sign
+// descriptions are ADAPTED FROM ASL and are NOT yet verified as Qatari Sign
+// Language. No public QSL word dataset exists; a native Deaf Qatari signer
+// records and verifies every A1 sign in Phase 2 (docs/real-sign-content-plan.md).
 const S = (
   id: string,
   glossEn: string,
@@ -83,10 +87,13 @@ export const A1_SIGNS: Sign[] = [
   S("hello", "Hello", "مرحبا", "👋", "dynamic", false,
     "Open hand by your temple, small wave outward.",
     "يد مفتوحة قرب الصدغ، تلويحة صغيرة للخارج."),
-  S("yes", "Yes", "نعم", "✊", "static", true,
+  // M7: both hints describe MOTION (nodding / tapping), so a static camera
+  // grade would pass a frozen wrong sign — dynamic + watch-only is the honest
+  // typing until real signer footage lands.
+  S("yes", "Yes", "نعم", "✊", "dynamic", false,
     "Make a fist and nod it gently — like a head saying yes.",
     "اقبض يدك وحرّكها كأنها رأس يقول نعم."),
-  S("no", "No", "لا", "🤞", "static", true,
+  S("no", "No", "لا", "🤞", "dynamic", false,
     "Index and middle finger tap against the thumb.",
     "السبابة والوسطى تنقران على الإبهام."),
   S("stop", "Stop", "قف", "✋", "static", true,
@@ -132,6 +139,20 @@ export const ALL_SIGNS: Sign[] = [...A1_SIGNS, ...ALPHABET];
 export const signById = (id: string): Sign | undefined =>
   ALL_SIGNS.find((s) => s.id === id);
 
+// ── Alphabet curriculum (H22) — the sourced content leads the path. 4 lessons
+// of 7 letters in standard Arabic order (pinned decision — no invented
+// similarity ordering). Edge forms (ة، لا، ال) are reference-only and stay OUT
+// of lessons until a signer records them.
+const SEEDED_ALPHABET = ALPHABET.filter((l) => l.cameraGradable); // the 28
+
+export const UNIT_ALPHA: Unit = {
+  id: "alpha-u1",
+  tier: "alphabet",
+  titleEn: "The Arabic Alphabet",
+  titleAr: "الحروف العربية",
+  signIds: SEEDED_ALPHABET.map((s) => s.id),
+};
+
 export const UNIT_A1_U1: Unit = {
   id: "a1-u1",
   tier: "A1",
@@ -140,7 +161,27 @@ export const UNIT_A1_U1: Unit = {
   signIds: A1_SIGNS.map((s) => s.id),
 };
 
+/** Path order: the alphabet unit first (real graded content), then A1 words.
+ *  Unit number shown in the UI = index here + 1. */
+export const UNITS: Unit[] = [UNIT_ALPHA, UNIT_A1_U1];
+
+export const unitById = (id: string): Unit | undefined =>
+  UNITS.find((u) => u.id === id);
+
+const alphaLesson = (n: number, titleEn: string, titleAr: string): Lesson => ({
+  id: `alpha-u1-l${n}`,
+  unitId: "alpha-u1",
+  titleEn,
+  titleAr,
+  signIds: SEEDED_ALPHABET.slice((n - 1) * 7, n * 7).map((s) => s.id),
+});
+
 export const LESSONS: Lesson[] = [
+  // Alphabet leads the path — it's the sourced, camera-graded content (H22).
+  alphaLesson(1, "Alif to Kha", "من الألف إلى الخاء"),
+  alphaLesson(2, "Dal to Sad", "من الدال إلى الصاد"),
+  alphaLesson(3, "Dad to Qaf", "من الضاد إلى القاف"),
+  alphaLesson(4, "Kaf to Ya", "من الكاف إلى الياء"),
   {
     id: "a1-u1-l1",
     unitId: "a1-u1",
@@ -166,6 +207,42 @@ export const LESSONS: Lesson[] = [
 
 export const lessonById = (id: string): Lesson | undefined =>
   LESSONS.find((l) => l.id === id);
+
+// ── Fingerspelling (M6) — char → alphabet sign. ──────────────────────────────
+// Base map: every single-char letter code in ALPHABET (the multi-char edge
+// forms لا/ال are spelled through their constituent letters instead).
+const CHAR_TO_SIGN: Record<string, string> = Object.fromEntries(
+  ALPHABET.filter((s) => s.code?.length === 1).map((s) => [s.code as string, s.id]),
+);
+// Orthographic folds: hamza-carrier and final-position variants collapse onto
+// the base letter whose handshape they share. ة keeps its own reference-only
+// sign (never folded to ه/ت — that would be a linguistic claim we can't back).
+const FOLDS: Record<string, string> = {
+  "أ": "alpha-alif", "إ": "alpha-alif", "آ": "alpha-alif", "ٱ": "alpha-alif",
+  "ؤ": "alpha-waw",
+  "ئ": "alpha-ya", "ى": "alpha-ya",
+};
+// Dropped silently (not "skipped" — they're not signable units at all):
+// whitespace, tatweel (U+0640), harakat (U+064B–065F) and dagger alif (U+0670).
+// A typed سَلام must not produce a "we skipped َ" note. Arabic-Indic digits
+// are deliberately NOT here — digits surface as honest `skipped` steps.
+const SILENT = /[\s\u0640\u064B-\u065F\u0670]/;
+
+export type FingerspellStep =
+  | { kind: "letter"; char: string; signId: string }
+  | { kind: "skipped"; char: string };
+
+/** Map an Arabic string to its fingerspelling sequence. Unmappable characters
+ *  (digits, Latin, ء, punctuation) come back as honest `skipped` steps. */
+export function fingerspellSequence(text: string): FingerspellStep[] {
+  const steps: FingerspellStep[] = [];
+  for (const char of text) {
+    if (SILENT.test(char)) continue;
+    const signId = FOLDS[char] ?? CHAR_TO_SIGN[char];
+    steps.push(signId ? { kind: "letter", char, signId } : { kind: "skipped", char });
+  }
+  return steps;
+}
 
 /** Persona → which lesson the tailored copy points at first (all start at L1 [A]). */
 export const PERSONA_TAGLINE: Record<string, { en: string; ar: string }> = {

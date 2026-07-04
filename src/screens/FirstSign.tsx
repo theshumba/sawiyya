@@ -3,7 +3,7 @@
 // so CameraTrainer opens straight into grade mode (no teach step) and grades genuinely.
 // Reskin: maps the design's 4 visual phases (intro/demo/live/done) onto the real
 // 3-step machine — watch→demo (2/4), try→live (3/4), celebrate→done (4/4). The
-// "intro" phase is optional chrome and is dropped (onboarding drops straight into camera).
+// "intro" phase is optional chrome and is dropped; the arc starts at "watch" (M28).
 //
 // Redesign (§5.4): chrome-light onboarding takeover — NO global tab bar / profile button.
 import { useState } from "react";
@@ -42,6 +42,7 @@ function ProgressHeader({ step, lang }: { step: Step; lang: "en" | "ar" }) {
       <div
         className="h-[7px] flex-1 overflow-hidden rounded-full bg-line"
         role="progressbar"
+        aria-label={pick(lang, "First-sign progress", "تقدّم الإشارة الأولى")}
         aria-valuemin={1}
         aria-valuemax={4}
         aria-valuenow={num}
@@ -61,10 +62,11 @@ function ProgressHeader({ step, lang }: { step: Step; lang: "en" | "ar" }) {
 export function FirstSign() {
   const app = useApp();
   const { go } = useUi();
-  // Onboarding hands users straight into camera practice with their real hand.
-  // Alif has real ground-truth seeds (Tasks 2–4) so it opens in grade mode —
-  // CameraTrainer shows the ا glyph reference chip and grades genuinely (no teach step).
-  const [step, setStep] = useState<Step>("try");
+  // Watch-first (M28): the promised watch-a-signer-then-try arc starts on the
+  // real looping SignDemo, THEN hands over to the camera. Alif has real
+  // ground-truth seeds (Tasks 2–4) so the "try" phase opens in grade mode —
+  // CameraTrainer shows the ا glyph reference chip and grades genuinely.
+  const [step, setStep] = useState<Step>("watch");
   const [burst, setBurst] = useState(0);
   // Track the real grading outcome so the done pill reads "live match" only on a genuine
   // camera match (never a fabricated percentage — the % lives inside CameraTrainer).
@@ -75,18 +77,25 @@ export function FirstSign() {
   if (!sign) return null;
   const lang = profile.language;
 
-  const handleResult = (result: TrainerResult) => {
+  const handleResult = (result: TrainerResult, meta?: { ownRecording?: boolean }) => {
     setResult(result);
-    app.recordDrillResult(sign.id, "good", {
-      camera: result === "match",
+    // Self-mark rates 'hard', never 'good' (H2) — the camera didn't confirm it.
+    app.recordDrillResult(sign.id, result === "match" ? "good" : "hard", {
+      camera: true,
       matched: result === "match",
       selfMark: result === "selfMark",
+      ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     app.markFirstSignTime(); // time-to-first-sign metric (G1)
     celebrate();
     setBurst((b) => b + 1);
     setStep("celebrate");
   };
+
+  // Soft fail (H2): rate 'again' so the very first card reschedules with help;
+  // the trainer replays the demo in place — never a blocking fail screen.
+  const handleSoftFail = () =>
+    app.recordDrillResult(sign.id, "again", { camera: true, matched: false });
 
   // "Share this moment" — Web Share where available, silently no-op otherwise.
   const shareMoment = () => {
@@ -125,13 +134,17 @@ export function FirstSign() {
           و
         </span>
 
-        <main className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6">
+        {/* M17: not <main> — App.tsx's screen router already owns the one
+            <main> landmark. */}
+        <div className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center px-6">
           {/* Fanan celebrate hero (never mirrors) with floating +10 XP + Day-1 streak badges */}
           <div className="fs-hero-float relative flex items-end justify-center">
             <Fanan pose="celebrate" scale={1.2} />
-            {/* +10 XP chip */}
+            {/* XP chip — honest amount: 10 for a camera match, 4 for a self-mark */}
             <div className="extruded-gold animate-rise absolute -end-6 top-2 flex rotate-12 items-center gap-1.5 rounded-2xl bg-gold px-4 py-2">
-              <span className="font-display text-xl font-bold text-teal-deep">+10</span>
+              <span className="font-display text-xl font-bold text-teal-deep">
+                +{toLocaleDigits(result === "match" ? 10 : 4, lang)}
+              </span>
               <span className="font-display text-[10px] font-bold tracking-tight text-teal-deep">
                 {t("xp", lang)}
               </span>
@@ -177,7 +190,7 @@ export function FirstSign() {
           <p className="animate-rise mx-auto mt-4 max-w-[280px] text-lg font-medium leading-relaxed text-sand/90">
             {t("fsDone", lang)}
           </p>
-        </main>
+        </div>
 
         {/* footer actions — one dominant next action ("Keep going" → Learn home) */}
         <footer className="relative z-20 w-full max-w-md px-8 pb-12 pt-8">
@@ -211,7 +224,9 @@ export function FirstSign() {
   // ——— PHASES: DEMO (watch) + LIVE (try) — chrome-light takeover ———
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
-      <main
+      {/* M17: not <main> — App.tsx's screen router already owns the one
+          <main> landmark. */}
+      <div
         className={`mx-auto flex min-h-[calc(100dvh-57px)] w-full flex-col px-5 pb-32 pt-6 md:px-6 ${
           step === "try" ? "max-w-3xl" : "max-w-2xl"
         }`}
@@ -245,11 +260,11 @@ export function FirstSign() {
             </h1>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("fsLiveSub", lang)}</p>
             <div className="mt-4 w-full flex-1 md:max-w-xl">
-              <CameraTrainer sign={sign} lang={lang} onResult={handleResult} autoStart />
+              <CameraTrainer sign={sign} lang={lang} onResult={handleResult} onSoftFail={handleSoftFail} autoStart />
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* ONE dominant next action — coral springy "Now you try" (watch/demo step only) */}
       {step === "watch" && (
