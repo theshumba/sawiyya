@@ -508,6 +508,7 @@ function ChoiceDrill({
               state={state}
               labelEn={pick("en", choice.glossEn, choice.glossAr)}
               labelAr={pick("ar", choice.glossEn, choice.glossAr)}
+              lang={lang}
               disabled={picked !== null}
               onClick={() => choose(id)}
             />
@@ -518,7 +519,10 @@ function ChoiceDrill({
               state={state}
               sign={choice}
               lang={lang}
-              hint={pick(lang, choice.hintEn, choice.hintAr)}
+              // Letter hints literally name their letter ("… for the letter \u0627")
+              // while the recall stimulus shows that same letter — printing the
+              // answer on a tile. The skeleton alone is the honest choice face.
+              hint={choice.type === "alphabet" ? undefined : pick(lang, choice.hintEn, choice.hintAr)}
               disabled={picked !== null}
               onClick={() => choose(id)}
             />
@@ -578,6 +582,7 @@ function ChoiceRow({
   state,
   labelEn,
   labelAr,
+  lang,
   disabled,
   onClick,
 }: {
@@ -585,6 +590,7 @@ function ChoiceRow({
   state: "idle" | "correct" | "wrong" | "dim";
   labelEn: string;
   labelAr: string;
+  lang: Lang;
   disabled: boolean;
   onClick: () => void;
 }) {
@@ -618,7 +624,7 @@ function ChoiceRow({
           aria-hidden="true"
         />
       )}
-      <span className="sr-only">{n}. </span>
+      <span className="sr-only">{toLocaleDigits(n, lang)}. </span>
       <span>
         {labelEn}
         <span className={`mx-2 ${state === "correct" || state === "wrong" ? "opacity-70" : "text-teal/30"}`}>·</span>
@@ -643,7 +649,9 @@ function ChoiceTile({
   state: "idle" | "correct" | "wrong" | "dim";
   sign: Sign;
   lang: Lang;
-  hint: string;
+  /** Absent for alphabet choices — letter hints name their letter, which would
+   *  print the recall answer on the tile. */
+  hint?: string;
   disabled: boolean;
   onClick: () => void;
 }) {
@@ -669,16 +677,18 @@ function ChoiceTile({
       className={`relative flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-[15px] px-4 py-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
       <span className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}>
-        {n}
+        {toLocaleDigits(n, lang)}
       </span>
       <span className="flex h-12 items-center justify-center leading-none" aria-hidden="true">
         <SignGlyph sign={sign} lang={lang} className="text-[32px]" imgClassName="h-10 w-10 object-contain" />
       </span>
-      <span
-        className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
-      >
-        {hint.length > 38 ? `${hint.slice(0, 38)}…` : hint}
-      </span>
+      {hint !== undefined && (
+        <span
+          className={`text-xs font-medium ${state === "correct" || state === "wrong" ? "text-white/80" : state === "dim" ? "text-[#94A5A2]" : "text-muted"}`}
+        >
+          {hint.length > 38 ? `${hint.slice(0, 38)}…` : hint}
+        </span>
+      )}
     </button>
   );
 }

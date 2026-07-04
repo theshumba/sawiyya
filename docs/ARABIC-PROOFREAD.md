@@ -177,11 +177,29 @@ Storage recovery notice (M21):
 - `stNoCamBody` (same — now live; EN edited "signer demo" → "sign demo" to match the Batch-1 truth rename, AR unchanged) · "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available." → **يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا.**
 - `stBrowseSigns` (same — now live; routes to the dictionary) · "Browse the signs →" → **تصفّح الإشارات ←**
 
+### Previously missed inline strings (added to this log 2026-07-04 — the Step-6 fleet caught the omission)
+
+- `src/App.tsx` sr-only lazy-chunk loading fallback (Batch 7) · "Loading…" → **جارٍ التحميل…**
+- `src/screens/Progress.tsx` streak-celebration dialog aria-label (Batch 8, screen-reader only) · "Streak celebration" → **احتفال بالمواظبة**
+
 ### Housekeeping (no proofread needed)
 
 - M24 deleted 176 dead i18n keys — none were listed here except `famFlagSub` (Batch 1), which has been pruned from this document.
 - M20/L12 localised the remaining aria-labels and Eastern-Arabic numerals (camera chips, FPS pill, teach counter, reset toast) — all reuse strings already listed above; no new Arabic.
 - Everything else in Batch 8 was visual/behavioural (contrast tokens, focus management, landmarks, fonts) — no string changes.
+
+## Step 6 — final-gate fixes (2026-07-04)
+
+### App (`src/i18n.ts` + inline)
+
+- `setImportFailed` (NEW — import write failed, e.g. storage quota) · "Couldn't save the import on this device — nothing was replaced." → **تعذّر حفظ الملف المستورد على هذا الجهاز — لم يُستبدل أي شيء.**
+- `prAch5Words` (RELABELLED for honesty — the first 5 mastered signs are letters, not words) · "5 signs" → **٥ إشارات** (was "5 words" / ٥ كلمات)
+- `prPalmsGrown` (FIXED grammar — the old **نخلتان** is the dual "two palms" under a dynamic count) · "palms grown" → **نخلات نمت** — *please confirm the most natural count-neutral phrasing*
+- `homeGreetSub` (gender consistency — was feminine مستعدة amid an otherwise masculine register) · "Ready to sign today?" → **مستعد للإشارة اليوم؟**
+- `prOasisTitle` (same) · "The world you're building" → **العالم الذي تبنيه** (was تبنينه)
+- `prOasisBody` (same) · "Every sign you learn plants something new." → **كل إشارة تتعلّمها تزرع شيئًا جديدًا.** (was تتعلّمينها)
+  - *Proofread note for the three gender fixes:* the codebase's dominant second-person register is masculine; if you'd rather make the whole app gender-neutral (or offer both), flag it and we'll sweep every string in one pass.
+- `camConfidence` now labels the match-overlay stat tile (was mislabelled `accuracy` on a saturated number) — the string itself is unchanged and already listed.
 
 ---
 

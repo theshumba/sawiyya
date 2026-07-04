@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
-import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, sampleCount, userTaughtCount } from "../recognizer/knn";
+import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows } from "../recognizer/classifier";
 import { ensureSeeds, seedsLoaded } from "../recognizer/seedStore";
 import { stepHold, HOLD_MS } from "./holdGate";
@@ -139,7 +139,11 @@ export function CameraTrainer({
       frameSkip.current = (frameSkip.current + 1) % 3;
       if (frameSkip.current !== 0) return; // sample every 3rd frame for variety
       addSample(sign.id, vec);
-      const n = sampleCount(sign.id);
+      // USER samples only: sampleCount() spans the 40 bundled seeds too, so on
+      // a seeded letter "teach my hand" used to insta-complete at 41/24 after
+      // ONE captured frame — falsely announcing "Learned!" while leaving the
+      // learner below the >=8 own-samples floor the M2 teach-blend needs.
+      const n = userTaughtCount(sign.id);
       setCaptured(n);
       if (n >= TEACH_TARGET) {
         teaching.current = false;
@@ -848,12 +852,17 @@ export function CameraTrainer({
                 {t("camMatchOwn", lang)}
               </p>
             )}
+            {/* Real number only: meter saturates to 1.0 at the moment of match
+                (heldMs >= HOLD_MS), so Math.max(confidence, meter) printed a
+                fabricated "100% Accuracy" on EVERY match. `confidence` still
+                holds the last matched frame's true score — show that, labelled
+                as what it is. */}
             <div className="animate-rise rounded-2xl border border-line bg-sand px-4 py-2.5 text-center">
               <div className="font-display text-2xl font-extrabold leading-none text-teal">
-                {formatPercent(Math.max(confidence, meter) * 100, lang)}
+                {formatPercent(confidence * 100, lang)}
               </div>
               <div className="mt-1 font-sans text-[10px] font-semibold uppercase tracking-[0.06em] text-muted">
-                {t("accuracy", lang)}
+                {t("camConfidence", lang)}
               </div>
             </div>
           </div>

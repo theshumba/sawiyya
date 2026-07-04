@@ -129,6 +129,10 @@ const guardedStorage = createJSONStorage(() => ({
       try {
         localStorage.setItem(CORRUPT_BACKUP_KEY, raw);
         localStorage.setItem(RECOVERY_NOTICE_KEY, "1");
+        // Consume the corrupt blob so the recovery notice fires ONCE — leaving
+        // it re-armed the "one-time" notice on every launch until the next
+        // store write happened to overwrite it.
+        localStorage.removeItem(name);
       } catch {
         // storage full — the backup is best-effort, the app must still boot
       }
@@ -156,9 +160,13 @@ function normalizeProgress(v: unknown): AppState["progress"] {
   if (!isRecord(v)) return {};
   const out: AppState["progress"] = {};
   for (const [pid, signs] of Object.entries(v)) {
+    // JSON.parse creates "__proto__" as an OWN key; assigning it below would
+    // swap the map's prototype instead of storing the entry. Drop it.
+    if (pid === "__proto__") continue;
     if (!isRecord(signs)) continue;
     const clean: Record<string, SignProgress> = {};
     for (const [sid, sp] of Object.entries(signs)) {
+      if (sid === "__proto__") continue;
       if (!isRecord(sp)) continue;
       const p = sp as Partial<SignProgress>;
       clean[sid] = {
@@ -176,9 +184,11 @@ function normalizeSrs(v: unknown): AppState["srs"] {
   if (!isRecord(v)) return {};
   const out: AppState["srs"] = {};
   for (const [pid, cards] of Object.entries(v)) {
+    if (pid === "__proto__") continue; // see normalizeProgress
     if (!isRecord(cards)) continue;
     const clean: Record<string, StoredCard> = {};
     for (const [sid, c] of Object.entries(cards)) {
+      if (sid === "__proto__") continue;
       if (!isRecord(c)) continue;
       const k = c as Partial<StoredCard>;
       clean[sid] = {
@@ -213,10 +223,17 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
         return {
           id: typeof pr.id === "string" ? pr.id : uid("p"),
           displayName: typeof pr.displayName === "string" ? pr.displayName : "",
-          role: pr.role ?? "parent",
+          // Enum-ish fields validate against their unions — a hand-edited
+          // import with role "boss" / language "xx" used to NaN the goal ring
+          // and blank every t() label.
+          role:
+            pr.role === "parent" || pr.role === "sibling" || pr.role === "teacher" ||
+            pr.role === "friend" || pr.role === "deaf"
+              ? pr.role
+              : "parent",
           emoji: typeof pr.emoji === "string" ? pr.emoji : AVATARS[0],
-          dominantHand: pr.dominantHand ?? "R",
-          language: pr.language ?? "en",
+          dominantHand: pr.dominantHand === "L" ? "L" : "R",
+          language: pr.language === "ar" ? "ar" : "en",
           xp: finiteOr(pr.xp, 0),
           xpToday: finiteOr(pr.xpToday, 0),
           reviewsToday: finiteOr(pr.reviewsToday, 0),
@@ -225,14 +242,18 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           activeDays: Array.isArray(pr.activeDays)
             ? pr.activeDays.filter((d): d is string => typeof d === "string")
             : [],
-          dailyGoal: pr.dailyGoal ?? "regular",
+          dailyGoal:
+            pr.dailyGoal === "casual" || pr.dailyGoal === "serious" ? pr.dailyGoal : "regular",
           createdAt: typeof pr.createdAt === "string" ? pr.createdAt : new Date().toISOString(),
         };
       })
     : current.profiles;
+  // NO blind `...p` spread: a hostile/hand-edited import could smuggle keys
+  // that collide with store ACTION names (e.g. {"toggleFlag": 42}) and brick
+  // the app permanently. Only the explicit whitelist below is restored.
   return {
     ...current,
-    ...p,
+    onboarded: p.onboarded === true,
     profiles,
     activeProfileId:
       typeof p.activeProfileId === "string" && profiles.some((pr) => pr.id === p.activeProfileId)
@@ -263,11 +284,28 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           })
           .filter((f) => f.signId !== "")
       : [],
-    metrics: {
-      ...emptyMetrics,
-      appFirstOpenAt: current.metrics.appFirstOpenAt,
-      ...(isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {}),
-    },
+    // Metrics coerce field-by-field like every other slice — a spread let
+    // string/object values through, and `drillsCompleted + 1` on a string
+    // silently corrupts the honesty counters forever after.
+    metrics: (() => {
+      const m = isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {};
+      return {
+        appFirstOpenAt:
+          typeof m.appFirstOpenAt === "string"
+            ? m.appFirstOpenAt
+            : current.metrics.appFirstOpenAt,
+        firstSignMs:
+          typeof m.firstSignMs === "number" && Number.isFinite(m.firstSignMs)
+            ? m.firstSignMs
+            : null,
+        drillsCompleted: finiteOr(m.drillsCompleted, 0),
+        cameraAttempts: finiteOr(m.cameraAttempts, 0),
+        cameraMatches: finiteOr(m.cameraMatches, 0),
+        ownRecordingMatches: finiteOr(m.ownRecordingMatches, 0),
+        selfMarks: finiteOr(m.selfMarks, 0),
+        lessonsCompleted: finiteOr(m.lessonsCompleted, 0),
+      };
+    })(),
   };
 }
 
@@ -484,24 +522,41 @@ export const useApp = create<AppState>()(
             };
           }
 
+          // M8: if every non-raiser hearing member ALREADY has mastery >= 2,
+          // the flag archives (and celebrates into the honeycomb) immediately —
+          // the drill-completion check alone would leave such a flag pinned
+          // forever, since nobody needs to re-drill a mastered sign.
+          const learners = s.profiles.filter(
+            (p) => p.id !== byProfileId && p.role !== "deaf",
+          );
+          const alreadyDone =
+            learners.length > 0 &&
+            learners.every(
+              (p) => (s.progress[p.id]?.[signId]?.masteryLevel ?? 0) >= 2,
+            );
+
           const flag: Flag = {
             id: uid("flag"),
             raisedByProfileId: byProfileId,
             supporters: [],
             signId,
             active: true,
-            archived: false,
+            archived: alreadyDone,
             createdAt: new Date().toISOString(),
           };
 
           // H4: "everyone's queue follows" must be true — seed a due-now card
           // into every NON-RAISER profile's SRS (never overwriting an existing
-          // card, which would reset real scheduling history).
+          // card, which would reset real scheduling history). Skipped when the
+          // flag archived on creation — an already-mastered sign must not jump
+          // anyone's queue.
           const srs = { ...s.srs };
-          for (const p of s.profiles) {
-            if (p.id === byProfileId) continue;
-            const cards = srs[p.id] ?? {};
-            if (!cards[signId]) srs[p.id] = { ...cards, [signId]: newStoredCard() };
+          if (!alreadyDone) {
+            for (const p of s.profiles) {
+              if (p.id === byProfileId) continue;
+              const cards = srs[p.id] ?? {};
+              if (!cards[signId]) srs[p.id] = { ...cards, [signId]: newStoredCard() };
+            }
           }
 
           // H6: flagging is the DEAF member's real participation — it counts as
@@ -564,9 +619,18 @@ export const useApp = create<AppState>()(
 // `event.key === null` covers `localStorage.clear()`.
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key === STORE_KEY || event.key === null) {
-      void useApp.persist.rehydrate();
+    if (event.key !== STORE_KEY && event.key !== null) return;
+    // A WIPE in another tab (Privacy "erase everything", the error boundary's
+    // reset, localStorage.clear()) must not be resurrected by this one:
+    // rehydrate() on an empty key merges undefined into the CURRENT state, so
+    // this tab would keep everything and its next set() would re-persist the
+    // data the user just confirm-deleted. Reload instead — this tab boots
+    // fresh, exactly like the tab that wiped.
+    if (localStorage.getItem(STORE_KEY) === null) {
+      window.location.reload();
+      return;
     }
+    void useApp.persist.rehydrate();
   });
 }
 

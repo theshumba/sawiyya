@@ -171,6 +171,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   // to nothing else fights it; falls back silently when no gradable flag exists.
   const flaggedCount = flaggedIds.size;
   const firstGradableFlag = ALL_SIGNS.find((s) => flaggedIds.has(s.id) && s.cameraGradable);
+  const firstFlaggedId = ALL_SIGNS.find((s) => flaggedIds.has(s.id))?.id;
 
   if (!profile) return <NoProfileFallback />;
 
@@ -229,9 +230,15 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
             variant="teal"
             size="lg"
             full
-            // Target the first gradable flagged sign; when none is gradable, still
-            // open the camera (generic) so flagged-but-non-gradable isn't a dead end.
-            onClick={() => (firstGradableFlag ? practiceSign(firstGradableFlag) : go({ name: "camera" }))}
+            // Target the first gradable flagged sign; when none is gradable open
+            // the first flagged sign's OWN detail (watch surface) — the old
+            // generic-camera fallback dropped learners onto Alif, the wrong
+            // sign entirely (H5).
+            onClick={() =>
+              firstGradableFlag
+                ? practiceSign(firstGradableFlag)
+                : setSelectedId(firstFlaggedId ?? null)
+            }
             className="mb-6 gap-3"
           >
             <Icon name="videocam" className="text-2xl" />

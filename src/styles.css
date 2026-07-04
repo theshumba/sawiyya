@@ -76,6 +76,17 @@
   .spring-teal {
     box-shadow: 0 5px 0 #0a4f4c;
   }
+  /* M20 (global backstop): CSS letter-spacing severs Arabic cursive joins.
+     applyDir() stamps <html lang>, so in Arabic every tracking utility in the
+     app is neutralised at once — decorative Latin chips lose a little air in
+     AR; joined Arabic script stays joined. Guarded components (MonoLabel,
+     Eyebrow) already drop tracking themselves; this catches the ~50 ad-hoc
+     tracking-* spans that render t()/pick() copy. */
+  :lang(ar),
+  :lang(ar) * {
+    letter-spacing: normal !important;
+  }
+
   .spring-coral {
     /* H15: the face is now coral-deep (#B54834) — one shade darker so the
        extruded edge stays visible instead of matching the face exactly. */

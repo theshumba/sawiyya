@@ -123,7 +123,7 @@ export function AppNav({ lang }: { lang: Lang }) {
         {profile ? <Avatar emoji={profile.emoji} size="sm" /> : <Icon name="account_circle" className="text-2xl text-teal" />}
         {requests > 0 && (
           <span className="absolute end-1 top-0">
-            <Badge count={requests} />
+            <Badge count={requests} lang={lang} />
           </span>
         )}
         <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>

@@ -21,7 +21,7 @@ import {
 import { useUi } from "../store/ui";
 import type { Persona } from "../types";
 import { Icon } from "../components/ui";
-import { Card, Pill, SpringButton } from "../components/dc";
+import { Card, Pill, SpringButton, formatPercent } from "../components/dc";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
@@ -438,7 +438,7 @@ export function Family() {
                       )}
                     </span>
                     <span className="block font-sans text-xs text-muted">
-                      {num(Math.round(boardPct * 100), lang)}%{" "}
+                      {formatPercent(Math.round(boardPct * 100), lang)}{" "}
                       {pick(lang, "there", "من الطريق")}
                     </span>
                   </span>

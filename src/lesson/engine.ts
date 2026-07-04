@@ -139,7 +139,13 @@ function buildReviewQueue(state: AppState, profileId: string): DrillSpec[] {
     .map((signId, i) => {
       const sign = signById(signId);
       // productive review via camera when the camera already knows the shape
-      if (sign?.cameraGradable && isTrained(signId)) {
+      // The 28 seeded letters (type "alphabet" + cameraGradable) grade via the
+      // bundled MLP — they are camera-ready BY CONSTRUCTION. isTrained() alone
+      // reads the KNN stores, and since M13 the bundled seeds live on a lazy
+      // chunk that only CameraTrainer loads, so on a fresh session the review
+      // queue silently downgraded every due letter to receptive drills unless
+      // a camera screen happened to mount first.
+      if (sign?.cameraGradable && (sign.type === "alphabet" || isTrained(signId))) {
         return { type: "camera", signId } satisfies DrillSpec;
       }
       // H23: a sign with no honest visual can't be a recognise stimulus

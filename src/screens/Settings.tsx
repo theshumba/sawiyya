@@ -47,7 +47,8 @@ export function Settings() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [importErr, setImportErr] = useState<string | null>(null);
-  const [pendingImport, setPendingImport] = useState<unknown | null>(null);
+  const [pendingImport, setPendingImport] =
+    useState<{ state: unknown; persistVersion: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,12 +116,18 @@ export function Settings() {
       setImportErr(t("setImportInvalid", lang));
       return;
     }
-    setPendingImport(parsed.state);
+    setPendingImport({ state: parsed.state, persistVersion: parsed.persistVersion });
   };
 
   const confirmImport = () => {
     if (pendingImport === null) return;
-    applyHouseholdImport(pendingImport);
+    if (!applyHouseholdImport(pendingImport.state, pendingImport.persistVersion)) {
+      // The WRITE failed (storage quota) — nothing was replaced; say so
+      // instead of leaving the confirm card sitting there silently.
+      setPendingImport(null);
+      setImportErr(t("setImportFailed", lang));
+      return;
+    }
     // Reload so the imported blob rehydrates through migrate + normalizer (H13).
     window.location.reload();
   };

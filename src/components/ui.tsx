@@ -1,6 +1,7 @@
 // Brand UI primitives — Sawiyya design system (Brand Identity §2–4).
 // Soft geometry, meeting-curve radii, teal+coral anchors, gold celebration.
 import type { ReactNode } from "react";
+import { toLocaleDigits } from "./dc";
 
 export function Logo({ size = 36 }: { size?: number }) {
   // "The Seen (س)" — three signing fingers rising from the meeting bowl,
@@ -227,18 +228,23 @@ export function Avatar({
 /** Notification dot / count bubble — e.g. family-request count on the profile button. */
 export function Badge({
   count,
+  lang,
   className = "",
 }: {
   count?: number;
+  /** L12: Eastern-Arabic digits in ar. Omit for langless call sites (Latin). */
+  lang?: "en" | "ar";
   className?: string;
 }) {
   if (count !== undefined && count <= 0) return null;
+  const shown =
+    count === undefined ? "" : count > 9 ? (lang === "ar" ? "٩+" : "9+") : toLocaleDigits(count, lang ?? "en");
   return (
     <span
       className={`inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-coral-deep px-1 font-display text-[10px] font-bold leading-none text-white ${className}`}
       aria-hidden="true"
     >
-      {count !== undefined ? (count > 9 ? "9+" : count) : ""}
+      {shown}
     </span>
   );
 }

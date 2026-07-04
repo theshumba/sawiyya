@@ -203,7 +203,7 @@ describe("household export/import (H8)", () => {
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
     localStorage.clear();
-    S.applyHouseholdImport(parsed.state);
+    S.applyHouseholdImport(parsed.state, parsed.persistVersion);
     const raw = JSON.parse(localStorage.getItem(KEY)!);
     expect(raw.version).toBe(1);
     expect(raw.state.profiles).toHaveLength(3);

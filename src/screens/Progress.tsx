@@ -7,9 +7,11 @@
 // the water, swaying palms), live planted/palms tiles, a next-milestone bar, the
 // live weekly streak, the Alphabet Constellation and the "Coming Up" SRS
 // forecast with its designed empty state. STATS/ACHIEVEMENTS/LEAGUE adopt the
-// design's card language; where the current app has no data source (avg
-// accuracy, minutes, the family league) they render the design's literal mock
-// values as static placeholders — flagged for a future data hook.
+// design's card language and are ALL live store data (C6): accuracy derives
+// from app.metrics with an honest "—" empty state, achievements from real
+// mastery/streak counts, and the league binds to app.profiles with a solo
+// empty state. Only the heatmap's intensity is binary, pending a per-day
+// volume source.
 //
 // Live data preserved: mastery/seen counts, A1 + alphabet ring progress, due +
 // upcoming SRS cards, profile streak/xp/goal, real weekly activeDays. Navigation
@@ -153,7 +155,9 @@ export function Progress() {
       <div className="mx-auto max-w-2xl px-4 py-4 md:px-6">
         {/* ── Tab bar (Block B) ──────────────────────────────────────────────── */}
         <div
-          role="tablist"
+          // L11-pattern: these switch in-page views without tabpanel wiring or
+          // arrow-key roving — pressed buttons, not ARIA tabs.
+          role="group"
           aria-label={pick(lang, "Progress views", "أوجه التقدّم")}
           className="flex flex-wrap gap-2 rounded-[18px] border border-line bg-paper p-3"
           style={{ boxShadow: "0 2px 0 #EDE3D2" }}
@@ -164,14 +168,13 @@ export function Progress() {
               <button
                 key={x.key}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 onClick={() => setTab(x.key)}
                 className="rounded-[12px] px-[14px] py-[10px] font-display text-[12px] font-bold leading-none transition-all ease-standard duration-200"
                 style={
                   active
                     ? { background: "#0F6E6A", color: "#FBF7EF", boxShadow: "0 3px 0 #0A4F4C" }
-                    : { background: "#F6EFE3", color: "#5C726F", boxShadow: "inset 0 0 0 1px #EDE3D2" }
+                    : { background: "#F6EFE3", color: "#566B68", boxShadow: "inset 0 0 0 1px #EDE3D2" }
                 }
               >
                 {x.label}

@@ -183,6 +183,7 @@ const dict = {
   setImportConfirmBody: { en: "Importing replaces every profile, flag and progress record on this device with the file's contents. This cannot be undone.", ar: "الاستيراد يستبدل جميع الملفات الشخصية والإشارات المحددة وسجل التقدم على هذا الجهاز بمحتوى الملف. لا يمكن التراجع عن هذا." },
   setImportReplace: { en: "Replace & restart", ar: "استبدل وأعد التشغيل" },
   setImportInvalid: { en: "That file isn't a Sawiyya household export.", ar: "هذا الملف ليس ملف تصدير أسرة من سويّة." },
+  setImportFailed: { en: "Couldn't save the import on this device — nothing was replaced.", ar: "تعذّر حفظ الملف المستورد على هذا الجهاز — لم يُستبدل أي شيء." },
   famFlagFrom: { en: "flagged this for you", ar: "رفع لك هذه" },
 
   // ── reskin: first sign
@@ -195,7 +196,7 @@ const dict = {
   fsDoneBadgeMatch: { en: "live match", ar: "تطابق مباشر" },
 
   // ── reskin: home path
-  homeGreetSub: { en: "Ready to sign today?", ar: "مستعدة للإشارة اليوم؟" },
+  homeGreetSub: { en: "Ready to sign today?", ar: "مستعد للإشارة اليوم؟" },
   homeGoldStat: { en: "gold", ar: "ذهب" },
   homeFamilyStat: { en: "family", ar: "العائلة" },
   homeStartBadge: { en: "START", ar: "ابدأ" },
@@ -282,10 +283,10 @@ const dict = {
   prTabStats: { en: "Stats", ar: "إحصاءات" },
   prTabAchieve: { en: "Achievements", ar: "الإنجازات" },
   prTabLeague: { en: "Family league", ar: "دوري العائلة" },
-  prOasisTitle: { en: "The world you're building", ar: "العالم الذي تبنينه" },
-  prOasisBody: { en: "Every sign you learn plants something new.", ar: "كل إشارة تتعلّمينها تزرع شيئًا جديدًا." },
+  prOasisTitle: { en: "The world you're building", ar: "العالم الذي تبنيه" },
+  prOasisBody: { en: "Every sign you learn plants something new.", ar: "كل إشارة تتعلّمها تزرع شيئًا جديدًا." },
   prPlanted: { en: "signs planted", ar: "إشارة مزروعة" },
-  prPalmsGrown: { en: "palms grown", ar: "نخلتان" },
+  prPalmsGrown: { en: "palms grown", ar: "نخلات نمت" },
   prNextMilestone: { en: "Next milestone", ar: "المحطة التالية" },
   prStatsTitle: { en: "Your stats", ar: "إحصاءاتك" },
   prStatMastered: { en: "Signs mastered", ar: "إشارة مُتقَنة" },
@@ -300,7 +301,10 @@ const dict = {
   prUnlocked: { en: "Unlocked", ar: "مفتوح" },
   prAchFirstSign: { en: "First sign", ar: "أول إشارة" },
   prAch7Day: { en: "7-day streak", ar: "تتابع ٧ أيام" },
-  prAch5Words: { en: "5 words", ar: "٥ كلمات" },
+  // Relabelled from "5 words": mastered counts ALL signs, and the alphabet-first
+  // curriculum means the first 5 mastered are letters — "words" was a fabricated
+  // category claim.
+  prAch5Words: { en: "5 signs", ar: "٥ إشارات" },
   prAchAlphabetStarted: { en: "Alphabet started", ar: "بدء الأبجدية" },
   prAchFamilyFlag: { en: "Family flag", ar: "علم عائلي" },
   prAchWholeAlphabet: { en: "Whole alphabet", ar: "الأبجدية كاملة" },
