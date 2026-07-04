@@ -4,7 +4,9 @@
 //   · an alphabet lesson is completable through the REAL queue in two passes,
 //     and its recognise checkpoints carry pools of MET letters only (H22)
 //   · fingerspellSequence is honest — folds, ة reference, digits skipped (M6)
-//   · yes/no are dynamic + watch-only; iloveyou/stop stay gradable (M7)
+//   · ALL A1 words are watch-only — no word sign has a trained model, so
+//     camera-grading one could only match the user's own recording (M7 +
+//     2026-07-04 iloveyou/stop demotion)
 //   · a sign with no real visual is never a recognise stimulus (H23)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DrillSpec, Sign } from "../types";
@@ -190,14 +192,17 @@ describe("fingerspellSequence (M6)", () => {
 
 // ── yes/no honesty (M7) ──────────────────────────────────────────────────────
 describe("yes/no static-motion contradiction (M7)", () => {
-  it("yes and no are dynamic + watch-only; iloveyou and stop stay gradable", () => {
+  it("yes and no are dynamic + watch-only; no A1 word is camera-gradable", () => {
     for (const id of ["yes", "no"]) {
       const s = signById(id)!;
       expect(s.type).toBe("dynamic");
       expect(s.cameraGradable).toBe(false);
     }
-    for (const id of ["iloveyou", "stop"]) {
-      expect(signById(id)!.cameraGradable).toBe(true);
+    // The MLP knows the 28 letters only — a "gradable" word sign could only
+    // teach-then-match the user's own recording, which is circular. Every A1
+    // word stays watch + self-mark until real signer reference data lands.
+    for (const s of A1_SIGNS) {
+      expect(s.cameraGradable).toBe(false);
     }
   });
 });

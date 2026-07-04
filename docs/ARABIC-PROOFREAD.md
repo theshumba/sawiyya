@@ -203,9 +203,18 @@ Storage recovery notice (M21):
 
 ---
 
-## Handoff — how to review (M29, for Ahmed)
+## Post-ship fix — iloveyou/stop demoted to watch-only (2026-07-04)
 
-**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, 2026-07-02 → 2026-07-03) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
+### App (`src/i18n.ts`)
+
+- `practiseWordsSub` (the Words practise-tile subtitle — was "٢ بالكاميرا · ١٤ للمشاهدة") · "16 watch signs" → **١٦ إشارة للمشاهدة**
+- `signBadgeMotion` (dictionary badge on every non-camera-graded sign — was "حركة"; relabelled because the set now includes static handshapes) · "Watch" → **مشاهدة**
+
+---
+
+## Handoff — how to review (M29, native reviewer)
+
+**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8 plus the 2026-07-04 post-ship fix, 2026-07-02 → 2026-07-04) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
 
 1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
 2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).

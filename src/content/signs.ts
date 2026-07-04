@@ -80,8 +80,13 @@ const S = (
   hintAr: string,
 ): Sign => ({ id, tier: "A1", glossEn, glossAr, emoji, hintEn, hintAr, type, cameraGradable });
 
+// iloveyou/stop demoted to watch-only (2026-07-04): the MLP knows the 28
+// letters ONLY, so "gradable" for a word sign could only mean teach-then-
+// match-your-own-recording — circular for a learner (you can't record a
+// correct reference for a sign you don't know). Watch + self-mark until a
+// native signer records real reference data (Phase 2, real-sign-content-plan).
 export const A1_SIGNS: Sign[] = [
-  S("iloveyou", "I love you", "أحبك", "🤟", "static", true,
+  S("iloveyou", "I love you", "أحبك", "🤟", "static", false,
     "Thumb, index and little finger up — middle and ring folded. Hold it steady, palm out.",
     "الإبهام والسبابة والخنصر مرفوعة — الوسطى والبنصر مطويتان. ثبّت يدك وراحتها للأمام."),
   S("hello", "Hello", "مرحبا", "👋", "dynamic", false,
@@ -96,7 +101,7 @@ export const A1_SIGNS: Sign[] = [
   S("no", "No", "لا", "🤞", "dynamic", false,
     "Index and middle finger tap against the thumb.",
     "السبابة والوسطى تنقران على الإبهام."),
-  S("stop", "Stop", "قف", "✋", "static", true,
+  S("stop", "Stop", "قف", "✋", "static", false,
     "Flat open hand, palm facing forward — hold it firm.",
     "يد مفتوحة مسطّحة، الراحة للأمام — ثبّتها."),
   S("more", "More", "زيادة", "🤏", "dynamic", false,

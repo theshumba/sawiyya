@@ -270,8 +270,9 @@ const dict = {
   practiseAlphabet: { en: "Alphabet", ar: "الأبجدية" },
   practiseAlphabetSub: { en: "28 letters", ar: "٢٨ حرفًا" },
   practiseWords: { en: "Words", ar: "الكلمات" },
-  // M7: yes/no are motion signs — honest count is 2 gradable / 14 watch-only.
-  practiseWordsSub: { en: "2 camera · 14 watch", ar: "٢ بالكاميرا · ١٤ للمشاهدة" },
+  // All 16 A1 words are watch-only: no trained model exists for any word sign
+  // (iloveyou/stop demoted 2026-07-04 — teach-then-match-yourself was circular).
+  practiseWordsSub: { en: "16 watch signs", ar: "١٦ إشارة للمشاهدة" },
   practiseFreeCamera: { en: "Free camera", ar: "كاميرا حرّة" },
   practiseFreeCameraSub: { en: "Sign anything", ar: "أشِر أي شيء" },
   practiseReview: { en: "Review", ar: "مراجعة" },
@@ -334,7 +335,9 @@ const dict = {
   signsAlphaProgress: { en: "of 28 learned", ar: "من ٢٨ مُتعلَّمة" },
   signSignerDemo: { en: "Sign demo", ar: "عرض الإشارة" },
   signBadgeGraded: { en: "Graded", ar: "مُقيَّم" },
-  signBadgeMotion: { en: "Motion", ar: "حركة" },
+  // "Watch" not "Motion": since the iloveyou/stop demotion the non-graded set
+  // includes static handshapes too — the badge signals watch-only, not movement.
+  signBadgeMotion: { en: "Watch", ar: "مشاهدة" },
   signWatchPractise: { en: "Watch & practise", ar: "شاهد وتمرّن" },
 
   // ── reskin: states (permission / empty / error / offline / grader edge cases)
