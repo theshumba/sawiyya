@@ -60,6 +60,20 @@ const dict = {
   camTryAgain: { en: "Try again", ar: "حاول مجددًا" },
   camSkip: { en: "Skip this one", ar: "تجاوز هذه" },
   camStillTricky: { en: "Still tricky — let's see it again", ar: "ما زالت صعبة — لنشاهدها من جديد" },
+  // Sign Coach (2026-07-07): ONE corrective hint while visibly not matching a
+  // seeded letter. Complete strings per finger+direction (not templates) so the
+  // Arabic reads naturally; masculine imperative matches the app's register.
+  coachExtendThumb: { en: "Extend your thumb", ar: "مُدَّ إبهامك" },
+  coachCurlThumb: { en: "Curl your thumb in", ar: "اثنِ إبهامك" },
+  coachExtendIndex: { en: "Extend your index finger", ar: "مُدَّ سبابتك" },
+  coachCurlIndex: { en: "Curl your index finger in", ar: "اثنِ سبابتك" },
+  coachExtendMiddle: { en: "Extend your middle finger", ar: "مُدَّ إصبعك الوسطى" },
+  coachCurlMiddle: { en: "Curl your middle finger in", ar: "اثنِ إصبعك الوسطى" },
+  coachExtendRing: { en: "Extend your ring finger", ar: "مُدَّ بنصرك" },
+  coachCurlRing: { en: "Curl your ring finger in", ar: "اثنِ بنصرك" },
+  coachExtendPinky: { en: "Extend your little finger", ar: "مُدَّ خنصرك" },
+  coachCurlPinky: { en: "Curl your little finger in", ar: "اثنِ خنصرك" },
+  coachReference: { en: "Compare your hand with the reference shape", ar: "قارن يدك بالشكل المرجعي" },
   reviewCapDone: { en: "30 done today — the rest will wait for tomorrow", ar: "أنجزت ٣٠ مراجعة اليوم — والبقية تنتظر حتى الغد" },
   homeNewLetter: { en: "Learn a new letter", ar: "تعلّم حرفًا جديدًا" },
   homeNewLetterSub: { en: "Nothing due right now — start the next letter", ar: "لا شيء مستحق الآن — ابدأ الحرف التالي" },

@@ -24,10 +24,18 @@ can never be the reason a learner is stuck, and hinting it would be dishonest.
 
 - **`src/recognizer/coach.ts`** (new, pure): live normalised 42-vec (the exact vector
   the grader already computes) vs the letter's mean handshape from
-  `seeds/alphabet-shapes.json` (same normalised space; rescaled once to max radius 1
-  to cancel the small averaging shrink). Per-finger error = mean per-joint euclidean
-  over the MediaPipe finger groups (same groups as `HandSkeleton`). Constants:
-  `FINGER_MIN` deviation gate, `DIRECTION_DELTA` tip-radius gate, `REFERENCE_AT = 3`.
+  `seeds/alphabet-shapes.json`. **Palm-anchored scale fit** (found during build):
+  `normalize.ts` scales by max landmark radius, which is pose-dependent — curl the
+  longest finger and the whole hand rescales, smearing one finger's deviation across
+  all five. So the live hand is re-anchored to the target's scale via the mean
+  palm-knuckle radius (MCPs 5/9/13/17 — rigid regardless of finger pose) before
+  comparing. Per-finger error = mean per-joint euclidean over the MediaPipe finger
+  groups (same groups as `HandSkeleton`).
+- **Thresholds are data-derived**, not hand-picked (5,600 real sample×finger pairs):
+  a correct hand's worst finger sits under 0.113 (p90) / 0.159 (p95); a wrong
+  letter's worst finger starts at 0.243 (p10), median 0.399. `FINGER_MIN = 0.13`
+  (≈p92 of correct-hand noise), `DIRECTION_DELTA = 0.08` (tip-radius p90),
+  `REFERENCE_AT = 3`.
 - **`CameraTrainer`**: calls `coach()` on frames it already normalises (no new
   tracking cost), only when `knowsModel` && not matching. A hint must be stable for
   ~700 ms before it shows (no flicker); it clears *immediately* on match / hand lost.

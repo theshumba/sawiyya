@@ -4,9 +4,10 @@
 // Teach mode (§9.2): record samples of a handshape → KNN learns it live.
 // Visuals mirror design/stitch-v2-brand lesson-camera-practice + practise-the-alphabet.
 import { useEffect, useRef, useState } from "react";
-import { pick, t } from "../i18n";
+import { pick, t, type TKey } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
+import { coach, type CoachAdvice, type FingerName } from "../recognizer/coach";
 import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows } from "../recognizer/classifier";
 import { ensureSeeds, seedsLoaded } from "../recognizer/seedStore";
@@ -27,6 +28,18 @@ const UNSURE_AFTER_FRAMES = 140; // ~7 s of trying → show encouragement band
 const SOFT_FAIL_MS = 20_000; // hand-VISIBLE ms without a confirmed match → soft fail (H2)
 
 const HOLD_RING_C = 2 * Math.PI * 36; // hold-to-confirm ring circumference
+
+// Sign Coach (spec docs/superpowers/specs/2026-07-07-sign-coach-design.md):
+// one corrective hint while visibly NOT matching a seeded letter. A hint must
+// be stable for COACH_AFTER_MS of consecutive frames before it shows.
+const COACH_AFTER_MS = 700;
+const COACH_KEYS: Record<FingerName, { curl: TKey; extend: TKey }> = {
+  thumb: { curl: "coachCurlThumb", extend: "coachExtendThumb" },
+  index: { curl: "coachCurlIndex", extend: "coachExtendIndex" },
+  middle: { curl: "coachCurlMiddle", extend: "coachExtendMiddle" },
+  ring: { curl: "coachCurlRing", extend: "coachExtendRing" },
+  pinky: { curl: "coachCurlPinky", extend: "coachExtendPinky" },
+};
 
 // Opt-in grading diagnostics (?debug in the URL) — surfaces the KNN decision
 // internals on-screen so a single screenshot tells us WHY a sign won't confirm.
@@ -120,11 +133,43 @@ export function CameraTrainer({
     }
   };
 
+  // Sign Coach state: a hint must survive COACH_AFTER_MS of consecutive frames
+  // before it shows (no flicker), clears INSTANTLY on match / hand lost, and
+  // only pushes a state update when the advice actually changes (Q1).
+  const [coachAdvice, setCoachAdvice] = useState<CoachAdvice | null>(null);
+  const coachShownKey = useRef("");
+  const coachCandidate = useRef<{ key: string; advice: CoachAdvice; since: number } | null>(null);
+  const pushCoach = (advice: CoachAdvice | null, ts: number) => {
+    const key =
+      advice === null ? "" : advice.kind === "finger" ? `${advice.finger}:${advice.direction}` : "ref";
+    if (key === coachShownKey.current) {
+      coachCandidate.current = null;
+      return;
+    }
+    if (advice === null) {
+      coachShownKey.current = "";
+      coachCandidate.current = null;
+      setCoachAdvice(null);
+      return;
+    }
+    const cand = coachCandidate.current;
+    if (cand?.key === key) {
+      if (ts - cand.since >= COACH_AFTER_MS) {
+        coachShownKey.current = key;
+        coachCandidate.current = null;
+        setCoachAdvice(advice);
+      }
+    } else {
+      coachCandidate.current = { key, advice, since: ts };
+    }
+  };
+
   const onFrame = (frame: FrameInfo | null) => {
     if (finished.current) return;
     if (!frame) {
       pushConfidence(0);
       pushHold(0);
+      pushCoach(null, 0); // hand lost — coaching a hand we can't see would be fake
       heldMs.current = 0; // hand lost — the hold streak breaks (L1)
       lastHoldTs.current = null;
       modelMatchedInHold.current = false;
@@ -256,6 +301,11 @@ export function CameraTrainer({
       modelMatchedInHold.current = false;
       pushHold(0);
     }
+    // Sign Coach: only on frames the grader just rejected, only for seeded
+    // letters (coach() is null → silence for everything else). On matching
+    // frames the hint clears instantly — the hold ring takes over.
+    if (matched) pushCoach(null, frame.timeMs);
+    else if (knowsModel) pushCoach(coach(vec, sign.id), frame.timeMs);
   };
 
   const tracker = useHandTracker(onFrame);
@@ -345,7 +395,12 @@ export function CameraTrainer({
       <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-2xl object-cover" />
     ) : sign.type === "alphabet" && knowsModel ? (
       <span className="relative flex h-full w-full items-center justify-center" role="img" aria-label={gloss}>
-        <HandSkeleton signId={sign.id} className="h-[88%] w-[88%] text-white" />
+        {/* Sign Coach: the finger to fix glows gold on the reference itself */}
+        <HandSkeleton
+          signId={sign.id}
+          className="h-[88%] w-[88%] text-white"
+          coachFinger={coachAdvice?.kind === "finger" ? coachAdvice.fingerIndex : null}
+        />
         <span className="absolute bottom-0 end-0 font-display text-sm font-black text-gold" dir="rtl" aria-hidden="true">
           {sign.code}
         </span>
@@ -485,6 +540,15 @@ export function CameraTrainer({
               style={{ width: `${Math.max(6, meter * 100)}%`, transition: "width .09s linear" }}
             />
           </div>
+          {/* Sign Coach hint — ONE corrective line, only while not matching.
+              Deliberately NOT a live region (M19 keeps one); visual supplement. */}
+          {coachAdvice && holdProgress === 0 && (
+            <p className="animate-rise text-center font-sans text-[13px] font-semibold text-gold-deep">
+              {coachAdvice.kind === "reference"
+                ? t("coachReference", lang)
+                : t(COACH_KEYS[coachAdvice.finger][coachAdvice.direction], lang)}
+            </p>
+          )}
         </div>
       )}
 

@@ -37,14 +37,25 @@ export function HandSkeleton({
   signId,
   className = "h-full w-full",
   stroke = "currentColor",
+  coachFinger = null,
 }: {
   signId: string;
   className?: string;
   /** hand colour (defaults to currentColor so callers set it via text-*) */
   stroke?: string;
+  /** Sign Coach: finger group index (0 thumb … 4 pinky) to highlight in gold,
+   *  drawn on top so the learner sees exactly which finger to fix. */
+  coachFinger?: number | null;
 }) {
   const raw = SHAPES[signId];
   if (!raw) return null;
+
+  // Coached finger renders last (on top) in both passes so its gold core and
+  // edge aren't buried under neighbouring fingers.
+  const drawOrder =
+    coachFinger === null
+      ? DRAW_ORDER
+      : [...DRAW_ORDER.filter((fi) => fi !== coachFinger), coachFinger];
 
   // rotate -90° (fingers up) then fit into a padded 100×100 viewBox.
   const pts = raw.map(([x, y]) => [y, -x] as [number, number]);
@@ -86,7 +97,7 @@ export function HandSkeleton({
       />
       {/* fingers — back (pinky) to front (thumb/index) so the front edges separate
           the fingers behind them. Edge pass first, then the coloured core. */}
-      {DRAW_ORDER.map((fi) => (
+      {drawOrder.map((fi) => (
         <polyline
           key={`e${fi}`}
           points={path(FINGERS[fi])}
@@ -97,12 +108,12 @@ export function HandSkeleton({
           strokeLinejoin="round"
         />
       ))}
-      {DRAW_ORDER.map((fi) => (
+      {drawOrder.map((fi) => (
         <polyline
           key={`c${fi}`}
           points={path(FINGERS[fi])}
           fill="none"
-          stroke="currentColor"
+          stroke={fi === coachFinger ? "#E6B24C" : "currentColor"}
           strokeWidth={8.5}
           strokeLinecap="round"
           strokeLinejoin="round"

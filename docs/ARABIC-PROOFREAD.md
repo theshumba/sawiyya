@@ -212,9 +212,29 @@ Storage recovery notice (M21):
 
 ---
 
+## Post-ship feature — Sign Coach corrective hints (2026-07-07)
+
+### App (`src/i18n.ts`)
+
+One short imperative line shown while the camera sees a hand that is NOT matching a letter — it names the one finger to fix. *Proofread notes:* (a) finger names chosen: إبهام / سبابة / وسطى / بنصر / خنصر — confirm these read naturally for a Gulf audience; (b) وسطى treated as feminine ("إصبعك الوسطى") — confirm; (c) imperatives مُدَّ / اثنِ — confirm the register matches the app's existing masculine imperative (اتبع، قارن).
+
+- `coachExtendThumb` · "Extend your thumb" → **مُدَّ إبهامك**
+- `coachCurlThumb` · "Curl your thumb in" → **اثنِ إبهامك**
+- `coachExtendIndex` · "Extend your index finger" → **مُدَّ سبابتك**
+- `coachCurlIndex` · "Curl your index finger in" → **اثنِ سبابتك**
+- `coachExtendMiddle` · "Extend your middle finger" → **مُدَّ إصبعك الوسطى**
+- `coachCurlMiddle` · "Curl your middle finger in" → **اثنِ إصبعك الوسطى**
+- `coachExtendRing` · "Extend your ring finger" → **مُدَّ بنصرك**
+- `coachCurlRing` · "Curl your ring finger in" → **اثنِ بنصرك**
+- `coachExtendPinky` · "Extend your little finger" → **مُدَّ خنصرك**
+- `coachCurlPinky` · "Curl your little finger in" → **اثنِ خنصرك**
+- `coachReference` · "Compare your hand with the reference shape" → **قارن يدك بالشكل المرجعي**
+
+---
+
 ## Handoff — how to review (M29, native reviewer)
 
-**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8 plus the 2026-07-04 post-ship fix, 2026-07-02 → 2026-07-04) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
+**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8 plus the 2026-07-04 post-ship fix and the 2026-07-07 Sign Coach strings, 2026-07-02 → 2026-07-07) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
 
 1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
 2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).
