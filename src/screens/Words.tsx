@@ -94,14 +94,17 @@ export function Words() {
         {section(TWO_HAND, "wordsTwoHands")}
       </div>
 
-      {/* watch → copy → mark-yourself sheet (mobile + desktop share one dialog) */}
+      {/* watch → copy → mark-yourself sheet (mobile + desktop share one dialog).
+          Flex-centred wrapper, NOT translate classes: animate-rise's keyframes
+          pin `transform` (fill both), which silently cancels -translate-x/y-1/2
+          and left the desktop card hanging half off-screen. */}
       {selected && (
-        <>
+        <div className="fixed inset-0 z-40 flex items-end justify-center md:items-center md:p-6">
           <button
             type="button"
             aria-label={t("close", lang)}
             onClick={() => setSelectedId(null)}
-            className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
           />
           <div
             ref={sheetRef}
@@ -109,8 +112,7 @@ export function Words() {
             aria-modal="true"
             aria-label={pick(lang, selected.glossEn, selected.glossAr)}
             tabIndex={-1}
-            className="fixed inset-x-0 bottom-0 z-50 animate-rise overflow-y-auto rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none md:inset-x-auto md:start-1/2 md:top-1/2 md:bottom-auto md:max-h-[88dvh] md:w-[440px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-3xl md:rtl:translate-x-1/2"
-            style={{ maxHeight: "88dvh" }}
+            className="relative z-10 max-h-[88dvh] w-full animate-rise overflow-y-auto rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none md:w-[440px] md:rounded-3xl md:pb-6"
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink/10 md:hidden" aria-hidden="true" />
             <div className="mb-3 flex items-start justify-between gap-3">
@@ -170,7 +172,7 @@ export function Words() {
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </ScreenShell>
   );
