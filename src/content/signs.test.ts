@@ -1,8 +1,6 @@
 // Content gates for the 2026-07-31 batch: real signer photos, the Words hub's
 // hands annotations, and Latin→Arabic fingerspell transliteration.
 import { describe, expect, it } from "vitest";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
 import {
   A1_SIGNS,
   ALPHABET,
@@ -18,9 +16,15 @@ describe("real signer photos (ArSL21L)", () => {
   });
 
   it("every declared photo file exists in public/", () => {
+    // import.meta.glob (vite/client) instead of node:fs — the app tsconfig has
+    // no node types, and CI's fresh tsc rejects node imports in test files.
+    const onDisk = new Set(
+      Object.keys(import.meta.glob("../../public/handshapes/*.webp")).map(
+        (p) => p.split("/").pop() as string,
+      ),
+    );
     for (const s of ALPHABET) {
-      const p = resolve(__dirname, "../../public", s.photo as string);
-      expect(existsSync(p), `${s.id} → ${s.photo}`).toBe(true);
+      expect(onDisk.has((s.photo as string).split("/").pop() as string), `${s.id} → ${s.photo}`).toBe(true);
     }
   });
 });
