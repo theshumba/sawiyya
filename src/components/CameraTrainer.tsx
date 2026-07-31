@@ -387,11 +387,15 @@ export function CameraTrainer({
         ? t("loopKindWordStatic", lang)
         : t("loopKindWordMotion", lang);
 
-  // Reference chip content — the gold hero chip in the prompt banner. For seeded
-  // letters this is the REAL handshape to copy (averaged real-signer geometry),
-  // not just the written letter — so the learner sees the hand they're aiming for.
+  // Reference chip content — the gold hero chip in the prompt banner. For letters
+  // this is a REAL signer's photo of the handshape to copy. While the Sign Coach
+  // has a specific finger to fix, the chip swaps to the skeleton so that finger
+  // can glow gold (a photo can't highlight one finger); it swaps back on silence.
+  const coachFingerIdx = coachAdvice?.kind === "finger" ? coachAdvice.fingerIndex : null;
   const referenceChip = (sizeClass: string) =>
-    sign.id === "iloveyou" ? (
+    sign.photo && coachFingerIdx === null ? (
+      <img src={sign.photo} alt={gloss} className="h-full w-full rounded-full object-cover" />
+    ) : sign.id === "iloveyou" ? (
       <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-2xl object-cover" />
     ) : sign.type === "alphabet" && knowsModel ? (
       <span className="relative flex h-full w-full items-center justify-center" role="img" aria-label={gloss}>
@@ -399,7 +403,7 @@ export function CameraTrainer({
         <HandSkeleton
           signId={sign.id}
           className="h-[88%] w-[88%] text-white"
-          coachFinger={coachAdvice?.kind === "finger" ? coachAdvice.fingerIndex : null}
+          coachFinger={coachFingerIdx}
         />
         <span className="absolute bottom-0 end-0 font-display text-sm font-black text-gold" dir="rtl" aria-hidden="true">
           {sign.code}

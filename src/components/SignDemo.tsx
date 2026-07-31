@@ -45,6 +45,24 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             className="relative z-10 h-full w-full object-cover"
             aria-label={gloss}
           />
+        ) : sign.photo ? (
+          // REAL signer photo (ArSL21L, CC BY 4.0) — an actual hand making this
+          // letter. The Arabic letter rides along as a small gold label.
+          <div
+            key={replayKey}
+            role="img"
+            aria-label={gloss}
+            className="animate-pop-in relative z-10 h-full w-full"
+          >
+            <img src={sign.photo} alt="" className="h-full w-full rounded-2xl object-cover" />
+            <span
+              className="absolute bottom-2 end-2 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/80 font-display text-xl font-black text-teal backdrop-blur-sm"
+              dir="rtl"
+              aria-hidden="true"
+            >
+              {sign.code}
+            </span>
+          </div>
         ) : sign.id === "iloveyou" ? (
           // The ILY hand ILLUSTRATION (stitch-54). The AI-generated "signer" photo
           // (stitch-30) is retired — we never present a generated person as a Deaf signer.
@@ -55,8 +73,7 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             className="animate-pop-in relative z-10 h-full w-full object-contain p-4 drop-shadow-2xl"
           />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
-          // REAL averaged handshape (Zenodo ArSL geometry) — the hand, not the glyph.
-          // The Arabic letter rides along as a small gold label for context.
+          // Averaged-handshape skeleton — fallback only (a letter without a photo).
           <div
             key={replayKey}
             role="img"
@@ -112,6 +129,23 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
                 {t("signRealRecording", lang)}
               </span>
             </span>
+          </div>
+        ) : sign.photo ? (
+          // Honest: a real signer's photo, with its source named (CC BY 4.0).
+          <div className="mt-5 flex flex-col items-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
+              <Icon name="back_hand" fill className="text-xs leading-none text-teal" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider text-teal">
+                {pick(lang, "Real signer photo", "صورة مُشير حقيقي")}
+              </span>
+            </span>
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
+              {pick(
+                lang,
+                "A real signer's hand (ArSL21L dataset). Deaf-signer video lands in Phase 2.",
+                "يد مُشير حقيقي (بيانات ArSL21L). فيديو من شخص أصمّ في المرحلة الثانية.",
+              )}
+            </p>
           </div>
         ) : hasHandShape(sign.id) ? (
           // Honest: this IS real data — the averaged handshape from real signers.

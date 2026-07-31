@@ -201,6 +201,19 @@ export function AiTransparency() {
           </div>
         </ScreenCard>
 
+        {/* Data credits — CC BY attribution for both real-signer datasets. */}
+        <section className="rounded-2xl border border-line bg-paper p-4 text-center">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-teal">
+            {T("Data credits", "مصادر البيانات")}
+          </p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink/70" dir="auto">
+            {T(
+              "Letter photos: Gochoo, M. (2022), “ArSL21L: Arabic Sign Language Letter Dataset”, Mendeley Data v1, CC BY 4.0 — cropped to the hand. Handshape model: ArSL landmark dataset (Zenodo), CC BY 4.0.",
+              "صور الحروف: Gochoo, M.‎ (2022)، “ArSL21L”، بيانات Mendeley v1، رخصة CC BY 4.0 — مقصوصة على اليد. نموذج أشكال اليد: بيانات ArSL (Zenodo)، رخصة CC BY 4.0.",
+            )}
+          </p>
+        </section>
+
         {/* Secondary link to the privacy promise (demoted). */}
         <div className="flex justify-center">
           <button

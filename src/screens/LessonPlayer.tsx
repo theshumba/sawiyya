@@ -719,6 +719,14 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
             className="h-full w-full object-cover"
             aria-label={t("lsRecogniseTitle", lang)}
           />
+        ) : sign.photo ? (
+          // The real signer PHOTO is the question (H22) — the letter glyph here
+          // would print the answer on the stimulus.
+          <img
+            src={sign.photo}
+            alt={t("lsRecogniseTitle", lang)}
+            className="h-full w-full object-cover"
+          />
         ) : sign.id === "iloveyou" ? (
           // ILY hand illustration (stitch-34) — the AI-generated "signer" photo is retired (C2).
           <img
@@ -727,8 +735,7 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
             className="h-4/5 w-4/5 object-contain"
           />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
-          // The HANDSHAPE is the question (H22) — showing the letter glyph here
-          // would print the answer on the stimulus.
+          // Skeleton fallback (letter without a photo) — never the glyph.
           <span
             className="flex h-full w-full items-center justify-center p-2"
             role="img"

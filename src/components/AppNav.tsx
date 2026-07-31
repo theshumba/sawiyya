@@ -26,12 +26,12 @@ interface Tab {
 const TABS: Tab[] = [
   { name: "home", active: ["home"], icon: "home", label: (l) => t("navLearn", l) },
   {
-    // Practice-first: this tab drops you STRAIGHT into the camera (real-graded
-    // alphabet on alpha-alif, with the full letter switcher) — no chooser detour.
-    // PractiseChooser still exists as a reachable screen, just not the tab target.
-    // Rendered flat (no coral hero) to match the design's 5-flat-icon bottom bar.
-    name: "camera",
-    active: ["practiseChooser", "camera"],
+    // Practise hub (2026-07-31, owner ask): the tab lands on the chooser — the
+    // practice place now has separate parts (Letters camera · Words · Fingerspell
+    // · Free camera), so the straight-to-camera shortcut hid everything but
+    // letters. One tap deeper for the camera, everything else visible.
+    name: "practiseChooser",
+    active: ["practiseChooser", "camera", "words", "fingerspell"],
     icon: "videocam",
     label: (l) => t("navPractise", l),
   },

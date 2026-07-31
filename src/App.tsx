@@ -15,6 +15,7 @@ import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
+import { Words } from "./screens/Words";
 
 // M13: the camera screens pull in the whole recognizer stack — @mediapipe
 // tasks-vision, CameraTrainer, the MLP — none of which the app shell needs on
@@ -46,6 +47,7 @@ const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
   progress: "navProgress",
   settings: "setTitle",
   practiseChooser: "practiseTitle",
+  words: "wordsTitle",
   fingerspell: "fspTitle",
   flagPicker: "famFlagTitle",
   firstSign: "srFirstSign",
@@ -173,6 +175,7 @@ export default function App() {
           <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
         )}
         {screen.name === "practiseChooser" && <PractiseChooser />}
+        {screen.name === "words" && <Words />}
         {/* Fingerspell drives the camera in practise-along — same risky subtree
             treatment as the other camera screens (H12). */}
         {screen.name === "fingerspell" && (

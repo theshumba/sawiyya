@@ -15,8 +15,8 @@ export interface Milestone {
 export function nextMilestone(s: AppState, profileId: string, lang: Lang): Milestone | null {
   const prog = s.progress[profileId] ?? {};
   const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
-  // "All of Unit 1" counts ONLY the 16 A1 signs (M4) — any 16 mastered signs
-  // (e.g. alphabet letters) must not fire the unit milestone.
+  // "All of Unit 1" counts ONLY the A1 signs (M4) — mastered alphabet letters
+  // must not fire the unit milestone.
   const a1Mastered = A1_SIGNS.filter((s2) => (prog[s2.id]?.masteryLevel ?? 0) >= 3).length;
   // Count ONLY the 28 seeded (cameraGradable) letters: the ة/لا/ال edge forms
   // can still reach mastery 3 through the teach-and-match path, and letting
@@ -46,7 +46,9 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
     // Phase-2 signer content to be masterable (non-gradable words cap at 2), so
     // it must never block the reachable alphabet milestone (H22).
     { at: 28, value: alphaMastered, emoji: "🔤", en: "Whole alphabet mastered", ar: "الأبجدية كاملة متقنة" },
-    { at: 16, value: a1Mastered, emoji: "🏆", en: "All the word unit mastered", ar: "كل وحدة الكلمات متقنة" },
+    // Dynamic target: the word unit grew to 19 signs (me/man/woman, 2026-07-31)
+    // and a pinned 16 would have "completed" three signs early.
+    { at: A1_SIGNS.length, value: a1Mastered, emoji: "🏆", en: "All the word unit mastered", ar: "كل وحدة الكلمات متقنة" },
   ];
 
   const next = ladder.find((l) => l.value < l.at);

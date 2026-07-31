@@ -1,0 +1,157 @@
+{
+ "alpha-ain": {
+  "dist": 0.2966,
+  "sharp": 288.6,
+  "source": "319_22_M_ain_0.jpg"
+ },
+ "alpha-al": {
+  "dist": null,
+  "sharp": 215.1,
+  "source": "1005_16_F_al_1.jpg"
+ },
+ "alpha-alif": {
+  "dist": 0.4728,
+  "sharp": 105.4,
+  "source": "1012_19_F_aleff_2.jpg"
+ },
+ "alpha-ba": {
+  "dist": 0.2565,
+  "sharp": 301.3,
+  "source": "1011_37_F_bb_1.jpg"
+ },
+ "alpha-dad": {
+  "dist": 0.2689,
+  "sharp": 264.9,
+  "source": "1011_37_F_dhad_0.jpg"
+ },
+ "alpha-dal": {
+  "dist": 0.2887,
+  "sharp": 905.9,
+  "source": "2_20_M_dal_2.jpg"
+ },
+ "alpha-fa": {
+  "dist": 0.2725,
+  "sharp": 551.5,
+  "source": "1003_19_F_fa_2.jpg"
+ },
+ "alpha-ghain": {
+  "dist": 0.3168,
+  "sharp": 1016.7,
+  "source": "1201_23_M_ghain_1.jpg"
+ },
+ "alpha-ha": {
+  "dist": 0.3416,
+  "sharp": 122.6,
+  "source": "1012_19_F_ha_0.jpg"
+ },
+ "alpha-haa": {
+  "dist": 0.5184,
+  "sharp": 1233.6,
+  "source": "1058_69_M_haa_1.jpg"
+ },
+ "alpha-jeem": {
+  "dist": 0.2056,
+  "sharp": 286.2,
+  "source": "1011_37_F_jeem_0.jpg"
+ },
+ "alpha-kaf": {
+  "dist": 0.1478,
+  "sharp": 229.4,
+  "source": "1012_19_F_kaaf_2.jpg"
+ },
+ "alpha-kha": {
+  "dist": 0.4133,
+  "sharp": 628.5,
+  "source": "202_18_M_khaa_1.jpg"
+ },
+ "alpha-laa": {
+  "dist": null,
+  "sharp": 2387.0,
+  "source": "1005_16_F_la_1.jpg"
+ },
+ "alpha-lam": {
+  "dist": 0.2479,
+  "sharp": 130.3,
+  "source": "831_23_M_laam_0.jpg"
+ },
+ "alpha-meem": {
+  "dist": 0.2622,
+  "sharp": 972.5,
+  "source": "1002_15_M_meem_0.jpg"
+ },
+ "alpha-noon": {
+  "dist": 0.2724,
+  "sharp": 100.3,
+  "source": "1008_28_F_nun_2.jpg"
+ },
+ "alpha-qaf": {
+  "dist": 0.2562,
+  "sharp": 181.3,
+  "source": "319_22_M_gaaf_1.jpg"
+ },
+ "alpha-ra": {
+  "dist": 0.3102,
+  "sharp": 1172.6,
+  "source": "1201_23_M_ra_2.jpg"
+ },
+ "alpha-sad": {
+  "dist": 0.4526,
+  "sharp": 833.2,
+  "source": "1201_23_M_saad_2.jpg"
+ },
+ "alpha-seen": {
+  "dist": 0.1612,
+  "sharp": 1504.0,
+  "source": "2222_16_F_seen_1.jpg"
+ },
+ "alpha-sheen": {
+  "dist": 0.1409,
+  "sharp": 747.6,
+  "source": "11_16_M_sheen_2.jpg"
+ },
+ "alpha-ta": {
+  "dist": 0.2116,
+  "sharp": 243.9,
+  "source": "1003_19_F_ta_0.jpg"
+ },
+ "alpha-taMarbuta": {
+  "dist": null,
+  "sharp": 311.8,
+  "source": "1005_16_F_toot_1.jpg"
+ },
+ "alpha-tah": {
+  "dist": 0.472,
+  "sharp": 320.1,
+  "source": "1009_53_F_taa_0.jpg"
+ },
+ "alpha-tha": {
+  "dist": 0.1884,
+  "sharp": 679.8,
+  "source": "1020_22_M_thaa_0.jpg"
+ },
+ "alpha-thal": {
+  "dist": 0.1881,
+  "sharp": 225.0,
+  "source": "1011_37_F_thal_0.jpg"
+ },
+ "alpha-waw": {
+  "dist": 0.3038,
+  "sharp": 798.8,
+  "source": "1015_16_F_waw_1.jpg"
+ },
+ "alpha-ya": {
+  "dist": 0.1749,
+  "sharp": 355.9,
+  "source": "1005_16_F_yaa_0.jpg"
+ },
+ "alpha-zah": {
+  "dist": 0.5109,
+  "sharp": 112.7,
+  "source": "1009_53_F_dha_2.jpg"
+ },
+ "alpha-zay": {
+  "dist": 0.2107,
+  "sharp": 188.5,
+  "source": "319_22_M_zay_0.jpg"
+ }
+}

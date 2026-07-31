@@ -28,6 +28,11 @@ const L = (
   // Only the 28 seeded letters have a real trained model behind them. The edge
   // forms stay visible as reference but never pretend to auto-grade (honest [A]).
   cameraGradable: !edge,
+  // Real signer photo (ArSL21L, CC BY 4.0 — see public/handshapes/SOURCES.md).
+  // All 31 letters incl. the edge forms have one; selection was scored against
+  // the model's own per-letter mean geometry so the photo and the grader agree.
+  photo: `handshapes/alpha-${id}.webp`,
+  hands: 1,
 });
 
 export const ALPHABET: Sign[] = [
@@ -78,7 +83,8 @@ const S = (
   cameraGradable: boolean,
   hintEn: string,
   hintAr: string,
-): Sign => ({ id, tier: "A1", glossEn, glossAr, emoji, hintEn, hintAr, type, cameraGradable });
+  hands: 1 | 2 = 1,
+): Sign => ({ id, tier: "A1", glossEn, glossAr, emoji, hintEn, hintAr, type, cameraGradable, hands });
 
 // iloveyou/stop demoted to watch-only (2026-07-04): the MLP knows the 28
 // letters ONLY, so "gradable" for a word sign could only mean teach-then-
@@ -106,10 +112,10 @@ export const A1_SIGNS: Sign[] = [
     "يد مفتوحة مسطّحة، الراحة للأمام — ثبّتها."),
   S("more", "More", "زيادة", "🤏", "dynamic", false,
     "Fingertips of both hands pinched, tapping together.",
-    "أطراف أصابع اليدين مضمومة تتلامس معًا."),
+    "أطراف أصابع اليدين مضمومة تتلامس معًا.", 2),
   S("finished", "All done", "خلاص", "🙌", "dynamic", false,
     "Both open hands flip outward — all done!",
-    "اليدان المفتوحتان تنقلبان للخارج — خلاص!"),
+    "اليدان المفتوحتان تنقلبان للخارج — خلاص!", 2),
   S("hungry", "Hungry", "جوعان", "🍽️", "dynamic", false,
     "Cupped hand moves down the chest from throat.",
     "يد مقعّرة تنزل على الصدر من الحلق."),
@@ -130,13 +136,25 @@ export const A1_SIGNS: Sign[] = [
     "يد مسطّحة من الذقن تتحرك للأمام — تقديم الشكر."),
   S("help", "Help", "ساعدني", "🤲", "dynamic", false,
     "Fist on open palm, both rise together.",
-    "قبضة على راحة مفتوحة، ترتفعان معًا."),
+    "قبضة على راحة مفتوحة، ترتفعان معًا.", 2),
   S("careful", "Careful", "انتبه", "👀", "dynamic", false,
     "Two fingers from your eyes outward — watch out.",
     "إصبعان من عينيك إلى الخارج — انتبه."),
   S("name", "Name", "اسم", "🔤", "dynamic", false,
     "Two fingers of each hand tap crossed.",
-    "إصبعان من كل يد ينقران متقاطعين."),
+    "إصبعان من كل يد ينقران متقاطعين.", 2),
+  // "People" trio (2026-07-31, owner ask): simple one-handed words available
+  // from day one in the Words hub. Same provenance rule as the rest of A1 —
+  // ASL-adapted descriptions, disclosed via a1AslProvenance, watch-only.
+  S("me", "Me", "أنا", "🙋", "static", false,
+    "Point to the middle of your chest with your index finger.",
+    "أشِر إلى منتصف صدرك بسبابتك."),
+  S("man", "Man", "رجل", "🧔", "dynamic", false,
+    "Open hand, thumb taps your forehead, then moves down to your chest.",
+    "يد مفتوحة، الإبهام يلمس الجبين ثم ينزل إلى الصدر."),
+  S("woman", "Woman", "امرأة", "🧕", "dynamic", false,
+    "Open hand, thumb taps your chin, then moves down to your chest.",
+    "يد مفتوحة، الإبهام يلمس الذقن ثم ينزل إلى الصدر."),
 ];
 
 export const ALL_SIGNS: Sign[] = [...A1_SIGNS, ...ALPHABET];
@@ -208,6 +226,13 @@ export const LESSONS: Lesson[] = [
     titleAr: "البيت والناس",
     signIds: ["mum", "dad", "sleep", "thankyou", "help", "careful", "name"],
   },
+  {
+    id: "a1-u1-l4",
+    unitId: "a1-u1",
+    titleEn: "People around you",
+    titleAr: "الناس من حولك",
+    signIds: ["me", "man", "woman"],
+  },
 ];
 
 export const lessonById = (id: string): Lesson | undefined =>
@@ -247,6 +272,46 @@ export function fingerspellSequence(text: string): FingerspellStep[] {
     steps.push(signId ? { kind: "letter", char, signId } : { kind: "skipped", char });
   }
   return steps;
+}
+
+// ── Latin → Arabic transliteration (fingerspell) ─────────────────────────────
+// Most people type their name in English letters ("musa") — before this map,
+// every one of those characters surfaced as "skipped" and the screen was a dead
+// end. Map each Latin letter to the Arabic letter whose sound it carries, so
+// fingerspell teaches the Arabic spelling instead of refusing the word.
+// Approximate BY DESIGN (transliteration, not translation) — the UI always shows
+// the resulting Arabic word, so nothing is hidden. Digraphs first (sh → ش, not
+// س+ه), then single letters; anything unmapped passes through and surfaces as an
+// honest skipped step like before.
+const LATIN_DIGRAPHS: [string, string][] = [
+  ["sh", "ش"], ["th", "ث"], ["dh", "ذ"], ["kh", "خ"], ["gh", "غ"],
+  ["aa", "ا"], ["ee", "ي"], ["oo", "و"], ["ou", "و"],
+];
+const LATIN_SINGLES: Record<string, string> = {
+  a: "ا", b: "ب", c: "ك", d: "د", e: "ي", f: "ف", g: "ج", h: "ه", i: "ي",
+  j: "ج", k: "ك", l: "ل", m: "م", n: "ن", o: "و", p: "ب", q: "ق", r: "ر",
+  s: "س", t: "ت", u: "و", v: "ف", w: "و", x: "كس", y: "ي", z: "ز",
+};
+
+export const hasLatin = (text: string): boolean => /[a-z]/i.test(text);
+
+/** Replace Latin runs with their Arabic transliteration; Arabic passes through. */
+export function transliterateLatin(text: string): string {
+  const lower = text.toLowerCase();
+  let out = "";
+  let i = 0;
+  while (i < lower.length) {
+    const two = lower.slice(i, i + 2);
+    const di = LATIN_DIGRAPHS.find(([d]) => d === two);
+    if (di) {
+      out += di[1];
+      i += 2;
+      continue;
+    }
+    out += LATIN_SINGLES[lower[i]] ?? lower[i];
+    i += 1;
+  }
+  return out;
 }
 
 /** Persona → which lesson the tailored copy points at first (all start at L1 [A]). */

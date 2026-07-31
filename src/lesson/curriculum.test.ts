@@ -209,11 +209,13 @@ describe("yes/no static-motion contradiction (M7)", () => {
 
 // ── H23 recognise gating ─────────────────────────────────────────────────────
 describe("visual-gated recognise (H23)", () => {
-  it("hasVisual: seeded letters yes, edge forms and today's A1 words no; media flips it", async () => {
+  it("hasVisual: every letter yes (real photos, incl. edge forms); A1 words no; media flips it", async () => {
     const S = await fresh();
     for (const l of SEEDED) expect(S.hasVisual(l)).toBe(true);
-    for (const id of EDGE_IDS) expect(S.hasVisual(signById(id)!)).toBe(false);
-    for (const s of A1_SIGNS) expect(S.hasVisual(s)).toBe(false); // no skeleton, no footage yet
+    // 2026-07-31: the edge forms gained real ArSL21L photos, so they're now
+    // honest recognise stimuli too (they still never enter lessons or grade).
+    for (const id of EDGE_IDS) expect(S.hasVisual(signById(id)!)).toBe(true);
+    for (const s of A1_SIGNS) expect(S.hasVisual(s)).toBe(false); // no photo, no footage yet
     const filmed: Sign = { ...signById("hello")!, media: { type: "video", src: "signs/hello/demo.webm" } };
     expect(S.hasVisual(filmed)).toBe(true);
   });

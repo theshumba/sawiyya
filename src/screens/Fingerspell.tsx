@@ -1,11 +1,19 @@
 // Fingerspell — "Spell your name" (M6, PRD §6.3 companion mode).
-// Type an Arabic word → letter-by-letter HandSkeleton playback at 0.5×/1×/2×,
-// with an honest note for characters we can't sign yet, a reference-only card
-// for ة, and an optional practise-along that steps the camera through the
-// word's gradable letters (recording real drill results, like CameraPractice).
+// Type any word — Arabic directly, or English letters (transliterated to the
+// Arabic letters they sound like, always shown) — and watch it spelled letter
+// by letter with REAL signer photos at 0.5×/1×/2×. An on-screen Arabic letter
+// pad means nobody needs an Arabic keyboard installed. Honest notes cover
+// characters we can't sign yet, and the practise-along steps the camera
+// through the word's gradable letters (recording real drill results).
 import { useEffect, useMemo, useState } from "react";
 import { pick, t } from "../i18n";
-import { fingerspellSequence, signById } from "../content/signs";
+import {
+  ALPHABET,
+  fingerspellSequence,
+  hasLatin,
+  signById,
+  transliterateLatin,
+} from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
@@ -34,7 +42,10 @@ export function Fingerspell() {
   const [practiseDone, setPractiseDone] = useState(false);
   const [burst, setBurst] = useState(0);
 
-  const steps = useMemo(() => fingerspellSequence(text), [text]);
+  // English letters are transliterated to Arabic first (shown via fspLatinNote),
+  // so typing "musa" spells موسا instead of skipping every character.
+  const arabic = useMemo(() => (hasLatin(text) ? transliterateLatin(text) : text), [text]);
+  const steps = useMemo(() => fingerspellSequence(arabic), [arabic]);
   const letters = useMemo(() => steps.filter((s) => s.kind === "letter"), [steps]);
   const skipped = useMemo(() => steps.filter((s) => s.kind === "skipped"), [steps]);
   const gradable = useMemo(
@@ -135,15 +146,55 @@ export function Fingerspell() {
           </span>
           <input
             type="text"
-            dir="rtl"
+            dir="auto"
             lang="ar"
             value={text}
             onChange={(e) => onText(e.target.value)}
             placeholder={t("fspPlaceholder", lang)}
             maxLength={24}
-            className="w-full rounded-2xl border-2 border-line bg-paper px-4 py-3.5 font-display text-2xl font-bold text-ink placeholder:text-ink/25 focus:border-teal focus:outline-none"
+            className="w-full rounded-2xl border-2 border-line bg-paper px-4 py-3.5 text-end font-display text-2xl font-bold text-ink placeholder:text-ink/25 focus:border-teal focus:outline-none"
           />
         </label>
+
+        {/* On-screen Arabic letter pad — nobody needs an Arabic keyboard installed.
+            The 29 single-character letters in standard order + backspace. */}
+        <div dir="rtl" className="mt-3 flex flex-wrap gap-1.5">
+          {ALPHABET.filter((s) => s.code?.length === 1).map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onText(text.length >= 24 ? text : text + s.code)}
+              aria-label={pick(lang, s.glossEn, s.glossAr)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-paper font-display text-lg font-bold text-ink shadow-[inset_0_0_0_1px_#EDE3D2] transition hover:border-teal/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              {s.code}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => onText([...text].slice(0, -1).join(""))}
+            aria-label={t("fspBackspace", lang)}
+            className="flex h-10 w-[52px] items-center justify-center rounded-xl bg-sand font-display text-ink shadow-[inset_0_0_0_1px_#EDE3D2] transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          >
+            {/* arrow_back is in the subsetted icon font (L8); "backspace" isn't */}
+            <Icon name="arrow_back" className="text-lg leading-none rtl:rotate-180" />
+          </button>
+        </div>
+
+        {/* Transliteration disclosure — English letters were converted; show the
+            Arabic word we're actually spelling so nothing happens silently. */}
+        {hasLatin(text) && letters.length > 0 && (
+          <div className="mt-3 flex items-start gap-2 rounded-2xl border border-line bg-sand p-3">
+            {/* "info" is in the subsetted icon font (L8); "translate" isn't */}
+            <Icon name="info" className="mt-0.5 shrink-0 text-base leading-none text-ink/70" />
+            <p className="text-[12.5px] leading-snug text-ink/70">
+              {t("fspLatinNote", lang)}{" "}
+              <span dir="rtl" className="font-display text-base font-bold text-ink">
+                {letters.map((s) => s.char).join("")}
+              </span>
+            </p>
+          </div>
+        )}
 
         {practising && practiseSign ? (
           /* ── practise-along: the camera steps through the gradable letters ── */
@@ -202,10 +253,41 @@ export function Fingerspell() {
               </div>
             )}
 
-            {/* stage — the current letter's real handshape (or reference card) */}
+            {/* stage — the current letter's real signer photo (or reference card) */}
             <div className="mt-5">
               {current && currentSign ? (
-                hasHandShape(currentSign.id) ? (
+                currentSign.photo ? (
+                  <>
+                    <div
+                      role="img"
+                      aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}
+                      className="relative aspect-square w-full overflow-hidden rounded-3xl"
+                    >
+                      <img
+                        key={`${currentSign.id}-${safeCursor}`}
+                        src={currentSign.photo}
+                        alt=""
+                        className="animate-pop-in h-full w-full object-cover"
+                      />
+                      <span
+                        className="absolute bottom-3 end-3 flex h-11 w-11 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/80 font-display text-2xl font-black text-teal backdrop-blur-sm"
+                        dir="rtl"
+                        aria-hidden="true"
+                      >
+                        {current.char}
+                      </span>
+                      <span className="absolute start-3 top-3 rounded-lg bg-black/25 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85" dir="ltr">
+                        ● {t("fsSignerTag", lang)}
+                      </span>
+                    </div>
+                    {/* ة (and any future reference-only letter): honest no-grading note */}
+                    {!currentSign.cameraGradable && (
+                      <p className="mt-2 text-center text-xs italic leading-snug text-ink/70">
+                        {t("fspRefOnly", lang)}
+                      </p>
+                    )}
+                  </>
+                ) : hasHandShape(currentSign.id) ? (
                   <div
                     role="img"
                     aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}

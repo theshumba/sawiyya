@@ -28,7 +28,7 @@ export default defineConfig({
         // first camera use instead.
         // L8: fonts are self-hosted now (public/fonts/, precached below via the
         // woff2 glob) — no more runtime CacheFirst rule for fonts.googleapis.com.
-        globPatterns: ["**/*.{js,css,html,svg,png,woff2,wasm,task,json}"],
+        globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2,wasm,task,json}"],
         globIgnores: ["**/vision_wasm_nosimd_internal.wasm"],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
       },

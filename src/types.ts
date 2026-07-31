@@ -37,6 +37,13 @@ export interface Sign {
   hintAr: string;
   type: SignType;
   cameraGradable: boolean;
+  /** Real reference photo (ArSL21L, CC BY 4.0) — public/handshapes/<id>.webp.
+   *  The primary demo visual for alphabet signs; replaces the averaged-skeleton
+   *  placeholder everywhere it renders. */
+  photo?: string;
+  /** Hands the sign needs. The Words hub leads with one-handed signs — they're
+   *  the ones a learner can copy while holding a phone. */
+  hands?: 1 | 2;
   /** Real footage (H23) — the owner-gated Deaf-signer recording drops in here;
    *  SignDemo renders it over every placeholder when present. */
   media?: { type: "video"; src: string; poster?: string };

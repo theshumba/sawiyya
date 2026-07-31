@@ -4,7 +4,7 @@
 // Nav lives in the shared ScreenShell/AppNav; the XP pill lives on the profile button.
 import { useState } from "react";
 import { pick, t } from "../i18n";
-import { ALPHABET, A1_SIGNS, signById } from "../content/signs";
+import { ALPHABET, signById } from "../content/signs";
 import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { CameraTrainer } from "../components/CameraTrainer";
@@ -14,8 +14,6 @@ import { toLocaleDigits } from "../components/dc";
 import { Chip } from "../components/Tile";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
-
-const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
 // autoStart: the onboarding alphabet fast-path opens the camera immediately
 // (no extra "Start camera" tap — L20); the browser permission prompt still gates.
@@ -112,37 +110,25 @@ export function CameraPractice({
           </span>
         </header>
 
-        {/* ONE target switcher: gradable word signs + the Arabic alphabet,
-            unified active / trained / idle via Chip + scroll-edge fades. */}
+        {/* ONE target switcher: the Arabic alphabet, unified active / trained /
+            idle via Chip + scroll-edge fades. dir=rtl on the SCROLLER (not an
+            inner div) so the strip starts at Alif — the old inner-div RTL inside
+            an LTR scroller opened scrolled to the wrong end, showing the edge
+            forms (ال، لا، ة) first and reading as a jumbled alphabet. */}
         <div className="relative mb-5">
-          <div className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 py-2 md:mx-0 md:px-0">
-            {GRADABLE_SIGNS.map((s) => (
+          <div dir="rtl" className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 py-2 md:mx-0 md:px-0">
+            {ALPHABET.map((s) => (
               <Chip
                 key={s.id}
                 selected={s.id === signId}
                 state={practised(s.id) ? "trained" : "idle"}
                 onClick={() => choose(s.id)}
+                ariaLabel={pick(lang, s.glossEn, s.glossAr)}
+                className="h-12 w-12 shrink-0 px-0 text-xl"
               >
-                {pick(lang, s.glossEn, s.glossAr)}
+                {s.code}
               </Chip>
             ))}
-            <span className="mx-1 self-center text-teal/20" aria-hidden="true">
-              <Icon name="more_vert" className="text-lg leading-none" />
-            </span>
-            <div dir="rtl" className="flex gap-2">
-              {ALPHABET.map((s) => (
-                <Chip
-                  key={s.id}
-                  selected={s.id === signId}
-                  state={practised(s.id) ? "trained" : "idle"}
-                  onClick={() => choose(s.id)}
-                  ariaLabel={pick(lang, s.glossEn, s.glossAr)}
-                  className="h-12 w-12 px-0 text-xl"
-                >
-                  {s.code}
-                </Chip>
-              ))}
-            </div>
           </div>
           {/* scroll-edge fades */}
           <span

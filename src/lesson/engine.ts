@@ -25,7 +25,7 @@ const CHECKPOINTS = 3;
  *  would render as the same generic icon, making "what does this sign mean?"
  *  unanswerable; those signs drill as recall (meaning → pick the sign) instead. */
 export function hasVisual(sign: Sign): boolean {
-  return hasHandShape(sign.id) || !!sign.media;
+  return !!sign.photo || hasHandShape(sign.id) || !!sign.media;
 }
 
 function shuffle<T>(arr: T[]): T[] {

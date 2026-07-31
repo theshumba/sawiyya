@@ -121,6 +121,7 @@ const dict = {
   famTitle: { en: "Family", ar: "العائلة" },
   famHousehold: { en: "Your household", ar: "أسرتك" },
   famAdd: { en: "Add a family member", ar: "أضف فردًا من العائلة" },
+  famAddShort: { en: "Add", ar: "أضف" },
   famName: { en: "Name", ar: "الاسم" },
   famFlagTitle: { en: "Flag signs we need", ar: "حدّد الإشارات التي نحتاجها" },
   famFlagged: { en: "needs this", ar: "يحتاج هذه" },
@@ -182,6 +183,7 @@ const dict = {
 
   // ── reskin: family
   famLearners: { en: "learners", ar: "متعلّمين" },
+  famLearnerOne: { en: "1 learner", ar: "متعلّم واحد" },
   famSignsTogether: { en: "signs together", ar: "إشارة معًا" },
   famLearningTogether: { en: "Learning together", ar: "نتعلّم معًا" },
   famLeagueNote: { en: "We celebrate everyone — no rankings, no losers.", ar: "نحتفي بالجميع — لا ترتيب ولا خاسرين." },
@@ -202,8 +204,8 @@ const dict = {
 
   // ── reskin: first sign
   fsDemoTitle: { en: "Watch it once", ar: "شاهدها مرّة" },
-  fsDemoSub: { en: "The average handshape from real signers (Zenodo ArSL)", ar: "متوسط شكل اليد من مُشيرين حقيقيين (Zenodo ArSL)" },
-  fsSignerTag: { en: "REAL HANDSHAPE", ar: "شكل يد حقيقي" },
+  fsDemoSub: { en: "A real signer's hand (ArSL21L dataset)", ar: "يد مُشير حقيقي (بيانات ArSL21L)" },
+  fsSignerTag: { en: "REAL SIGNER", ar: "مُشير حقيقي" },
   fsDemoMeans: { en: "This sign means “{gloss}”", ar: "هذه الإشارة تعني «{gloss}»" },
   fsLiveTitle: { en: "Now make the sign", ar: "الآن أدِّ الإشارة" },
   fsLiveSub: { en: "The camera is grading you live", ar: "الكاميرا تقيّمك مباشرةً" },
@@ -286,7 +288,17 @@ const dict = {
   practiseWords: { en: "Words", ar: "الكلمات" },
   // All 16 A1 words are watch-only: no trained model exists for any word sign
   // (iloveyou/stop demoted 2026-07-04 — teach-then-match-yourself was circular).
-  practiseWordsSub: { en: "16 watch signs", ar: "١٦ إشارة للمشاهدة" },
+  practiseWordsSub: { en: "Watch & copy, from day one", ar: "شاهد وقلّد من اليوم الأول" },
+
+  // Words hub (2026-07-31) — instant word practice, one-handed signs first
+  wordsTitle: { en: "Everyday words", ar: "كلمات يومية" },
+  wordsSubtitle: {
+    en: "Watch, copy, mark yourself — no letters needed first.",
+    ar: "شاهد وقلّد وقيّم نفسك — لا تحتاج الحروف أولًا.",
+  },
+  wordsOneHand: { en: "One hand", ar: "بيد واحدة" },
+  wordsTwoHands: { en: "Two hands", ar: "بيدين" },
+  wordsMarked: { en: "Marked — it'll come back in review.", ar: "سجّلناها — ستعود في المراجعة." },
   practiseFreeCamera: { en: "Free camera", ar: "كاميرا حرّة" },
   practiseFreeCameraSub: { en: "Sign anything", ar: "أشِر أي شيء" },
   practiseReview: { en: "Review", ar: "مراجعة" },
@@ -367,7 +379,7 @@ const dict = {
 
   // ── Batch 6: fingerspelling (M6)
   fspTitle: { en: "Fingerspell", ar: "التهجئة بالإشارة" },
-  fspSubtitle: { en: "Type an Arabic word — watch it spelled letter by letter.", ar: "اكتب كلمة عربية — وشاهدها تُتهجّى حرفًا حرفًا." },
+  fspSubtitle: { en: "Type any word — Arabic or English letters — and watch it spelled letter by letter.", ar: "اكتب أي كلمة — بالعربية أو بأحرف إنجليزية — وشاهدها تُتهجّى حرفًا حرفًا." },
   fspInputLabel: { en: "Arabic word", ar: "كلمة عربية" },
   fspPlaceholder: { en: "مثال: سلام", ar: "مثال: سلام" },
   fspEmpty: { en: "Type a word to begin — try your name.", ar: "اكتب كلمة للبدء — جرّب اسمك." },
@@ -380,6 +392,8 @@ const dict = {
   fspPractiseAlongSub: { en: "Camera-check each letter of your word", ar: "تحقّق بالكاميرا من كل حرف في كلمتك" },
   fspLetterOf: { en: "Letter {i} of {n}", ar: "الحرف {i} من {n}" },
   fspDone: { en: "You spelled the whole word!", ar: "تهجّيت الكلمة كاملة!" },
+  fspBackspace: { en: "Delete letter", ar: "احذف حرفًا" },
+  fspLatinNote: { en: "English letters converted — you're spelling:", ar: "حوّلنا الأحرف الإنجليزية — أنت تتهجّى:" },
   fspHomeCard: { en: "Spell your name", ar: "تهجَّ اسمك" },
   fspHomeCardSub: { en: "Fingerspell any word, letter by letter", ar: "تهجَّ أي كلمة حرفًا حرفًا" },
   practiseFingerspell: { en: "Fingerspell", ar: "التهجئة" },

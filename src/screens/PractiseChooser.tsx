@@ -14,14 +14,10 @@ import {
   useApp,
 } from "../store/app";
 import { useUi } from "../store/ui";
-import { A1_SIGNS } from "../content/signs";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Icon } from "../components/ui";
-import { SignGlyph } from "../components/SignGlyph";
 import { Fanan } from "../components/Fanan";
-
-const GRADABLE_SIGNS = A1_SIGNS.filter((s) => s.cameraGradable);
 
 // Springy hub tile — hard bottom shadow, drops + collapses on press (spec §5).
 const TILE_BASE =
@@ -66,10 +62,10 @@ export function PractiseChooser() {
             <div className={TILE_SUB}>{t("practiseAlphabetSub", lang)}</div>
           </button>
 
-          {/* 2 · Words — teach-mode gradable subset (first gradable sign) */}
+          {/* 2 · Words — the word room: instant access, no letter progress needed */}
           <button
             type="button"
-            onClick={() => go({ name: "camera", targetSignId: GRADABLE_SIGNS[0]?.id })}
+            onClick={() => go({ name: "words" })}
             className={`${TILE_BASE} bg-coral-deep`}
           >
             {/* 🤟 handshape — never mirrors */}
@@ -154,30 +150,6 @@ export function PractiseChooser() {
             </p>
           </div>
         )}
-
-        {/* B2b · Everyday QSL signs — teach-mode gradable subset (SignGlyph tiles) */}
-        <div className="mt-6">
-          <p className="mb-2 px-1 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-teal">
-            {pick(lang, "Everyday signs", "إشارات يومية")}
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {GRADABLE_SIGNS.map((sign) => (
-              <button
-                key={sign.id}
-                type="button"
-                onClick={() => go({ name: "camera", targetSignId: sign.id })}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-paper p-4 text-center transition hover:border-teal/40 active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sand/60">
-                  <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-10 w-10 rounded-lg object-cover" />
-                </span>
-                <span className="truncate font-display text-sm font-bold text-ink">
-                  {pick(lang, sign.glossEn, sign.glossAr)}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* B4 · More dialects — coming soon (no fabricated data, decision #6) */}
         <div className="mt-6 rounded-3xl border-2 border-dashed border-teal/20 bg-paper/50 p-5 text-center">

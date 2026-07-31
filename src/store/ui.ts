@@ -15,6 +15,7 @@ export type Screen =
   | { name: "firstSign" }
   | { name: "allSigns"; signId?: string }
   | { name: "practiseChooser" }
+  | { name: "words" }
   | { name: "fingerspell" };
 
 interface UiState {

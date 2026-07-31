@@ -106,7 +106,7 @@ export function Family() {
 
   return (
     <ScreenShell lang={lang} chrome="tabs">
-      <div className="mx-auto max-w-md px-[22px] pb-10 pt-1.5">
+      <div className="mx-auto max-w-md px-[22px] pb-10 pt-1.5 md:max-w-2xl md:px-8 md:pt-6">
         {/* B5 · Header — data-driven household name + learners·signs subtitle ── */}
         <header>
           <p className={eyebrowCls}>{t("famTitle", lang)}</p>
@@ -114,8 +114,10 @@ export function Family() {
             <bdi>{t("famHousehold", lang)}</bdi>
           </h1>
           <p className="mt-1 font-sans text-[13px] leading-[1.35] text-muted">
-            {num(app.profiles.length, lang)} {t("famLearners", lang)} ·{" "}
-            {num(board.length, lang)} {t("famSignsTogether", lang)}
+            {app.profiles.length === 1
+              ? t("famLearnerOne", lang)
+              : `${num(app.profiles.length, lang)} ${t("famLearners", lang)}`}{" "}
+            · {num(board.length, lang)} {t("famSignsTogether", lang)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
             <Pill tone="coral">
@@ -167,13 +169,16 @@ export function Family() {
             <button
               type="button"
               onClick={() => setAdding(true)}
+              aria-label={t("famAdd", lang)}
               className="w-[74px] flex-none rounded-2xl border border-dashed border-teal/30 bg-paper/50 p-[11px_8px] text-center transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-teal/10 text-teal">
                 <Icon name="add" />
               </span>
+              {/* the 74px tile truncated "Add a family member" to "Add a f…" —
+                  short label on the tile, full label stays as the aria-label */}
               <span className="mt-[7px] block truncate text-xs font-bold text-muted">
-                {t("famAdd", lang)}
+                {t("famAddShort", lang)}
               </span>
             </button>
           )}

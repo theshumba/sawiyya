@@ -232,9 +232,43 @@ One short imperative line shown while the camera sees a hand that is NOT matchin
 
 ---
 
+## Post-ship batch — real photos, Words hub, fingerspell keypad (2026-07-31)
+
+### App (`src/i18n.ts`)
+
+- `practiseWordsSub` (Words practise-tile subtitle; replaces the count-pinned "١٦ إشارة للمشاهدة") · "Watch & copy, from day one" → **شاهد وقلّد من اليوم الأول**
+- `wordsTitle` · "Everyday words" → **كلمات يومية**
+- `wordsSubtitle` · "Watch, copy, mark yourself — no letters needed first." → **شاهد وقلّد وقيّم نفسك — لا تحتاج الحروف أولًا.**
+- `wordsOneHand` (section header + chip) · "One hand" → **بيد واحدة**
+- `wordsTwoHands` · "Two hands" → **بيدين**
+- `wordsMarked` · "Marked — it'll come back in review." → **سجّلناها — ستعود في المراجعة.**
+- `fspSubtitle` (changed) · "Type any word — Arabic or English letters — and watch it spelled letter by letter." → **اكتب أي كلمة — بالعربية أو بأحرف إنجليزية — وشاهدها تُتهجّى حرفًا حرفًا.**
+- `fspBackspace` (aria-label) · "Delete letter" → **احذف حرفًا**
+- `fsDemoSub` (changed) · "A real signer's hand (ArSL21L dataset)" → **يد مُشير حقيقي (بيانات ArSL21L)**
+- `fsSignerTag` (changed) · "REAL SIGNER" → **مُشير حقيقي**
+- `fspLatinNote` · "English letters converted — you're spelling:" → **حوّلنا الأحرف الإنجليزية — أنت تتهجّى:**
+- `famLearnerOne` (family header, singular fix for "١ متعلّمين") · "1 learner" → **متعلّم واحد**
+- `famAddShort` (add-member tile — full famAdd stays as the aria-label) · "Add" → **أضف**
+
+### Sign content (`src/content/signs.ts`, new A1 words — glosses + hints)
+
+- `me` · gloss "Me" → **أنا** · hint "Point to the middle of your chest with your index finger." → **أشِر إلى منتصف صدرك بسبابتك.**
+- `man` · gloss "Man" → **رجل** · hint "Open hand, thumb taps your forehead, then moves down to your chest." → **يد مفتوحة، الإبهام يلمس الجبين ثم ينزل إلى الصدر.**
+- `woman` · gloss "Woman" → **امرأة** · hint "Open hand, thumb taps your chin, then moves down to your chest." → **يد مفتوحة، الإبهام يلمس الذقن ثم ينزل إلى الصدر.**
+- New lesson `a1-u1-l4` title · "People around you" → **الناس من حولك**
+
+### Inline literals
+
+- `SignDemo` photo caption tag · "Real signer photo" → **صورة مُشير حقيقي**
+- `SignDemo` photo caption body · "A real signer's hand (ArSL21L dataset). Deaf-signer video lands in Phase 2." → **يد مُشير حقيقي (بيانات ArSL21L). فيديو من شخص أصمّ في المرحلة الثانية.**
+- `InfoPages` data credits heading · "Data credits" → **مصادر البيانات**
+- `InfoPages` data credits body · **صور الحروف: Gochoo, M.‎ (2022)، "ArSL21L"، بيانات Mendeley v1، رخصة CC BY 4.0 — مقصوصة على اليد. نموذج أشكال اليد: بيانات ArSL (Zenodo)، رخصة CC BY 4.0.**
+
+---
+
 ## Handoff — how to review (M29, native reviewer)
 
-**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8 plus the 2026-07-04 post-ship fix and the 2026-07-07 Sign Coach strings, 2026-07-02 → 2026-07-07) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
+**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, the 2026-07-04 post-ship fix, the 2026-07-07 Sign Coach strings, and the 2026-07-31 photos/Words/fingerspell batch) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
 
 1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
 2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).
