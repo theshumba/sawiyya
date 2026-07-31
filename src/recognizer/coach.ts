@@ -29,14 +29,22 @@ const FINGERS: { name: FingerName; joints: [number, number, number, number] }[] 
 ];
 
 // Units: normalised hand space (wrist at origin), re-anchored on the palm below.
-// Thresholds are DATA-DERIVED from the real seeds (5,600 sample×finger pairs):
-// a correct hand's worst finger sits under 0.113 at p90 / 0.159 at p95, while a
-// wrong LETTER's worst finger starts at 0.243 (p10) with median 0.399. 0.13 ≈ p92
-// of correct-hand noise; the residual is absorbed structurally — the coach only
-// runs on frames the model already rejected, and a hint must survive ~700 ms of
-// consecutive frames before it shows. Tip-radius within-noise is 0.078 at p90.
-const FINGER_MIN = 0.13; // mean per-joint deviation before we say anything
-const DIRECTION_DELTA = 0.08; // tip-radius difference before curl/extend is clear
+// Thresholds are DATA-DERIVED — re-derived 2026-08-01 on the blended two-dataset
+// corpus (4,480 sample×5-finger pairs, same method as the 2026-07-07 originals):
+// a correct hand's worst finger now sits at 0.237 (p90) / 0.260 (p92) — the
+// ArSL21L population is noisier than Zenodo's studio captures, and per-population
+// reference means barely help (own-population p90 is still 0.206), so the single
+// blended mean stays. A wrong LETTER's worst finger starts at 0.244 (p10),
+// median 0.425. 0.24 ≈ p90 of correct-hand noise AND just under the ~0.25 a
+// fully-curled-when-should-be-extended finger produces — the canonical miss
+// the coach exists to catch. False coaching needs BOTH gates to trip (err ≥
+// 0.24 and |tip-radius delta| ≥ 0.17 = its own p90), so the joint rate on
+// correct hands stays in the low single digits; the rest is absorbed
+// structurally (model-rejected frames only + ~700 ms stability). The coach
+// speaks less than the old 0.13 world, but what it names is right for BOTH
+// signer populations — silence over wrong advice (ladder rule 3).
+const FINGER_MIN = 0.24; // mean per-joint deviation before we say anything
+const DIRECTION_DELTA = 0.17; // tip-radius difference before curl/extend is clear
 const REFERENCE_AT = 3; // this many wrong fingers → the whole shape is off
 
 // Palm knuckles (MCPs) — rigid relative to the wrist REGARDLESS of finger pose.

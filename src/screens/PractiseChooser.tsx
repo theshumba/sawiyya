@@ -14,6 +14,7 @@ import {
   useApp,
 } from "../store/app";
 import { useUi } from "../store/ui";
+import { ALPHABET } from "../content/signs";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Icon } from "../components/ui";
@@ -38,6 +39,10 @@ export function PractiseChooser() {
   const lang = profile.language;
   const due = dueSignIds(app, profile.id);
   const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
+  const progress = app.progress[profile.id] ?? {};
+  const lettersPractised = ALPHABET.filter(
+    (s) => s.cameraGradable && (progress[s.id]?.masteryLevel ?? 0) >= 1,
+  ).length;
 
   return (
     <ScreenShell lang={lang}>
@@ -50,7 +55,8 @@ export function PractiseChooser() {
 
         {/* B2 · Hub card grid */}
         <div className="mt-[18px] grid grid-cols-2 gap-3">
-          {/* 1 · Alphabet — READY (real gradable data) */}
+          {/* 1 · Alphabet — READY (real gradable data). Sub goes live once any
+              letter has been practised: "n of 28" beats a static "28 letters". */}
           <button
             type="button"
             onClick={() => go({ name: "camera", targetSignId: "alpha-alif" })}
@@ -59,7 +65,13 @@ export function PractiseChooser() {
             {/* أ — Arabic glyph, never mirrors (renders natively RTL) */}
             <div className={CHIP} aria-hidden>أ</div>
             <div className={TILE_TITLE}>{t("practiseAlphabet", lang)}</div>
-            <div className={TILE_SUB}>{t("practiseAlphabetSub", lang)}</div>
+            <div className={TILE_SUB}>
+              {lettersPractised > 0
+                ? t("practiseAlphabetSubOf", lang)
+                    .replace("{n}", num(lettersPractised, lang))
+                    .replace("{t}", num(28, lang))
+                : t("practiseAlphabetSub", lang)}
+            </div>
           </button>
 
           {/* 2 · Words — the word room: instant access, no letter progress needed */}

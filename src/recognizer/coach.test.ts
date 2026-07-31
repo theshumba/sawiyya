@@ -83,7 +83,12 @@ describe("coach direction — perturb one finger, name that finger", () => {
     let cases = 0;
     for (const id of IDS) {
       for (let f = 0; f < 5; f++) {
-        if (tipRadius(SHAPES[id], f) < 0.6) continue; // only clearly-extended fingers
+        // Floor raised 0.6 → 0.7 with the 2026-08-01 threshold re-derivation:
+        // the blended two-population corpus is noisier (FINGER_MIN 0.13 → 0.26),
+        // so only decisively-extended fingers produce a curl delta the coach
+        // can honestly distinguish from population noise. Borderline fingers
+        // now correctly earn silence, not a guess.
+        if (tipRadius(SHAPES[id], f) < 0.7) continue; // only clearly-extended fingers
         cases++;
         const advice = coach(vecOf(curlFinger(SHAPES[id], f)), id);
         expect(advice, `${id}/${NAMES[f]}`).toEqual({
@@ -122,7 +127,8 @@ describe("coach reference — a wholesale-wrong hand is not fake-precise", () =>
   it("curling EVERY extended finger of an open letter → reference", () => {
     let cases = 0;
     for (const id of IDS) {
-      const open = [0, 1, 2, 3, 4].filter((f) => tipRadius(SHAPES[id], f) >= 0.6);
+      // 0.6 → 0.7: same re-derivation rationale as the curl test above.
+      const open = [0, 1, 2, 3, 4].filter((f) => tipRadius(SHAPES[id], f) >= 0.7);
       if (open.length < 3) continue;
       cases++;
       let pts = SHAPES[id];

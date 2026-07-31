@@ -65,9 +65,18 @@ export function CameraPractice({
     }
     // After a match on a DUE sign, advance to the next due gradable sign instead
     // of remounting the same one forever (H3) — the review actually drains.
+    // After a match on a NON-due letter (fresh practice), advance to the next
+    // letter in alphabet order (2026-08-01): matching Alif used to remount
+    // Alif forever, and every "next" was a manual strip tap.
+    const SEEDED = ALPHABET.filter((s) => s.cameraGradable);
+    const idx = SEEDED.findIndex((s) => s.id === signId);
     const next =
-      result === "match" && dueBefore.includes(signId)
-        ? dueBefore.find((id) => id !== signId && signById(id)?.cameraGradable)
+      result === "match"
+        ? dueBefore.includes(signId)
+          ? dueBefore.find((id) => id !== signId && signById(id)?.cameraGradable)
+          : idx !== -1
+            ? SEEDED[(idx + 1) % SEEDED.length].id
+            : undefined
         : undefined;
     setTimeout(() => {
       if (next) setSignId(next);

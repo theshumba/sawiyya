@@ -362,6 +362,22 @@ export function Home() {
             <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
           </ScreenCard>
 
+          {/* Everyday words (2026-08-01) — the Words hub, discoverable from Home. */}
+          <ScreenCard
+            variant="elevated"
+            className="flex items-center gap-3 p-5"
+            onClick={() => go({ name: "words" })}
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
+              <Icon name="front_hand" className="!text-2xl text-gold-deep" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display font-bold text-ink">{t("wordsTitle", lang)}</p>
+              <p className="text-sm text-muted">{t("wordsSubtitle", lang)}</p>
+            </div>
+            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
+          </ScreenCard>
+
           {/* Fingerspell entry (M6) — spell your name, letter by letter. */}
           <ScreenCard
             variant="elevated"

@@ -285,6 +285,7 @@ const dict = {
   practiseSubtitle: { en: "Pick how you want to sign today.", ar: "اختر كيف تشير اليوم." },
   practiseAlphabet: { en: "Alphabet", ar: "الأبجدية" },
   practiseAlphabetSub: { en: "28 letters", ar: "٢٨ حرفًا" },
+  practiseAlphabetSubOf: { en: "{n} of {t} practised", ar: "تدرّبت على {n} من {t}" },
   practiseWords: { en: "Words", ar: "الكلمات" },
   // All 16 A1 words are watch-only: no trained model exists for any word sign
   // (iloveyou/stop demoted 2026-07-04 — teach-then-match-yourself was circular).
