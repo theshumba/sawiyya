@@ -1,6 +1,15 @@
 # Phase B — More real data (more signers) for the alphabet model
 
-**Status: real-world step, owner-gated. Harness is built; the data is not yet on disk.**
+**Status: DONE for ArSL21L (2026-08-01).** The dataset turned out to be a single
+unauthenticated `data.zip` download (845MB), so the "owner downloads" gate was
+unnecessary. Executed end-to-end: extraction (Tasks-API fallback added to
+`landmarks_from_images.py`, using the app's own vendored HandLandmarker),
+chirality-snapping (3,532/4,480 ArSL21L samples were mirror-captures),
+blended seeds (20+20/class), corpus training with per-source held-outs, tau
+recalibration, KNN-gate re-validation. Results in
+`src/recognizer/seeds/SOURCES.md` — headline: Zenodo-only model = **67.0%** on
+unseen-dataset signers; blended model = **93.6%** there and **99.3%** on
+Zenodo, tau=0.5 (TA 96.3% / FA 0.12%). AASL remains license-blocked (below).
 
 ## Why
 The shipped seeds come from a **single** dataset (Zenodo ArSL landmark CSV, CC-BY-4.0).

@@ -17,8 +17,8 @@ const LEGACY_KEYS = ["sawiyya.knn.v1"];
 const K = 7;
 const MAX_SAMPLES_PER_CLASS = 48;
 /** Distance gate — beyond this (mean of the top-K) the neighbours aren't credible. */
-// recalibrated 2026-06-27 on Zenodo ArSL held-out split AFTER rotation-invariant
-// normalisation (normalize.ts): gate=0.65 tau=0.70 → TA=98.1% FA=0.2%. Rotation
+// re-validated 2026-08-01 on the BLENDED seed store (Zenodo 20 + ArSL21L 20 per
+// class): gate=0.65 tau=0.70 still the sweep winner → TA=97.1% FA=0.2%. Rotation
 // invariance collapses intra-class distance, so the gate now has generous headroom
 // for real users whose hand tilt/pose differs from the dataset (the "stuck at 0%"
 // bug) while class separation — and thus the 0.2% false-accept rate — is unchanged.
@@ -270,7 +270,7 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
 }
 
 /** Conservative match threshold (PRD §9.5 — favour encouragement). */
-// recalibrated 2026-06-27 (rotation-invariant normalize): gate=0.65 tau=0.70 → TA=98.1% FA=0.2%.
+// re-validated 2026-08-01 (blended two-dataset seeds): gate=0.65 tau=0.70 → TA=97.1% FA=0.2%.
 // Lowered from 0.85 — with tilt no longer inflating distances, a correctly-shaped
 // hand earns a clear vote share, so the floor can favour the learner without
 // raising false-accepts (winner + 0.15 margin gates still apply).

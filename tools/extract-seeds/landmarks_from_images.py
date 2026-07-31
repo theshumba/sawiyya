@@ -72,11 +72,42 @@ def main():
     with open(args.label_map) as fh:
         label_map = json.load(fh)
 
-    hands = mp.solutions.hands.Hands(
-        static_image_mode=True,
-        max_num_hands=1,
-        min_detection_confidence=args.min_detection_confidence,
-    )
+    # mediapipe >=0.10.21 dropped the legacy `solutions` API — fall back to the
+    # Tasks API using the SAME vendored model the app ships (public/mediapipe/),
+    # so extraction geometry matches the live camera exactly.
+    if hasattr(mp, "solutions"):
+        hands = mp.solutions.hands.Hands(
+            static_image_mode=True,
+            max_num_hands=1,
+            min_detection_confidence=args.min_detection_confidence,
+        )
+        detect = lambda rgb: (
+            [(p.x, p.y) for p in r.multi_hand_landmarks[0].landmark]
+            if (r := hands.process(rgb)).multi_hand_landmarks else None
+        )
+        close = hands.close
+    else:
+        from mediapipe.tasks import python as mp_python
+        from mediapipe.tasks.python import vision as mp_vision
+        import numpy as np
+
+        model = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "../../public/mediapipe/hand_landmarker.task")
+        landmarker = mp_vision.HandLandmarker.create_from_options(
+            mp_vision.HandLandmarkerOptions(
+                base_options=mp_python.BaseOptions(model_asset_path=model),
+                running_mode=mp_vision.RunningMode.IMAGE,
+                num_hands=1,
+                min_hand_detection_confidence=args.min_detection_confidence,
+            )
+        )
+        detect = lambda rgb: (
+            [(p.x, p.y) for p in r.hand_landmarks[0]]
+            if (r := landmarker.detect(
+                mp.Image(image_format=mp.ImageFormat.SRGB,
+                         data=np.ascontiguousarray(rgb)))).hand_landmarks else None
+        )
+        close = landmarker.close
 
     header = ["Sign"] + [f"{ax}{i}" for i in range(21) for ax in ("x", "y")]
     counts, written, skipped_nohand, skipped_label = {}, 0, 0, 0
@@ -96,19 +127,18 @@ def main():
             img = cv2.imread(path)
             if img is None:
                 continue
-            res = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            if not res.multi_hand_landmarks:
+            lm = detect(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            if lm is None:
                 skipped_nohand += 1
                 continue
-            lm = res.multi_hand_landmarks[0].landmark  # 21 normalised points
             row = [sign]
-            for p in lm:
-                row += [round(p.x, 6), round(p.y, 6)]
+            for x, y in lm:  # 21 normalised points
+                row += [round(x, 6), round(y, 6)]
             w.writerow(row)
             counts[sign] = counts.get(sign, 0) + 1
             written += 1
 
-    hands.close()
+    close()
     print(f"wrote {args.out}: {written} rows across {len(counts)} classes")
     print(f"per-class: {json.dumps(counts, ensure_ascii=False)}")
     print(f"skipped: {skipped_nohand} no-hand, {skipped_label} unmapped-label")

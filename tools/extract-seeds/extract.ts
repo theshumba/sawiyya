@@ -138,6 +138,72 @@ for (let li = 1; li < lines.length; li++) {
 console.log(`\nRows processed: ${rowsRead} used, ${rowsSkipped} skipped`);
 
 // ---------------------------------------------------------------------------
+// Optional second dataset — ArSL21L (CC BY 4.0), derived on 2026-08-01 via
+// landmarks_from_images.py. Its CSV already carries our alpha-* class ids
+// (the label map is applied at derivation), so rows pass through directly.
+// Present → seeds blend 20+20 per class across datasets (same shipped size,
+// double the signer diversity) and train.ts gets a full two-source corpus.
+// ---------------------------------------------------------------------------
+const TARGET_IDS = new Set(Object.values(LABEL_MAP).filter((v): v is string => v !== null));
+const rawSamples2: Map<string, number[][]> = new Map();
+const csv2Path = resolve(__dirname, 'dataset/arsl21l_landmarks.csv');
+let hasSecond = false;
+
+// Zenodo per-class centroids — the canonical chirality reference. ArSL21L is
+// photographed (some left hands / mirrored captures), and the CSV has no
+// handedness column, so for each sample we normalise BOTH mirror options and
+// keep the one nearer its class centroid. The live camera mirrors left hands
+// into the same right-hand space (§6.8), so training data must be single-
+// chirality too — without this snap, flipped samples form phantom clusters
+// the live pipeline can never produce.
+const centroids = new Map<string, number[]>();
+for (const [cls, vecs] of rawSamples) {
+  const mean = new Array(42).fill(0);
+  for (const v of vecs) for (let i = 0; i < 42; i++) mean[i] += v[i];
+  for (let i = 0; i < 42; i++) mean[i] /= vecs.length;
+  centroids.set(cls, mean);
+}
+const dist2 = (a: number[], b: number[]) => {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; }
+  return s;
+};
+
+try {
+  const lines2 = readFileSync(csv2Path, 'utf-8').split('\n');
+  let used2 = 0;
+  let flipped = 0;
+  for (let li = 1; li < lines2.length; li++) {
+    const line = lines2[li].trim();
+    if (!line) continue;
+    const cols = line.split(';');
+    const classId = cols[0];
+    if (!TARGET_IDS.has(classId)) continue;
+    const lms: LM[] = [];
+    for (let i = 0; i <= 20; i++) {
+      const xi = parseFloat(cols[1 + i * 2]);
+      const yi = parseFloat(cols[2 + i * 2]);
+      if (isNaN(xi) || isNaN(yi)) break;
+      lms.push({ x: xi, y: yi, z: 0 });
+    }
+    if (lms.length !== 21) continue;
+    const plain = normalizeLandmarks(lms, false);
+    const mirrored = normalizeLandmarks(lms, true);
+    const c = centroids.get(classId)!;
+    const useMirror = dist2(mirrored, c) < dist2(plain, c);
+    if (useMirror) flipped++;
+    const vec = (useMirror ? mirrored : plain).map((v) => Math.round(v * 1000) / 1000);
+    if (!rawSamples2.has(classId)) rawSamples2.set(classId, []);
+    rawSamples2.get(classId)!.push(vec);
+    used2++;
+  }
+  hasSecond = used2 > 0;
+  console.log(`ArSL21L rows used: ${used2} across ${rawSamples2.size} classes (${flipped} chirality-snapped)`);
+} catch {
+  console.log('No ArSL21L CSV (dataset/arsl21l_landmarks.csv) — Zenodo-only seeds.');
+}
+
+// ---------------------------------------------------------------------------
 // Subsample to ≤40 per class (even spacing)
 // ---------------------------------------------------------------------------
 function evenSubsample(arr: number[][], max: number): number[][] {
@@ -152,14 +218,21 @@ function evenSubsample(arr: number[][], max: number): number[][] {
 
 const seeds: Record<string, number[][]> = {};
 
-console.log('\nPer-class sample counts (after subsampling to ≤40):');
+console.log(`\nPer-class sample counts (after subsampling to ≤${MAX_PER_CLASS}):`);
 const classIds = [...rawSamples.keys()].sort();
 for (const classId of classIds) {
   const raw = rawSamples.get(classId)!;
-  const sampled = evenSubsample(raw, MAX_PER_CLASS);
+  const raw2 = rawSamples2.get(classId) ?? [];
+  // Blend across datasets when both exist: half the seed budget each, so the
+  // KNN/OOD gate + mean shapes see two independent signer populations at the
+  // SAME shipped size. Zenodo-only behaviour is unchanged when no second CSV.
+  const sampled =
+    hasSecond && raw2.length >= 8
+      ? [...evenSubsample(raw, MAX_PER_CLASS / 2), ...evenSubsample(raw2, MAX_PER_CLASS / 2)]
+      : evenSubsample(raw, MAX_PER_CLASS);
   seeds[classId] = sampled;
   const mark = sampled.length < 8 ? ' *** BELOW THRESHOLD ***' : '';
-  console.log(`  ${classId}: ${sampled.length} samples (raw: ${raw.length})${mark}`);
+  console.log(`  ${classId}: ${sampled.length} samples (zenodo raw: ${raw.length}, arsl21l raw: ${raw2.length})${mark}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -186,3 +259,21 @@ console.log(`\nValidation: ${Object.keys(seeds).length} classes, all ≥8 sample
 const outPath = resolve(ROOT, 'src/recognizer/seeds/alphabet.json');
 writeFileSync(outPath, JSON.stringify(seeds, null, 2));
 console.log(`\nWrote ${outPath}`);
+
+// Full two-source corpus for train.ts (NOT shipped — dataset/ is gitignored).
+// Keeps every derived vector per source so training/eval can stratify and
+// report honest per-dataset + cross-dataset numbers.
+if (hasSecond) {
+  // ≤160/class per source — balanced classes, and keeps the pure-TS trainer
+  // in the minutes range (≈9k rows total).
+  const CORPUS_CAP = 160;
+  const capAll = (m: Map<string, number[][]>) =>
+    Object.fromEntries([...m.entries()].map(([k, v]) => [k, evenSubsample(v, CORPUS_CAP)]));
+  const corpus = {
+    zenodo: capAll(rawSamples),
+    arsl21l: capAll(rawSamples2),
+  };
+  const corpusPath = resolve(__dirname, 'dataset/corpus.json');
+  writeFileSync(corpusPath, JSON.stringify(corpus));
+  console.log(`Wrote ${corpusPath}`);
+}

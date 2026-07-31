@@ -233,7 +233,9 @@ export function CameraTrainer({
       }
     }
     // The real engine: for the 28 seeded alphabet letters the trained MLP
-    // (ground truth from real signers, ~98.7% held-out) is the primary grader.
+    // (real signers from TWO independent datasets; 2026-08-01 blend: 96.5%
+    // blended held-out, 93.6% on the dataset-B split — honest cross-person
+    // numbers, not within-dataset) is the primary grader.
     // For teach-mode / un-seeded signs we fall back to the live KNN over the
     // learner's own samples. Both grade against THIS sign specifically — never the
     // global argmax, which sticks the meter at 0% once another class is trained.
