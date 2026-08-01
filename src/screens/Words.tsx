@@ -11,7 +11,7 @@ import { A1_SIGNS, signById } from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Lang, Sign } from "../types";
-import { SignDemo } from "../components/SignDemo";
+import { demoShowsHint, SignDemo } from "../components/SignDemo";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon, Title } from "../components/ui";
@@ -132,22 +132,25 @@ export function Words() {
 
             <SignDemo sign={selected} lang={lang} />
 
-            {/* hint card — how the sign is performed (provenance disclosed) */}
-            <div className="mt-3.5 flex items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold text-ink">
-                !
-              </span>
-              <div className="min-w-0">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
-                  {t("lsHint", lang)}
+            {/* hint card — only when the demo stage doesn't already carry the
+                hint (SignDemo's instruction stage does, for footage-less words) */}
+            {!demoShowsHint(selected) && (
+              <div className="mt-3.5 flex items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold text-ink">
+                  !
                 </span>
-                {/* provenance not repeated here — SignDemo's footnote already
-                    carries the a1AslProvenance disclosure for A1 words */}
-                <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
-                  {pick(lang, selected.hintEn, selected.hintAr)}
-                </p>
+                <div className="min-w-0">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
+                    {t("lsHint", lang)}
+                  </span>
+                  {/* provenance not repeated here — SignDemo's footnote already
+                      carries the a1AslProvenance disclosure for A1 words */}
+                  <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
+                    {pick(lang, selected.hintEn, selected.hintAr)}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* mark yourself — the same never-hard-fail self-mark as everywhere */}
             <div className="mt-4">

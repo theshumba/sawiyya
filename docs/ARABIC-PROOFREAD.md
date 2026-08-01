@@ -250,6 +250,9 @@ One short imperative line shown while the camera sees a hand that is NOT matchin
 - `famLearnerOne` (family header, singular fix for "١ متعلّمين") · "1 learner" → **متعلّم واحد**
 - `famAddShort` (add-member tile — full famAdd stays as the aria-label) · "Add" → **أضف**
 - `practiseAlphabetSubOf` (Alphabet tile once ≥1 letter practised; {n}/{t} = Eastern-Arabic digits at runtime) · "{n} of {t} practised" → **تدرّبت على {n} من {t}**
+- `wdHowTo` (word-demo instruction stage eyebrow) · "How to sign it" → **كيف تُشير بها**
+- `wdMoving` (word-demo moving-sign pill) · "Moving sign" → **إشارة متحركة**
+- `signRefRecording` (footage label when the clip is NOT from a Deaf signer — honesty split from signRealRecording) · "Reference recording" → **تسجيل مرجعي**
 
 ### Sign content (`src/content/signs.ts`, new A1 words — glosses + hints)
 

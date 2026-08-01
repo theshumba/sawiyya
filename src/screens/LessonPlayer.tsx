@@ -13,7 +13,7 @@ import { buildChoices, buildDrillQueue } from "../lesson/engine";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { HandSkeleton, hasHandShape } from "../components/HandSkeleton";
 import { Confetti, celebrate } from "../components/Confetti";
-import { SignDemo } from "../components/SignDemo";
+import { demoShowsHint, SignDemo } from "../components/SignDemo";
 import { SignGlyph } from "../components/SignGlyph";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
@@ -342,26 +342,29 @@ function WatchDrill({
         </span>
       </div>
 
-      {/* hint card */}
-      <div className="mx-auto mt-3.5 flex w-full max-w-md items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold text-ink">
-          !
-        </span>
-        <div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
-            {t("lsHint", lang)}
+      {/* hint card — skipped when SignDemo's instruction stage already carries
+          the hint (word signs without footage), or it prints twice. */}
+      {!demoShowsHint(sign) && (
+        <div className="mx-auto mt-3.5 flex w-full max-w-md items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold text-ink">
+            !
           </span>
-          <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
-            {pick(lang, sign.hintEn, sign.hintAr)}
-          </p>
-          {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
-          {sign.tier === "A1" && (
-            <p className="mt-1 text-[11px] italic leading-snug text-muted">
-              {t("a1AslProvenance", lang)}
+          <div>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
+              {t("lsHint", lang)}
+            </span>
+            <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
+              {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
-          )}
+            {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
+            {sign.tier === "A1" && (
+              <p className="mt-1 text-[11px] italic leading-snug text-muted">
+                {t("a1AslProvenance", lang)}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <DrillFooter>
         <Button

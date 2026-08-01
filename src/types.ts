@@ -44,9 +44,11 @@ export interface Sign {
   /** Hands the sign needs. The Words hub leads with one-handed signs — they're
    *  the ones a learner can copy while holding a phone. */
   hands?: 1 | 2;
-  /** Real footage (H23) — the owner-gated Deaf-signer recording drops in here;
-   *  SignDemo renders it over every placeholder when present. */
-  media?: { type: "video"; src: string; poster?: string };
+  /** Real footage (H23) — a recording drops in here; SignDemo renders it over
+   *  every placeholder when present. `signer` drives the honesty label:
+   *  "deaf" → "Deaf signer recording"; anything else (incl. absent) → the safe
+   *  "Reference recording" — never claim a Deaf signer that isn't one. */
+  media?: { type: "video"; src: string; poster?: string; signer?: "deaf" | "reference" };
 }
 
 export interface Unit {

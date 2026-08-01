@@ -300,6 +300,8 @@ const dict = {
   wordsOneHand: { en: "One hand", ar: "بيد واحدة" },
   wordsTwoHands: { en: "Two hands", ar: "بيدين" },
   wordsMarked: { en: "Marked — it'll come back in review.", ar: "سجّلناها — ستعود في المراجعة." },
+  wdHowTo: { en: "How to sign it", ar: "كيف تُشير بها" },
+  wdMoving: { en: "Moving sign", ar: "إشارة متحركة" },
   practiseFreeCamera: { en: "Free camera", ar: "كاميرا حرّة" },
   practiseFreeCameraSub: { en: "Sign anything", ar: "أشِر أي شيء" },
   practiseReview: { en: "Review", ar: "مراجعة" },
@@ -377,6 +379,7 @@ const dict = {
 
   // ── Batch 6: real signer media (H23)
   signRealRecording: { en: "Deaf signer recording", ar: "تسجيل مُشير أصمّ" },
+  signRefRecording: { en: "Reference recording", ar: "تسجيل مرجعي" },
 
   // ── Batch 6: fingerspelling (M6)
   fspTitle: { en: "Fingerspell", ar: "التهجئة بالإشارة" },

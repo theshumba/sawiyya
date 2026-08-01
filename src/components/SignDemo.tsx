@@ -7,11 +7,18 @@ import type { Lang, Sign } from "../types";
 import { Icon } from "./ui";
 import { HandSkeleton, hasHandShape } from "./HandSkeleton";
 
+/** True when SignDemo renders the hint INSIDE its stage (word sign, no footage)
+ *  — callers should then skip their own hint card, or it prints twice. */
+export function demoShowsHint(sign: Sign): boolean {
+  return !sign.media && !sign.photo && sign.id !== "iloveyou" && sign.type !== "alphabet";
+}
+
 export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: Lang; compact?: boolean }) {
   const gloss = pick(lang, sign.glossEn, sign.glossAr);
   const other = pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr);
   // "Replay" re-triggers the float/pulse animation on the demo (honest placeholder — no video yet).
   const [replayKey, setReplayKey] = useState(0);
+  const instructionStage = demoShowsHint(sign);
 
   return (
     <div className="relative flex flex-col items-center rounded-3xl border-4 border-teal/5 bg-sand/50 p-6 shadow-inner sm:p-8">
@@ -99,14 +106,39 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             {sign.code}
           </span>
         ) : (
-          <Icon
-            name="sign_language"
-            className={`animate-pop-in relative z-10 leading-none text-teal/70 ${compact ? "text-6xl" : "text-8xl"}`}
-          />
+          // Word sign with no footage yet: the stage TEACHES instead of showing
+          // a meaningless icon (2026-08-01 — "it doesn't even show me what
+          // bedtime is"). The hint IS the sign until real video lands, so it
+          // gets the hero spot; the emoji is a meaning cue only, never the sign.
+          <div
+            key={replayKey}
+            role="img"
+            aria-label={gloss}
+            className="animate-pop-in relative z-10 flex h-full w-full flex-col items-center justify-center gap-2.5 p-6 text-center"
+          >
+            {!compact && (
+              <span className="text-4xl" aria-hidden="true">
+                {sign.emoji}
+              </span>
+            )}
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-teal">
+              {t("wdHowTo", lang)}
+            </p>
+            <p className={`max-w-[280px] font-display font-bold leading-snug text-ink ${compact ? "text-[13px]" : "text-[17px]"}`}>
+              {pick(lang, sign.hintEn, sign.hintAr)}
+            </p>
+            {sign.type === "dynamic" && (
+              <span className="rounded-full bg-teal/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-teal">
+                {t("wdMoving", lang)}
+              </span>
+            )}
+          </div>
         )}
 
-        {/* Replay chip — frosted, centred over the stage (mirrors Stitch play_arrow chip) */}
-        {!compact && (
+        {/* Replay chip — frosted, centred over the stage (mirrors Stitch play_arrow chip).
+            Hidden on the instruction stage: a Replay that visibly does nothing
+            reads as broken. */}
+        {!compact && !instructionStage && (
           <button
             type="button"
             onClick={() => setReplayKey((k) => k + 1)}
@@ -122,11 +154,13 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
       {!compact ? (
         sign.media ? (
           // Real footage needs no disclaimer — just say plainly what it is (H23).
+          // Label follows media.signer: only footage marked "deaf" may claim a
+          // Deaf signer; everything else is an honest "Reference recording".
           <div className="mt-5 flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1">
               <Icon name="videocam" fill className="text-xs leading-none text-teal" />
               <span className="font-display text-[10px] font-bold uppercase tracking-wider text-teal">
-                {t("signRealRecording", lang)}
+                {t(sign.media.signer === "deaf" ? "signRealRecording" : "signRefRecording", lang)}
               </span>
             </span>
           </div>
