@@ -170,126 +170,29 @@ export interface MonoLabelProps {
   lang?: Lang;
 }
 
-/** 11px/700 uppercase mono label, letter-spacing .12em (HANDOFF §Type · mono). */
+/**
+ * 11px/700 small label, letter-spacing .12em. Named "Mono" for the .dc.html
+ * reference, but the brand vendors no monospace face, so this renders in the
+ * display face (Rubik) like Eyebrow does, instead of whatever monospace the
+ * device happens to carry.
+ */
 export function MonoLabel({ children, className = "", lang }: MonoLabelProps) {
   const latin = lang !== "ar" ? "uppercase tracking-[0.12em]" : "";
   return (
-    <span className={`font-mono text-[11px] font-bold leading-none ${latin} ${className}`}>
+    <span className={`font-display text-[11px] font-bold leading-none ${latin} ${className}`}>
       {children}
     </span>
   );
 }
 
-// ── OnDeviceBadge ────────────────────────────────────────────────────────────
-
-const ON_DEVICE_LABEL: Record<Lang, string> = {
-  en: "On-device · nothing leaves your phone",
-  ar: "على جهازك · لا شيء يغادر هاتفك",
-};
-
-export interface OnDeviceBadgeProps {
-  lang: Lang;
-  className?: string;
-}
-
-/**
- * The always-visible on-device privacy badge for camera frames. Dark #16302E
- * pill, green live-dot + lock glyph (glyph never mirrors — HANDOFF §2) + label.
- */
-export function OnDeviceBadge({ lang, className = "" }: OnDeviceBadgeProps) {
-  return (
-    <span
-      className={`inline-flex items-center gap-2 rounded-full bg-ink px-3 py-1.5 ${className}`}
-      role="note"
-      aria-label={ON_DEVICE_LABEL[lang]}
-    >
-      <span className="h-2 w-2 shrink-0 rounded-full bg-[#7BE0A0]" aria-hidden="true" />
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-        className="shrink-0"
-        style={{ direction: "ltr" }}
-      >
-        <rect x="4" y="10" width="16" height="11" rx="2.5" fill="#FBF7EF" />
-        <path
-          d="M8 10V7.5a4 4 0 1 1 8 0V10"
-          stroke="#FBF7EF"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </svg>
-      <span className="font-sans text-[11px] font-semibold leading-none text-paper">
-        {ON_DEVICE_LABEL[lang]}
-      </span>
-    </span>
-  );
-}
-
-// ── ConfidenceRing ───────────────────────────────────────────────────────────
-
-export interface ConfidenceRingProps {
-  /** 0..1 fill. Clamped; non-finite → 0. */
-  value: number;
-  lang: Lang;
-  size?: number;
-  stroke?: number;
-  className?: string;
-}
-
-/**
- * Live confidence ring — gold arc fills 0→100% from `value`. Centre shows the
- * localized percent (Eastern-Arabic digits + ٪ for `ar`). HANDOFF §1/§3.
- */
-export function ConfidenceRing({
-  value,
-  lang,
-  size = 96,
-  stroke = 9,
-  className = "",
-}: ConfidenceRingProps) {
-  const clamped = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const pct = clamped * 100;
-  return (
-    <div
-      className={`relative inline-flex items-center justify-center ${className}`}
-      style={{ width: size, height: size }}
-      role="progressbar"
-      aria-valuenow={Math.round(pct)}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="#0F6E6A"
-          strokeOpacity="0.12"
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="#E6B24C"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - clamped)}
-          style={{ transition: "stroke-dashoffset .3s linear" }}
-        />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-display font-bold text-ink">
-        {formatPercent(pct, lang)}
-      </span>
-    </div>
-  );
-}
+// ── Removed primitives ───────────────────────────────────────────────────────
+//
+// `OnDeviceBadge` and `ConfidenceRing` used to live here. Both had zero call
+// sites while CameraTrainer drew its own privacy chip and its own ring, so they
+// were a documented API the app never honoured.
+//
+// ConfidenceRing is deliberately NOT revived for CameraTrainer's hold ring:
+// that ring is the hold-to-confirm timer with a check icon in the middle, while
+// this one printed a live percentage and announced role="progressbar". Swapping
+// them would show a number the design withholds and read out a bogus progress
+// value to screen readers.

@@ -166,7 +166,12 @@ export const signById = (id: string): Sign | undefined =>
 // of 7 letters in standard Arabic order (pinned decision — no invented
 // similarity ordering). Edge forms (ة، لا، ال) are reference-only and stay OUT
 // of lessons until a signer records them.
-const SEEDED_ALPHABET = ALPHABET.filter((l) => l.cameraGradable); // the 28
+/** The 28 seeded letters: every alphabet sign with a trained model behind it.
+ *  The 3 edge forms (ة، لا، ال) have no ground-truth seeds, so they are excluded.
+ *  This is the ONE alphabet denominator: any screen that counts letter progress
+ *  divides by `SEEDED_ALPHABET.length`, never by `ALPHABET.length` (31) and never
+ *  by a hardcoded 28. Counting the edge forms produced "30 of 28 learned". */
+export const SEEDED_ALPHABET: Sign[] = ALPHABET.filter((l) => l.cameraGradable); // the 28
 
 export const UNIT_ALPHA: Unit = {
   id: "alpha-u1",

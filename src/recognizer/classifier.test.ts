@@ -39,7 +39,11 @@ describe("MLP keypoint classifier", () => {
   });
 
   it("gradeWithModel is a no-op on an empty frame", () => {
-    expect(gradeWithModel([], "alpha-alif")).toEqual({ confidence: 0, matched: false });
+    expect(gradeWithModel([], "alpha-alif")).toEqual({
+      confidence: 0,
+      matched: false,
+      inDistribution: false,
+    });
   });
 
   it("rejects an out-of-distribution handshape the softmax is confident about (the 'instant yes' bug, ported from KNN)", () => {
@@ -52,7 +56,22 @@ describe("MLP keypoint classifier", () => {
     const junk = Array(42).fill(5);
     const guess = classify(junk);
     expect(guess.confidence).toBeGreaterThanOrEqual(MODEL_TAU); // model IS confident (else the test is toothless)
-    expect(gradeWithModel(junk, guess.classId).matched).toBe(false); // …but it's OOD, so no match
+    const graded = gradeWithModel(junk, guess.classId);
+    expect(graded.matched).toBe(false); // …but it's OOD, so no match
+    expect(graded.inDistribution).toBe(false); // …and the gate says so out loud
+    // The number the learner sees must agree with the refusal. Before this the raw
+    // softmax was returned regardless, so the meter read up to 100% "Camera
+    // confidence" on exactly the frames the grader was throwing away.
+    expect(graded.confidence).toBe(0);
+    expect(graded.debug?.targetP).toBeGreaterThanOrEqual(MODEL_TAU); // raw score kept for ?debug
+  });
+
+  it("keeps the raw softmax as confidence for an in-distribution frame", () => {
+    const [id, vecs] = Object.entries(data)[0];
+    const graded = gradeWithModel(vecs[0], id);
+    expect(graded.inDistribution).toBe(true);
+    expect(graded.confidence).toBeGreaterThan(0);
+    expect(graded.confidence).toBe(graded.debug?.targetP);
   });
 
   it("classifies real signer vectors with high top-1 accuracy", () => {

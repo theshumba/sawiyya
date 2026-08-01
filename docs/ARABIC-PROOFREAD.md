@@ -270,9 +270,48 @@ One short imperative line shown while the camera sees a hand that is NOT matchin
 
 ---
 
+## 2026-08-01 coherence batch
+
+Copy fixes and new keys from the coherence audit (`docs/AUDIT-2026-08-01-COHERENCE.md`). All in `src/i18n.ts`.
+
+### Changed
+
+- `homeGoldStat` (Home app-bar stat chip; renders `profile.xp`, which every other screen labels "XP", and no gold currency exists) · "gold" → **نقطة** *(was ذهب)*
+- `pathDoneMeta` (path node sheet; a done node only needs mastery 2, "practised", not mastery 3) · "Practised · tap to review" → **تمرّنت عليها · انقر للمراجعة** *(was مُتقَن · انقر للمراجعة)*
+- `obHandSub` (onboarding signing-hand step; nothing reads `dominantHand`, the recognizer canonicalises both hands per frame, so the old line promised a camera effect that does not exist) · "Either hand works: the camera reads both the same way." → **أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها.** *(was حتى تقرأ الكاميرا يديك بإنصاف.)*
+
+### New
+
+- `famFlaggedCount` (flag-picker counter, a state word rather than the fragment "needs this") · "flagged" → **محدّدة**
+- `famGroupLetters` (flag-picker group tab for the alphabet) · "Letters" → **الحروف**
+- `famRemove` (remove-member button) · "Remove" → **إزالة**
+- `famRemoveTitle` (remove-member confirm heading; `{name}` substituted at runtime) · "Remove {name} from this household?" → **إزالة {name} من الأسرة؟**
+- `famRemoveBody` (remove-member confirm body) · "This deletes their progress, their flagged signs and their place on the family board on this device. It cannot be undone." → **سيؤدي هذا إلى حذف تقدّمهم وإشاراتهم المحدّدة ومكانهم في لوحة العائلة على هذا الجهاز. لا يمكن التراجع عن ذلك.**
+- `camErrDeniedTitle` (camera error, permission refused) · "Camera access is blocked" → **الوصول إلى الكاميرا محجوب**
+- `camErrDeniedBody` · "Your browser is blocking the camera for Sawiyya. Allow it in this site's settings, then come back." → **متصفحك يحجب الكاميرا عن سويّة. اسمح بها من إعدادات هذا الموقع، ثم عُد.**
+- `camErrDeniedHint` · "Look for the padlock or camera icon in the address bar." → **ابحث عن أيقونة القفل أو الكاميرا في شريط العنوان.**
+- `camErrNotFoundTitle` (camera error, no device) · "No camera found" → **لم نعثر على كاميرا**
+- `camErrNotFoundBody` · "There is no camera we can use on this device. You can still watch every sign and mark yourself." → **لا توجد كاميرا يمكننا استخدامها على هذا الجهاز. يمكنك مشاهدة كل الإشارات وتقييم نفسك.**
+- `camErrLoadTitle` (camera error, MediaPipe model failed to load; was reported as "No camera? No problem.") · "The camera model didn't load" → **لم يُحمَّل نموذج الكاميرا**
+- `camErrLoadBody` · "Sawiyya couldn't load the hand-tracking model. Check your connection, then try again." → **تعذّر على سويّة تحميل نموذج تتبّع اليد. تحقّق من اتصالك، ثم حاول مجددًا.**
+- `camGradingPaused` (seed chunk failed to load, grading paused) · "Grading isn't available right now. You can still watch the reference and mark yourself." → **التقييم غير متاح الآن. يمكنك مشاهدة المرجع وتقييم نفسك.**
+- `camRetryGrading` (retry button beside that band) · "Retry grading" → **أعد محاولة التقييم**
+- `celStreakMastered` (streak celebration; replaces an inline line that told the learner their own name would be proud of them; `{n}` at runtime) · "You've mastered {n} signs so far. Every one of them is a way to be understood." → **أتقنت {n} إشارة حتى الآن. كل واحدة منها طريق لأن تُفهَم.**
+- `lsPartDoneTitle` (lesson continuation card, shown instead of "Lesson complete!" when signs are still below mastery 2) · "Part 1 done" → **انتهى الجزء الأول**
+- `lsPartDoneBody` · "{n} signs still to practise. One more round finishes this lesson." → **بقيت {n} إشارة للتمرّن. جولة أخرى تُنهي هذا الدرس.**
+- `lsPartDoneCta` · "Keep going" → **واصل**
+- `fspStopPractising` (ghost exit under the fingerspell camera trainer) · "Stop practising" → **أوقف التمرين**
+- `signRefOnlyNote` (watch-only signs in the dictionary and the camera reference) · "Reference only, no camera grading" → **للاطلاع فقط، بلا تقييم بالكاميرا**
+- `signMarkPractised` (self-mark CTA on those signs) · "I practised this" → **تمرّنت على هذه**
+- `signMarkedPractised` (confirmation after self-marking) · "Marked as practised. It will come back in review." → **سجّلناها كتمرين. ستعود في المراجعة.**
+
+*Proofread note:* `famRemoveTitle`/`famRemoveBody` use plural verb forms for the removed member (تقدّمهم، إشاراتهم) to stay gender-neutral. Confirm that reads naturally, or supply a singular alternative.
+
+---
+
 ## Handoff — how to review (M29, native reviewer)
 
-**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, the 2026-07-04 post-ship fix, the 2026-07-07 Sign Coach strings, and the 2026-07-31 photos/Words/fingerspell batch) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
+**This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, the 2026-07-04 post-ship fix, the 2026-07-07 Sign Coach strings, the 2026-07-31 photos/Words/fingerspell batch, and the 2026-08-01 coherence batch) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
 
 1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
 2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).

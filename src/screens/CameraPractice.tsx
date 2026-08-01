@@ -4,7 +4,7 @@
 // Nav lives in the shared ScreenShell/AppNav; the XP pill lives on the profile button.
 import { useState } from "react";
 import { pick, t } from "../i18n";
-import { ALPHABET, signById } from "../content/signs";
+import { ALPHABET, SEEDED_ALPHABET, signById } from "../content/signs";
 import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { CameraTrainer } from "../components/CameraTrainer";
@@ -14,6 +14,13 @@ import { toLocaleDigits } from "../components/dc";
 import { Chip } from "../components/Tile";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
+
+// The three edge forms (ة، لا، ال) have a real signer photo but no camera
+// grading (signs.ts), so they can't be practice targets. They stay in the strip
+// as non-selectable reference chips: this and the dictionary are the only places
+// they appear at all, and silently dropping them would hide a third of the ta
+// marbuta / lam-alif story from a learner reading an Arabic word.
+const REFERENCE_ONLY = ALPHABET.filter((s) => !s.cameraGradable);
 
 // autoStart: the onboarding alphabet fast-path opens the camera immediately
 // (no extra "Start camera" tap — L20); the browser permission prompt still gates.
@@ -25,12 +32,20 @@ export function CameraPractice({
   autoStart?: boolean;
 }) {
   const app = useApp();
-  const { go } = useUi();
+  const { backOrParent } = useUi();
   const profile = activeProfile(app);
   const [signId, setSignId] = useState(initialSignId ?? "alpha-alif");
   const [burst, setBurst] = useState(0);
   // remount the trainer when the target (or a completed round) changes
   const [round, setRound] = useState(0);
+  // H1: the trainer releases the camera the moment a match confirms, and this
+  // screen then remounts it for the next letter, which used to land on the
+  // "Start camera" overlay again, every single letter. Once the camera has
+  // ACTUALLY run this session we auto-start the next one (permission is already
+  // granted, so nothing re-prompts). Only a real match flips it: self-mark and
+  // skip are reachable without ever starting the camera, and auto-starting off
+  // the back of those would prompt a learner who deliberately kept it off.
+  const [cameraLive, setCameraLive] = useState(autoStart);
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
   const sign = signById(signId);
@@ -60,6 +75,7 @@ export function CameraPractice({
       ownRecording: meta?.ownRecording, // M2: KNN-only pass, counted apart
     });
     if (result === "match") {
+      setCameraLive(true);
       celebrate();
       setBurst((b) => b + 1);
     }
@@ -68,14 +84,13 @@ export function CameraPractice({
     // After a match on a NON-due letter (fresh practice), advance to the next
     // letter in alphabet order (2026-08-01): matching Alif used to remount
     // Alif forever, and every "next" was a manual strip tap.
-    const SEEDED = ALPHABET.filter((s) => s.cameraGradable);
-    const idx = SEEDED.findIndex((s) => s.id === signId);
+    const idx = SEEDED_ALPHABET.findIndex((s) => s.id === signId);
     const next =
       result === "match"
         ? dueBefore.includes(signId)
           ? dueBefore.find((id) => id !== signId && signById(id)?.cameraGradable)
           : idx !== -1
-            ? SEEDED[(idx + 1) % SEEDED.length].id
+            ? SEEDED_ALPHABET[(idx + 1) % SEEDED_ALPHABET.length].id
             : undefined
         : undefined;
     setTimeout(() => {
@@ -104,9 +119,9 @@ export function CameraPractice({
         <header className="mb-5 flex items-center gap-3">
           <button
             type="button"
-            onClick={() => go({ name: "home" })}
+            onClick={() => backOrParent({ name: "practiseChooser" })}
             aria-label={t("back", lang)}
-            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
             <Icon name="arrow_back" className="text-xl leading-none rtl:rotate-180" />
           </button>
@@ -126,7 +141,7 @@ export function CameraPractice({
             forms (ال، لا، ة) first and reading as a jumbled alphabet. */}
         <div className="relative mb-5">
           <div dir="rtl" className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 py-2 md:mx-0 md:px-0">
-            {ALPHABET.map((s) => (
+            {SEEDED_ALPHABET.map((s) => (
               <Chip
                 key={s.id}
                 selected={s.id === signId}
@@ -137,6 +152,20 @@ export function CameraPractice({
               >
                 {s.code}
               </Chip>
+            ))}
+            {/* Reference-only forms: shown, never selectable. Tapping one used to
+                open the trainer in TEACH mode and grade the learner against 24
+                samples of a shape nobody taught them (H5). */}
+            {REFERENCE_ONLY.map((s) => (
+              <span
+                key={s.id}
+                role="img"
+                aria-label={`${pick(lang, s.glossEn, s.glossAr)}, ${t("signRefOnlyNote", lang)}`}
+                title={t("signRefOnlyNote", lang)}
+                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-line bg-sand/70 font-display text-xl font-bold text-muted"
+              >
+                {s.code}
+              </span>
             ))}
           </div>
           {/* scroll-edge fades */}
@@ -156,7 +185,7 @@ export function CameraPractice({
           lang={lang}
           onResult={handleResult}
           onSoftFail={handleSoftFail}
-          autoStart={autoStart}
+          autoStart={cameraLive}
         />
       </div>
     </ScreenShell>

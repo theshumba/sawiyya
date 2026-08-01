@@ -24,7 +24,10 @@ const dict = {
   obFriend: { en: "My friend or colleague", ar: "صديقي أو زميلي" },
   obDeaf: { en: "I'm Deaf — setting up my family", ar: "أنا أصم — أجهّز عائلتي" },
   obHandTitle: { en: "Which hand do you sign with?", ar: "بأي يد تستخدم الإشارة؟" },
-  obHandSub: { en: "So the camera reads your hands fairly.", ar: "حتى تقرأ الكاميرا يديك بإنصاف." },
+  // Honest copy: nothing reads dominantHand. The recognizer canonicalises both
+  // hands per frame from MediaPipe's own handedness label, so this line must not
+  // promise a camera effect the app does not have.
+  obHandSub: { en: "Either hand works: the camera reads both the same way.", ar: "أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها." },
   obRight: { en: "Right hand", ar: "اليد اليمنى" },
   obLeft: { en: "Left hand", ar: "اليد اليسرى" },
   obGoalTitle: { en: "Your daily goal", ar: "هدفك اليومي" },
@@ -213,14 +216,20 @@ const dict = {
 
   // ── reskin: home path
   homeGreetSub: { en: "Ready to sign today?", ar: "مستعد للإشارة اليوم؟" },
-  homeGoldStat: { en: "gold", ar: "ذهب" },
+  // One number, one name: this chip renders profile.xp, the same value Progress,
+  // the lesson results card and the family league all label "XP". There is no
+  // gold currency in the app, so "gold" was a second name for the same counter.
+  homeGoldStat: { en: "XP", ar: "نقطة" },
   homeFamilyStat: { en: "family", ar: "العائلة" },
   homeStartBadge: { en: "START", ar: "ابدأ" },
   pathStartCta: { en: "Start →", ar: "ابدأ ←" },
   pathReview: { en: "Review →", ar: "مراجعة ←" },
   pathLocked: { en: "Locked", ar: "مقفل" },
   pathNewSign: { en: "New sign · camera-graded", ar: "إشارة جديدة · تقييم بالكاميرا" },
-  pathDoneMeta: { en: "Mastered · tap to review", ar: "مُتقَن · انقر للمراجعة" },
+  // A done node only needs mastery 2 ("practised"). Mastery 3 is the far harder
+  // FSRS + camera gate that Progress, the Constellation and the family board all
+  // count as "mastered", so the node must not claim that word.
+  pathDoneMeta: { en: "Practised · tap to review", ar: "تمرّنت عليها · انقر للمراجعة" },
   pathLockedMeta: { en: "Finish the sign before this to unlock.", ar: "أكمل الإشارة السابقة لفتحها." },
   pathChestMeta: { en: "Clear Unit 1 to open the reward chest.", ar: "أكمل الوحدة ١ لفتح الصندوق." },
 
@@ -425,6 +434,76 @@ const dict = {
     ar: "تلفت البيانات المحفوظة على هذا الجهاز، فبدأ التطبيق من جديد. احتفظنا بنسخة احتياطية من البيانات التالفة على جهازك.",
   },
   recoveryDismiss: { en: "OK", ar: "حسنًا" },
+
+  // ── coherence batch (2026-08-01) ──────────────────────────────────────────
+  // Keys added so the fix batches stop hardcoding English in components.
+
+  // Flag picker: a count needs a state word, not the predicate "needs this".
+  // famFlagged stays as-is because Family reads it as a sentence about a person.
+  famFlaggedCount: { en: "flagged", ar: "محدّدة" },
+  famGroupLetters: { en: "Letters", ar: "الحروف" },
+
+  // Family: removing a member is destructive and local-only, so the confirm has
+  // to name what disappears.
+  famRemove: { en: "Remove", ar: "إزالة" },
+  famRemoveTitle: { en: "Remove {name} from this household?", ar: "إزالة {name} من الأسرة؟" },
+  famRemoveBody: {
+    en: "This deletes their progress, their flagged signs and their place on the family board on this device. It cannot be undone.",
+    ar: "سيؤدي هذا إلى حذف تقدّمهم وإشاراتهم المحدّدة ومكانهم في لوحة العائلة على هذا الجهاز. لا يمكن التراجع عن ذلك.",
+  },
+
+  // Camera errors, split three ways. A refused permission and a failed model
+  // download were both reported as "No camera? No problem." A hard denial cannot
+  // be re-prompted, so that branch points at the browser instead of a retry.
+  camErrDeniedTitle: { en: "Camera access is blocked", ar: "الوصول إلى الكاميرا محجوب" },
+  camErrDeniedBody: {
+    en: "Your browser is blocking the camera for Sawiyya. Allow it in this site's settings, then come back.",
+    ar: "متصفحك يحجب الكاميرا عن سويّة. اسمح بها من إعدادات هذا الموقع، ثم عُد.",
+  },
+  camErrDeniedHint: { en: "Look for the padlock or camera icon in the address bar.", ar: "ابحث عن أيقونة القفل أو الكاميرا في شريط العنوان." },
+  camErrNotFoundTitle: { en: "No camera found", ar: "لم نعثر على كاميرا" },
+  camErrNotFoundBody: {
+    en: "There is no camera we can use on this device. You can still watch every sign and mark yourself.",
+    ar: "لا توجد كاميرا يمكننا استخدامها على هذا الجهاز. يمكنك مشاهدة كل الإشارات وتقييم نفسك.",
+  },
+  camErrLoadTitle: { en: "The camera model didn't load", ar: "لم يُحمَّل نموذج الكاميرا" },
+  camErrLoadBody: {
+    en: "Sawiyya couldn't load the hand-tracking model. Check your connection, then try again.",
+    ar: "تعذّر على سويّة تحميل نموذج تتبّع اليد. تحقّق من اتصالك، ثم حاول مجددًا.",
+  },
+
+  // Seed chunk failed: grading is paused, so say so instead of holding the meter
+  // at 0% and letting the copy imply it is still grading.
+  camGradingPaused: {
+    en: "Grading isn't available right now. You can still watch the reference and mark yourself.",
+    ar: "التقييم غير متاح الآن. يمكنك مشاهدة المرجع وتقييم نفسك.",
+  },
+  camRetryGrading: { en: "Retry grading", ar: "أعد محاولة التقييم" },
+
+  // Streak celebration, name-free: the old line told the learner their own name
+  // was going to be proud of them.
+  celStreakMastered: {
+    en: "You've mastered {n} signs so far. Every one of them is a way to be understood.",
+    ar: "أتقنت {n} إشارة حتى الآن. كل واحدة منها طريق لأن تُفهَم.",
+  },
+
+  // Lesson continuation card: the queue caps in two passes, so a drained queue
+  // with signs below mastery 2 is part 1, not a completed lesson.
+  lsPartDoneTitle: { en: "Part 1 done", ar: "انتهى الجزء الأول" },
+  lsPartDoneBody: {
+    en: "{n} signs still to practise. One more round finishes this lesson.",
+    ar: "بقيت {n} إشارة للتمرّن. جولة أخرى تُنهي هذا الدرس.",
+  },
+  lsPartDoneCta: { en: "Keep going", ar: "واصل" },
+
+  // Fingerspell practise-along needs a way out that is not skipping every letter.
+  fspStopPractising: { en: "Stop practising", ar: "أوقف التمرين" },
+
+  // Watch-only signs: no model exists for any word sign, so the honest action is
+  // watch, then mark yourself. Used by the dictionary and the camera reference.
+  signRefOnlyNote: { en: "Reference only, no camera grading", ar: "للاطلاع فقط، بلا تقييم بالكاميرا" },
+  signMarkPractised: { en: "I practised this", ar: "تمرّنت على هذه" },
+  signMarkedPractised: { en: "Marked as practised. It will come back in review.", ar: "سجّلناها كتمرين. ستعود في المراجعة." },
 } satisfies Record<string, Entry>;
 
 export type TKey = keyof typeof dict;

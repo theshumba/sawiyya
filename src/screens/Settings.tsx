@@ -1,5 +1,8 @@
-// Settings — language, handedness, goal, profile name, camera permission +
-// reset-training, transparency / privacy links, profiles (PRD §6.10).
+// Settings: language, goal, profile name, camera permission + reset-training,
+// transparency / privacy links, profiles (PRD §6.10).
+// The signing-hand cards were removed 2026-08-01: nothing in the app read
+// Profile.dominantHand, and the reference imagery is licensed ArSL21L signer
+// photography that must never be mirrored. The field stays on Profile.
 // Version line / logo ×5 opens hidden dev metrics (§15).
 // Reskin: grouped "paper-card" list (mono eyebrow + hairline rows w/ colour
 // chips), a11y/pref controls kept inline, About footer floats Fanan "cheer".
@@ -14,7 +17,7 @@ import {
 } from "../store/household";
 import { useUi } from "../store/ui";
 import { clearAll } from "../recognizer/knn";
-import type { DailyGoal, Hand, Lang } from "../types";
+import type { DailyGoal, Lang } from "../types";
 import { Icon, Logo } from "../components/ui";
 import { Card, MonoLabel, toLocaleDigits } from "../components/dc";
 import { Fanan } from "../components/Fanan";
@@ -49,6 +52,15 @@ export function Settings() {
   const [importErr, setImportErr] = useState<string | null>(null);
   const [pendingImport, setPendingImport] =
     useState<{ state: unknown; persistVersion: number } | null>(null);
+  // Name lives here while it is being typed, so a half-typed or cleared field is
+  // never written to the store. Declared above the !profile guard: hooks first.
+  const [nameDraft, setNameDraft] = useState(profile?.displayName ?? "");
+  const draftFor = useRef(profile?.id ?? null);
+  if (draftFor.current !== (profile?.id ?? null)) {
+    // Active profile switched under us (Family screen): re-seed the draft.
+    draftFor.current = profile?.id ?? null;
+    setNameDraft(profile?.displayName ?? "");
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -66,8 +78,20 @@ export function Settings() {
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
-  const set = (patch: Partial<{ language: Lang; dominantHand: Hand; dailyGoal: DailyGoal; displayName: string }>) =>
+  const set = (patch: Partial<{ language: Lang; dailyGoal: DailyGoal; displayName: string }>) =>
     app.updateProfile(profile.id, patch);
+
+  // The name commits on blur and on Enter, never per keystroke, and an empty
+  // field falls back to the previous name (the rule Family already applies)
+  // so the profile can never end up nameless.
+  const commitName = () => {
+    const next = nameDraft.trim();
+    if (!next || next === profile.displayName) {
+      setNameDraft(profile.displayName);
+      return;
+    }
+    set({ displayName: next });
+  };
 
   // Live wiring: wipe this device's on-device handshape training (recognizer/knn).
   // Irreversible → confirm dialog first (spec §5.10).
@@ -150,8 +174,15 @@ export function Settings() {
       <input
         id="set-name"
         type="text"
-        value={profile.displayName}
-        onChange={(e) => set({ displayName: e.target.value })}
+        value={nameDraft}
+        onChange={(e) => setNameDraft(e.target.value)}
+        onBlur={commitName}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+        }}
         placeholder={pick(lang, "Hamad Al-Thani", "حمد آل ثاني")}
         className="w-full rounded-xl border border-line bg-sand/50 px-4 py-3 text-base font-semibold text-ink transition placeholder:text-muted/40 focus:border-teal/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-teal/20"
       />
@@ -182,49 +213,19 @@ export function Settings() {
     </div>
   );
 
-  const HandCards = (
-    <div className="grid grid-cols-2 gap-3">
-      {([
-        { v: "R" as Hand, en: "Right", ar: "اليمين", flip: false },
-        { v: "L" as Hand, en: "Left", ar: "اليسار", flip: true },
-      ]).map((o) => {
-        const on = profile.dominantHand === o.v;
-        return (
-          <button
-            key={o.v}
-            type="button"
-            onClick={() => set({ dominantHand: o.v })}
-            aria-pressed={on}
-            className={`relative flex flex-col items-center gap-2 rounded-xl p-4 transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal/40 ${
-              on ? "border-2 border-teal bg-teal/5" : "border border-line bg-sand/40 hover:border-teal/40"
-            }`}
-          >
-            <div
-              className={`flex h-14 w-14 items-center justify-center rounded-full ${
-                on ? "bg-teal/10 text-teal" : "bg-paper2 text-muted"
-              } ${o.flip ? "scale-x-[-1]" : ""}`}
-            >
-              <Icon name="back_hand" fill={on} className="text-3xl" />
-            </div>
-            <p className={`text-sm font-bold ${on ? "text-teal" : "text-muted"}`}>{pick(lang, o.en, o.ar)}</p>
-            <span
-              className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                on ? "bg-teal" : "border-2 border-line"
-              }`}
-              aria-hidden="true"
-            >
-              {on && <Icon name="check" className="text-[12px] font-bold text-paper" />}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
+  // One source for the goal wording: onboarding's own "Casual · 3 min" /
+  // "خفيف · ٣ دقائق" strings, split on the middot. Settings used to hardcode the
+  // minutes in Latin digits and English, so the Arabic screen was half-translated
+  // and disagreed with the onboarding label for the same choice.
+  const splitGoal = (full: string) => {
+    const [name, min = ""] = full.split(" · ");
+    return { name, min };
+  };
 
-  const goalOptions: { v: DailyGoal; en: string; ar: string; min: string }[] = [
-    { v: "casual", en: "Casual", ar: "هادئ", min: "3 min" },
-    { v: "regular", en: "Regular", ar: "منتظم", min: "7 min" },
-    { v: "serious", en: "Serious", ar: "جاد", min: "15 min" },
+  const goalOptions: { v: DailyGoal; name: string; min: string }[] = [
+    { v: "casual", ...splitGoal(t("obCasual", lang)) },
+    { v: "regular", ...splitGoal(t("obRegular", lang)) },
+    { v: "serious", ...splitGoal(t("obSerious", lang)) },
   ];
 
   const GoalList = (
@@ -243,7 +244,7 @@ export function Settings() {
           >
             <span className="flex items-center gap-2 text-sm font-bold text-ink">
               {on && <Icon name="stars" fill className="text-gold-deep" />}
-              {pick(lang, o.en, o.ar)}
+              {o.name}
             </span>
             <span className={`rounded-lg px-2.5 py-1 text-xs font-bold ${on ? "bg-gold text-ink" : "bg-paper2 text-muted"}`}>
               {o.min}
@@ -278,12 +279,6 @@ export function Settings() {
                 {pick(lang, "Language", "اللغة")}
               </p>
               {LanguageToggle}
-            </Block>
-            <Block>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
-                {pick(lang, "Signing hand", "يد الإشارة")}
-              </p>
-              {HandCards}
             </Block>
             <Block last>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
@@ -529,7 +524,7 @@ function ChipRow({
       {value && <span className="text-xs font-medium text-muted">{value}</span>}
       <Icon
         name="chevron_right"
-        className="text-[#C7D0CE] transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+        className="text-muted transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
       />
     </button>
   );

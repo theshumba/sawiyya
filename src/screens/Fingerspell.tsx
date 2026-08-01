@@ -30,7 +30,7 @@ type Speed = (typeof SPEEDS)[number];
 
 export function Fingerspell() {
   const app = useApp();
-  const { go } = useUi();
+  const { backOrParent } = useUi();
   const profile = activeProfile(app);
 
   const [text, setText] = useState("");
@@ -127,9 +127,9 @@ export function Fingerspell() {
         <header className="mb-4 flex items-center gap-3">
           <button
             type="button"
-            onClick={() => go({ name: "home" })}
+            onClick={() => backOrParent({ name: "practiseChooser" })}
             aria-label={t("back", lang)}
-            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
             <Icon name="arrow_back" className="text-xl leading-none rtl:rotate-180" />
           </button>
@@ -165,7 +165,7 @@ export function Fingerspell() {
               type="button"
               onClick={() => onText(text.length >= 24 ? text : text + s.code)}
               aria-label={pick(lang, s.glossEn, s.glossAr)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-paper font-display text-lg font-bold text-ink shadow-[inset_0_0_0_1px_#EDE3D2] transition hover:border-teal/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-paper font-display text-lg font-bold text-ink transition hover:border-teal/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {s.code}
             </button>
@@ -209,6 +209,20 @@ export function Fingerspell() {
               allowSkip
               autoStart
             />
+            {/* The only other ways out were skipping every remaining letter or
+                leaving the screen, which threw the typed word away. This keeps
+                the word and drops the learner back on the letter strip. */}
+            <Button
+              full
+              variant="ghost"
+              className="mt-2.5 !py-3"
+              onClick={() => {
+                setPractising(false);
+                setPractiseIdx(0);
+              }}
+            >
+              {t("fspStopPractising", lang)}
+            </Button>
           </div>
         ) : (
           <>
@@ -321,6 +335,23 @@ export function Fingerspell() {
                     </p>
                   </ScreenCard>
                 )
+              ) : steps.length > 0 ? (
+                // Digits, punctuation or a bare hamza: every character was
+                // skipped, so the user HAS typed a word and "type a word to
+                // begin" would contradict the skipped-characters note above.
+                <ScreenCard className="flex flex-col items-center gap-2 p-8 text-center">
+                  <Icon name="sign_language" className="text-5xl leading-none text-teal/30" />
+                  <p className="font-display text-sm font-bold text-ink">
+                    {pick(lang, "Nothing to spell here yet", "لا يوجد ما نتهجّاه هنا بعد")}
+                  </p>
+                  <p className="max-w-[280px] text-sm text-muted">
+                    {pick(
+                      lang,
+                      "Try Arabic letters, or English letters we can convert.",
+                      "جرّب حروفًا عربية، أو حروفًا إنجليزية يمكننا تحويلها.",
+                    )}
+                  </p>
+                </ScreenCard>
               ) : (
                 <ScreenCard className="flex flex-col items-center gap-2 p-8 text-center">
                   <Icon name="sign_language" className="text-5xl leading-none text-teal/30" />

@@ -1,47 +1,15 @@
-// Tile / Chip — the ONE selectable affordance (spec §3, §4.5).
-// Replaces the per-screen coral-vs-gold-vs-nothing selection drift. Every choice
-// surface (onboarding personas/hand/goal/picker, camera target chips, filters)
-// uses this: uniform selected ring + check badge + aria-pressed.
+// Chip: the small selectable affordance (camera target chips, filter chips).
+// Uniform selected fill + check/star badge + aria-pressed.
+//
+// This file used to export a big-card sibling called `Tile`, documented as "the
+// ONE selectable affordance". It had zero call sites while eight screens
+// hand-rolled their own selected treatment, so it was documentation that no
+// screen honoured. It is gone. Adopting one selection treatment across those
+// screens is a real job, not a dead export, and is tracked separately.
 import type { ReactNode } from "react";
 import { Icon } from "./ui";
 
 type TileState = "idle" | "trained";
-
-/** Big selectable card (onboarding choices, picker options). */
-export function Tile({
-  children,
-  selected = false,
-  onClick,
-  ariaLabel,
-  className = "",
-}: {
-  children: ReactNode;
-  selected?: boolean;
-  onClick: () => void;
-  ariaLabel?: string;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      aria-label={ariaLabel}
-      className={`relative flex w-full items-center gap-4 rounded-3xl border-2 p-5 text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
-        selected
-          ? "border-teal bg-teal/5 ring-4 ring-teal/10"
-          : "border-line bg-paper hover:border-teal/40"
-      } ${className}`}
-    >
-      {children}
-      {selected && (
-        <span className="absolute end-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-teal text-white" aria-hidden="true">
-          <Icon name="check" className="text-lg" />
-        </span>
-      )}
-    </button>
-  );
-}
 
 /** Small selectable pill/square (camera target chips, filter chips). */
 export function Chip({

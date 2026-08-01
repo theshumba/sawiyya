@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { num, pick, t } from "../i18n";
 import { A1_SIGNS, signById } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { activeProfile, todayKey, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { Lang, Sign } from "../types";
 import { demoShowsHint, SignDemo } from "../components/SignDemo";
@@ -23,10 +23,9 @@ const TWO_HAND = A1_SIGNS.filter((s) => s.hands === 2);
 
 export function Words() {
   const app = useApp();
-  const { go } = useUi();
+  const { backOrParent } = useUi();
   const profile = activeProfile(app);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [marked, setMarked] = useState(false);
   const [burst, setBurst] = useState(0);
   const selected = selectedId ? signById(selectedId) : undefined;
   // H16: focus the sheet on open, trap Tab, Escape/backdrop dismiss, restore focus.
@@ -34,20 +33,25 @@ export function Words() {
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
-  const open = (id: string) => {
-    setMarked(false);
-    setSelectedId(id);
+  const progress = app.progress[profile.id] ?? {};
+  // Once a day, not once a tap. The old confirmation lived in local state that
+  // reset every time the sheet reopened, so the same word could be self-marked
+  // over and over: +4 XP each time, another 'hard' rating churning its review
+  // card, and a 50-XP daily goal reachable by tapping one word thirteen times.
+  const markedToday = (id: string) => {
+    const seen = progress[id]?.lastSeen;
+    return seen ? todayKey(new Date(seen)) === todayKey() : false;
   };
+  const open = (id: string) => setSelectedId(id);
   const selfMark = () => {
-    if (!selected || marked) return;
+    if (!selected || markedToday(selected.id)) return;
     // Self-mark rates 'hard', never 'good' (H2) — nothing confirmed it.
     app.recordDrillResult(selected.id, "hard", { selfMark: true });
-    setMarked(true);
     celebrate();
     setBurst((b) => b + 1);
   };
   const practisedIds = new Set(
-    Object.entries(app.progress[profile.id] ?? {})
+    Object.entries(progress)
       .filter(([, p]) => (p?.masteryLevel ?? 0) >= 2)
       .map(([id]) => id),
   );
@@ -80,9 +84,9 @@ export function Words() {
         <header className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => go({ name: "practiseChooser" })}
+            onClick={() => backOrParent({ name: "practiseChooser" })}
             aria-label={t("back", lang)}
-            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-ink transition hover:bg-line active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
           >
             <Icon name="arrow_back" className="text-xl leading-none rtl:rotate-180" />
           </button>
@@ -125,7 +129,10 @@ export function Words() {
                 </p>
               </div>
               <span className="mt-1 inline-flex shrink-0 items-center gap-1 rounded-full bg-teal/10 px-2.5 py-1 font-display text-[10px] font-bold uppercase tracking-wider text-teal">
-                <Icon name="front_hand" className="text-xs leading-none" />
+                <Icon
+                  name={selected.hands === 2 ? "sign_language" : "front_hand"}
+                  className="text-xs leading-none"
+                />
                 {t(selected.hands === 2 ? "wordsTwoHands" : "wordsOneHand", lang)}
               </span>
             </div>
@@ -154,7 +161,7 @@ export function Words() {
 
             {/* mark yourself — the same never-hard-fail self-mark as everywhere */}
             <div className="mt-4">
-              {marked ? (
+              {markedToday(selected.id) ? (
                 <div className="flex items-center gap-3 rounded-2xl bg-gold/15 p-4">
                   <Icon name="celebration" fill className="shrink-0 text-2xl leading-none text-gold-deep" />
                   <p className="font-display font-bold text-ink">{t("wordsMarked", lang)}</p>
@@ -194,10 +201,16 @@ function WordCard({
   practised: boolean;
   onClick: () => void;
 }) {
+  const gloss = pick(lang, sign.glossEn, sign.glossAr);
   return (
     <button
       type="button"
       onClick={onClick}
+      // The practised tick is aria-hidden, and the tile's own text is two
+      // glosses in two languages, so speech users got no progress signal at all.
+      // The label carries the state and drops the other-language gloss, which a
+      // screen reader in this language can only mangle.
+      aria-label={practised ? `${gloss}, ${t("prUnlocked", lang)}` : gloss}
       className="relative flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-paper p-4 text-center transition hover:border-teal/40 active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
     >
       {practised && (
@@ -208,9 +221,7 @@ function WordCard({
       <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sand/60 text-3xl" aria-hidden="true">
         {sign.emoji}
       </span>
-      <span className="w-full truncate font-display text-sm font-bold text-ink">
-        {pick(lang, sign.glossEn, sign.glossAr)}
-      </span>
+      <span className="w-full truncate font-display text-sm font-bold text-ink">{gloss}</span>
       <span className="w-full truncate text-[11px] text-muted" dir={lang === "ar" ? "ltr" : "rtl"}>
         {pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr)}
       </span>

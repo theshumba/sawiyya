@@ -11,7 +11,7 @@
 // card-radius/spacing scale; the secondary gloss follows the content language.
 import { useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS, signById } from "../content/signs";
+import { A1_SIGNS, ALL_SIGNS, ALPHABET, signById } from "../content/signs";
 import { activeFlags, activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { ScreenShell } from "../components/ScreenShell";
@@ -27,7 +27,7 @@ const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
 // Learning-group taxonomy (mobile/desktop group switcher). No `category` field
 // exists on Sign (frozen content), so groups are derived from a presentational
 // id→group map; anything unmapped lives under "home".
-type GroupId = "all" | "home" | "food" | "feelings" | "school";
+type GroupId = "all" | "letters" | "home" | "food" | "feelings" | "school";
 
 const SIGN_GROUP: Record<string, Exclude<GroupId, "all">> = {
   // Food & drink
@@ -48,7 +48,13 @@ const SIGN_GROUP: Record<string, Exclude<GroupId, "all">> = {
   stop: "school",
 };
 
-const groupOf = (sign: Sign): Exclude<GroupId, "all"> => SIGN_GROUP[sign.id] ?? "home";
+const groupOf = (sign: Sign): Exclude<GroupId, "all"> =>
+  sign.tier === "alphabet" ? "letters" : (SIGN_GROUP[sign.id] ?? "home");
+
+// The letters are the only content the app can actually grade, so they have to
+// be flaggable: without this group the Deaf member could direct the household
+// to watch-only word signs and nothing else.
+const LETTER_SIGNS = ALPHABET.filter((s) => s.cameraGradable);
 
 export function FlagPicker() {
   const app = useApp();
@@ -57,32 +63,23 @@ export function FlagPicker() {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState<GroupId>("home");
   const [mostNeeded, setMostNeeded] = useState(true);
-  if (!profile) return <NoProfileFallback />;
-  const lang = profile.language;
 
   const flags = activeFlags(app);
   const flaggedIds = new Set(flags.map((f) => f.signId));
 
-  // Real requestors: the distinct profiles who raised an active flag.
-  const requestorIds = Array.from(new Set(flags.map((f) => f.raisedByProfileId)));
-  const requestors = requestorIds
-    .map((id) => app.profiles.find((p) => p.id === id))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
-
-  // Learning groups — labels via existing copy, counts from the live signs.
-  const groups: { id: GroupId; label: string; icon: string }[] = [
-    { id: "home", label: pick(lang, "Home", "المنزل"), icon: "home" },
-    { id: "food", label: pick(lang, "Food", "طعام"), icon: "restaurant" },
-    { id: "feelings", label: pick(lang, "Feelings", "مشاعر"), icon: "mood" },
-    { id: "school", label: pick(lang, "School", "مدرسة"), icon: "school" },
-  ];
-
   const q = query.trim().toLowerCase();
   const signs = useMemo(() => {
-    let list = A1_SIGNS.filter((s) => groupOf(s) === group);
+    let list =
+      group === "letters" ? LETTER_SIGNS : A1_SIGNS.filter((s) => groupOf(s) === group);
     if (q) {
-      list = A1_SIGNS.filter(
-        (s) => s.glossEn.toLowerCase().includes(q) || s.glossAr.includes(query.trim()),
+      // Search spans EVERY sign, and matches `code` as well as the two glosses:
+      // a letter's glossAr IS its code, so typing "ب" or "ba" has to find Ba.
+      const raw = query.trim();
+      list = ALL_SIGNS.filter(
+        (s) =>
+          s.glossEn.toLowerCase().includes(q) ||
+          s.glossAr.includes(raw) ||
+          (s.code ?? "").includes(raw),
       );
     }
     if (mostNeeded) {
@@ -94,6 +91,28 @@ export function FlagPicker() {
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group, q, query, mostNeeded, flags.length]);
+
+  // Guard AFTER every hook: React counts hooks per render, and an early return
+  // above the useMemo made this file one refactor away from "rendered fewer
+  // hooks than expected". App.tsx gates the screen on an active profile today,
+  // so the fallback is unreachable in the shipped app.
+  if (!profile) return <NoProfileFallback />;
+  const lang = profile.language;
+
+  // Real requestors: the distinct profiles who raised an active flag.
+  const requestorIds = Array.from(new Set(flags.map((f) => f.raisedByProfileId)));
+  const requestors = requestorIds
+    .map((id) => app.profiles.find((p) => p.id === id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+  // Learning groups — labels via existing copy, counts from the live signs.
+  const groups: { id: GroupId; label: string; icon: string }[] = [
+    { id: "letters", label: t("prAlphabet", lang), icon: "abc" },
+    { id: "home", label: pick(lang, "Home", "المنزل"), icon: "home" },
+    { id: "food", label: pick(lang, "Food", "طعام"), icon: "restaurant" },
+    { id: "feelings", label: pick(lang, "Feelings", "مشاعر"), icon: "mood" },
+    { id: "school", label: pick(lang, "School", "مدرسة"), icon: "school" },
+  ];
 
   // Flagged signs, in flag order, for the summary rail. Resolve via signById (the
   // single source of truth) so flagged ALPHABET signs resolve too — A1_SIGNS.find
@@ -110,8 +129,11 @@ export function FlagPicker() {
   // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
   const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
 
-  // The household member behind an incoming flag — powers the STATE-C pulse badge.
-  const heroRequestor = requestors.find((p) => p.id !== profile.id) ?? requestors[0];
+  // The household member behind an INCOMING flag — powers the STATE-C pulse
+  // badge. No self-fallback: the old `?? requestors[0]` addressed you in the
+  // third person about your own flag ("Melusi flagged this for you"), with your
+  // own initial in the avatar. Your own flags read as yours on the Family list.
+  const heroRequestor = requestors.find((p) => p.id !== profile.id);
 
   return (
     <ScreenShell
@@ -174,18 +196,24 @@ export function FlagPicker() {
                   }`}
                 />
               </div>
-              <button
-                type="button"
-                aria-pressed={mostNeeded}
-                onClick={() => setMostNeeded((v) => !v)}
-                className={`shrink-0 whitespace-nowrap rounded-2xl border-2 px-4 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
-                  mostNeeded
-                    ? "border-teal bg-teal/5 text-teal"
-                    : "border-line bg-paper text-teal hover:border-teal"
-                }`}
-              >
-                {pick(lang, "Most Needed", "الأكثر طلبًا")}
-              </button>
+              {/* The toggle only ever reorders FLAGGED signs to the front, so
+                  with nothing flagged it re-rendered an identical grid and
+                  taught the user that the controls here do nothing. It appears
+                  the moment there is something for it to move. */}
+              {flags.length > 0 && (
+                <button
+                  type="button"
+                  aria-pressed={mostNeeded}
+                  onClick={() => setMostNeeded((v) => !v)}
+                  className={`shrink-0 whitespace-nowrap rounded-2xl border-2 px-4 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
+                    mostNeeded
+                      ? "border-teal bg-teal/5 text-teal"
+                      : "border-line bg-paper text-teal hover:border-teal"
+                  }`}
+                >
+                  {pick(lang, "Most Needed", "الأكثر طلبًا")}
+                </button>
+              )}
             </div>
 
             {/* One group switcher — a single horizontally-scrolling Chip row at
@@ -284,8 +312,13 @@ export function FlagPicker() {
                       {flagged && (
                         <span className="mt-1 text-xs font-semibold text-coral">
                           {/* H7: honest per-role state — a non-raiser's tap on a
-                              flagged sign co-requests, it never unflags. */}
-                          {iSupport ? t("famCoRequested", lang) : t("famFlagged", lang)}
+                              flagged sign co-requests, it never unflags.
+                              `famFlagged` is the predicate "needs this" and only
+                              reads as English after a name (Family.tsx), so the
+                              tile carries a plain state word instead. */}
+                          {iSupport
+                            ? t("famCoRequested", lang)
+                            : pick(lang, "Flagged", "محدّدة")}
                         </span>
                       )}
                     </button>
@@ -326,14 +359,22 @@ export function FlagPicker() {
                             ? go({ name: "camera", targetSignId: s.id })
                             : go({ name: "allSigns", signId: s.id })
                         }
-                        aria-label={pick(lang, s.glossEn, s.glossAr)}
+                        aria-label={`${pick(lang, s.glossEn, s.glossAr)}${pick(lang, ", ", "، ")}${
+                          s.cameraGradable ? t("practiceCamera", lang) : t("lsWatchTitle", lang)
+                        }`}
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
                         <span aria-hidden="true">
                           <SignGlyph sign={s} lang={lang} className="text-2xl" imgClassName="h-8 w-8 object-contain" />
                         </span>
                         <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
-                        <Icon name="videocam" className="text-xl text-coral" />
+                        {/* the icon has to follow the branch above it: a camera
+                            glyph on a watch-only sign promises a camera the
+                            content cannot open. */}
+                        <Icon
+                          name={s.cameraGradable ? "videocam" : "visibility"}
+                          className="text-xl text-coral"
+                        />
                       </button>
                     </li>
                   ))}
@@ -394,8 +435,10 @@ export function FlagPicker() {
                     }
                     className="gap-2"
                   >
-                    <Icon name="videocam" />
-                    {pick(lang, "Practise these", "تدرّب على هذه")}
+                    <Icon name={firstFlaggedGradable ? "videocam" : "visibility"} />
+                    {firstFlaggedGradable
+                      ? pick(lang, "Practise these", "تدرّب على هذه")
+                      : pick(lang, "Watch these", "شاهد هذه")}
                   </SpringButton>
                   <button
                     type="button"
@@ -419,7 +462,9 @@ export function FlagPicker() {
               <Icon name="push_pin" fill />
             </span>
             <p className="truncate text-sm font-bold text-teal">
-              {num(flaggedSigns.length, lang)} {t("famFlagged", lang)}
+              {/* not `famFlagged` — that key is the predicate "needs this" and
+                  rendered the footer as "3 needs this" in both languages. */}
+              {num(flaggedSigns.length, lang)} {pick(lang, "flagged", "محدّدة")}
             </p>
           </div>
           <Button variant="primary" size="md" onClick={() => go({ name: "family" })} className="shrink-0">

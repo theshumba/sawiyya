@@ -93,30 +93,38 @@ export function Home() {
   const goalProgress = xpToday / goalXp;
   const goalPct = Math.round(Math.min(1, goalProgress) * 100);
 
-  // next lesson = first lesson with an unseen sign; falls back to L1 replay
+  // next lesson = first lesson with an unseen sign. Undefined once the whole
+  // curriculum sits at mastery 2: the old `?? LESSONS[0]` fallback resurrected
+  // lesson 1 as the pulsing START node for a learner who had finished everything.
   const prog = app.progress[profile.id] ?? {};
-  const nextLesson =
-    LESSONS.find((l) => l.signIds.some((id) => (prog[id]?.masteryLevel ?? 0) < 2)) ?? LESSONS[0];
+  const nextLesson = LESSONS.find((l) =>
+    l.signIds.some((id) => (prog[id]?.masteryLevel ?? 0) < 2),
+  );
 
   const due = dueSignIds(app, profile.id);
   const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
+  // A one-person household is the default after onboarding, and there the raiser
+  // IS the learner, so hiding own-flags left flagging with no visible effect
+  // anywhere. Households of two or more still hide them, otherwise a Deaf member
+  // would see their own requests come back as incoming ones.
+  const solo = app.profiles.length === 1;
   const flags = pinnedFlagSigns(app, profile.id).filter(
-    (f) => f.raisedByProfileId !== profile.id,
+    (f) => solo || f.raisedByProfileId !== profile.id,
   );
 
-  // journey node status derived from existing progress data
+  // journey node status derived from existing progress data. `complete` is
+  // tested first so a finished lesson can never read as the next one to start.
   const nodes = LESSONS.map((lesson) => {
     const complete = lesson.signIds.every((id) => (prog[id]?.masteryLevel ?? 0) >= 2);
-    const status: "current" | "done" | "locked" =
-      lesson.id === nextLesson.id ? "current" : complete ? "done" : "locked";
+    const status: "current" | "done" | "locked" = complete
+      ? "done"
+      : lesson.id === nextLesson?.id
+        ? "current"
+        : "locked";
     return { lesson, status };
   });
 
   const ms = nextMilestone(app, profile.id, lang);
-
-  // Unit banner follows the CURRENT lesson (H22): alphabet = Unit 1, words = Unit 2.
-  const unitIdx = Math.max(0, UNITS.findIndex((u) => u.id === nextLesson.unitId));
-  const unit = UNITS[unitIdx];
 
   // Winding horizontal offsets (design uses px translateX; mirror in RTL).
   const nodeOffsets = [0, 48, -48];
@@ -127,10 +135,36 @@ export function Home() {
     title: pick(lang, lesson.titleEn, lesson.titleAr),
     off: nodeOffsets[i % nodeOffsets.length],
   }));
-  // Treasure milestone closes the unit trail (bound to `ms`, not a mock ITEM).
-  if (ms) pathNodes.push({ id: "__milestone", status: "milestone", title: ms.label, off: 0 });
+  // One banner per unit (H22). The trail carries every lesson, so a single
+  // banner filed the four word lessons under "The Arabic Alphabet".
+  const unitGroups = UNITS.map((u, i) => ({
+    unit: u,
+    number: i + 1,
+    nodes: pathNodes.filter((n) => n.lesson?.unitId === u.id),
+  })).filter((g) => g.nodes.length > 0);
+  // Treasure milestone closes the trail (bound to `ms`, not a mock ITEM).
+  const milestoneNode: PathNode | null = ms
+    ? { id: "__milestone", status: "milestone", title: ms.label, off: 0 }
+    : null;
 
-  const openNode = pathNodes.find((n) => n.id === openId) ?? null;
+  const openNode =
+    (milestoneNode?.id === openId ? milestoneNode : null) ??
+    pathNodes.find((n) => n.id === openId) ??
+    null;
+
+  // The milestone's own numbers, so the chest sheet describes the rung it
+  // actually represents instead of a fixed "Clear Unit 1" line.
+  const milestoneMeta = ms ? `${num(ms.done, lang)} / ${num(ms.target, lang)}` : "";
+
+  // Route a rung at whatever advances it. Never the camera for the word rung:
+  // all 19 A1 signs are cameraGradable:false, so it would land on Alif (H5).
+  const goMilestone = () => {
+    if (!ms) return;
+    if (ms.kind === "family") go({ name: "family" });
+    else if (ms.kind === "words") go({ name: "words" });
+    else if (nextLesson) go({ name: "lesson", lessonId: nextLesson.id });
+    else go({ name: "camera" });
+  };
 
   const goalLabel =
     goalProgress >= 1
@@ -241,6 +275,55 @@ export function Home() {
           textAlign: "center",
         };
 
+  // One line per status, shared by the node's aria-label and its sheet, so a
+  // locked node stops announcing itself as camera practice.
+  const nodeMeta = (status: NodeStatus): string =>
+    status === "current"
+      ? t("pathNewSign", lang)
+      : status === "done"
+        ? t("pathDoneMeta", lang)
+        : status === "milestone"
+          ? milestoneMeta
+          : t("pathLockedMeta", lang);
+
+  const renderNode = (node: PathNode) => {
+    const isCurrent = node.status === "current";
+    const off = lang === "ar" ? -node.off : node.off;
+    return (
+      <div
+        key={node.id}
+        ref={isCurrent ? currentRef : undefined}
+        style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "9px 0" }}
+      >
+        <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
+          {isCurrent && (
+            <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#B54834", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #9C3D2C", whiteSpace: "nowrap", zIndex: 3 }}>
+              {t("homeStartBadge", lang)}
+            </div>
+          )}
+          <button
+            type="button"
+            aria-label={`${node.title} · ${nodeMeta(node.status)}`}
+            aria-haspopup="dialog"
+            onClick={() => setOpenId(node.id)}
+            className="active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
+            style={circleStyle(node.status)}
+          >
+            {nodeGlyph(node.status)}
+          </button>
+          {isCurrent && (
+            // Fanan cheers beside the current node; artwork never mirrors (§6),
+            // only its anchor swaps sides via the logical inset.
+            <div style={{ position: "absolute", top: 6, insetInlineStart: "100%", marginInlineStart: 2, animation: "sw-bob 2.4s ease-in-out infinite" }}>
+              <Fanan pose="cheer" scale={0.42} />
+            </div>
+          )}
+        </div>
+        <div style={labelStyle(node.status)}>{node.title}</div>
+      </div>
+    );
+  };
+
   return (
     <ScreenShell lang={lang} chrome="tabs">
       <style>{PATH_KEYFRAMES}</style>
@@ -290,58 +373,30 @@ export function Home() {
       <div className="mx-auto max-w-xl px-5">
         {/* Block B — winding node trail. The current-node START is the one dominant action. */}
         <section aria-label={t("homeToday", lang)} className="pt-4">
-          {/* B1 · Unit banner (teal). */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F6E3BC", textTransform: "uppercase" }}>
-                {`${t("homeUnit", lang)} ${num(unitIdx + 1, lang)}`}
-              </div>
-              <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
-                {pick(lang, unit.titleEn, unit.titleAr)}
-              </div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-              <div style={{ width: 16, height: 13, border: "2.5px solid #FBF7EF", borderRadius: 2, borderInlineStartWidth: 5 }} />
-            </div>
-          </div>
-
-          {/* B2 · Nodes. */}
-          {pathNodes.map((node) => {
-            const isCurrent = node.status === "current";
-            const off = lang === "ar" ? -node.off : node.off;
-            return (
-              <div
-                key={node.id}
-                ref={isCurrent ? currentRef : undefined}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "9px 0" }}
-              >
-                <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
-                  {isCurrent && (
-                    <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#B54834", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #9C3D2C", whiteSpace: "nowrap", zIndex: 3 }}>
-                      {t("homeStartBadge", lang)}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    aria-label={`${node.title} — ${t("practiceCamera", lang)}`}
-                    onClick={() => setOpenId(node.id)}
-                    className="active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
-                    style={circleStyle(node.status)}
-                  >
-                    {nodeGlyph(node.status)}
-                  </button>
-                  {isCurrent && (
-                    // Fanan cheers beside the current node; artwork never mirrors (§6),
-                    // only its anchor swaps sides via the logical inset.
-                    <div style={{ position: "absolute", top: 6, insetInlineStart: "100%", marginInlineStart: 2, animation: "sw-bob 2.4s ease-in-out infinite" }}>
-                      <Fanan pose="cheer" scale={0.42} />
-                    </div>
-                  )}
+          {/* B1 · One teal unit banner per unit, each followed by its own nodes. */}
+          {unitGroups.map((g) => (
+            <div key={g.unit.id}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F6E3BC", textTransform: "uppercase" }}>
+                    {`${t("homeUnit", lang)} ${num(g.number, lang)}`}
+                  </div>
+                  <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
+                    {pick(lang, g.unit.titleEn, g.unit.titleAr)}
+                  </div>
                 </div>
-                <div style={labelStyle(node.status)}>{node.title}</div>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                  <div style={{ width: 16, height: 13, border: "2.5px solid #FBF7EF", borderRadius: 2, borderInlineStartWidth: 5 }} />
+                </div>
               </div>
-            );
-          })}
+
+              {/* B2 · Nodes for this unit. */}
+              {g.nodes.map(renderNode)}
+            </div>
+          ))}
+
+          {/* B3 · Treasure milestone closes the trail, after the last unit. */}
+          {milestoneNode && renderNode(milestoneNode)}
         </section>
 
         {/* Block D — secondary stack (functional contract; reskinned to tokens). */}
@@ -400,7 +455,13 @@ export function Home() {
               const slice = flags.slice(0, 3);
               const flag = slice[0];
               const sign = signById(flag.signId);
-              const by = app.profiles.find((p) => p.id === flag.raisedByProfileId);
+              // Own flags now reach this list in a solo household, and "You needs
+              // this" is not a sentence: name the requester only when it is
+              // someone else.
+              const by =
+                flag.raisedByProfileId === profile.id
+                  ? undefined
+                  : app.profiles.find((p) => p.id === flag.raisedByProfileId);
               if (!sign) return null;
               return (
                 <section className="space-y-3" aria-label={t("homeFlagged", lang)}>
@@ -535,24 +596,46 @@ export function Home() {
             />
           </div>
 
-          {/* Milestone — lightweight secondary card (tappable → camera practice). */}
+          {/* Milestone: a readout, not a button. The same `ms` is already a
+              tappable node on the trail above, so Home was showing one live and
+              one dead copy of the milestone, and the dead one opened a generic
+              camera that did not advance it. */}
           {ms && (
-            <ScreenCard
-              variant="elevated"
-              className="flex items-center gap-4 p-5"
-              onClick={() => go({ name: "camera" })}
-            >
+            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
                 <Icon name="emoji_events" fill className="!text-3xl text-gold-deep" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="font-display font-bold text-ink">{ms.label}</p>
+                <p className="text-sm text-muted">{milestoneMeta}</p>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal/10">
                   <div
                     className="h-full rounded-full bg-gold transition-all"
                     style={{ width: `${Math.max(4, ms.progress * 100)}%` }}
                   />
                 </div>
+              </div>
+            </ScreenCard>
+          )}
+
+          {/* Every rung cleared. Without this the ladder just vanished and Home
+              gave a finished learner no acknowledgement at all. */}
+          {!ms && (
+            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
+                <Icon name="emoji_events" fill className="!text-3xl text-gold-deep" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display font-bold text-ink">
+                  {pick(lang, "Every milestone reached", "أنجزت كل المراحل")}
+                </p>
+                <p className="text-sm text-muted">
+                  {pick(
+                    lang,
+                    "You've finished everything we have. Keep it sharp with review.",
+                    "أنهيت كل ما لدينا. حافظ على إتقانك بالمراجعة.",
+                  )}
+                </p>
               </div>
             </ScreenCard>
           )}
@@ -563,20 +646,27 @@ export function Home() {
       {openNode &&
         (() => {
           const st = openNode.status;
-          const locked = st === "locked" || st === "milestone";
-          const meta =
-            st === "current"
-              ? t("pathNewSign", lang)
+          const isMilestone = st === "milestone";
+          // Only a real locked node is a dead end now. The chest used to count
+          // as locked, which made it un-openable at every level of progress.
+          const locked = st === "locked";
+          const teal = st === "done" || isMilestone;
+          const meta = nodeMeta(st);
+          const btnLabel = isMilestone
+            ? t("lsPartDoneCta", lang)
+            : st === "current"
+              ? t("pathStartCta", lang)
               : st === "done"
-                ? t("pathDoneMeta", lang)
-                : st === "milestone"
-                  ? t("pathChestMeta", lang)
-                  : t("pathLockedMeta", lang);
-          const btnLabel =
-            st === "current" ? t("pathStartCta", lang) : st === "done" ? t("pathReview", lang) : t("pathLocked", lang);
-          const iconBg = locked ? "#B8C4C1" : st === "done" ? "#0F6E6A" : "#E8654C";
-          const btnBg = locked ? "#EDE3D2" : st === "done" ? "#0F6E6A" : "#E8654C";
-          const btnSh = locked ? "none" : st === "done" ? "0 5px 0 #0A4F4C" : "0 5px 0 #C54F3A";
+                ? t("pathReview", lang)
+                : t("pathLocked", lang);
+          // H15 tones: the pre-H15 coral (#E8654C under #FBF7EF) measured 3.07:1
+          // and the locked label 2.1:1. coral-deep and the passing muted grey.
+          const iconBg = locked ? "#B8C4C1" : teal ? "#0F6E6A" : "#B54834";
+          const btnBg = locked ? "#EDE3D2" : teal ? "#0F6E6A" : "#B54834";
+          const btnSh = locked ? "none" : teal ? "0 5px 0 #0A4F4C" : "0 5px 0 #9C3D2C";
+          // One notion of "is there a camera target here", shared by the primary
+          // action and the secondary button below it.
+          const cameraTarget = openNode.lesson ? lessonCameraTarget(openNode.lesson) : undefined;
           const onAction = () => {
             if (st === "current" && openNode.lesson) {
               // The lesson is the primary path (H1): LessonPlayer mixes watch,
@@ -586,12 +676,18 @@ export function Home() {
               // camera stays one tap below as the secondary action.
               go({ name: "lesson", lessonId: openNode.lesson.id });
             } else if (st === "done" && openNode.lesson) {
-              go({ name: "camera", targetSignId: lessonCameraTarget(openNode.lesson) });
+              // H5: a word lesson has no gradable sign, so the camera would open
+              // on its default Alif. Replaying the lesson is the honest review.
+              go(
+                cameraTarget
+                  ? { name: "camera", targetSignId: cameraTarget }
+                  : { name: "lesson", lessonId: openNode.lesson.id },
+              );
+            } else if (isMilestone) {
+              goMilestone();
             }
             setOpenId(null);
           };
-          const cameraTarget =
-            st === "current" && openNode.lesson ? lessonCameraTarget(openNode.lesson) : undefined;
           return (
             <div
               onClick={() => setOpenId(null)}
@@ -609,8 +705,8 @@ export function Home() {
               >
                 <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-                  <div style={{ width: 56, height: 56, flex: "none", borderRadius: st === "milestone" ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {st === "milestone" ? (
+                  <div style={{ width: 56, height: 56, flex: "none", borderRadius: isMilestone ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {isMilestone ? (
                       <Icon name="card_giftcard" fill className="!text-2xl text-white" />
                     ) : locked ? (
                       <span style={{ position: "relative", display: "block", width: 16, height: 13, borderRadius: 3, background: "#FBF7EF" }}>
@@ -629,18 +725,28 @@ export function Home() {
                     <div style={{ font: "500 12px/1.3 'Readex Pro',sans-serif", color: "#5C726F", marginTop: 3 }}>{meta}</div>
                   </div>
                 </div>
+                {/* The chest shows how far along its own rung is, so it stops
+                    being a gold box with no readable state. */}
+                {isMilestone && ms && (
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-teal/10">
+                    <div
+                      className="h-full rounded-full bg-gold transition-all"
+                      style={{ width: `${Math.max(4, ms.progress * 100)}%` }}
+                    />
+                  </div>
+                )}
                 <button
                   type="button"
                   disabled={locked}
                   onClick={locked ? undefined : onAction}
                   className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                  style={{ display: "block", width: "100%", marginTop: 18, textAlign: "center", font: "700 16px/1 Rubik,sans-serif", padding: 15, borderRadius: 16, border: "none", background: btnBg, boxShadow: btnSh, color: locked ? "#8FA09D" : "#FBF7EF", cursor: locked ? "default" : "pointer", opacity: locked ? 0.85 : 1 }}
+                  style={{ display: "block", width: "100%", marginTop: 18, textAlign: "center", font: "700 16px/1 Rubik,sans-serif", padding: 15, borderRadius: 16, border: "none", background: btnBg, boxShadow: btnSh, color: locked ? "#566B68" : "#FBF7EF", cursor: locked ? "default" : "pointer", opacity: locked ? 0.85 : 1 }}
                 >
                   {btnLabel}
                 </button>
                 {/* Secondary: straight to camera practice on the lesson's first
-                    gradable sign (the demoted practice-first route — H1). */}
-                {cameraTarget && (
+                    gradable sign (the demoted practice-first route, H1). */}
+                {st === "current" && cameraTarget && (
                   <button
                     type="button"
                     onClick={() => {

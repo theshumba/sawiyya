@@ -20,6 +20,16 @@ export interface Profile {
    *  reviewsTodayFor. */
   reviewsToday: number;
   streak: number;
+  /** Highest streak this profile has ever reached. Achievements narrate what
+   *  HAPPENED, so the 7-day badge reads this and not the live `streak`, which
+   *  drops to 0 the moment a learner lapses. Blobs written before this field
+   *  backfill from `streak`. */
+  bestStreak: number;
+  /** The streak value the full-screen celebration last fired for. Persisted so
+   *  the celebration can fire the next time Progress opens: the old per-mount
+   *  ref could only fire if the streak grew while Progress was already on
+   *  screen, which never happens (one screen renders at a time). */
+  celebratedStreak: number;
   lastActiveDay: string | null; // YYYY-MM-DD
   activeDays: string[]; // recent active days (cap ~90) — feeds shared streak
   dailyGoal: DailyGoal;

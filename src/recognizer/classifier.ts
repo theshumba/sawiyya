@@ -83,11 +83,21 @@ export function classify(vec: number[]): MlpResult {
 /** Live-grading result shape — mirrors knn.ts `TargetClassification` so the camera
  *  loop can swap the MLP in for seeded letters with no call-site reshaping. */
 export interface ModelGrade {
-  /** softmax probability of the TARGET letter (the meter value) */
+  /** Softmax probability of the TARGET letter (the meter value), ZEROED when the
+   *  frame is out of distribution. The softmax runs over a closed set of 28
+   *  letters, so a junk hand is normalised into "some letter" and can score 1.0
+   *  on a frame the grader is rejecting. Reporting that raw number drove a meter
+   *  labelled "Camera confidence" to 100% while the hold ring refused to start.
+   *  knn.ts:260 already zeroes its own confidence when its gate rejects; this
+   *  mirrors it, so both graders mean the same thing by "confidence". */
   confidence: number;
   /** target holds the most softmax mass, clears the calibrated tau, AND the frame
    *  sits inside the target's real seed cloud (OOD gate, M1) */
   matched: boolean;
+  /** False when the OOD gate rejected the frame. Exposed so the camera UI can tell
+   *  the learner WHY nothing is happening (compare with the reference) instead of
+   *  leaving them staring at a meter that will not move. */
+  inDistribution: boolean;
   debug?: { bestClass: string; bestP: number; targetP: number; seedD: number };
 }
 
@@ -99,7 +109,7 @@ export interface ModelGrade {
  * Caller gates with this only when `modelKnows(targetId)`; else falls back to KNN.
  */
 export function gradeWithModel(vec: number[], targetId: string): ModelGrade {
-  if (vec.length === 0) return { confidence: 0, matched: false };
+  if (vec.length === 0) return { confidence: 0, matched: false, inDistribution: false };
   const r = classify(vec);
   const targetP = r.probOf(targetId);
   // Additive OOD conjunct (M1): the frame must also sit within the target's real
@@ -107,8 +117,11 @@ export function gradeWithModel(vec: number[], targetId: string): ModelGrade {
   const seedD = nearestSeedDistance(vec, targetId);
   const inDistribution = seedD <= OOD_GATE;
   return {
-    confidence: targetP,
+    // Zeroed out of distribution: a frame the gate is rejecting must never read as
+    // confidence. targetP is still available in debug for the ?debug readout.
+    confidence: inDistribution ? targetP : 0,
     matched: r.classId === targetId && targetP >= MODEL_TAU && inDistribution,
+    inDistribution,
     debug: { bestClass: r.classId, bestP: r.confidence, targetP, seedD },
   };
 }

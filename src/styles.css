@@ -32,39 +32,27 @@
   /* Extruded "pressable" depth — flat top face, hard darker bottom edge.
      Values mirrored from the approved Stitch design (stitch-v2-brand). */
   .extruded-coral {
-    /* H15: face darkened to coral-deep #B54834 — edge one step darker again
-       (matches spring-coral) so the extrusion stays visible. */
-    box-shadow: 0 6px 0 0 #9c3d2c;
+    /* H15: face darkened to coral-deep #B54834, so the edge goes one step
+       darker again (coral-edge) and the extrusion stays visible. */
+    box-shadow: 0 6px 0 0 theme('colors.coral.edge');
   }
   .extruded-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 #9c3d2c;
+    box-shadow: 0 2px 0 0 theme('colors.coral.edge');
   }
   .extruded-teal {
-    box-shadow: 0 6px 0 0 #0a4f4c;
+    box-shadow: 0 6px 0 0 theme('colors.teal.deep');
   }
   .extruded-teal:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 #0a4f4c;
+    box-shadow: 0 2px 0 0 theme('colors.teal.deep');
   }
   .extruded-gold {
-    box-shadow: 0 6px 0 0 #c9993e;
+    box-shadow: 0 6px 0 0 theme('colors.gold.edge');
   }
   .extruded-gold:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 #c9993e;
-  }
-  .extruded-paper {
-    box-shadow: 0 4px 0 0 #e2ddd3;
-  }
-  .extruded-paper:active:not(:disabled) {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 0 #e2ddd3;
-  }
-  /* Pressed/selected state of a paper choice card (teal-filled, depressed). */
-  .extruded-teal-pressed {
-    box-shadow: 0 0 0 0 #0a4f4c;
-    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 theme('colors.gold.edge');
   }
   /* ── Design-rebuild spring buttons (HANDOFF §Shape) ───────────────────────
      Solid fill + HARD 5px bottom shadow (no blur). On :active the button
@@ -74,7 +62,7 @@
     transition: transform 0.1s ease, box-shadow 0.1s ease;
   }
   .spring-teal {
-    box-shadow: 0 5px 0 #0a4f4c;
+    box-shadow: 0 5px 0 theme('colors.teal.deep');
   }
   /* M20 (global backstop): CSS letter-spacing severs Arabic cursive joins.
      applyDir() stamps <html lang>, so in Arabic every tracking utility in the
@@ -88,24 +76,24 @@
   }
 
   .spring-coral {
-    /* H15: the face is now coral-deep (#B54834) — one shade darker so the
-       extruded edge stays visible instead of matching the face exactly. */
-    box-shadow: 0 5px 0 #9c3d2c;
+    /* H15: the face is now coral-deep (#B54834), so coral-edge is one shade
+       darker again and the extruded edge stays visible instead of matching it. */
+    box-shadow: 0 5px 0 theme('colors.coral.edge');
   }
   .spring-gold {
-    box-shadow: 0 5px 0 #c89a3d;
+    box-shadow: 0 5px 0 theme('colors.gold.edge');
   }
   .spring-teal:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 #0a4f4c;
+    box-shadow: 0 1px 0 theme('colors.teal.deep');
   }
   .spring-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 #9c3d2c;
+    box-shadow: 0 1px 0 theme('colors.coral.edge');
   }
   .spring-gold:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 #c89a3d;
+    box-shadow: 0 1px 0 theme('colors.gold.edge');
   }
   .spring-teal:disabled,
   .spring-coral:disabled,

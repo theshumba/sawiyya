@@ -1,6 +1,7 @@
 // Onboarding — reskinned to the "Sawiyya Onboarding.dc.html" design language.
-// The functional 7-step machine (splash/lang/learn/why/hand/goal/name) and all
-// its wiring are PRESERVED (design/rebuild-source/specs/onboarding.md §1).
+// The functional step machine (splash/lang/learn/why/goal/name) and all its
+// wiring are PRESERVED (design/rebuild-source/specs/onboarding.md §1), minus
+// the handedness step, which fed a field nothing in the app reads.
 // Trimmed per L20: the inert "your why" step is cut, camera + on-device privacy
 // are one screen, and the reminders step is honest (a real .ics download — H20).
 // Every step is re-dressed in the device-column visual system: springy amber
@@ -11,14 +12,16 @@ import { pick, t, applyDir, langFromSearch } from "../i18n";
 import { PERSONA_TAGLINE } from "../content/signs";
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import type { DailyGoal, Hand, Lang, Persona } from "../types";
+import type { DailyGoal, Lang, Persona } from "../types";
 import { Fanan } from "../components/Fanan";
 import { SpringButton, MonoLabel } from "../components/dc";
 
-// Step machine: the original 7 steps (splash/lang/learn/why/hand/goal/name —
-// every real createProfile input) plus the design moments that earn their
-// keep. Trimmed per L20: the inert "your why" chips are cut, and the camera
-// how-it-works + on-device privacy screens are merged into one.
+// Step machine: every step that feeds a real createProfile input, plus the
+// design moments that earn their keep. Trimmed per L20: the camera
+// how-it-works and on-device privacy screens are merged into one. The
+// handedness step is gone: nothing reads dominantHand and the recognizer
+// canonicalises both hands itself, so asking was a lever with nothing on the
+// other end.
 type Step =
   | "splash"
   | "meet"
@@ -26,10 +29,13 @@ type Step =
   | "learn"
   | "why"
   | "camera"
-  | "hand"
   | "goal"
   | "reminders"
   | "name";
+
+// Which track the "What do you want to learn?" step recorded. null means the
+// user continued without picking a card, which keeps the original landing.
+type Track = "alphabet" | "words" | null;
 
 // Persona choices (PRESERVE §1 data table — values/keys/ar/icon stay intact).
 const PERSONAS: {
@@ -42,7 +48,7 @@ const PERSONAS: {
   { value: "sibling", icon: "diversity_3", key: "obSibling", ar: "أخي أو أختي" },
   { value: "teacher", icon: "school", key: "obTeacher", ar: "طالبي" },
   { value: "friend", icon: "group", key: "obFriend", ar: "صديقي" },
-  { value: "deaf", icon: "sign_language", key: "obDeaf", ar: "أنا أصم — أهيّئ عائلتي" },
+  { value: "deaf", icon: "sign_language", key: "obDeaf", ar: "أنا أصم، أهيّئ عائلتي" },
 ];
 
 // Daily-goal choices (PRESERVE §1 data table).
@@ -115,29 +121,39 @@ export function Onboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [persona, setPersona] = useState<Persona>("parent");
-  const [hand, setHand] = useState<Hand>("R");
   const [goal, setGoal] = useState<DailyGoal>("regular");
+  const [track, setTrack] = useState<Track>(null);
   const [name, setName] = useState("");
   // Reminder .ics downloaded this session (label feedback only — the user's
   // calendar app owns the reminder from here).
   const [icsDownloaded, setIcsDownloaded] = useState(false);
 
-  const finish = (overrides?: {
-    skipAll?: boolean;
-    destination?: { name: "camera"; targetSignId?: string; autoStart?: boolean };
-  }) => {
+  // Only the name step finishes onboarding, so a profile is never created
+  // without the learner being asked what to call them. Whatever they answered
+  // before that point is kept as-is: the initial values here are the same
+  // sensible defaults the old "skip everything" branch hard-coded.
+  const finish = () => {
     const displayName = name.trim() || (lang === "ar" ? "أنا" : "Me");
     createProfile({
       displayName,
-      role: overrides?.skipAll ? "parent" : persona,
-      dominantHand: overrides?.skipAll ? "R" : hand,
+      role: persona,
+      // Inert field: nothing in the app reads dominantHand and the recognizer
+      // canonicalises both hands itself, so we no longer ask for it.
+      dominantHand: "R",
       language: lang,
-      dailyGoal: overrides?.skipAll ? "regular" : goal,
+      dailyGoal: goal,
     });
     completeOnboarding();
-    // Practice-first: the Alphabet learn card finishes straight into camera on
-    // alpha-alif; every other path keeps firstSign as the default landing.
-    go(overrides?.destination ?? { name: "firstSign" });
+    // The learn step's answer is honoured here: the alphabet track opens the
+    // camera on alpha-alif, the words track opens the full sign list, and no
+    // answer keeps firstSign as the default landing.
+    go(
+      track === "alphabet"
+        ? { name: "camera", targetSignId: "alpha-alif", autoStart: true }
+        : track === "words"
+          ? { name: "allSigns" }
+          : { name: "firstSign" },
+    );
   };
 
   const chooseLang = (l: Lang) => {
@@ -154,7 +170,6 @@ export function Onboarding() {
     "learn",
     "why",
     "camera",
-    "hand",
     "goal",
     "reminders",
     "name",
@@ -185,17 +200,15 @@ export function Onboarding() {
               ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
               : step === "camera"
                 ? { label: t("obCamCta", lang), onClick: advance, variant: "teal" }
-                : step === "hand"
-                  ? { label: t("obContinue", lang), onClick: () => setStep("goal"), variant: "teal" }
-                  : step === "goal"
-                    ? { label: t("obGoalCta", lang), onClick: () => setStep("reminders"), variant: "teal" }
-                    : step === "reminders"
-                      ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
-                      : null;
+                : step === "goal"
+                  ? { label: t("obGoalCta", lang), onClick: () => setStep("reminders"), variant: "teal" }
+                  : step === "reminders"
+                    ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
+                    : null;
 
   return (
-    <div className={`flex min-h-screen w-full justify-center ${dark ? "bg-sand" : "bg-paper"}`}>
-      <div className="flex min-h-screen w-full max-w-md flex-col">
+    <div className={`flex min-h-dvh w-full justify-center ${dark ? "bg-sand" : "bg-paper"}`}>
+      <div className="flex min-h-dvh w-full max-w-md flex-col">
         {/* Header — back + springy amber progress + skip (PRESERVE §1). */}
         <div className="flex items-center gap-3 px-6 pt-4">
           {stepIndex > 0 ? (
@@ -235,10 +248,14 @@ export function Onboarding() {
             />
           </div>
 
-          {step !== "splash" ? (
+          {/* Skip jumps to the name step rather than finishing: it means "use
+              defaults for what I have not answered", never "throw away what I
+              already chose" and never a profile called Me. The name step is
+              terminal and owns its own submit, so it shows no Skip. */}
+          {step !== "splash" && step !== "name" ? (
             <button
               type="button"
-              onClick={() => finish({ skipAll: true })}
+              onClick={() => setStep("name")}
               className="min-w-10 shrink-0 text-[13px] font-bold text-teal transition active:scale-95"
             >
               {t("obSkip", lang)}
@@ -326,17 +343,20 @@ export function Onboarding() {
               <p className="mt-1.5 text-[14px] leading-[1.4] text-muted">
                 {pick(
                   lang,
-                  "Qatari Sign Language — start here, on your device.",
-                  "لغة الإشارة القطرية — ابدأ هنا، على جهازك.",
+                  "Qatari Sign Language, start here on your device.",
+                  "لغة الإشارة القطرية، ابدأ هنا على جهازك.",
                 )}
               </p>
               <div className="mt-5 flex flex-col gap-3">
-                {/* Arabic alphabet — finishes straight into camera on alpha-alif. */}
+                {/* Arabic alphabet, the practice-first short path: it goes
+                    straight to the name step and finishes into the camera on
+                    alpha-alif from there. */}
                 <button
                   type="button"
-                  onClick={() =>
-                    finish({ destination: { name: "camera", targetSignId: "alpha-alif", autoStart: true } })
-                  }
+                  onClick={() => {
+                    setTrack("alphabet");
+                    setStep("name");
+                  }}
                   className={`${cardBase} gap-4 p-4`}
                 >
                   <span
@@ -360,8 +380,15 @@ export function Onboarding() {
                   </div>
                 </button>
 
-                {/* Everyday signs — teach-mode, continues to persona. */}
-                <button type="button" onClick={() => setStep("why")} className={`${cardBase} gap-4 p-4`}>
+                {/* Everyday signs, teach-mode: finishes on the full sign list. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTrack("words");
+                    setStep("why");
+                  }}
+                  className={`${cardBase} gap-4 p-4`}
+                >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
                     <span className="h-5 w-5 rounded-full bg-gold" />
                   </span>
@@ -378,11 +405,12 @@ export function Onboarding() {
                   </span>
                 </button>
 
-                {/* Other dialects — honest coming-soon. */}
-                <button
-                  type="button"
-                  onClick={() => setStep("why")}
-                  className="flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-line p-4 text-start opacity-80 transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60"
+                {/* Other dialects: a note, not a choice. Tapping it used to do
+                    exactly what the two real cards do, so it read as an option
+                    the app had accepted. Nothing here is selectable yet. */}
+                <div
+                  aria-disabled="true"
+                  className="flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-line p-4 text-start opacity-80"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ink/5">
                     <span className="h-5 w-5 rounded-full border-2 border-teal/30" />
@@ -392,10 +420,10 @@ export function Onboarding() {
                       {pick(lang, "Other Gulf dialects", "لهجات خليجية أخرى")}
                     </span>
                     <p className="text-[13px] text-muted">
-                      {pick(lang, "Emirati, Saudi & more — coming soon", "الإماراتية والسعودية وغيرها — قريبًا")}
+                      {pick(lang, "Emirati, Saudi and more, coming soon", "الإماراتية والسعودية وغيرها، قريبًا")}
                     </p>
                   </div>
-                </button>
+                </div>
               </div>
             </div>
           )}
@@ -510,37 +538,6 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* Handedness (existing) */}
-          {step === "hand" && (
-            <div className="flex flex-1 flex-col">
-              <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">{t("obHandTitle", lang)}</h1>
-              <p className="mt-1.5 text-[14px] leading-[1.4] text-muted">{t("obHandSub", lang)}</p>
-              <div className="mt-5 flex flex-col gap-3">
-                {([
-                  { value: "R" as Hand, key: "obRight" as const },
-                  { value: "L" as Hand, key: "obLeft" as const },
-                ]).map((h) => {
-                  const sel = hand === h.value;
-                  return (
-                    <button
-                      key={h.value}
-                      type="button"
-                      aria-pressed={sel}
-                      onClick={() => {
-                        setHand(h.value);
-                        setStep("goal");
-                      }}
-                      className={`flex items-center gap-3 rounded-2xl px-4 py-4 text-start text-[15px] font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${sel ? chipSel : chipIdle}`}
-                    >
-                      <span className={`h-3 w-3 shrink-0 rounded-full ${sel ? "bg-gold-soft" : "bg-line"}`} />
-                      <span className="flex-1">{t(h.key, lang)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* s7 · Daily goal */}
           {step === "goal" && (
             <div className="flex flex-1 flex-col">
@@ -644,11 +641,14 @@ export function Onboarding() {
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={lang === "ar" ? "اسمك" : "Your name"}
+                  aria-label={pick(lang, "Your name", "اسمك")}
+                  placeholder={pick(lang, "Your name", "اسمك")}
                   maxLength={20}
                   className="rounded-2xl border border-line bg-paper px-5 py-4 text-lg font-semibold text-ink placeholder:text-muted/60 focus:border-teal focus:outline-none"
                 />
-                <div className="mt-auto pb-6 pt-6">
+                {/* This step is skipped by the footer's step !== "name" guard,
+                    so it carries its own safe-area padding. */}
+                <div className="safe-bottom mt-auto pb-6 pt-6">
                   <SpringButton full size="lg" type="submit">
                     {t("obContinue", lang)}
                   </SpringButton>
@@ -660,7 +660,7 @@ export function Onboarding() {
 
         {/* Footer CTA (design Block D) — name owns its own submit button. */}
         {step !== "name" && footer && (
-          <div className="px-6 pb-6 pt-3">
+          <div className="safe-bottom px-6 pb-6 pt-3">
             <SpringButton full size="lg" variant={footer.variant} onClick={footer.onClick}>
               {footer.label}
             </SpringButton>

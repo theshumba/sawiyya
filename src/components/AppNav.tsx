@@ -72,9 +72,13 @@ export function AppNav({ lang }: { lang: Lang }) {
         className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-[2px]"
         onClick={() => setMenuOpen(false)}
       />
+      {/* role="dialog", not role="menu": a menu promises arrow-key navigation
+          between items and useDialog only handles Tab and Escape. This is the
+          same L11 call the codebase already made in AllSigns and Progress —
+          announce the pattern the keyboard actually implements. */}
       <div
         ref={menuRef}
-        role="menu"
+        role="dialog"
         aria-label={t("navProfile", lang)}
         tabIndex={-1}
         className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
@@ -95,7 +99,6 @@ export function AppNav({ lang }: { lang: Lang }) {
           <button
             key={it.name}
             type="button"
-            role="menuitem"
             onClick={() => {
               go({ name: it.name });
               setMenuOpen(false);
@@ -114,18 +117,16 @@ export function AppNav({ lang }: { lang: Lang }) {
     <div className="relative flex flex-col items-center justify-center">
       <button
         type="button"
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={menuOpen}
         aria-label={t("navProfile", lang)}
         onClick={() => setMenuOpen((v) => !v)}
         className="relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-[5px] rounded-2xl px-2 py-1 transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
       >
         {profile ? <Avatar emoji={profile.emoji} size="sm" /> : <Icon name="account_circle" className="text-2xl text-teal" />}
-        {requests > 0 && (
-          <span className="absolute end-1 top-0">
-            <Badge count={requests} lang={lang} />
-          </span>
-        )}
+        {/* the request badge lives on the Family tab now: this menu holds only
+            Progress and Settings, neither of which shows a flag, so the count
+            here pointed at a screen that could not resolve it. */}
         <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>
       </button>
       {profileMenu(menuRef)}
@@ -137,21 +138,29 @@ export function AppNav({ lang }: { lang: Lang }) {
     // Icon colour is independent of the label colour on the rail (design Block 5):
     // active teal, inactive muted (H15: was #B8C4C1/#8F9C99 — 1.68:1/2.66:1, both AA fails).
     const iconColor = active ? "text-teal" : "text-muted";
+    // The badge sits where the flags actually live: the Family tab (and Home)
+    // are the only surfaces that list them.
+    const badged = tab.name === "family" && requests > 0;
     return (
       <button
         key={tab.name}
         type="button"
         aria-current={active ? "page" : undefined}
         onClick={() => go({ name: tab.name } as Screen)}
-        className={`flex min-h-[48px] min-w-[48px] items-center transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+        className={`relative flex min-h-[48px] min-w-[48px] items-center transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
           vertical
             ? `w-full gap-3 rounded-2xl px-4 py-3 font-display font-bold ${active ? "bg-teal/10 text-teal" : "text-muted hover:bg-teal/5"}`
             : "flex-col justify-center gap-[5px] rounded-2xl px-2 py-1"
         }`}
       >
         {/* icon box — 26×24 in the design, glyph bottom-aligned */}
-        <span className="flex h-6 items-end justify-center">
+        <span className="relative flex h-6 items-end justify-center">
           <Icon name={tab.icon} fill={active} className={`text-2xl leading-none ${iconColor}`} />
+          {badged && (
+            <span className="absolute -end-1 -top-1">
+              <Badge count={requests} lang={lang} />
+            </span>
+          )}
         </span>
         <span
           className={

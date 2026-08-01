@@ -9,7 +9,7 @@ import type { Lang, Sign } from "../types";
 import { normalizeLandmarks } from "../recognizer/normalize";
 import { coach, type CoachAdvice, type FingerName } from "../recognizer/coach";
 import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, userTaughtCount } from "../recognizer/knn";
-import { gradeWithModel, modelKnows } from "../recognizer/classifier";
+import { gradeWithModel, modelKnows, MODEL_TAU } from "../recognizer/classifier";
 import { ensureSeeds, seedsLoaded } from "../recognizer/seedStore";
 import { stepHold, HOLD_MS } from "./holdGate";
 import { HandSkeleton } from "./HandSkeleton";
@@ -73,8 +73,13 @@ export function CameraTrainer({
   // those open straight into grade mode and never need teaching. Everything else
   // (un-seeded word signs) starts in teach mode unless the learner already taught it.
   const knowsModel = modelKnows(sign.id);
+  // Reference-only signs (the three edge letters, the A1 words with no footage)
+  // must NEVER enter teach mode. Teaching one records 24 samples of the learner's
+  // own guess and then grades them against it, which is a guaranteed match and can
+  // mint mastery. They get the reference, the honest note and the self-mark instead.
+  const gradable = sign.cameraGradable;
   const [mode, setMode] = useState<"grade" | "teach">(
-    knowsModel || isTrained(sign.id) ? "grade" : "teach",
+    !gradable || knowsModel || isTrained(sign.id) ? "grade" : "teach",
   );
   const [teachPhase, setTeachPhase] = useState<"intro" | "capturing" | "done">("intro");
   const [captured, setCaptured] = useState(0);
@@ -86,6 +91,10 @@ export function CameraTrainer({
   const [ownRecordingMatch, setOwnRecordingMatch] = useState(false);
   const [showUnsure, setShowUnsure] = useState(false);
   const [stillTricky, setStillTricky] = useState(false);
+  // M13b: the seed chunk failed to load, so grading genuinely cannot run. Say so
+  // rather than sitting at a permanently 0% meter with no explanation.
+  const [seedsFailed, setSeedsFailed] = useState(false);
+  const [seedsAttempt, setSeedsAttempt] = useState(0);
   const [dbg, setDbg] = useState("");
   const lastDbg = useRef("");
 
@@ -98,6 +107,18 @@ export function CameraTrainer({
   // M2: did the dataset MLP confirm at any point during the current hold streak?
   // If not (KNN carried it alone), the pass is disclosed as "your own recording".
   const modelMatchedInHold = useRef(false);
+  // …and did the KNN vote that carried it actually come from the learner's OWN
+  // samples? classifyAgainst reads the bundled seeds too, so without this a hold a
+  // real-signer seed carried was still announced as the learner's own recording.
+  const userKnnMatchedInHold = useRef(false);
+  // A hold streak is running. Guards the one-shot "clear the not-sure band" below
+  // so a matching frame can't push state 20 times a second (the same no-churn
+  // discipline as pushConfidence/pushHold).
+  const inHoldStreak = useRef(false);
+  // Teach mode wipes the old samples for this class on the FIRST captured frame,
+  // not on the button press — an abandoned teach session must not destroy training
+  // the learner already has (and drop the class under the >=8 fallback floor).
+  const teachCleared = useRef(false);
   // M13: the bundled seeds are dynamic-imported; a match can't confirm until they
   // are resident (the OOD gate + KNN both read them). Almost always already true.
   const seedsReady = useRef(seedsLoaded());
@@ -173,6 +194,8 @@ export function CameraTrainer({
       heldMs.current = 0; // hand lost — the hold streak breaks (L1)
       lastHoldTs.current = null;
       modelMatchedInHold.current = false;
+      userKnnMatchedInHold.current = false;
+      inHoldStreak.current = false;
       lastSeenTs.current = null; // hand lost — pause the soft-fail clock (H2)
       return;
     }
@@ -183,6 +206,13 @@ export function CameraTrainer({
       if (!teaching.current) return;
       frameSkip.current = (frameSkip.current + 1) % 3;
       if (frameSkip.current !== 0) return; // sample every 3rd frame for variety
+      // Replace the previous set only once we actually have a frame to replace it
+      // with. Clearing on the button press meant tapping "Re-teach" and walking away
+      // destroyed training the learner had already recorded.
+      if (!teachCleared.current) {
+        teachCleared.current = true;
+        clearClass(sign.id);
+      }
       addSample(sign.id, vec);
       // USER samples only: sampleCount() spans the 40 bundled seeds too, so on
       // a seeded letter "teach my hand" used to insta-complete at 41/24 after
@@ -227,6 +257,8 @@ export function CameraTrainer({
         heldMs.current = 0;
         lastHoldTs.current = null;
         modelMatchedInHold.current = false;
+        userKnnMatchedInHold.current = false;
+        inHoldStreak.current = false;
         setStillTricky(true);
         onSoftFail?.();
         setTimeout(() => setStillTricky(false), 3400);
@@ -244,21 +276,30 @@ export function CameraTrainer({
     // M2: track whether the DATASET MODEL confirmed this frame (vs the learner's
     // own KNN recording carrying it), so a KNN-only pass can be disclosed honestly.
     let mlpMatched = false;
+    let userKnnMatched = false;
+    // The OOD gate rejected a frame the softmax was otherwise happy with: the ring
+    // will not start and the meter is (correctly) 0, so say why instead of leaving
+    // the learner watching a dead number.
+    let outOfDistribution = false;
     if (knowsModel) {
       // Primary: the dataset MLP (honest, geometry-only → skin-tone independent).
       const r = gradeWithModel(vec, sign.id);
       confidence = r.confidence;
       matched = r.matched;
       mlpMatched = r.matched;
-      let dbg = `MLP best=${r.debug?.bestClass ?? "—"} p=${Math.round((r.debug?.bestP ?? 0) * 100)}% targetP=${Math.round((r.debug?.targetP ?? 0) * 100)}%`;
+      outOfDistribution = !r.inDistribution && (r.debug?.targetP ?? 0) >= MODEL_TAU;
+      let dbg = `MLP best=${r.debug?.bestClass ?? "—"} p=${Math.round((r.debug?.bestP ?? 0) * 100)}% targetP=${Math.round((r.debug?.targetP ?? 0) * 100)}%${r.inDistribution ? "" : " OOD"}`;
       // Fallback: if the learner taught THEIR OWN version of this letter, let the
-      // KNN over their samples confirm too — so it "works for my hands" even when
-      // the dataset model is strict cross-person. Take whichever is more confident.
+      // KNN over their samples CONFIRM — but the meter stays the MLP softmax alone.
+      // Taking Math.max of the two put one label, "Camera confidence", on two
+      // incompatible scales: the MLP confirms at MODEL_TAU (0.5), the KNN at its own
+      // TAU (0.70) plus a margin, so whichever number happened to be larger was
+      // printed as though they meant the same thing.
       if (userTaughtCount(sign.id) >= 8) {
         const k = classifyAgainst(vec, sign.id);
-        if (k.confidence > confidence) confidence = k.confidence;
         matched = matched || k.matched;
-        dbg += ` | KNN share=${Math.round((k.debug?.targetShare ?? 0) * 100)}%${k.matched ? "✓" : ""}`;
+        userKnnMatched = k.matched && k.fromUserSamples;
+        dbg += ` | KNN share=${Math.round((k.debug?.targetShare ?? 0) * 100)}%${k.matched ? "✓" : ""}${k.fromUserSamples ? " own" : ""}`;
       }
       if (DEBUG) {
         dbg += ` ${matched ? "MATCH✓" : "✗"}`;
@@ -283,6 +324,14 @@ export function CameraTrainer({
       heldMs.current = stepHold(heldMs.current, lastHoldTs.current, ts);
       lastHoldTs.current = ts;
       if (mlpMatched) modelMatchedInHold.current = true;
+      if (userKnnMatched) userKnnMatchedInHold.current = true;
+      // The "the camera isn't sure" band and the sad mascot must not sit next to a
+      // filling hold ring. Clear them the moment a streak starts, ONCE per streak.
+      if (!inHoldStreak.current) {
+        inHoldStreak.current = true;
+        attemptFrames.current = 0;
+        setShowUnsure(false);
+      }
       pushHold(Math.min(1, heldMs.current / HOLD_MS));
       if (heldMs.current >= HOLD_MS) {
         finished.current = true;
@@ -292,7 +341,10 @@ export function CameraTrainer({
         // Scoped to knowsModel signs on purpose: the disclosure means "a calibrated
         // model exists but didn't confirm this". Un-seeded word signs have no model
         // to contrast with (they're taught-only by design), so they're not flagged.
-        const ownRecording = knowsModel && !modelMatchedInHold.current;
+        // …and only when the KNN vote that carried it came from the learner's own
+        // samples, not from a bundled seed the same call also reads.
+        const ownRecording =
+          knowsModel && !modelMatchedInHold.current && userKnnMatchedInHold.current;
         setOwnRecordingMatch(ownRecording);
         setMatched(true);
         setTimeout(() => onResult("match", { ownRecording }), 900);
@@ -301,12 +353,17 @@ export function CameraTrainer({
       heldMs.current = 0;
       lastHoldTs.current = null;
       modelMatchedInHold.current = false;
+      userKnnMatchedInHold.current = false;
+      inHoldStreak.current = false;
       pushHold(0);
     }
     // Sign Coach: only on frames the grader just rejected, only for seeded
     // letters (coach() is null → silence for everything else). On matching
     // frames the hint clears instantly — the hold ring takes over.
+    // An OOD rejection always wins: the softmax likes the shape but it sits outside
+    // every real example of the letter, so naming one finger would be fake precision.
     if (matched) pushCoach(null, frame.timeMs);
+    else if (outOfDistribution) pushCoach({ kind: "reference" }, frame.timeMs);
     else if (knowsModel) pushCoach(coach(vec, sign.id), frame.timeMs);
   };
 
@@ -321,27 +378,45 @@ export function CameraTrainer({
 
   // M13: pull the dynamic-imported seed chunk in the moment a camera screen mounts,
   // so it's resident well before a hand is positioned. Idempotent + cached.
+  // Re-runs when `seedsAttempt` is bumped by the retry button, so a failed load is
+  // recoverable without leaving the screen. ensureSeeds() drops its own cached
+  // promise on rejection, so the next call really does re-fetch the chunk.
   useEffect(() => {
     if (seedsReady.current) return;
     let alive = true;
     void ensureSeeds()
       .then(() => {
-        if (alive) seedsReady.current = true;
+        if (!alive) return;
+        seedsReady.current = true;
+        setSeedsFailed(false);
       })
       .catch(() => {
-        /* offline & never cached — grading stays paused; the camera UI still works */
+        // Offline & never cached, or a hashed chunk that 404'd after a redeploy.
+        // Grading genuinely cannot run: say so and offer a retry (M13b).
+        if (alive) setSeedsFailed(true);
       });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [seedsAttempt]);
 
   const startTeach = () => {
-    clearClass(sign.id);
+    // clearClass deliberately does NOT run here — the first captured frame does it.
+    teachCleared.current = false;
     setCaptured(0);
     setTeachPhase("capturing");
     teaching.current = true;
     if (tracker.status !== "running") void tracker.start();
+  };
+
+  // Leave teach mode without capturing anything. Nothing has been wiped unless a
+  // frame was actually recorded, so this is a true cancel.
+  const cancelTeach = () => {
+    teaching.current = false;
+    teachCleared.current = false;
+    setCaptured(0);
+    setTeachPhase("intro");
+    setMode("grade");
   };
 
   const finishResult = (r: TrainerResult) => {
@@ -361,7 +436,11 @@ export function CameraTrainer({
   // + speech line to show, and the "kind" label under the goal title. `isDemo` is
   // the honest no-live-grade path for motion signs reused via lessons.
   const running = tracker.status === "running";
-  const isDemo = !sign.cameraGradable;
+  const isDemo = !gradable;
+  // True whenever the grading loop is genuinely live. Everything that implies the
+  // camera is scoring the learner hangs off this, so a reference-only sign or a
+  // failed seed load can never show a meter, a hold ring or "Ooh, nice…".
+  const gradingLive = gradable && !seedsFailed;
   const pose: FananPose = matched
     ? "celebrate"
     : showUnsure
@@ -377,7 +456,9 @@ export function CameraTrainer({
       ? t("loopLineNotquite", lang)
       : isDemo
         ? t("loopLineDemo", lang)
-        : running
+        : // "Ooh, nice…" reads as praise for a frame nobody scored, so it is
+          // suppressed while grading is paused; the band below carries the truth.
+          running && gradingLive
           ? tracker.handVisible
             ? t("loopLineDetecting", lang)
             : t("loopLineLooking", lang)
@@ -385,9 +466,30 @@ export function CameraTrainer({
   const kindLabel =
     sign.type === "alphabet"
       ? t("loopKindLetter", lang)
-      : sign.cameraGradable
+      : gradable
         ? t("loopKindWordStatic", lang)
         : t("loopKindWordMotion", lang);
+
+  // Honest failure copy, split on WHICH failure happened. "denied" deliberately
+  // gets no retry button: once a permission prompt has been refused the browser
+  // will not re-prompt from a click, so the only real route is site settings.
+  const errDenied = tracker.errorKind === "denied";
+  const errTitleKey: TKey =
+    tracker.errorKind === "denied"
+      ? "camErrDeniedTitle"
+      : tracker.errorKind === "notfound"
+        ? "camErrNotFoundTitle"
+        : tracker.errorKind === "other"
+          ? "camErrLoadTitle"
+          : "stNoCamTitle"; // "unreadable": device busy, or the camera vanished mid-session
+  const errBodyKey: TKey =
+    tracker.errorKind === "denied"
+      ? "camErrDeniedBody"
+      : tracker.errorKind === "notfound"
+        ? "camErrNotFoundBody"
+        : tracker.errorKind === "other"
+          ? "camErrLoadBody"
+          : "stNoCamBody";
 
   // Reference chip content — the gold hero chip in the prompt banner. For letters
   // this is a REAL signer's photo of the handshape to copy. While the Sign Coach
@@ -443,7 +545,9 @@ export function CameraTrainer({
 
       {/* Block D-watch · teal-stripe reference stage — the honest handshape to copy.
           The reference chip keeps its exact branching; the stage lifts the design
-          diagonal-stripe treatment + corner cap + play FAB (glyphs never mirror). */}
+          diagonal-stripe treatment + corner cap. There is deliberately NO play
+          control: for letters the reference is a still photo already on screen, so
+          a button-shaped span with nothing to replay was pure decoration. */}
       <div
         className="relative flex h-48 items-center justify-center overflow-hidden rounded-3xl"
         style={{
@@ -457,13 +561,6 @@ export function CameraTrainer({
         <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
           {referenceChip("text-6xl")}
         </div>
-        <span
-          className="absolute bottom-3 end-3 flex h-10 w-10 items-center justify-center rounded-full bg-gold text-[15px] text-ink"
-          style={{ boxShadow: "0 5px 0 #C89A3D", direction: "ltr" }}
-          aria-hidden="true"
-        >
-          ▶
-        </span>
       </div>
 
       {/* Block D-hint · gold-badge hint card (or the lesson exercise label). */}
@@ -496,8 +593,10 @@ export function CameraTrainer({
       <p className="font-sans text-[12px] font-medium leading-snug text-muted">{referenceHelper}</p>
       {/* "Teach my hand": the MLP grades the 28 letters from real signers, but a
           learner can always teach their OWN version as a fallback (it then helps
-          confirm alongside the model — see the grade loop). Shown in grade mode. */}
-      {mode === "grade" && (
+          confirm alongside the model — see the grade loop). Shown in grade mode.
+          Never offered for a reference-only sign: there is nothing to check the
+          recording against, so it would only teach the app the learner's guess. */}
+      {mode === "grade" && gradable && (
         <button
           type="button"
           onClick={() => {
@@ -517,7 +616,7 @@ export function CameraTrainer({
     <>
       {/* accuracy meter (Block D-detecting) — muted label, teal value, gold-gradient
           fill on a #EDE3D2 track. role/aria + meter value preserved. */}
-      {mode === "grade" && tracker.status === "running" && !matched && (
+      {mode === "grade" && gradingLive && tracker.status === "running" && !matched && (
         <div className="space-y-2 px-1">
           <div className="flex items-end justify-between">
             <span className="font-sans text-[11px] font-semibold uppercase tracking-wide text-muted">
@@ -527,10 +626,14 @@ export function CameraTrainer({
               <span className="font-display text-2xl font-black leading-none text-teal md:text-4xl">
                 {formatPercent(meter * 100, lang)}
               </span>
-              {/* "reached!" sublabel — localised (was hard-coded Arabic for both langs) */}
-              <span className="mt-0.5 hidden font-display text-base font-bold leading-none text-teal-deep md:block">
-                {t("camReached", lang)}
-              </span>
+              {/* "Reached!" is a claim about the hold, so it only shows once the hold
+                  is actually full. It used to be gated on viewport width alone and
+                  sat next to a 0% reading on every desktop session. */}
+              {meter >= 1 && (
+                <span className="mt-0.5 hidden font-display text-base font-bold leading-none text-teal-deep md:block">
+                  {t("camReached", lang)}
+                </span>
+              )}
             </div>
           </div>
           <div
@@ -563,6 +666,33 @@ export function CameraTrainer({
           fallback so signing the target stays the dominant action (§5.13). */}
       {!matched && (
         <div className="flex flex-col items-center gap-3">
+          {/* Reference-only sign: no model, no seeds, nothing to grade against. Say
+              it plainly instead of running a meter that can only ever read 0%. */}
+          {!gradable && (
+            <div className="w-full rounded-2xl border border-dashed border-line bg-paper p-3.5">
+              <p className="font-mono text-[10px] font-bold uppercase leading-none tracking-[0.08em] text-gold-deep">
+                {t("loopHintLbl", lang)}
+              </p>
+              <p className="mt-1.5 font-sans text-[13px] font-medium leading-[1.45] text-ink">
+                {t("signRefOnlyNote", lang)}
+              </p>
+            </div>
+          )}
+          {/* The seed chunk never arrived, so grading is genuinely paused (M13b). */}
+          {gradable && seedsFailed && (
+            <div className="animate-rise w-full rounded-2xl border border-dashed border-coral-soft bg-paper p-3.5">
+              <p className="font-sans text-[13px] font-medium leading-[1.45] text-ink">
+                {t("camGradingPaused", lang)}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSeedsAttempt((n) => n + 1)}
+                className="mt-2 text-xs font-semibold text-teal underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                {t("camRetryGrading", lang)}
+              </button>
+            </div>
+          )}
           {showUnsure && (
             <div className="animate-rise w-full rounded-2xl border border-dashed border-coral-soft bg-paper p-3.5">
               <p className="font-mono text-[10px] font-bold uppercase leading-none tracking-[0.08em] text-coral-deep">
@@ -609,7 +739,12 @@ export function CameraTrainer({
         <span className="inline-flex items-center gap-2 rounded-full border border-line bg-sand px-3.5 py-2">
           <span className="h-2 w-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
           <span className="font-sans text-[11px] font-medium leading-tight text-muted">
-            {t("camPrivacy", lang)} <span className="text-ink/30">· build {__BUILD__}</span>
+            {t("camPrivacy", lang)}
+            {/* The build id is a diagnostic, not learner copy: it printed Latin
+                characters inside an Arabic sentence on every camera screen. It stays
+                behind ?debug like the other diagnostics here, and Settings still
+                shows the version. */}
+            {DEBUG && <span className="text-ink/30"> · build {__BUILD__}</span>}
           </span>
         </span>
       </div>
@@ -628,16 +763,18 @@ export function CameraTrainer({
     : stillTricky
       ? t("camStillTricky", lang)
       : tracker.status === "error"
-        ? `${t("stNoCamTitle", lang)} ${t("stNoCamBody", lang)}`
+        ? `${t(errTitleKey, lang)} ${t(errBodyKey, lang)}`
         : mode === "teach" && teachPhase === "done"
           ? t("camTeachDone", lang)
-          : showUnsure
-            ? t("camUnsure", lang)
-            : mode === "grade" && tracker.status === "running"
-              ? tracker.handVisible
-                ? t("camHandSeen", lang)
-                : t("camLooking", lang)
-              : "";
+          : seedsFailed && gradable
+            ? t("camGradingPaused", lang)
+            : showUnsure
+              ? t("camUnsure", lang)
+              : mode === "grade" && tracker.status === "running"
+                ? tracker.handVisible
+                  ? t("camHandSeen", lang)
+                  : t("camLooking", lang)
+                : "";
 
   return (
     <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(0,1.6fr)_minmax(300px,360px)] md:items-start md:gap-8">
@@ -723,26 +860,36 @@ export function CameraTrainer({
             end and never fake grading (the meter/hold ring below are gated on
             tracker.status==="running", so they simply can't render here) —
             instead still show the reference handshape and an honest way
-            forward: watch the demo or browse the full dictionary camera-free. */}
+            forward: watch the demo or browse the full dictionary camera-free.
+            The copy splits on WHY it failed: a refused permission, no camera at
+            all, and a hand-tracking model that would not load are three different
+            problems, and all three used to read "No camera? No problem." */}
         {tracker.status === "error" && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3.5 p-6 text-center">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-gold/50 bg-white/10 p-2 backdrop-blur-md">
               {referenceChip("text-5xl")}
             </div>
             <div className="max-w-[15rem] space-y-1">
-              <p className="font-display text-lg font-extrabold text-white">{t("stNoCamTitle", lang)}</p>
-              <p className="text-sm leading-snug text-white/70">{t("stNoCamBody", lang)}</p>
+              <p className="font-display text-lg font-extrabold text-white">{t(errTitleKey, lang)}</p>
+              <p className="text-sm leading-snug text-white/70">{t(errBodyKey, lang)}</p>
+              {errDenied && (
+                <p className="text-xs leading-snug text-white/55">{t("camErrDeniedHint", lang)}</p>
+              )}
             </div>
             <Button variant="gold" onClick={() => go({ name: "allSigns", signId: sign.id })}>
               {t("stBrowseSigns", lang)}
             </Button>
-            <button
-              type="button"
-              onClick={() => void tracker.start()}
-              className="text-xs font-semibold text-white/60 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-            >
-              {t("camTryAgain", lang)}
-            </button>
+            {/* No retry on a hard denial: the browser will not re-prompt from a
+                click, so the button could only ever fail again. */}
+            {!errDenied && (
+              <button
+                type="button"
+                onClick={() => void tracker.start()}
+                className="text-xs font-semibold text-white/60 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                {t("camTryAgain", lang)}
+              </button>
+            )}
             {/* L14: the raw browser error string stays behind ?debug — every
                 learner sees the bilingual honest copy above instead. */}
             {DEBUG && tracker.error && (
@@ -775,8 +922,8 @@ export function CameraTrainer({
           </div>
         )}
 
-        {/* hold-to-confirm ring */}
-        {mode === "grade" && tracker.status === "running" && !matched && (
+        {/* hold-to-confirm ring — only where something is actually being graded. */}
+        {mode === "grade" && gradingLive && tracker.status === "running" && !matched && (
           <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 md:bottom-10 md:gap-6">
             {/* 80px ring on mobile, 128px on desktop (camera-drill-i-love-you--desktop) */}
             <div className="relative flex h-20 w-20 items-center justify-center md:h-32 md:w-32">
@@ -823,6 +970,13 @@ export function CameraTrainer({
                 <Button variant="gold" className="mt-3 w-full !py-3" onClick={startTeach}>
                   {t("camStart", lang)}
                 </Button>
+                <button
+                  type="button"
+                  onClick={cancelTeach}
+                  className="mt-2.5 w-full text-xs font-semibold text-white/70 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  {t("cancel", lang)}
+                </button>
               </>
             )}
             {teachPhase === "capturing" && (
@@ -847,6 +1001,13 @@ export function CameraTrainer({
                     style={{ width: `${(captured / TEACH_TARGET) * 100}%`, boxShadow: "0 0 10px rgba(230,178,76,.6)" }}
                   />
                 </div>
+                <button
+                  type="button"
+                  onClick={cancelTeach}
+                  className="mt-2.5 w-full text-xs font-semibold text-white/70 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  {t("cancel", lang)}
+                </button>
               </>
             )}
             {teachPhase === "done" && (
@@ -862,6 +1023,8 @@ export function CameraTrainer({
                     heldMs.current = 0;
                     lastHoldTs.current = null;
                     modelMatchedInHold.current = false;
+                    userKnnMatchedInHold.current = false;
+                    inHoldStreak.current = false;
                     attemptFrames.current = 0;
                     setShowUnsure(false);
                     setMode("grade");
