@@ -1,7 +1,13 @@
 // Headless smoke test — boots the real app in Chromium, walks onboarding →
 // home → lesson → family → progress → settings, fails on any console error.
-// Camera/MediaPipe paths are exercised separately on-device (getUserMedia
-// needs real hardware); everything else is covered here.
+//
+// This file used to claim "camera/MediaPipe paths are exercised separately
+// on-device". They were not. Nothing exercised them, and the camera graded every
+// letter at 0% for months. Grading is covered by `npm run verify:grading` (real
+// MediaPipe over the 28 reference photos) and by normalize.test.ts in CI. What is
+// still NOT covered anywhere is getUserMedia itself: whether a real phone hands
+// back a usable stream. That is the only genuinely on-device part. Say so
+// honestly rather than implying the camera is checked somewhere else.
 import { chromium } from "playwright-core";
 import { homedir } from "os";
 import { readdirSync } from "fs";

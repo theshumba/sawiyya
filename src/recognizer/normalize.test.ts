@@ -3,11 +3,12 @@
 // hand) folds into the SAME feature space as a right hand — that's the §6.8
 // fairness promise, and nothing here reads skin colour: it's pure geometry.
 //
-// These tests characterise the ALGEBRA of that fold. They are independent of
-// which detected handedness triggers mirror=true inside CameraTrainer — the live
-// phone ?debug check (Alif with each hand) stays OWNER-GATED and only decides
-// that trigger; if it flips, these tests still hold because they test the
-// transform, not the trigger.
+// These tests characterise the ALGEBRA of that fold — the transform, not the
+// trigger. They used to say the trigger itself was "OWNER-GATED" on a manual
+// phone check. It was wrong for months and the check never happened, so the
+// second describe block below covers the trigger too. Nothing in the grading
+// path is owner-gated any more: if a claim can't be tested, it doesn't ship as
+// a comment saying someone will look at it later.
 import { describe, it, expect, beforeAll } from "vitest";
 import { normalizeLandmarks, mirrorForDetectedHand, euclidean, type LM } from "./normalize";
 import { gradeWithModel } from "./classifier";
@@ -76,6 +77,8 @@ describe("normalizeLandmarks — mirror convention (H17)", () => {
 // captured once via HandLandmarker and frozen here so this needs no wasm.
 // If a hand that IS the reference cannot score against its own letter, the
 // grader is broken by definition — no judgement call, no eyeballing a meter.
+const MEDIAPIPE_VERSION_FIXTURE_WAS_CAPTURED_WITH = "0.10.14";
+
 describe("the live mirror trigger grades the app's own reference photos", () => {
   const refs = referenceLandmarks as Record<string, { hand: "Left" | "Right"; lms: number[][] }>;
 
@@ -97,6 +100,18 @@ describe("the live mirror trigger grades the app's own reference photos", () => 
     expect(g.inDistribution).toBe(true);
     expect(g.confidence).toBeGreaterThan(0);
     expect(g.matched).toBe(true);
+  });
+
+  // The fixture is FROZEN landmarks, so it can only stay honest while the thing
+  // that produced them stays put. A MediaPipe bump could change handedness labels
+  // or landmark geometry and this suite would keep passing against stale numbers
+  // while the live camera broke again — the exact failure mode being guarded.
+  // Bumping the dep is therefore a deliberate two-step: change the version here,
+  // and re-run `npm run verify:grading --write-fixture` to recapture from the
+  // real library.
+  it("the fixture matches the MediaPipe version it was captured with", async () => {
+    const pkg = await import("../../package.json");
+    expect(pkg.default.dependencies["@mediapipe/tasks-vision"]).toBe(MEDIAPIPE_VERSION_FIXTURE_WAS_CAPTURED_WITH);
   });
 
   it("the trigger is load-bearing: the opposite convention grades every letter at 0%", () => {

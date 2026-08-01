@@ -9,7 +9,11 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "serve": "vite preview --host",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify": "tsc -b && vitest run && vite build",
+    "verify:grading": "node scripts/verify-grading.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "shots": "node scripts/shots.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.14",
