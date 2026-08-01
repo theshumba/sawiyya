@@ -12,6 +12,30 @@ export interface LM {
   z: number;
 }
 
+/**
+ * Which way to mirror a live frame so it lands in the SAME feature space as the
+ * bundled seeds. This is a policy, not a geometry helper: `normalizeLandmarks`
+ * only does what it is told, and the camera loop used to decide this inline with
+ * a bare `detectedHand === "Left"`.
+ *
+ * The seeds were extracted by tools/extract-seeds from dataset stills, and the
+ * live frame comes from an un-flipped `<video>` (the `-scale-x-100` on the
+ * element is CSS, so MediaPipe never sees a mirrored image). Which of the two
+ * spaces those two paths agree on is an empirical question, so it is answered
+ * empirically: normalize.test.ts grades all 28 bundled reference photos through
+ * this function and requires every one of them to match its own letter.
+ *
+ * The answer is "Right", not the "Left" the camera loop assumed. MediaPipe
+ * labels handedness as if the input were selfie-flipped; the `<video>` it reads
+ * is not, so its label is the opposite of the physical hand, and the seeds live
+ * in the physical-hand space. With the old trigger every correct hand was
+ * reflected before grading and landed ~1.6 away from a seed cloud gated at 0.65,
+ * so the OOD gate zeroed it: 0% on all 28 letters, for everyone, always.
+ */
+export function mirrorForDetectedHand(detectedHand: "Left" | "Right"): boolean {
+  return detectedHand === "Right";
+}
+
 // Middle-finger MCP (knuckle). Rigid relative to the wrist regardless of which
 // fingers are extended, so wrist→MCP9 is a stable "which way is the palm pointing"
 // axis to align on.

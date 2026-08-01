@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { pick, t, type TKey } from "../i18n";
 import type { Lang, Sign } from "../types";
-import { normalizeLandmarks } from "../recognizer/normalize";
+import { normalizeLandmarks, mirrorForDetectedHand } from "../recognizer/normalize";
 import { coach, type CoachAdvice, type FingerName } from "../recognizer/coach";
 import { addSample, classifyAgainst, clearClass, flushSamples, isTrained, userTaughtCount } from "../recognizer/knn";
 import { gradeWithModel, modelKnows, MODEL_TAU } from "../recognizer/classifier";
@@ -199,8 +199,10 @@ export function CameraTrainer({
       lastSeenTs.current = null; // hand lost — pause the soft-fail clock (H2)
       return;
     }
-    const mirror = frame.detectedHand === "Left"; // canonicalise both hands (§6.8)
-    const vec = normalizeLandmarks(frame.landmarks, mirror);
+    // canonicalise both hands into the seeds' feature space (§6.8). The trigger
+    // lives in normalize.ts and is locked by a test that grades the app's own
+    // reference photos — it was inverted here, and zeroed every letter.
+    const vec = normalizeLandmarks(frame.landmarks, mirrorForDetectedHand(frame.detectedHand));
 
     if (modeRef.current === "teach") {
       if (!teaching.current) return;

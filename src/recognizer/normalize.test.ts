@@ -8,8 +8,12 @@
 // phone ?debug check (Alif with each hand) stays OWNER-GATED and only decides
 // that trigger; if it flips, these tests still hold because they test the
 // transform, not the trigger.
-import { describe, it, expect } from "vitest";
-import { normalizeLandmarks, euclidean, type LM } from "./normalize";
+import { describe, it, expect, beforeAll } from "vitest";
+import { normalizeLandmarks, mirrorForDetectedHand, euclidean, type LM } from "./normalize";
+import { gradeWithModel } from "./classifier";
+import { __setSeedsForTest } from "./seedStore";
+import alphabetSeeds from "./seeds/alphabet.json";
+import referenceLandmarks from "./fixtures/reference-landmarks.json";
 
 /** A deterministic, asymmetric 21-landmark pseudo-hand in MediaPipe's normalised
  *  [0,1] image space (wrist at index 0, middle-MCP at 9). Asymmetric on purpose
@@ -58,5 +62,52 @@ describe("normalizeLandmarks — mirror convention (H17)", () => {
     const hand = makeHand();
     const shifted = hand.map((p) => ({ ...p, x: p.x + 0.12 }));
     expect(euclidean(normalizeLandmarks(hand, false), normalizeLandmarks(shifted, false))).toBeLessThan(1e-9);
+  });
+});
+
+// The trigger the block above deliberately did NOT cover, and which was left to
+// an owner-gated manual phone check that never happened. It was inverted, and
+// because gradeWithModel() zeroes confidence outside the seed cloud, EVERY
+// letter read exactly 0% on a correct hand — the camera could not grade anything
+// for anyone.
+//
+// Fixture: MediaPipe's own landmarks for the 28 bundled reference photos in
+// public/handshapes (the real signer stills the app tells the learner to copy),
+// captured once via HandLandmarker and frozen here so this needs no wasm.
+// If a hand that IS the reference cannot score against its own letter, the
+// grader is broken by definition — no judgement call, no eyeballing a meter.
+describe("the live mirror trigger grades the app's own reference photos", () => {
+  const refs = referenceLandmarks as Record<string, { hand: "Left" | "Right"; lms: number[][] }>;
+
+  beforeAll(() => {
+    __setSeedsForTest(alphabetSeeds as unknown as Record<string, number[][]>);
+  });
+
+  it("covers every seeded letter", () => {
+    expect(Object.keys(refs)).toHaveLength(28);
+  });
+
+  it.each(Object.keys(refs))("%s: the reference hand matches its own letter", (id) => {
+    const { hand, lms } = refs[id];
+    const vec = normalizeLandmarks(
+      lms.map(([x, y, z]) => ({ x, y, z })),
+      mirrorForDetectedHand(hand),
+    );
+    const g = gradeWithModel(vec, id);
+    expect(g.inDistribution).toBe(true);
+    expect(g.confidence).toBeGreaterThan(0);
+    expect(g.matched).toBe(true);
+  });
+
+  it("the trigger is load-bearing: the opposite convention grades every letter at 0%", () => {
+    // Guards against the fix being made vacuous by, say, widening the OOD gate.
+    const scored = Object.entries(refs).map(([id, { hand, lms }]) => {
+      const vec = normalizeLandmarks(
+        lms.map(([x, y, z]) => ({ x, y, z })),
+        !mirrorForDetectedHand(hand),
+      );
+      return gradeWithModel(vec, id).confidence;
+    });
+    expect(scored.every((c) => c === 0)).toBe(true);
   });
 });

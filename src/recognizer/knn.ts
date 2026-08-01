@@ -12,8 +12,14 @@ export { __setSeedsForTest } from "./seedStore";
 // no longer match the live hand (measured ~1–6 units away, gate is 0.65) — they'd sit
 // there silently breaking grading forever. Bumping the key discards them so the user
 // re-teaches once in the current space. The old key is purged on load to free storage.
-const STORE_KEY = "sawiyya.knn.v2";
-const LEGACY_KEYS = ["sawiyya.knn.v1"];
+//
+// v3 (2026-08-01): same hazard, different cause. The live mirror trigger was
+// inverted (normalize.ts mirrorForDetectedHand), so every sample the learner
+// taught was recorded REFLECTED — mean distance 1.65 from the space live frames
+// now land in. Anything taught before this fix is unusable and must go the same
+// way as v1.
+const STORE_KEY = "sawiyya.knn.v3";
+const LEGACY_KEYS = ["sawiyya.knn.v1", "sawiyya.knn.v2"];
 const K = 7;
 const MAX_SAMPLES_PER_CLASS = 48;
 /** Distance gate — beyond this (mean of the top-K) the neighbours aren't credible. */
