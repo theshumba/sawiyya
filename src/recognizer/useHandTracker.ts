@@ -33,15 +33,31 @@ let landmarkerPromise: Promise<HandLandmarker> | null = null;
 // counter; older loops self-terminate once a newer one takes over.
 let activeLoop = 0;
 
+// The video track can stop delivering frames without ever firing an event on some
+// platforms (lid close/wake, another app grabbing the camera). If currentTime has
+// not advanced for this long while the loop is running, treat the device as lost
+// rather than sitting on a frozen frame that still says "Hand detected".
+const DEAD_FRAME_MS = 2000;
+
 function getLandmarker(): Promise<HandLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = (async () => {
       const fileset = await FilesetResolver.forVisionTasks(WASM_URL);
-      return HandLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
-        runningMode: "VIDEO",
-        numHands: 1,
-      });
+      try {
+        return await HandLandmarker.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+          runningMode: "VIDEO",
+          numHands: 1,
+        });
+      } catch {
+        // Some drivers and older devices refuse the GPU delegate outright. CPU is
+        // slower but it works, and a slow recognizer beats a blocked one.
+        return await HandLandmarker.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" },
+          runningMode: "VIDEO",
+          numHands: 1,
+        });
+      }
     })().catch((e) => {
       landmarkerPromise = null; // allow retry after a failed load
       throw e;
@@ -140,6 +156,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       const myLoop = ++activeLoop; // claim sole ownership of the singleton landmarker
 
       let lastVideoTime = -1;
+      let lastAdvanceT = -1; // rAF timestamp when currentTime last moved
       let frames = 0;
       let fpsT = 0;
 
@@ -155,16 +172,26 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       // One detectForVideo throw must not silently kill the rAF loop while the
       // UI still says "running" (M23) — fail loudly into the existing error UI
       // and rebuild the landmarker next start, in case the graph is corrupted.
-      const failLoop = (e: unknown) => {
+      const failLoop = (e: unknown, kind?: TrackerErrorKind) => {
         running.current = false;
         landmarkerPromise = null; // force a fresh landmarker on the next start()
+        cancelAnimationFrame(raf.current);
         media.getTracks().forEach((tr) => tr.stop());
         stream.current = null;
         setHandVisibleIfChanged(false);
         setStatus("error");
         setError(e instanceof Error ? e.message : String(e));
-        setErrorKind(classifyError(e));
+        setErrorKind(kind ?? classifyError(e));
       };
+
+      // A track can die without ever throwing inside the loop: another app grabs
+      // the camera, the lid closes, the user revokes permission mid-session. Both
+      // events land as "unreadable" so the UI stops claiming it can still see a hand.
+      const track = media.getVideoTracks()[0];
+      const onTrackLost = () =>
+        failLoop(new Error("camera track ended"), "unreadable");
+      track?.addEventListener("ended", onTrackLost);
+      track?.addEventListener("mute", onTrackLost);
 
       const loop = (t: number) => {
         if (!running.current || myLoop !== activeLoop) return; // superseded by a newer loop
@@ -177,6 +204,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
           }
           if (video.currentTime !== lastVideoTime) {
             lastVideoTime = video.currentTime;
+            lastAdvanceT = t;
             const res: HandLandmarkerResult = landmarker.detectForVideo(video, t);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (res.landmarks && res.landmarks.length > 0) {
@@ -199,6 +227,10 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
               setHandVisibleIfChanged(false);
               onFrameRef.current(null);
             }
+          } else if (lastAdvanceT >= 0 && t - lastAdvanceT > DEAD_FRAME_MS) {
+            // Frozen frame: the element still "plays" but no new pixels arrive.
+            failLoop(new Error("camera stopped delivering frames"), "unreadable");
+            return;
           }
         } catch (e) {
           failLoop(e);
@@ -214,6 +246,10 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       };
       raf.current = requestAnimationFrame(loop);
     } catch (e) {
+      // A throw after getUserMedia resolved (video.play(), canvas context, first
+      // detect) would otherwise leave the camera light on with no loop reading it.
+      stream.current?.getTracks().forEach((tr) => tr.stop());
+      stream.current = null;
       if (!cancelled()) {
         running.current = false; // allow retry after a failed start
         setStatus("error");

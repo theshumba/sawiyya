@@ -93,9 +93,15 @@ export function FirstSign() {
   };
 
   // Soft fail (H2): rate 'again' so the very first card reschedules with help;
-  // the trainer replays the demo in place — never a blocking fail screen.
+  // the trainer replays the demo in place, never a blocking fail screen.
+  // softFail keeps this out of `drillsCompleted`: the result that follows closes
+  // the same physical attempt, and counting both double-counted one drill.
   const handleSoftFail = () =>
-    app.recordDrillResult(sign.id, "again", { camera: true, matched: false });
+    app.recordDrillResult(sign.id, "again", {
+      camera: true,
+      matched: false,
+      softFail: true,
+    });
 
   // "Share this moment" — Web Share where available, silently no-op otherwise.
   const shareMoment = () => {

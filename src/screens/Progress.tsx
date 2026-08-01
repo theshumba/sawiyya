@@ -17,9 +17,9 @@
 // upcoming SRS cards, profile streak/xp/goal, real weekly activeDays. Navigation
 // (Start Review / sign rows) routes through the real ui store. The full-screen
 // streak-celebration moment still fires on a fresh milestone. Read-only.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS, ALPHABET, signById } from "../content/signs";
+import { A1_SIGNS, ALPHABET, SEEDED_ALPHABET, signById } from "../content/signs";
 import {
   activeProfile,
   dueSignIds,
@@ -27,6 +27,7 @@ import {
   REVIEW_DAILY_CAP,
   reviewsTodayFor,
   streakFor,
+  todayKey,
   useApp,
 } from "../store/app";
 import { useUi } from "../store/ui";
@@ -45,11 +46,16 @@ const DAY_LABELS_AR = ["إث", "ث", "أر", "خ", "ج", "س", "ح"];
 
 type Tab = "oasis" | "stats" | "achieve" | "league";
 
-/** YYYY-MM-DD for an offset of `back` days before today. */
+/**
+ * YYYY-MM-DD for an offset of `back` days before today, in LOCAL time.
+ * It must go through the store's own `todayKey`: `activeDays` is written with
+ * local date parts, so a UTC key here shifted the whole grid by a day whenever
+ * local time ran ahead of UTC (Qatar, UTC+3, midnight to 03:00).
+ */
 function dayKey(back: number): string {
   const d = new Date();
   d.setDate(d.getDate() - back);
-  return d.toISOString().slice(0, 10);
+  return todayKey(d);
 }
 
 // Design keyframes (float/sway) — scoped names so they resolve regardless of the
@@ -63,38 +69,16 @@ export function Progress() {
   const app = useApp();
   const { go } = useUi();
   const profile = activeProfile(app);
-  if (!profile) return <NoProfileFallback />;
-  const lang = profile.language;
-  const rtl = lang === "ar";
-  const prog = app.progress[profile.id] ?? {};
 
+  // EVERY hook runs before the no-profile guard below. The guard used to sit
+  // here, above the hooks, so a profile arriving after first paint would change
+  // the hook count mid-render and blank the screen.
   const [tab, setTab] = useState<Tab>("oasis");
-
-  const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
-  const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
-  const a1Done = A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length;
-  // Letters THIS profile actually practised successfully — from the store, never
-  // the recognizer's isTrained() (bundled seeds mark all 28 letters trained for a
-  // brand-new user; rendering that as progress is a C6-class fabrication).
-  const alphaLit = new Set(
-    ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id),
-  );
-  const alphaTaught = alphaLit.size;
-  const due = dueSignIds(app, profile.id);
-  const upcoming = Object.entries(app.srs[profile.id] ?? {})
-    .filter(([, c]) => new Date(c.due).getTime() > Date.now())
-    .sort((a, b) => new Date(a[1].due).getTime() - new Date(b[1].due).getTime())
-    .slice(0, 6);
-
-  // World growth — share of the A1 unit + alphabet brought to life. Feeds the
-  // next-milestone bar (done / target).
-  const totalTracked = A1_SIGNS.length + ALPHABET.length;
-  const milestoneDone = a1Done + alphaTaught;
-  const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
+  const [celebrating, setCelebrating] = useState(false);
 
   // Real weekly streak: which of the last 7 days (Mon..Sun anchor on today) the
   // active profile actually trained on, from profile.activeDays.
-  const activeSet = useMemo(() => new Set(profile.activeDays ?? []), [profile.activeDays]);
+  const activeSet = useMemo(() => new Set(profile?.activeDays ?? []), [profile?.activeDays]);
   const todayDow = (new Date().getDay() + 6) % 7; // 0 = Monday
   const week = useMemo(
     () =>
@@ -117,19 +101,55 @@ export function Progress() {
     [activeSet]
   );
 
-  const goalXp = GOAL_XP[profile.dailyGoal];
   // Read-time streak: a lapsed learner sees 0, not their stale pre-lapse count (M26).
-  const streak = streakFor(profile);
-
-  // Streak celebration: fire once when arriving with a fresh streak milestone.
-  const [celebrating, setCelebrating] = useState(false);
-  const lastStreak = useRef(profile.streak);
+  const streak = profile ? streakFor(profile) : 0;
+  // Streak celebration: fires the first time the learner opens Progress after
+  // extending a streak. It reads the PERSISTED celebratedStreak, not a per-mount
+  // ref: the streak only ever grows on drill screens, which replace Progress
+  // entirely, so a mount-time ref could never see it change.
+  const celebratedStreak = profile?.celebratedStreak ?? 0;
   useEffect(() => {
-    if (profile.streak > lastStreak.current && profile.streak > 1) {
-      setCelebrating(true);
-    }
-    lastStreak.current = profile.streak;
-  }, [profile.streak]);
+    if (streak > celebratedStreak && streak > 1) setCelebrating(true);
+  }, [streak, celebratedStreak]);
+
+  if (!profile) return <NoProfileFallback />;
+
+  const lang = profile.language;
+  const rtl = lang === "ar";
+  const prog = app.progress[profile.id] ?? {};
+
+  const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
+  const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
+  const a1Done = A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length;
+  // Letters THIS profile actually practised successfully — from the store, never
+  // the recognizer's isTrained() (bundled seeds mark all 28 letters trained for a
+  // brand-new user; rendering that as progress is a C6-class fabrication).
+  // SEEDED_ALPHABET, not ALPHABET: the three reference-only edge forms (ة، لا، ال)
+  // must never count towards a 28-letter target.
+  const alphaLit = new Set(
+    SEEDED_ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id),
+  );
+  const alphaTaught = alphaLit.size;
+  const due = dueSignIds(app, profile.id);
+  const upcoming = Object.entries(app.srs[profile.id] ?? {})
+    .filter(([, c]) => new Date(c.due).getTime() > Date.now())
+    .sort((a, b) => new Date(a[1].due).getTime() - new Date(b[1].due).getTime())
+    .slice(0, 6);
+
+  // World growth — share of the A1 unit + alphabet brought to life. Feeds the
+  // next-milestone bar (done / target). Same 28-letter denominator as the
+  // numerator above, or the bar could never reach the end.
+  const totalTracked = A1_SIGNS.length + SEEDED_ALPHABET.length;
+  const milestoneDone = a1Done + alphaTaught;
+  const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
+
+  const goalXp = GOAL_XP[profile.dailyGoal];
+
+  // Dismissing banks the streak so the same milestone never celebrates twice.
+  const dismissCelebration = () => {
+    setCelebrating(false);
+    app.updateProfile(profile.id, { celebratedStreak: streak });
+  };
 
   const reviewCount = due.length;
   const reviewCapped = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
@@ -205,7 +225,13 @@ export function Progress() {
               reviewCapped={reviewCapped}
               onReview={startReview}
               onCamera={() => go({ name: "camera" })}
-              onSign={(id) => go({ name: "camera", targetSignId: id })}
+              // H5 gate: a sign the camera cannot grade must never open the
+              // trainer, or the learner is asked to teach a handshape the app
+              // itself has no verified reference for. Those go to the dictionary.
+              onSign={(id) => {
+                const s = signById(id);
+                go(s?.cameraGradable ? { name: "camera", targetSignId: id } : { name: "allSigns", signId: id });
+              }}
             />
           )}
           {tab === "stats" && (
@@ -216,7 +242,9 @@ export function Progress() {
               lang={lang}
               seen={seen}
               mastered={mastered}
-              streak={streak}
+              // Badges record what happened, so this reads the high-water mark.
+              // A lapse zeroes streakFor() and used to un-earn the 7-day badge.
+              bestStreak={profile.bestStreak}
               alphaTaught={alphaTaught}
               flagsRaised={app.flags.length}
             />
@@ -239,7 +267,7 @@ export function Progress() {
           mastered={mastered}
           goalXp={goalXp}
           week={week}
-          onContinue={() => setCelebrating(false)}
+          onContinue={dismissCelebration}
         />
       )}
     </ScreenShell>
@@ -332,35 +360,49 @@ function OasisTab({
             boxShadow: "inset 0 4px 0 rgba(255,255,255,.15)",
           }}
         />
-        {/* palm 1 */}
-        <div
-          className="absolute"
-          style={{ bottom: 60, left: 56, transformOrigin: "bottom center", animation: "pr-sway 4s ease-in-out infinite" }}
-        >
-          <div style={{ width: 9, height: 64, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
-          <div className="absolute left-1/2" style={{ top: -6, transform: "translateX(-50%)", width: 70, height: 34 }}>
-            <div className="absolute left-1/2 top-0" style={{ width: 38, height: 15, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
-            <div className="absolute left-1/2 top-0" style={{ width: 38, height: 15, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
-            <div className="absolute left-1/2" style={{ top: -4, width: 34, height: 14, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
-          </div>
-        </div>
-        {/* palm 2 */}
-        <div
-          className="absolute"
-          style={{ bottom: 56, right: 60, transformOrigin: "bottom center", animation: "pr-sway 4.6s ease-in-out infinite" }}
-        >
-          <div style={{ width: 8, height: 50, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
-          <div className="absolute left-1/2" style={{ top: -5, transform: "translateX(-50%)", width: 60, height: 30 }}>
-            <div className="absolute left-1/2 top-0" style={{ width: 32, height: 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
-            <div className="absolute left-1/2 top-0" style={{ width: 32, height: 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
-            <div className="absolute left-1/2" style={{ top: -3, width: 28, height: 12, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
-          </div>
-        </div>
-        {/* sprout */}
-        <div className="absolute left-1/2" style={{ bottom: 40, transform: "translateX(-50%)" }}>
-          <div style={{ width: 5, height: 16, background: "#0F6E6A", borderRadius: 3, margin: "0 auto" }} />
-          <div style={{ width: 14, height: 8, background: "#1F8A5B", borderRadius: "50%", marginTop: -14 }} />
-        </div>
+        {/* Palms: one per letter this profile has actually lit, up to six. The
+            scene is the promise the tiles below make, so it has to be the real
+            count, not two painted trees. Nothing here is decorative filler:
+            a learner at zero letters sees bare sand, and that is honest. */}
+        {Array.from({ length: Math.min(6, alphaTaught) }, (_, i) => {
+          const big = i % 2 === 0;
+          return (
+            <div
+              key={`palm-${i}`}
+              className="absolute"
+              style={{
+                bottom: 54 + (i % 3) * 3,
+                insetInlineStart: `${9 + i * 13}%`,
+                transformOrigin: "bottom center",
+                animation: `pr-sway ${(4 + (i % 4) * 0.3).toFixed(1)}s ease-in-out infinite`,
+              }}
+            >
+              <div style={{ width: big ? 9 : 8, height: big ? 64 : 50, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
+              <div
+                className="absolute left-1/2"
+                style={{ top: big ? -6 : -5, transform: "translateX(-50%)", width: big ? 70 : 60, height: big ? 34 : 30 }}
+              >
+                <div className="absolute left-1/2 top-0" style={{ width: big ? 38 : 32, height: big ? 15 : 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
+                <div className="absolute left-1/2 top-0" style={{ width: big ? 38 : 32, height: big ? 15 : 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
+                <div className="absolute left-1/2" style={{ top: big ? -4 : -3, width: big ? 34 : 28, height: big ? 14 : 12, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
+              </div>
+            </div>
+          );
+        })}
+        {/* Sprouts: one per mastered sign, up to eight. */}
+        {Array.from({ length: Math.min(8, mastered) }, (_, i) => {
+          const stem = 12 + (i % 3) * 3;
+          return (
+            <div
+              key={`sprout-${i}`}
+              className="absolute"
+              style={{ bottom: 28 + (i % 3) * 5, insetInlineStart: `${15 + i * 9}%` }}
+            >
+              <div style={{ width: 5, height: stem, background: "#0F6E6A", borderRadius: 3, margin: "0 auto" }} />
+              <div style={{ width: 12 + (i % 2) * 3, height: 8, background: "#1F8A5B", borderRadius: "50%", marginTop: -(stem - 2) }} />
+            </div>
+          );
+        })}
         {/* Fanan — pose cheer, never mirrors; sits at the logical end edge. */}
         <div className="absolute" style={{ bottom: 8, insetInlineEnd: 14, animation: "pr-float 3s ease-in-out infinite" }}>
           <Fanan pose="cheer" scale={0.5} />
@@ -374,7 +416,8 @@ function OasisTab({
           <div className="mt-1 text-[11px] font-semibold leading-[1.2] text-muted">{t("prPlanted", lang)}</div>
         </div>
         <div className="flex-1 rounded-[16px] border border-line bg-paper p-[13px] text-center">
-          <div className="font-display text-[24px] font-extrabold leading-none" style={{ color: "#E6B24C" }}>
+          {/* gold-deep, not the gold fill: #E6B24C reads 1.81:1 on paper. */}
+          <div className="font-display text-[24px] font-extrabold leading-none text-gold-deep">
             {toLocaleDigits(alphaTaught, lang)}
           </div>
           <div className="mt-1 text-[11px] font-semibold leading-[1.2] text-muted">{t("prPalmsGrown", lang)}</div>
@@ -544,11 +587,13 @@ function StatsTab({
     metrics.cameraAttempts > 0
       ? formatPercent(Math.round((100 * metrics.cameraMatches) / metrics.cameraAttempts), lang)
       : "—";
-  const cells: { val: string; label: string; color: string }[] = [
-    { val: toLocaleDigits(mastered, lang), label: t("prStatMastered", lang), color: "#0F6E6A" },
-    { val: accuracy, label: t("prAvgAccuracy", lang), color: "#0F6E6A" },
-    { val: toLocaleDigits(metrics.drillsCompleted, lang), label: t("prDrillsDone", lang), color: "#C89A3D" },
-    { val: toLocaleDigits(streak, lang), label: t("prBestStreak", lang), color: "#E8654C" },
+  // Tokens, not hex: #C89A3D measured 2.41:1 on paper, below even the large-text
+  // floor. gold-deep is the only gold allowed as a foreground on a light surface.
+  const cells: { val: string; label: string; tone: string }[] = [
+    { val: toLocaleDigits(mastered, lang), label: t("prStatMastered", lang), tone: "text-teal" },
+    { val: accuracy, label: t("prAvgAccuracy", lang), tone: "text-teal" },
+    { val: toLocaleDigits(metrics.drillsCompleted, lang), label: t("prDrillsDone", lang), tone: "text-gold-deep" },
+    { val: toLocaleDigits(streak, lang), label: t("prBestStreak", lang), tone: "text-coral" },
   ];
   return (
     <div className="space-y-0">
@@ -556,9 +601,7 @@ function StatsTab({
       <div className="mt-[14px] grid grid-cols-2 gap-[10px]">
         {cells.map((c, i) => (
           <div key={i} className="rounded-[16px] border border-line bg-paper p-[14px]">
-            <div className="font-display text-[26px] font-extrabold leading-none" style={{ color: c.color }}>
-              {c.val}
-            </div>
+            <div className={`font-display text-[26px] font-extrabold leading-none ${c.tone}`}>{c.val}</div>
             <div className="mt-[5px] text-[11px] font-semibold leading-[1.2] text-muted">{c.label}</div>
           </div>
         ))}
@@ -590,20 +633,20 @@ function AchievementsTab({
   lang,
   seen,
   mastered,
-  streak,
+  bestStreak,
   alphaTaught,
   flagsRaised,
 }: {
   lang: Lang;
   seen: number;
   mastered: number;
-  streak: number;
+  bestStreak: number;
   alphaTaught: number;
   flagsRaised: number;
 }) {
   const items: { glyph: string; name: string; status: string; earned: boolean }[] = [
     { glyph: "🌱", name: t("prAchFirstSign", lang), status: t("prUnlocked", lang), earned: seen >= 1 },
-    { glyph: "🔥", name: t("prAch7Day", lang), status: t("prUnlocked", lang), earned: streak >= 7 },
+    { glyph: "🔥", name: t("prAch7Day", lang), status: t("prUnlocked", lang), earned: bestStreak >= 7 },
     { glyph: "🤟", name: t("prAch5Words", lang), status: t("prUnlocked", lang), earned: mastered >= 5 },
     { glyph: "أ", name: t("prAchAlphabetStarted", lang), status: t("prUnlocked", lang), earned: alphaTaught >= 1 },
     {
@@ -615,8 +658,8 @@ function AchievementsTab({
     {
       glyph: "🏆",
       name: t("prAchWholeAlphabet", lang),
-      status: `${toLocaleDigits(alphaTaught, lang)} / ${toLocaleDigits(28, lang)}`,
-      earned: alphaTaught >= 28,
+      status: `${toLocaleDigits(alphaTaught, lang)} / ${toLocaleDigits(SEEDED_ALPHABET.length, lang)}`,
+      earned: alphaTaught >= SEEDED_ALPHABET.length,
     },
   ];
   const earnedCount = items.filter((a) => a.earned).length;
@@ -632,11 +675,12 @@ function AchievementsTab({
         {items.map((a, i) => (
           <div
             key={i}
+            // No container opacity on locked tiles: it dragged the label to
+            // 1.84:1. The dashed border and the greyscaled glyph carry "locked".
             className="flex flex-col items-center rounded-[16px] px-[10px] py-4"
             style={{
               background: "#FBF7EF",
               border: a.earned ? "2px solid #E6B24C" : "2px dashed #C7BBA4",
-              opacity: a.earned ? 1 : 0.72,
             }}
           >
             <div
@@ -653,12 +697,14 @@ function AchievementsTab({
               <span aria-hidden="true">{a.glyph}</span>
             </div>
             <div
-              className="mt-[9px] text-center font-display text-[13px] font-bold leading-[1.1]"
-              style={{ color: a.earned ? "#16302E" : "#94A5A2" }}
+              className={`mt-[9px] text-center font-display text-[13px] font-bold leading-[1.1] ${
+                a.earned ? "text-ink" : "text-muted"
+              }`}
             >
               {a.name}
             </div>
-            <div className="mt-[3px] text-center text-[10px] font-medium leading-[1.2] text-[#94A5A2]">{a.status}</div>
+            {/* #94A5A2 was 2.41:1 on paper for BOTH branches, not just the locked one. */}
+            <div className="mt-[3px] text-center text-[10px] font-medium leading-[1.2] text-muted">{a.status}</div>
           </div>
         ))}
       </div>
@@ -775,10 +821,12 @@ function Constellation({
       <header className="mb-5 flex items-center justify-between">
         <h3 className="font-display text-lg font-bold text-paper">{pick(lang, "The Constellation", "الكوكبة")}</h3>
         <span className="rounded-full bg-paper/15 px-3 py-1 font-display text-xs font-black uppercase tracking-tight text-gold">
-          {num(alphaTaught, lang)} / {num(ALPHABET.length, lang)} {pick(lang, "Found", "مكتشفة")}
+          {num(alphaTaught, lang)} / {num(SEEDED_ALPHABET.length, lang)} {pick(lang, "Found", "مكتشفة")}
         </span>
       </header>
-      <div className="grid grid-cols-5 gap-4" dir="ltr">
+      {/* No dir override: the grid inherits the document direction so the Arabic
+          alphabet starts at Alif top-right, matching the Practise strip. */}
+      <div className="grid grid-cols-5 gap-4">
         {ALPHABET.map((s, i) => {
           const lit = alphaLit.has(s.id);
           return (
@@ -794,7 +842,7 @@ function Constellation({
               }`}
             >
               {lit ? (
-                <span className="font-display text-sm font-bold" dir="rtl">{s.code}</span>
+                <span className="font-display text-sm font-bold">{s.code}</span>
               ) : (
                 <span className="text-xs font-black">{num(i + 1, lang)}</span>
               )}
@@ -846,7 +894,7 @@ function ForecastRow({
       </span>
       <span
         className={`flex items-center gap-1 rounded-full px-3 py-1 ${
-          tone === "due" ? "bg-gold/10 text-gold" : "bg-teal/5 text-teal"
+          tone === "due" ? "bg-gold/10 text-gold-deep" : "bg-teal/5 text-teal"
         }`}
       >
         <Icon name={tone === "due" ? "hourglass_top" : "hourglass_empty"} fill={tone === "due"} className="text-[14px]" />
@@ -865,7 +913,9 @@ function StreakCelebration({
   week,
   onContinue,
 }: {
-  profile: { displayName: string; streak: number; xp: number };
+  // No displayName: this screen used to tell the learner that they themselves
+  // were going to be proud of them. The copy is name-free now.
+  profile: { streak: number };
   lang: Lang;
   mastered: number;
   goalXp: number;
@@ -884,12 +934,10 @@ function StreakCelebration({
   }, []);
 
   const n = profile.streak;
-  // Latin display names interpolated into RTL strings get a bidi isolate (<bdi>)
-  // so they don't visually reorder the surrounding Arabic.
-  const headlinePrefix = pick(
+  const headline = pick(
     lang,
-    `${n} ${n === 1 ? "day" : "days"} of showing up for `,
-    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة لأجل `
+    `${n} ${n === 1 ? "day" : "days"} of showing up`,
+    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة`
   );
   const arNumber = pick(lang, `${n} ${n === 1 ? "day" : "days"}`, `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"}`);
   void goalXp;
@@ -901,7 +949,10 @@ function StreakCelebration({
       aria-modal="true"
       aria-label={pick(lang, "Streak celebration", "احتفال بالمواظبة")}
       tabIndex={-1}
-      className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink p-6 text-center focus:outline-none"
+      // Scrolls instead of clipping: the stack is roughly 700px, taller than an
+      // iPhone SE viewport. justify-start plus my-auto keeps it centred when it
+      // fits and scrollable when it does not.
+      className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-start overflow-y-auto overscroll-contain bg-ink p-6 text-center focus:outline-none"
     >
       <Confetti burst={burst} />
 
@@ -922,23 +973,23 @@ function StreakCelebration({
 
       {/* M17: not <main> — this celebration overlay is nested inside App.tsx's
           <main>, which already owns the one landmark. */}
-      <div className="relative z-10 flex w-full max-w-lg flex-col items-center">
+      {/* my-auto centres the block on tall screens; pb-32 clears the fixed footer
+          so the last card is never trapped underneath it. */}
+      <div className="relative z-10 my-auto flex w-full max-w-lg flex-col items-center pb-32">
         <div className="relative mb-8 h-64 w-64 motion-safe:animate-rise md:h-72 md:w-72" style={{ filter: "drop-shadow(0 0 20px rgba(230,178,76,.4))" }}>
-          <img alt="" aria-hidden="true" src="/brand/stitch-46.png" className="h-full w-full object-contain" />
+          {/* Relative path: the app ships to a sub-path, so a leading slash 404s. */}
+          <img alt="" aria-hidden="true" src="brand/stitch-46.png" className="h-full w-full object-contain" />
         </div>
 
         <div className="mb-10 space-y-4">
-          <h1 className="px-4 font-display text-3xl tracking-tight text-paper md:text-4xl">
-            {headlinePrefix}
-            <bdi>{profile.displayName}</bdi>
-          </h1>
+          <h1 className="px-4 font-display text-3xl tracking-tight text-paper md:text-4xl">{headline}</h1>
           <p className="font-display text-4xl font-bold text-gold md:text-5xl" dir="rtl">
             {arNumber}
           </p>
         </div>
 
-        {/* day dots */}
-        <div className="mb-12 flex justify-center gap-3" dir="ltr">
+        {/* day dots: same labels and same direction as the weekly card. */}
+        <div className="mb-12 flex justify-center gap-3">
           {week.map((d, i) =>
             d.state === "active" ? (
               <span
@@ -952,7 +1003,7 @@ function StreakCelebration({
                 key={i}
                 className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-paper/20 text-[10px] font-bold text-paper opacity-40"
               >
-                {(["M", "T", "W", "T", "F", "S", "S"][i])}
+                {(rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i]}
               </span>
             )
           )}
@@ -964,13 +1015,7 @@ function StreakCelebration({
             <Icon name="sign_language" fill />
           </span>
           <p className="text-start text-sm leading-snug text-paper/90 md:text-base">
-            {pick(
-              lang,
-              `You've mastered ${mastered} signs so far. `,
-              `لقد أتقنت ${num(mastered, lang)} إشارة حتى الآن. سيكون `
-            )}
-            <bdi>{profile.displayName}</bdi>
-            {pick(lang, " is going to be so proud.", " فخوراً جداً بك.")}
+            {t("celStreakMastered", lang).replace("{n}", num(mastered, lang))}
           </p>
         </div>
       </div>

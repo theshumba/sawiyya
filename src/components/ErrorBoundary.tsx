@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!this.state.error) return this.props.children;
     const section = this.props.scope === "section";
     return (
-      <div className="flex min-h-screen items-center justify-center bg-sand p-4" role="alert">
+      <div className="flex min-h-dvh items-center justify-center bg-sand p-4" role="alert">
         <Card className="w-full max-w-md space-y-4 p-5">
           <div dir="ltr" lang="en">
             <p className="font-display text-lg font-bold text-ink">{t("ebTitle", "en")}</p>

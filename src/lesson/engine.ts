@@ -67,7 +67,14 @@ export function buildDrillQueue(
   for (const signId of shuffle(gradable).slice(0, MAX_CAMERA)) {
     queue.push({ type: "camera", signId });
   }
-  const nonGradable = lesson.signIds.filter((id) => !signById(id)?.cameraGradable);
+  // The teach block above already quizzes every sign in the lesson, so a top-up
+  // drawn from the same list asked the identical four-option grid twice in one
+  // sitting. Only signs not already queued top up; when there are none, the
+  // lesson simply ends shorter rather than repeating itself.
+  const alreadyQueued = new Set(queue.map((d) => d.signId));
+  const nonGradable = lesson.signIds.filter(
+    (id) => !signById(id)?.cameraGradable && !alreadyQueued.has(id),
+  );
   for (const signId of shuffle(nonGradable).slice(0, MAX_RECALL)) {
     queue.push({ type: "recall", signId });
   }

@@ -11,58 +11,102 @@ RTL-safe via CSS logical properties. `Lang = "en" | "ar"` (from `src/types.ts`).
 
 ## 1 · Tokens (Tailwind)
 
-Added in `tailwind.config.js` (`theme.extend`). Existing teal/coral/gold/sand/
-paper/ink/muted/line keys are unchanged.
+Declared in `tailwind.config.js` (`theme.extend`). **This table is the shipped
+config, not the original rebuild spec.** Where the H15 contrast pass moved a
+value, the value below is the one that actually paints. Tokens that were
+declared and never used have been removed rather than left as documentation the
+code does not honour.
 
-### Colours (new)
+### Colours
 
 | Class stem | Hex | Use |
 |---|---|---|
-| `teal-ink900` | `#0A1F1D` | Button hard-shadow deep tone (HANDOFF §1) |
-| `gold-mid` | `#E6B24C` | Progress fill / reward accent |
+| `teal` | `#0F6E6A` | Primary brand fill |
+| `teal-deep` | `#0A4F4C` | Deep teal surface, and the hard bottom edge of every teal spring/extruded button |
+| `teal-ink` | `#16302E` | Darkest teal text. Same value as `ink` |
+| `teal-ink900` | `#0A1F1D` | Declared, currently unused. Button edges use `teal-deep` |
+| `coral` | `#E8654C` | Coral fill on dark or large surfaces only, fails AA as small text |
+| `coral-soft` | `#F08A75` | Tint |
+| `coral-deep` | `#B54834` | H15: the AA-safe coral. Button faces and coral foregrounds. The spec originally said `#C54F3A` |
+| `coral-edge` | `#9C3D2C` | Bottom edge under a `coral-deep` face. Shadow only, never text |
+| `gold` | `#E6B24C` | Reward fill, arcs, medallions |
+| `gold-soft` | `#F0C879` | Tint |
+| `gold-mid` | `#E6B24C` | Progress fill / reward accent. Same value as `gold` |
+| `gold-deep` | `#7F621F` | H15: gold that is legible as TEXT, 5.01:1 on sand and 5.36:1 on paper. The spec originally said `#C89A3D`, which measured 2.26:1 and failed AA |
+| `gold-edge` | `#C89A3D` | The pre-H15 `gold-deep`, kept only as the gold button's bottom edge. Shadow only, never text |
 | `success` | `#1F8A5B` | Correct states, completed nodes |
-| `danger` | `#C0492F` | Errors, "never mirrors" |
+| `sand` | `#F6EFE3` | App background |
+| `paper` | `#FBF7EF` | Card surface |
 | `paper2` | `#F1E7D6` | Canvas / behind-app background |
+| `ink` | `#16302E` | Body text |
+| `muted` | `#566B68` | H15: secondary text. Was `#5C726F`, which measured 4.49:1, a hair under AA |
+| `line` | `#EDE3D2` | Hairlines, dividers |
 
-Use as `bg-success`, `text-danger`, `bg-paper2`, `bg-gold-mid`, `text-teal-ink900`, etc.
+Use as `bg-success`, `text-gold-deep`, `bg-paper2`, `bg-gold-mid`, and so on.
 
-Pre-existing (reference): `teal` `#0F6E6A` (`teal-deep` `#0A4F4C`, `teal-ink` `#16302E`),
-`coral` `#E8654C` (`coral-soft` `#F08A75`, `coral-deep` `#C54F3A`), `gold` `#E6B24C`
-(`gold-soft` `#F0C879`, `gold-deep` `#C89A3D`), `sand` `#F6EFE3`, `paper` `#FBF7EF`,
-`ink` `#16302E`, `muted` `#5C726F`, `line` `#EDE3D2`.
+**The `deep` / `edge` split is load-bearing.** `gold-deep` and `coral-deep` are
+the foreground tones: reach for them whenever the colour carries text.
+`gold-edge` and `coral-edge` are the darker shadow tones that sit under a button
+face, and must never be used for text: `gold-edge` on sand is 2.26:1.
 
-### Motion easings (new → `transitionTimingFunction`)
+`danger` (`#C0492F`) was declared and never used once anywhere in `src/`. It has
+been deleted. Use `coral-deep` for error foregrounds.
+
+### Type faces
+
+| Class | Stack | Use |
+|---|---|---|
+| `font-sans` | Readex Pro | Dual-script UI and body. Default on `body` |
+| `font-display` | Rubik | Headings, numbers, buttons, labels |
+| `font-mono` | Rubik | Small uppercase eyebrow and badge labels |
+
+`font-mono` is a legacy utility name from the `.dc.html` references. **The brand
+vendors no monospace face** (`src/fonts.css` self-hosts Readex Pro, Rubik and
+Material Symbols only), so the utility is mapped to Rubik. Left unmapped it fell
+through to Tailwind's default system stack and rendered as SF Mono on iPhone,
+Roboto Mono on Android and Consolas on Windows. Prefer `font-display` in new
+code; the ~20 remaining `font-mono` call sites are a follow-up sweep.
+
+### Motion easings (`transitionTimingFunction`)
 
 | Class | cubic-bezier | Use |
 |---|---|---|
 | `ease-spring` | `.34,1.56,.64,1` | Button release, pop-in, Fanan |
 | `ease-standard` | `.4,0,.2,1` | Most transitions |
-| `ease-enter` | `0,0,.2,1` | Screen push (enter) |
-| `ease-exit` | `.4,0,1,1` | Screen pop / dismiss |
+
+`ease-enter` and `ease-exit` were declared for a screen push/pop transition that
+was never built. Both are deleted.
 
 ### Keyframes + animations
 
-Existing: `animate-pop-in`, `animate-rise`, `animate-pulse-ring`, `animate-shimmer`.
-
-New:
-
 | Class | Definition | Use |
 |---|---|---|
-| `animate-confetti` | `confetti 1.4s linear forwards` — translateY fall + 430° spin, fade | Celebration confetti |
-| `animate-float` | `float 2.6s ease-in-out infinite` — ±7px bob | Idle / mascot bob |
-| `animate-pop` | `pop .4s cubic-bezier(.34,1.56,.64,1) both` — scale 0→1.1→1 | Checks, badges, scale-in |
+| `animate-pop-in` | `pop-in .45s` scale .8→1.05→1 + fade | Card / sheet entry |
+| `animate-rise` | `rise .5s` translateY 12px→0 + fade | Content entry |
+| `animate-pulse-ring` | `pulse-ring 1.4s infinite` gold halo | Attention ring |
+| `animate-float` | `float 2.6s ease-in-out infinite`, ±7px bob | Idle / mascot bob |
+| `animate-pop` | `pop .4s cubic-bezier(.34,1.56,.64,1) both`, scale 0→1.1→1 | Checks, badges, scale-in |
+
+`animate-shimmer` (skeleton loading) and `animate-confetti` were both declared
+and never used: the real celebration is a canvas, in
+`src/components/Confetti.tsx`. Both keyframes and both utilities are deleted.
 
 Global keyframes `float` and `sparkle-pop` are also declared in `src/styles.css`
 (outside JIT purge) so Fanan's inline animations always resolve.
 
 Reduce-motion: the global `@layer base` rule in `src/styles.css` freezes all
-animations/transitions — do not re-implement per component.
+animations and transitions. Do not re-implement per component.
 
 ### Spring button utility classes (`src/styles.css`)
 
-`.spring` (transition) + `.spring-teal|coral|gold` (hard `0 5px 0 <deep>` shadow;
+`.spring` (transition) + `.spring-teal|coral|gold` (hard `0 5px 0 <edge>` shadow;
 on `:active` → `translateY(4px)` + `0 1px 0`). Consumed by `SpringButton`; you
-normally won't reference these directly.
+normally won't reference these directly. `.extruded-teal|coral|gold` are the
+chunkier `0 6px 0` variant used by `ui.tsx`'s `Button`. All six read their edge
+colour from the tokens via `theme()`, so there is one place to change it.
+
+`.extruded-paper` and `.extruded-teal-pressed` were declared and never used.
+Both are deleted.
 
 ---
 
@@ -183,56 +227,36 @@ export function Pill(props: PillProps): JSX.Element
 ```
 import { MonoLabel } from "../components/dc";
 
-export interface MonoLabelProps { children: ReactNode; className?: string }
+export interface MonoLabelProps { children: ReactNode; className?: string; lang?: Lang }
 export function MonoLabel(props: MonoLabelProps): JSX.Element
 ```
 
-11px/700 uppercase monospace, letter-spacing .12em. Inherits colour — set with
-`className` (e.g. `text-muted`, `text-teal`). Latin/section labels only.
+11px/700 uppercase, letter-spacing .12em, in the display face (Rubik): see the
+`font-mono` note in §1, the brand has no monospace. Inherits colour, set it with
+`className` (e.g. `text-muted`, `text-teal`). Latin/section labels only, and
+pass `lang` so `ar` drops the uppercase and tracking that sever cursive joins.
 
 ```tsx
 <MonoLabel className="text-teal">01 · Colour</MonoLabel>
 ```
 
-### OnDeviceBadge
+### Removed: OnDeviceBadge, ConfidenceRing, Tile
 
-```
-import { OnDeviceBadge } from "../components/dc";
+`OnDeviceBadge` and `ConfidenceRing` were exported from `dc.tsx`, and `Tile` from
+`src/components/Tile.tsx`, with **zero call sites each**, while the screens hand
+rolled the same three things. They are deleted rather than left as a documented
+API nothing honours.
 
-export interface OnDeviceBadgeProps { lang: Lang; className?: string }
-export function OnDeviceBadge(props: OnDeviceBadgeProps): JSX.Element
-```
+- The camera privacy chip lives inline in `CameraTrainer`.
+- `ConfidenceRing` is not a stand-in for CameraTrainer's hold ring: that ring is
+  a hold-to-confirm timer with a check in the middle, while this one printed a
+  live percentage and announced `role="progressbar"`. Swapping them would show a
+  number the design withholds and read a bogus progress value to screen readers.
+- `Chip` (the small selectable pill, still in `src/components/Tile.tsx`) is alive
+  and used by `FlagPicker` and `CameraPractice`. Only its big-card sibling went.
 
-Always-visible camera privacy badge: dark `#16302E` pill + green live-dot + lock
-glyph (never mirrors) + label. Text: EN "On-device · nothing leaves your phone",
-AR "على جهازك · لا شيء يغادر هاتفك". Place on every camera frame.
-
-```tsx
-<OnDeviceBadge lang={lang} className="absolute inset-inline-start-3 top-3" />
-```
-
-### ConfidenceRing
-
-```
-import { ConfidenceRing } from "../components/dc";
-
-export interface ConfidenceRingProps {
-  value: number;   // 0..1 (clamped; non-finite → 0)
-  lang: Lang;
-  size?: number;   // px, default 96
-  stroke?: number; // px, default 9
-  className?: string;
-}
-export function ConfidenceRing(props: ConfidenceRingProps): JSX.Element
-```
-
-SVG ring, gold `#E6B24C` arc fills 0→100% from `value`, faint teal track. Centre
-shows localized percent — Eastern-Arabic digits + `٪` for `ar`. Has
-`role="progressbar"` with `aria-valuenow`.
-
-```tsx
-<ConfidenceRing value={0.87} lang={lang} size={120} />
-```
+Unifying the ~22 hand-rolled `aria-pressed` selection controls onto one treatment
+is still open, and it is a screen-by-screen job, not a dead export.
 
 ### Localization helpers
 
@@ -250,8 +274,10 @@ Use for any number/percent shown in the UI so Arabic never mixes scripts
 
 ## 3 · Rules for screen agents
 
-- Compose these primitives; never re-implement the spring shadow, card shadow,
-  pill, ring, or badge inline.
+- Compose these primitives; never re-implement the spring shadow, card shadow or
+  pill inline.
+- Never hardcode a hex that a token already names. `gold-deep` for gold text,
+  `gold-edge` only for a button's bottom shadow, and the same split for coral.
 - Fanan is one character — pose it by prop; never recolour or redraw.
 - Every screen ships EN (LTR) + AR (RTL). Anchor with logical properties
   (`ms-`/`me-`, `ps-`/`pe-`, `text-start`, `inset-inline-*`).

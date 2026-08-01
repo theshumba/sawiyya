@@ -26,10 +26,20 @@ const TILE_BASE =
   "shadow-[0_4px_0_rgba(0,0,0,0.18)] transition-transform ease-spring duration-200 " +
   "active:translate-y-[3px] active:shadow-[0_1px_0_rgba(0,0,0,0.18)] " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-sand cursor-pointer";
-const CHIP =
-  "flex h-11 w-11 items-center justify-center rounded-[13px] bg-white/20 font-display text-2xl font-black text-paper";
-const TILE_TITLE = "mt-[11px] font-display text-[15px] font-bold leading-[1.1] text-paper text-start";
-const TILE_SUB = "mt-[3px] text-[11px] font-medium leading-[1.3] text-white/80 text-start";
+// Tile foreground is a parameter, not a constant: paper reads on the dark teal
+// and coral fills but is 1.8:1 on gold, and both button systems in the codebase
+// already pair a gold fill with ink for exactly that reason.
+type TileFg = "paper" | "ink";
+const FG: Record<TileFg, { chip: string; title: string; sub: string }> = {
+  paper: { chip: "bg-white/20 text-paper", title: "text-paper", sub: "text-white/80" },
+  ink: { chip: "bg-ink/10 text-ink", title: "text-ink", sub: "text-ink/70" },
+};
+const CHIP = (fg: TileFg = "paper") =>
+  `flex h-11 w-11 items-center justify-center rounded-[13px] font-display text-2xl font-black ${FG[fg].chip}`;
+const TILE_TITLE = (fg: TileFg = "paper") =>
+  `mt-[11px] font-display text-[15px] font-bold leading-[1.1] text-start ${FG[fg].title}`;
+const TILE_SUB = (fg: TileFg = "paper") =>
+  `mt-[3px] text-[11px] font-medium leading-[1.3] text-start ${FG[fg].sub}`;
 
 export function PractiseChooser() {
   const app = useApp();
@@ -63,9 +73,9 @@ export function PractiseChooser() {
             className={`${TILE_BASE} bg-teal`}
           >
             {/* أ — Arabic glyph, never mirrors (renders natively RTL) */}
-            <div className={CHIP} aria-hidden>أ</div>
-            <div className={TILE_TITLE}>{t("practiseAlphabet", lang)}</div>
-            <div className={TILE_SUB}>
+            <div className={CHIP()} aria-hidden>أ</div>
+            <div className={TILE_TITLE()}>{t("practiseAlphabet", lang)}</div>
+            <div className={TILE_SUB()}>
               {lettersPractised > 0
                 ? t("practiseAlphabetSubOf", lang)
                     .replace("{n}", num(lettersPractised, lang))
@@ -81,38 +91,33 @@ export function PractiseChooser() {
             className={`${TILE_BASE} bg-coral-deep`}
           >
             {/* 🤟 handshape — never mirrors */}
-            <div className={CHIP} aria-hidden>🤟</div>
-            <div className={TILE_TITLE}>{t("practiseWords", lang)}</div>
-            <div className={TILE_SUB}>{t("practiseWordsSub", lang)}</div>
+            <div className={CHIP()} aria-hidden>🤟</div>
+            <div className={TILE_TITLE()}>{t("practiseWords", lang)}</div>
+            <div className={TILE_SUB()}>{t("practiseWordsSub", lang)}</div>
           </button>
 
-          {/* 3 · Free camera — sign anything */}
-          <button
-            type="button"
-            onClick={() => go({ name: "camera" })}
-            className={`${TILE_BASE} bg-gold`}
-          >
-            {/* 📷 camera glyph — never mirrors */}
-            <div className={CHIP} aria-hidden>📷</div>
-            <div className={TILE_TITLE}>{t("practiseFreeCamera", lang)}</div>
-            <div className={TILE_SUB}>{t("practiseFreeCameraSub", lang)}</div>
-          </button>
+          {/* The old tile 3, "Free camera · Sign anything", is gone (2026-08-01).
+              It called go({ name: "camera" }) with no target, and CameraPractice
+              defaults to Alif, so it opened the exact same screen as tile 1. A
+              real free mode needs the recognizer's out-of-distribution gate, not
+              a bare argmax that names a letter for any random hand, so the honest
+              move was three real destinations instead of four with a duplicate. */}
 
-          {/* 4 · Fingerspell (M6) — spell any word letter by letter */}
+          {/* 3 · Fingerspell (M6) — spell any word letter by letter */}
           <button
             type="button"
             onClick={() => go({ name: "fingerspell" })}
             className={`${TILE_BASE} bg-teal-deep`}
           >
             {/* spellcheck glyph — never mirrors */}
-            <div className={CHIP} aria-hidden>
+            <div className={CHIP()} aria-hidden>
               <Icon name="spellcheck" className="text-2xl leading-none" />
             </div>
-            <div className={TILE_TITLE}>{t("practiseFingerspell", lang)}</div>
-            <div className={TILE_SUB}>{t("practiseFingerspellSub", lang)}</div>
+            <div className={TILE_TITLE()}>{t("practiseFingerspell", lang)}</div>
+            <div className={TILE_SUB()}>{t("practiseFingerspellSub", lang)}</div>
           </button>
 
-          {/* 5 · Review — only when something is due AND under the daily cap;
+          {/* 4 · Review — only when something is due AND under the daily cap;
               opens a real review session (10 cards, mixed drills — H3). */}
           {due.length > 0 && !reviewCapReached && (
             <button
@@ -120,9 +125,9 @@ export function PractiseChooser() {
               onClick={() => go({ name: "lesson", lessonId: "review" })}
               className={`${TILE_BASE} bg-teal-deep`}
             >
-              <div className={CHIP} aria-hidden>↺</div>
-              <div className={TILE_TITLE}>{t("practiseReview", lang)}</div>
-              <div className={TILE_SUB}>
+              <div className={CHIP()} aria-hidden>↺</div>
+              <div className={TILE_TITLE()}>{t("practiseReview", lang)}</div>
+              <div className={TILE_SUB()}>
                 {num(due.length, lang)} {t("practiseReviewCountSuffix", lang)}
               </div>
             </button>

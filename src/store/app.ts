@@ -70,6 +70,11 @@ export interface AppState {
   }) => string;
   switchProfile: (id: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
+  /** Remove a profile and everything it owns: progress, SRS cards, the flags it
+   *  raised and its supporter entries on other people's flags. Without this a
+   *  member added by mistake permanently zeroes `householdStreak` and empties
+   *  `signsAllCanDo`, both of which are strict "every hearing member" tests. */
+  removeProfile: (id: string) => void;
   completeOnboarding: () => void;
   /** Deactivate every active flag RAISED BY this profile (H7-scoped clear-all). */
   clearFlags: (byProfileId: string) => void;
@@ -85,6 +90,11 @@ export interface AppState {
       /** The match was confirmed only by the learner's own KNN recording, not
        *  the dataset MLP — counted separately as ownRecordingMatches (M2). */
       ownRecording?: boolean;
+      /** The camera's 20-second soft fail, not a finished attempt. Rates the
+       *  card and awards XP as normal but does NOT increment `drillsCompleted`:
+       *  the learner's eventual result closes the same physical attempt, and
+       *  counting both double-counted one drill in the honesty stats. */
+      softFail?: boolean;
     },
   ) => void;
   recordLessonComplete: () => void;
@@ -238,6 +248,11 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           xpToday: finiteOr(pr.xpToday, 0),
           reviewsToday: finiteOr(pr.reviewsToday, 0),
           streak: finiteOr(pr.streak, 0),
+          // Added after v1 blobs shipped: bestStreak backfills from the stored
+          // streak (the best we can honestly claim for an old blob) and the
+          // celebration marker starts at 0 so a live streak can still fire it.
+          bestStreak: finiteOr(pr.bestStreak, finiteOr(pr.streak, 0)),
+          celebratedStreak: finiteOr(pr.celebratedStreak, 0),
           lastActiveDay: typeof pr.lastActiveDay === "string" ? pr.lastActiveDay : null,
           activeDays: Array.isArray(pr.activeDays)
             ? pr.activeDays.filter((d): d is string => typeof d === "string")
@@ -334,6 +349,8 @@ export const useApp = create<AppState>()(
           xpToday: 0,
           reviewsToday: 0,
           streak: 0,
+          bestStreak: 0,
+          celebratedStreak: 0,
           lastActiveDay: null,
           activeDays: [],
           dailyGoal,
@@ -352,6 +369,34 @@ export const useApp = create<AppState>()(
         set((s) => ({
           profiles: s.profiles.map((p) => (p.id === id ? { ...p, ...patch } : p)),
         })),
+
+      // Everything the removed profile owns goes with it, so no orphaned card,
+      // flag or supporter entry keeps counting against the household. The
+      // caller confirms first: this is not undoable and there is no bin.
+      removeProfile: (id) =>
+        set((s) => {
+          if (!s.profiles.some((p) => p.id === id)) return s;
+          const profiles = s.profiles.filter((p) => p.id !== id);
+          const progress = { ...s.progress };
+          delete progress[id];
+          const srs = { ...s.srs };
+          delete srs[id];
+          const flags = s.flags
+            .filter((f) => f.raisedByProfileId !== id)
+            .map((f) =>
+              f.supporters.includes(id)
+                ? { ...f, supporters: f.supporters.filter((x) => x !== id) }
+                : f,
+            );
+          return {
+            profiles,
+            progress,
+            srs,
+            flags,
+            activeProfileId:
+              s.activeProfileId === id ? (profiles[0]?.id ?? null) : s.activeProfileId,
+          };
+        }),
 
       completeOnboarding: () => set({ onboarded: true }),
 
@@ -417,13 +462,23 @@ export const useApp = create<AppState>()(
               xpToday: newDay ? xpGain : p.xpToday + xpGain,
               reviewsToday: (newDay ? 0 : p.reviewsToday) + (wasReview ? 1 : 0),
               streak,
+              // High-water mark: achievements record what happened, so a lapse
+              // must never un-earn a badge the learner really did earn.
+              bestStreak: Math.max(p.bestStreak ?? 0, streak),
               lastActiveDay: today,
               activeDays,
             };
           });
 
-          // 4. Metrics
-          const metrics = { ...s.metrics, drillsCompleted: s.metrics.drillsCompleted + 1 };
+          // 4. Metrics. A soft fail is the same physical attempt as the result
+          //    that follows it, so it must not add a second completed drill —
+          //    that read as 50% accuracy on a drill the learner got right.
+          //    Camera attempts still count: a 20-second hand-visible non-match
+          //    is a real attempt, and that accounting is a product call.
+          const metrics = {
+            ...s.metrics,
+            drillsCompleted: s.metrics.drillsCompleted + (opts.softFail ? 0 : 1),
+          };
           if (opts.camera) {
             metrics.cameraAttempts += 1;
             if (opts.matched) {
@@ -550,10 +605,18 @@ export const useApp = create<AppState>()(
           // card, which would reset real scheduling history). Skipped when the
           // flag archived on creation — an already-mastered sign must not jump
           // anyone's queue.
+          //
+          // SOLO EXCEPTION: in a one-person household the raiser is the only
+          // queue there is, so skipping them made flagging a total no-op, the
+          // default state straight after onboarding. Flagging alone means "I
+          // want to learn this", so their own card is seeded. Strictly gated on
+          // profiles.length === 1: in any real household H4 still holds and the
+          // assigner is never queued.
+          const soloHousehold = s.profiles.length === 1;
           const srs = { ...s.srs };
           if (!alreadyDone) {
             for (const p of s.profiles) {
-              if (p.id === byProfileId) continue;
+              if (p.id === byProfileId && !soloHousehold) continue;
               const cards = srs[p.id] ?? {};
               if (!cards[signId]) srs[p.id] = { ...cards, [signId]: newStoredCard() };
             }

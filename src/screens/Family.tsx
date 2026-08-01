@@ -85,6 +85,22 @@ export function Family() {
   const honeycombCells = Math.max(milestoneTarget, board.length);
   const HEX = "[clip-path:polygon(25%_5%,75%_5%,100%_50%,75%_95%,25%_95%,0%_50%)]";
 
+  // A member added by mistake used to be permanent, and one stray profile
+  // zeroed the household streak and emptied the shared board forever (both are
+  // strict "every hearing member" tests). Irreversible, so it confirms first,
+  // matching the reset-training pattern in Settings. The last remaining profile
+  // has no remove affordance: deleting it would drop the app into onboarding.
+  const removeMember = (id: string, displayName: string) => {
+    const ok = window.confirm(
+      pick(
+        lang,
+        `Remove ${displayName} from this household? Their progress on this device is deleted and cannot be recovered.`,
+        `هل تريد إزالة ${displayName} من الأسرة؟ سيُحذف تقدمه على هذا الجهاز ولا يمكن استرجاعه.`,
+      ),
+    );
+    if (ok) app.removeProfile(id);
+  };
+
   const addMember = () => {
     if (!newName.trim()) return;
     app.createProfile({
@@ -136,32 +152,46 @@ export function Family() {
             const signedToday = p.lastActiveDay === todayKey();
             const c = avatarColors(i);
             return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => app.switchProfile(p.id)}
-                aria-pressed={isActive}
-                className="w-[74px] flex-none rounded-2xl border border-line bg-paper p-[11px_8px] text-center transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                style={isActive ? { boxShadow: "0 0 0 3px #1F8A5B" } : undefined}
-              >
-                <span
-                  className="relative mx-auto flex h-11 w-11 items-center justify-center rounded-full font-display text-lg font-extrabold"
-                  style={{ backgroundColor: c.bg, color: c.fg }}
-                  aria-hidden="true"
+              // the remove control is a sibling of the switch button, never
+              // nested inside it (a button inside a button is invalid and the
+              // inner one stops receiving clicks in some browsers).
+              <div key={p.id} className="relative w-[74px] flex-none">
+                <button
+                  type="button"
+                  onClick={() => app.switchProfile(p.id)}
+                  aria-pressed={isActive}
+                  className="w-full rounded-2xl border border-line bg-paper p-[11px_8px] text-center transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                  style={isActive ? { boxShadow: "0 0 0 3px #1F8A5B" } : undefined}
                 >
-                  {p.role === "deaf" ? "🧏" : initialOf(p.displayName)}
-                </span>
-                <span className="mt-[7px] block truncate font-display text-xs font-bold text-ink">
-                  <bdi>{p.displayName}</bdi>
-                  {signedToday && <span className="text-success" aria-hidden="true"> ✓</span>}
-                </span>
-                <span className="mt-[5px] flex items-center justify-center gap-[3px]">
-                  <span className="h-[9px] w-[9px] rounded-full bg-coral" aria-hidden="true" />
-                  <span className="font-display text-[11px] font-bold text-muted">
-                    {num(streakFor(p), lang)}
+                  <span
+                    className="relative mx-auto flex h-11 w-11 items-center justify-center rounded-full font-display text-lg font-extrabold"
+                    style={{ backgroundColor: c.bg, color: c.fg }}
+                    aria-hidden="true"
+                  >
+                    {p.role === "deaf" ? "🧏" : initialOf(p.displayName)}
                   </span>
-                </span>
-              </button>
+                  <span className="mt-[7px] block truncate font-display text-xs font-bold text-ink">
+                    <bdi>{p.displayName}</bdi>
+                    {signedToday && <span className="text-success" aria-hidden="true"> ✓</span>}
+                  </span>
+                  <span className="mt-[5px] flex items-center justify-center gap-[3px]">
+                    <span className="h-[9px] w-[9px] rounded-full bg-coral" aria-hidden="true" />
+                    <span className="font-display text-[11px] font-bold text-muted">
+                      {num(streakFor(p), lang)}
+                    </span>
+                  </span>
+                </button>
+                {app.profiles.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeMember(p.id, p.displayName)}
+                    aria-label={pick(lang, `Remove ${p.displayName}`, `إزالة ${p.displayName}`)}
+                    className="absolute end-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-paper text-muted transition hover:text-coral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                  >
+                    <Icon name="close" className="text-sm" />
+                  </button>
+                )}
+              </div>
             );
           })}
 
@@ -191,6 +221,9 @@ export function Family() {
               autoFocus
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
+              // the placeholder was the field's ONLY hint, and it disappears the
+              // moment you type: a speech user heard "edit text, blank".
+              aria-label={t("famName", lang)}
               placeholder={t("famName", lang)}
               maxLength={20}
               className="rounded-2xl border-2 border-line bg-sand px-4 py-3 font-semibold placeholder:text-muted/60 focus:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40"
@@ -271,12 +304,32 @@ export function Family() {
                 );
                 const dotColor = (lvl: number) =>
                   lvl >= 3 ? "#0F6E6A" : lvl === 2 ? "#E6B24C" : lvl === 1 ? "#F0C879" : "#EDE3D2";
+                // The dots are the assigner's only read on who has learned the
+                // sign, and they were colour-only: an aria-label on a bare span
+                // is never exposed, and this row's own label wins over anything
+                // inside it. So the levels are folded into that label here.
+                const sep = pick(lang, ", ", "، ");
+                const levelsLabel = learners
+                  .map(
+                    (p) =>
+                      `${p.displayName} ${num(
+                        app.progress[p.id]?.[f.signId]?.masteryLevel ?? 0,
+                        lang,
+                      )}/${num(3, lang)}`,
+                  )
+                  .join(sep);
                 return (
                   <button
                     key={f.id}
                     type="button"
                     onClick={() => goToSign(sign)}
-                    aria-label={`${gloss} — ${sign.cameraGradable ? t("practiceCamera", lang) : t("lsWatchTitle", lang)}`}
+                    aria-label={[
+                      gloss,
+                      sign.cameraGradable ? t("practiceCamera", lang) : t("lsWatchTitle", lang),
+                      levelsLabel,
+                    ]
+                      .filter(Boolean)
+                      .join(sep)}
                     className="flex items-center gap-[11px] rounded-[15px] border border-line bg-paper p-3 text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-[13px] bg-sand">
@@ -302,7 +355,7 @@ export function Family() {
                               <span
                                 key={p.id}
                                 title={`${p.displayName} · ${num(lvl, lang)}/3`}
-                                aria-label={`${p.displayName} · ${num(lvl, lang)}/3`}
+                                aria-hidden="true"
                                 className="h-2.5 w-2.5 flex-none rounded-full"
                                 style={{ backgroundColor: dotColor(lvl) }}
                               />

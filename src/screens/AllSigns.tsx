@@ -10,14 +10,15 @@
 import { useMemo, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
-import { ALL_SIGNS } from "../content/signs";
-import { activeProfile, useApp } from "../store/app";
+import { ALL_SIGNS, SEEDED_ALPHABET, UNITS } from "../content/signs";
+import { activeProfile, todayKey, useApp } from "../store/app";
 import { isDue } from "../store/srs";
 import { useUi } from "../store/ui";
 import { Icon, Title } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
+import { demoShowsHint, SignDemo } from "../components/SignDemo";
 import { MonoLabel, SpringButton, toLocaleDigits } from "../components/dc";
 import { useDialog } from "../components/useDialog";
 
@@ -32,10 +33,31 @@ const STATUS_META: Record<
   mastered: { en: "Mastered", ar: "متقنة", icon: "check_circle", tone: "text-gold-deep" },
   flagged: { en: "Family list", ar: "قائمة العائلة", icon: "push_pin", tone: "text-coral-deep" },
   review: { en: "Review soon", ar: "للمراجعة", icon: "hourglass_top", tone: "text-gold-deep" },
-  letter: { en: "Letter", ar: "حرف", icon: null, tone: "text-teal-deep/60" },
-  unit: { en: "Unit 1", ar: "الوحدة ١", icon: null, tone: "text-teal-deep/60" },
-  new: { en: "New", ar: "جديدة", icon: null, tone: "text-teal-deep/60" },
+  // H·audit: text-teal-deep/60 measured 3.3:1 on the card surface at 11px bold.
+  // text-muted (#566B68) is the AA-tuned token these three should have used.
+  letter: { en: "Letter", ar: "حرف", icon: null, tone: "text-muted" },
+  // The unit NUMBER is appended at render time by statusLabel(), never hardcoded.
+  unit: { en: t("homeUnit", "en"), ar: t("homeUnit", "ar"), icon: null, tone: "text-muted" },
+  new: { en: "New", ar: "جديدة", icon: null, tone: "text-muted" },
 };
+
+/** Which unit a sign belongs to, numbered exactly the way Home numbers it:
+ *  the index in the frozen UNITS array + 1 (alphabet = 1, A1 words = 2).
+ *  0 when the sign is in no unit (the 3 reference-only alphabet edge forms). */
+function unitNumberOf(sign: Sign): number {
+  const idx = UNITS.findIndex((u) => u.signIds.includes(sign.id));
+  return idx < 0 ? 0 : idx + 1;
+}
+
+/** Caption for a card's live status. The `unit` status carries the derived unit
+ *  number, so a word sign reads "Unit 2" here exactly as it does on Home. */
+function statusLabel(status: Status, sign: Sign, lang: Lang): string {
+  const meta = STATUS_META[status];
+  const label = pick(lang, meta.en, meta.ar);
+  if (status !== "unit") return label;
+  const n = unitNumberOf(sign);
+  return n > 0 ? `${label} ${toLocaleDigits(n, lang)}` : label;
+}
 
 // Semantic category tags for the detail panel (design shows "Word / Letter"
 // style chips). Derived honestly from the frozen content metadata.
@@ -44,7 +66,11 @@ function categoryTags(sign: Sign, lang: Lang): { label: string; tone: "teal" | "
   if (sign.tier === "alphabet") {
     tags.push({ label: pick(lang, "Alphabet", "الحروف"), tone: "teal" });
   } else {
-    tags.push({ label: pick(lang, "Unit 1", "الوحدة ١"), tone: "teal" });
+    const n = unitNumberOf(sign);
+    tags.push({
+      label: n > 0 ? `${t("homeUnit", lang)} ${toLocaleDigits(n, lang)}` : t("homeUnit", lang),
+      tone: "teal",
+    });
   }
   tags.push(
     sign.type === "dynamic"
@@ -60,10 +86,12 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
   return (
     <span
       className="flex-none rounded-lg px-[9px] py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.04em]"
+      // H15 tuning: #C89A3D on #FBEFE6 measured 2.28:1, so the honesty badge was
+      // unreadable. #7F621F holds the same gold hue at ~5.0:1.
       style={
         gradable
           ? { backgroundColor: "#E6F0EE", color: "#0F6E6A" }
-          : { backgroundColor: "#FBEFE6", color: "#C89A3D" }
+          : { backgroundColor: "#FBEFE6", color: "#7F621F" }
       }
     >
       {gradable ? t("signBadgeGraded", lang) : t("signBadgeMotion", lang)}
@@ -115,6 +143,22 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
 
   const learnedCount = ALL_SIGNS.filter((s) => (progress[s.id]?.masteryLevel ?? 0) > 0).length;
 
+  // ── self-mark (watch-only signs) ─────────────────────────────────────────────
+  // The confirmation is DERIVED FROM THE STORE, never from local state: the sheet
+  // closes and reopens freely, so a local "marked" boolean would forget itself and
+  // let the same sign be self-marked over and over.
+  const markedToday = (signId: string): boolean => {
+    const p = progress[signId];
+    if (!p || (p.masteryLevel ?? 0) < 2) return false;
+    return todayKey(new Date(p.lastSeen)) === todayKey();
+  };
+  const selfMark = (signId: string) => {
+    if (markedToday(signId)) return;
+    // Self-mark rates 'hard', never 'good' (H2): nothing confirmed it. Same call
+    // Words.tsx makes, so a flagged word reaches mastery 2 and the flag archives.
+    app.recordDrillResult(signId, "hard", { selfMark: true });
+  };
+
   // ── filter + search ──────────────────────────────────────────────────────────
   const signs = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -146,19 +190,28 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   // ── alphabet grid (§B / §5): a dedicated 4-col letter treatment folded into the
   // existing alphabet filter — progress + learned/current/locked cell states. ──────
   const alphaMode = filter === "alphabet";
-  const alphaSigns = useMemo(() => ALL_SIGNS.filter((s) => s.tier === "alphabet"), []);
-  const alphaLearned = alphaSigns.filter((s) => (progress[s.id]?.masteryLevel ?? 0) > 0).length;
-  const alphaCurrentId = alphaSigns.find((s) => (progress[s.id]?.masteryLevel ?? 0) === 0)?.id ?? null;
-  const alphaPct = Math.min(100, Math.round((alphaLearned / 28) * 100));
+  // ONE denominator: the 28 seeded letters. Counting the 3 reference-only edge
+  // forms in the numerator while dividing by 28 produced "30 of 28 learned".
+  const alphaLearned = SEEDED_ALPHABET.filter((s) => (progress[s.id]?.masteryLevel ?? 0) > 0).length;
+  const alphaCurrentId =
+    SEEDED_ALPHABET.find((s) => (progress[s.id]?.masteryLevel ?? 0) === 0)?.id ?? null;
+  const alphaPct = Math.min(100, Math.round((alphaLearned / SEEDED_ALPHABET.length) * 100));
 
   // Live filter chips only — the dialect "Coming Soon" pill moved to onboarding /
-  // PractiseChooser, and Unit 2 (empty) is no longer offered here.
+  // PractiseChooser, and the empty roadmap unit is no longer offered here.
+  // The word-unit chip takes its NUMBER from the content layer (UNITS order), so
+  // it reads "Unit 2" here and on Home instead of contradicting the path.
+  const wordUnitNo = UNITS.findIndex((u) => u.tier === "A1") + 1;
   const FILTERS: { id: Filter; en: string; ar: string }[] = [
     { id: "all", en: "All", ar: "الكل" },
     { id: "learned", en: "Learned", ar: "المتعلمة" },
     { id: "flagged", en: "Flagged", ar: "المحددة" },
     { id: "alphabet", en: t("prAlphabet", "en"), ar: t("prAlphabet", "ar") },
-    { id: "unit1", en: "Unit 1", ar: "الوحدة ١" },
+    {
+      id: "unit1",
+      en: `${t("homeUnit", "en")} ${toLocaleDigits(wordUnitNo, "en")}`,
+      ar: `${t("homeUnit", "ar")} ${toLocaleDigits(wordUnitNo, "ar")}`,
+    },
   ];
 
   // Only gradable (static/alphabet) signs get a camera target. Dynamic signs can't be
@@ -343,8 +396,10 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
                   lang={lang}
                   rtl={rtl}
                   variant="panel"
+                  marked={markedToday(selected.id)}
                   onClose={() => setSelectedId(null)}
                   onPractice={() => practiceSign(selected)}
+                  onSelfMark={() => selfMark(selected.id)}
                   onToggleFlag={() => profile && toggleFlag(selected.id, profile.id)}
                   onAddReview={() => addToReview(selected.id)}
                 />
@@ -376,7 +431,10 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
             aria-modal="true"
             aria-label={pick(lang, selected.glossEn, selected.glossAr)}
             tabIndex={-1}
-            className="fixed inset-x-0 bottom-0 z-50 animate-rise rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none"
+            // max-h + scroll (Words.tsx:115 pattern): the panel is ~800px tall on
+            // a phone, so anchored to bottom-0 with no cap its close button and
+            // demo frame were pushed above the top of the screen, unreachable.
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] animate-rise overflow-y-auto overscroll-contain rounded-t-3xl bg-paper p-6 pb-10 shadow-lift focus:outline-none"
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink/10" aria-hidden="true" />
             <DetailPanel
@@ -387,8 +445,10 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
               lang={lang}
               rtl={rtl}
               variant="sheet"
+              marked={markedToday(selected.id)}
               onClose={() => setSelectedId(null)}
               onPractice={() => practiceSign(selected)}
+              onSelfMark={() => selfMark(selected.id)}
               onToggleFlag={() => profile && toggleFlag(selected.id, profile.id)}
               onAddReview={() => addToReview(selected.id)}
             />
@@ -421,7 +481,7 @@ function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={pick(lang, "Search signs…", "ابحث عن إشارة…")}
         aria-label={pick(lang, "Search signs", "ابحث عن إشارة")}
-        className="w-full rounded-[14px] border-2 border-line bg-sand py-3 ps-12 pe-4 font-sans text-[15px] font-medium text-ink transition placeholder:text-[#94A5A2] focus-visible:border-teal focus-visible:outline-none"
+        className="w-full rounded-[14px] border-2 border-line bg-sand py-3 ps-12 pe-4 font-sans text-[15px] font-medium text-ink transition placeholder:text-muted focus-visible:border-teal focus-visible:outline-none"
       />
     </div>
   );
@@ -474,13 +534,17 @@ function SignCard({
 }) {
   const meta = STATUS_META[status];
   const label = pick(lang, sign.glossEn, sign.glossAr);
+  // Secondary gloss = the OTHER language (Words.tsx:214 pattern). Alphabet signs
+  // carry glossAr === code, so printing "code or glossAr" made every Arabic card
+  // read "ا · ا". Suppressed entirely when the two languages agree.
+  const secondary = pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr);
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
       style={{ boxShadow: "0 2px 0 #EDE3D2" }}
-      className={`group relative flex w-full flex-col items-center gap-2 rounded-2xl border bg-white p-4 text-center transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 md:p-5 ${
+      className={`group relative flex w-full flex-col items-center gap-2 rounded-2xl border bg-paper p-4 text-center transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 md:p-5 ${
         selected ? "border-teal ring-2 ring-teal" : "border-line"
       }`}
     >
@@ -501,10 +565,15 @@ function SignCard({
       </div>
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
-        <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
+        {secondary !== label && (
+          <span className="text-ink/70" dir={lang === "ar" ? "ltr" : "rtl"}>
+            {" · "}
+            {secondary}
+          </span>
+        )}
       </p>
       <p className={`text-[11px] font-bold uppercase tracking-widest md:text-xs ${meta.tone}`}>
-        {pick(lang, meta.en, meta.ar)}
+        {statusLabel(status, sign, lang)}
       </p>
     </button>
   );
@@ -524,8 +593,10 @@ function DetailPanel({
   lang,
   rtl,
   variant,
+  marked,
   onClose,
   onPractice,
+  onSelfMark,
   onToggleFlag,
   onAddReview,
 }: {
@@ -536,13 +607,18 @@ function DetailPanel({
   lang: Lang;
   rtl: boolean;
   variant: "sheet" | "panel";
+  /** Already self-marked today. Derived from the store by the parent, so it
+   *  survives the sheet being closed and reopened. */
+  marked: boolean;
   onClose: () => void;
   onPractice: () => void;
+  onSelfMark: () => void;
   onToggleFlag: () => void;
   onAddReview: () => void;
 }) {
-  const [watched, setWatched] = useState(false);
   const title = pick(lang, sign.glossEn, sign.glossAr);
+  // Secondary gloss = the OTHER language, so Arabic stops printing "ا · ا".
+  const secondary = pick(lang === "ar" ? "en" : "ar", sign.glossEn, sign.glossAr);
   const hint = pick(lang, sign.hintEn, sign.hintAr);
   const isPanel = variant === "panel";
   const tags = categoryTags(sign, lang);
@@ -556,16 +632,6 @@ function DetailPanel({
         : flagRole === "other"
           ? t("famAskToo", lang)
           : pick(lang, "Add to family list", "أضِف إلى قائمة العائلة");
-
-  // Honest graded/motion signal: teal barber-stripe for camera-graded signs,
-  // gold barber-stripe for motion (watch-&-practise) signs (§C · B1).
-  const frameBg = sign.cameraGradable
-    ? "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)"
-    : "repeating-linear-gradient(135deg,#C89A3D,#C89A3D 15px,#d4a94a 15px,#d4a94a 30px)";
-
-  // Watch is a pure preview of the reference — browsing a sign must not seed SRS
-  // cards or inflate "Learned" counts (#M5); only drills and Add-to-Review do that.
-  const handleWatch = () => setWatched(true);
 
   const handleShare = async () => {
     const text = `${pick(lang, sign.glossEn, sign.glossAr)} · ${sign.code ?? sign.glossAr}`;
@@ -586,7 +652,8 @@ function DetailPanel({
         isPanel ? "flex flex-col rounded-3xl border border-line bg-paper p-6 shadow-lift" : "flex flex-col"
       }
     >
-      {/* header row — favorite (desktop) + close, mobile-first single tree */}
+      {/* header row: favourite + close. Shown at EVERY width, because the panel used to
+          hand phones and desktops different capabilities from one component. */}
       <div className="mb-5 flex items-start justify-between gap-3">
         <button
           type="button"
@@ -596,7 +663,7 @@ function DetailPanel({
           aria-pressed={flagRole === "owner" || flagRole === "supporter"}
           aria-label={flagLabel}
           title={flagLabel}
-          className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral md:flex ${
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral ${
             flagged
               ? "border-coral/30 bg-coral/10 text-coral-deep"
               : "border-line text-coral-deep hover:bg-coral/5"
@@ -615,46 +682,12 @@ function DetailPanel({
         </button>
       </div>
 
-      {/* big demo frame — honest barber-stripe (graded=teal / motion=gold), medallion
-          handshape (never mirrors), signer-demo badge + gold replay (§C · B1). */}
-      <div
-        className="relative mb-6 flex aspect-square w-full items-center justify-center overflow-hidden rounded-[22px]"
-        style={{ background: frameBg }}
-      >
-        {/* static "signer demo" marker (top-start) */}
-        <div className="absolute start-3 top-3 flex items-center gap-1.5 rounded-lg bg-black/30 px-2 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
-          <span className="h-1.5 w-1.5 rounded-full bg-white/85" aria-hidden="true" />
-          {t("signSignerDemo", lang)}
-        </div>
-
-        {/* center medallion — real handshape / brand image / honest icon via SignGlyph */}
-        <div
-          className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-paper"
-          style={{ boxShadow: "0 12px 30px rgba(0,0,0,.22)" }}
-        >
-          <SignGlyph sign={sign} lang={lang} className="text-7xl" imgClassName="h-4/5 w-4/5 rounded-full object-contain" />
-        </div>
-
-        {/* Watch / Watch Again replay chip — central preview affordance (NO store write). */}
-        <button
-          type="button"
-          onClick={handleWatch}
-          className="absolute bottom-4 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-paper/90 px-5 py-2 font-display font-bold text-teal shadow-lift backdrop-blur transition hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-        >
-          <Icon name="replay" className="text-xl" />
-          {watched ? pick(lang, "Watch Again", "شاهد مجدداً") : pick(lang, "Watch", "شاهد")}
-        </button>
-
-        {/* gold play accent (end corner) — the play glyph never mirrors (§6). */}
-        <button
-          type="button"
-          onClick={handleWatch}
-          aria-label={watched ? pick(lang, "Watch Again", "شاهد مجدداً") : pick(lang, "Watch", "شاهد")}
-          className="absolute bottom-3 end-3 z-20 flex h-[38px] w-[38px] items-center justify-center rounded-full text-ink transition active:translate-y-1"
-          style={{ backgroundColor: "#E6B24C", boxShadow: "0 4px 0 #C89A3D" }}
-        >
-          <Icon name="play_arrow" fill className="text-xl" />
-        </button>
+      {/* The one "show me this sign" component, shared with Words and the lesson
+          player. It carries the real signer photo, its own working replay, the
+          teaching stage for footage-less words and the provenance footnote. The
+          static medallion it replaces had three play controls that did nothing. */}
+      <div className="mb-6">
+        <SignDemo sign={sign} lang={lang} />
       </div>
 
       {/* title + semantic category tags + honest graded/motion pill */}
@@ -662,7 +695,12 @@ function DetailPanel({
         <div className="flex w-full items-start justify-between gap-3 md:flex-col md:items-center md:gap-3">
           <h2 className="font-display text-2xl font-black text-ink md:text-3xl">
             {title}
-            <span className="text-ink/70"> · {sign.code ? sign.code : sign.glossAr}</span>
+            {secondary !== title && (
+              <span className="text-ink/70" dir={lang === "ar" ? "ltr" : "rtl"}>
+                {" · "}
+                {secondary}
+              </span>
+            )}
           </h2>
           <span className="mt-1 shrink-0 md:mt-0">
             <TypeBadge gradable={sign.cameraGradable} lang={lang} />
@@ -681,34 +719,33 @@ function DetailPanel({
           ))}
           {/* mobile carries the live status chip; desktop panel keeps it tag-only */}
           <span className={`rounded-full bg-ink/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest md:hidden ${STATUS_META[status].tone}`}>
-            {pick(lang, STATUS_META[status].en, STATUS_META[status].ar)}
+            {statusLabel(status, sign, lang)}
           </span>
         </div>
       </div>
 
-      {/* how to sign — mono section label + hint block (single honest hint, no fabricated steps) */}
-      <div className="mb-6" dir={rtl ? "rtl" : "ltr"}>
-        <MonoLabel lang={lang} className="flex items-center gap-2 text-teal">
-          <Icon name="info" className="text-base" />
-          {pick(lang, "How to sign", "كيف تُؤدّى")}
-        </MonoLabel>
-        <div className="mt-3 flex items-start gap-3 rounded-[14px] border border-line bg-sand p-4">
-          <span
-            className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full font-display text-xs font-extrabold text-paper"
-            style={{ backgroundColor: "#0F6E6A" }}
-            aria-hidden="true"
-          >
-            {toLocaleDigits(1, lang)}
-          </span>
-          <p className="text-[13.5px] leading-relaxed text-ink">{hint}</p>
+      {/* how to sign: single honest hint, no fabricated steps. Skipped when the
+          demo stage already IS the hint (footage-less words), or it prints twice;
+          the A1 provenance line lives in SignDemo's footnote for the same reason.
+          Words.tsx:135 does exactly this. */}
+      {!demoShowsHint(sign) && (
+        <div className="mb-6" dir={rtl ? "rtl" : "ltr"}>
+          <MonoLabel lang={lang} className="flex items-center gap-2 text-teal">
+            <Icon name="info" className="text-base" />
+            {pick(lang, "How to sign", "كيف تُؤدّى")}
+          </MonoLabel>
+          <div className="mt-3 flex items-start gap-3 rounded-[14px] border border-line bg-sand p-4">
+            <span
+              className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full font-display text-xs font-extrabold text-paper"
+              style={{ backgroundColor: "#0F6E6A" }}
+              aria-hidden="true"
+            >
+              {toLocaleDigits(1, lang)}
+            </span>
+            <p className="text-[13.5px] leading-relaxed text-ink">{hint}</p>
+          </div>
         </div>
-        {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
-        {sign.tier === "A1" && (
-          <p className="mt-2 px-1 text-[11px] italic leading-snug text-ink/70">
-            {t("a1AslProvenance", lang)}
-          </p>
-        )}
-      </div>
+      )}
 
       {/* actions — camera CTA gated by cameraGradable; motion signs get the honest
           watch-&-practise path and NEVER a fake grade (§9.4). */}
@@ -719,12 +756,29 @@ function DetailPanel({
             {t("practiceCamera", lang)}
           </SpringButton>
         ) : (
-          // Non-gradable (moving) sign — camera can't grade it, so steer to Watch (§9.4).
+          // Non-gradable sign: the camera can't grade it, so the primary action is
+          // the same never-hard-fail self-mark Words uses. It writes a real drill
+          // result (rated 'hard', H2), which is what lets a flagged word reach
+          // mastery 2 and archive its flag. The old CTA here only relabelled itself.
           <>
-            <SpringButton variant="gold" size="lg" full onClick={handleWatch} className="gap-3">
-              <Icon name="visibility" className="text-2xl" />
-              {t("signWatchPractise", lang)}
-            </SpringButton>
+            {marked ? (
+              <div className="flex items-center gap-3 rounded-2xl bg-gold/15 p-4">
+                <Icon name="celebration" fill className="shrink-0 text-2xl leading-none text-gold-deep" />
+                <p className="font-display font-bold text-ink">{t("wordsMarked", lang)}</p>
+              </div>
+            ) : (
+              <SpringButton variant="gold" size="lg" full onClick={onSelfMark} className="gap-3">
+                <Icon name="check_circle" className="text-2xl" />
+                <span className="flex flex-col items-start text-start">
+                  <span>{t("camSelfMark", lang)}</span>
+                  {/* full-strength ink on gold (7.3:1). ink/70 would land at
+                      3.9:1, under AA for a 10px label. */}
+                  <span className="mt-1 text-[10px] font-normal uppercase tracking-widest text-ink">
+                    {t("camSelfMarkSub", lang)}
+                  </span>
+                </span>
+              </SpringButton>
+            )}
             <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/70">
               <Icon name="info" className="text-base text-teal" />
               {pick(lang, "This sign moves, so the camera can't grade it yet.", "هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.")}
@@ -732,20 +786,17 @@ function DetailPanel({
           </>
         )}
 
-        {/* desktop: Add to Daily Review (SRS) — secondary ghost. */}
-        <SpringButton
-          variant="ghost"
-          size="md"
-          full
-          onClick={onAddReview}
-          className="hidden gap-2 md:inline-flex"
-        >
+        {/* Add to Daily Review (SRS), secondary ghost. Shown at every width: it is
+            the app's only way to seed a review card without drilling, and it used
+            to be desktop-only on a portrait-locked phone PWA. */}
+        <SpringButton variant="ghost" size="md" full onClick={onAddReview} className="gap-2">
           <Icon name="event_repeat" />
           {pick(lang, "Add to Daily Review", "أضِف للمراجعة اليومية")}
         </SpringButton>
 
-        {/* mobile: Flag (toggle, aria-pressed) + Share (ghost) row. */}
-        <div className="flex gap-3 md:hidden">
+        {/* Flag (toggle, aria-pressed) + Share (ghost), also at every width, and
+            wrapping when the two no longer fit side by side. */}
+        <div className="flex flex-wrap gap-3">
           <button
             type="button"
             onClick={onToggleFlag}

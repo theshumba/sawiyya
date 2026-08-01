@@ -31,6 +31,11 @@ export interface TargetClassification {
   confidence: number;
   /** True iff the target is the winning class, confident, and clear of the runner-up. */
   matched: boolean;
+  /** True when MOST of the target's vote weight came from the learner's OWN taught
+   *  samples rather than the bundled seeds. classifyAgainst reads both layers, so
+   *  without this the camera claimed "matched your own recording" for holds that a
+   *  bundled real-signer seed actually carried. */
+  fromUserSamples: boolean;
   /** Optional decision internals — surfaced behind ?debug to diagnose stuck grading. */
   debug?: {
     bestClass: string | null;
@@ -42,7 +47,8 @@ export interface TargetClassification {
 }
 
 /** All stores read paths must span — the bundled seeds (seedStore), then the
- *  user's own localStorage teach store. */
+ *  user's own localStorage teach store. Order is load-bearing for the source tag
+ *  in classifyAgainst: index 1 is the learner's own store. */
 function readStores(): SampleStore[] {
   return [getSeeds(), store()];
 }
@@ -193,24 +199,29 @@ export function isTrained(classId: string): boolean {
  * sample can no longer wave an out-of-distribution handshape through.
  */
 export function classifyAgainst(vec: number[], targetId: string): TargetClassification {
-  if (vec.length === 0) return { confidence: 0, matched: false }; // empty/degenerate frame (Q8)
+  // empty/degenerate frame (Q8)
+  if (vec.length === 0) return { confidence: 0, matched: false, fromUserSamples: false };
 
   // Maintain just the K nearest neighbours via bounded insertion — avoids
   // allocating + full-sorting an array of every sample each frame (Q2).
-  const top: { classId: string; d: number }[] = [];
+  // Each neighbour carries the layer it came from, so the caller can tell a hold
+  // the learner's own recording carried from one a bundled seed carried.
+  const top: { classId: string; d: number; user: boolean }[] = [];
   let worst = Infinity;
-  for (const layer of readStores()) {
-    for (const [classId, samples] of Object.entries(layer)) {
+  const layers = readStores();
+  for (let li = 0; li < layers.length; li++) {
+    const user = li === 1; // readStores() is [bundled seeds, learner's own store]
+    for (const [classId, samples] of Object.entries(layers[li])) {
       for (const sample of samples) {
         const d = euclidean(vec, sample);
         if (top.length < K) {
-          top.push({ classId, d });
+          top.push({ classId, d, user });
           if (top.length === K) {
             top.sort((a, b) => a.d - b.d);
             worst = top[K - 1].d;
           }
         } else if (d < worst) {
-          top[K - 1] = { classId, d };
+          top[K - 1] = { classId, d, user };
           let i = K - 1;
           while (i > 0 && top[i].d < top[i - 1].d) {
             [top[i - 1], top[i]] = [top[i], top[i - 1]];
@@ -221,18 +232,27 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
       }
     }
   }
-  if (top.length === 0) return { confidence: 0, matched: false };
+  if (top.length === 0) return { confidence: 0, matched: false, fromUserSamples: false };
   if (top.length < K) top.sort((a, b) => a.d - b.d); // fewer than K samples total
 
   const meanTopD = top.reduce((sum, n) => sum + n.d, 0) / top.length;
 
   const weights = new Map<string, number>();
   let total = 0;
+  // Split the TARGET's own weight by source so "your own recording" is only ever
+  // claimed when the learner's samples actually carried the vote.
+  let targetW = 0;
+  let targetUserW = 0;
   for (const n of top) {
     const w = 1 / (n.d + 0.05);
     weights.set(n.classId, (weights.get(n.classId) ?? 0) + w);
     total += w;
+    if (n.classId === targetId) {
+      targetW += w;
+      if (n.user) targetUserW += w;
+    }
   }
+  const fromUserSamples = targetW > 0 && targetUserW > targetW / 2;
 
   // winning class + runner-up vote weight, for the separation margin
   let bestClass: string | null = null;
@@ -259,6 +279,7 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
   return {
     confidence: gated ? targetShare : 0,
     matched,
+    fromUserSamples,
     debug: {
       bestClass,
       meanTopD,

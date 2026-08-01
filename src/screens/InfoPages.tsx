@@ -48,7 +48,7 @@ export function AiTransparency() {
 
   const cards = [
     {
-      img: "/brand/stitch-21.png",
+      img: "brand/stitch-21.png",
       title: T("Everything runs on your device", "كل شي يتم على جهازك"),
       subtitle: T("كل شي يتم على جهازك", "Everything runs on your device"),
       body: T(
@@ -57,16 +57,16 @@ export function AiTransparency() {
       ),
     },
     {
-      img: "/brand/stitch-02.png",
+      img: "brand/stitch-02.png",
       title: T("You teach it YOUR hands", "أنت تعلّم التطبيق يدينك"),
       subtitle: T("أنت تعلّم التطبيق يدينك", "You teach it YOUR hands"),
       body: T(
-        "The camera learns your hands — left or right, any skin tone, any lighting — because you give it samples on your own device. It recognises the unique way you sign.",
-        "تتعلم الكاميرا يديك أنت — يسرى أو يمنى، بأي لون بشرة، وفي أي إضاءة — لأنك تعطيها عيّنات على جهازك. وتتعرف على طريقتك الخاصة في الإشارة."
+        "The camera learns your hands, any skin tone, any lighting, because you give it samples on your own device. It recognises the unique way you sign.",
+        "تتعلم الكاميرا يديك أنت، بأي لون بشرة، وفي أي إضاءة، لأنك تعطيها عيّنات على جهازك. وتتعرف على طريقتك الخاصة في الإشارة."
       ),
     },
     {
-      img: "/brand/stitch-09.png",
+      img: "brand/stitch-09.png",
       title: T("It grades with kindness", "التقييم بلطف"),
       subtitle: T("التقييم بلطف", "It grades with kindness"),
       body: T(
@@ -75,7 +75,7 @@ export function AiTransparency() {
       ),
     },
     {
-      img: "/brand/stitch-28.png",
+      img: "brand/stitch-28.png",
       title: T("It knows its limits", "يعرف حدوده"),
       subtitle: T("يعرف حدوده", "It knows its limits"),
       body: T(
@@ -88,7 +88,7 @@ export function AiTransparency() {
   // The 5th "You're always right" card is the hero band; it uses a distinct
   // gold thumbs-up illustration (stitch-19) and carries the one dominant CTA.
   const proudCard = {
-    img: "/brand/stitch-19.png",
+    img: "brand/stitch-19.png",
     title: T("You're always right about your hands", "أنت دايماً على حق"),
     subtitle: T("أنت أبخص بيدك", "You're always right about your hands"),
     body: T(
@@ -143,7 +143,7 @@ export function AiTransparency() {
                   <span className="text-center text-[10px] font-semibold leading-tight text-ink">{s.label}</span>
                 </div>
                 {i < 2 && (
-                  <span aria-hidden="true" className="px-1 font-display text-base font-bold text-[#C7D0CE]">
+                  <span aria-hidden="true" className="px-1 font-display text-base font-bold text-muted">
                     {lang === "ar" ? "←" : "→"}
                   </span>
                 )}
@@ -182,7 +182,7 @@ export function AiTransparency() {
         {/* "You're always right" — hero band carrying the ONE dominant CTA. */}
         <ScreenCard
           variant="elevated"
-          className="flex flex-col items-center gap-6 border-4 border-gold p-8 text-center motion-safe:animate-pop-in md:flex-row md:p-8 md:text-start rtl:md:flex-row-reverse"
+          className="flex flex-col items-center gap-6 border-4 border-gold p-8 text-center motion-safe:animate-pop-in md:flex-row md:p-8 md:text-start"
         >
           <div className="flex h-32 w-32 shrink-0 items-center justify-center">
             <img src={proudCard.img} alt="" className="h-full w-full object-contain" loading="lazy" />
@@ -248,7 +248,7 @@ function PrivacyCard({
     <ScreenCard variant="elevated" className={`flex flex-col gap-4 p-6 ${className}`}>
       <div
         className={`flex h-16 w-16 items-center justify-center rounded-2xl border-2 ${
-          iconTone === "gold" ? "border-gold/20 bg-gold/10 text-gold" : "border-teal/10 bg-sand text-teal"
+          iconTone === "gold" ? "border-gold/20 bg-gold/10 text-gold-deep" : "border-teal/10 bg-sand text-teal"
         }`}
       >
         <Icon name={icon ?? "shield"} fill className="text-4xl" />
@@ -314,7 +314,7 @@ export function Privacy() {
       <section className="bg-teal px-6 pb-12 pt-10 text-center text-paper">
         <div className="mx-auto max-w-md md:max-w-3xl">
           <div className="relative mx-auto mb-6 h-52 w-52 md:h-60 md:w-60">
-            <img src="/brand/stitch-14.png" alt="" className="h-full w-full object-contain" loading="eager" />
+            <img src="brand/stitch-14.png" alt="" className="h-full w-full object-contain" loading="eager" />
             <span aria-hidden="true" className="absolute -end-2 -top-2 text-gold motion-safe:animate-pulse">
               <Icon name="auto_awesome" fill className="text-4xl" />
             </span>
