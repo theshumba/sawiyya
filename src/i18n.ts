@@ -114,6 +114,8 @@ const dict = {
   homeStreak: { en: "day streak", ar: "أيام متتالية" },
   homeNeeds: { en: "needs this", ar: "بحاجة لهذه" },
   homeFlagged: { en: "Flagged for your family", ar: "مطلوبة من عائلتك" },
+  homeFlagOne: { en: "1 family request", ar: "طلب واحد من العائلة" },
+  homeFlagMany: { en: "family requests", ar: "طلبات العائلة" },
   homeReviewDue: { en: "Review due", ar: "مراجعة مستحقة" },
   homeReviewCta: { en: "signs to review", ar: "إشارات للمراجعة" },
   homeDailyGoal: { en: "Daily goal", ar: "الهدف اليومي" },

@@ -77,7 +77,15 @@ await step("onboarding runs end to end without picking a track", async () => {
 await step("name → first sign", async () => {
   await page.fill("input", "Noora");
   await primary().click();
-  await page.waitForSelector("text=I love you", { timeout: 10000 });
+  // The first sign is whatever leads LESSONS, and since Phase 1 that is the
+  // ALPHABET — so this screen teaches Alif, not the design mock's "I love you".
+  // Anchor on the demo step's own title and on the fact that the caption
+  // resolved a gloss at all, so reordering content cannot disarm the step.
+  await page.waitForSelector("text=Watch it once", { timeout: 10000 });
+  assert(
+    (await bodyText()).includes("This sign means"),
+    "the demo caption never resolved a gloss",
+  );
 });
 
 await step("first sign: camera UI degrades gracefully with no camera", async () => {
@@ -154,8 +162,24 @@ await step("deep-linking a locked lesson is refused, with a way forward", async 
   await page.waitForSelector("text=Go to your lesson", { timeout: 10000 });
   const txt = await bodyText();
   assert(!txt.includes("A new sign"), "a locked lesson played its drills anyway");
+  assert(txt.includes("Locked"), "the refusal does not say it is locked");
   await page.click("text=Go to your lesson");
-  await page.waitForSelector("text=A new sign", { timeout: 10000 });
+  // It lands on the CURRENT lesson, whichever that is. Naming the id here would
+  // re-couple the harness to content order — the thing that rotted it last time.
+  await page.waitForFunction(
+    () => location.hash.startsWith("#/lesson/") && !location.hash.includes("a1-u1-l1"),
+    null,
+    { timeout: 10000 },
+  );
+  // "Player is running" = one of its drill affordances is on screen. Which one
+  // depends on the drill type: the alphabet opens on a camera drill, not a
+  // watch card, so waiting for "A new sign" only ever passed by luck.
+  await page
+    .locator(
+      "button:has-text('I signed it right'), button:has-text('Continue'), button:has-text('Check'), button:has-text('Re-teach')",
+    )
+    .first()
+    .waitFor({ state: "visible", timeout: 15000 });
 });
 
 await step("lesson player runs a full drill loop", async () => {
@@ -191,8 +215,10 @@ await step("lesson end card → home", async () => {
 await step("family: add a Deaf member and flag a sign", async () => {
   await tab("Family").click();
   await page.waitForSelector("text=Your household");
-  await page.click("text=Add a family member");
-  await page.fill("input", "Layla");
+  // The 74px tile truncates "Add a family member" to "Add", so the full label
+  // survives only as the accessible name. Drive by role, not by the glyph.
+  await page.getByRole("button", { name: "Add a family member" }).click();
+  await page.getByRole("textbox", { name: "Name" }).fill("Layla");
   await page.click("button:has-text('🧏')");
   await page.click("button:has-text('Save')");
   await page.waitForSelector("text=Layla");
@@ -200,9 +226,12 @@ await step("family: add a Deaf member and flag a sign", async () => {
   await page.waitForTimeout(400);
   await page.click("button:has-text('Flag signs we need')");
   await page.waitForSelector("text=You direct what they learn");
+  // Milk sits in the Food group and the picker opens on Home, so the tile is
+  // not on screen. Search for it instead of assuming which chip is selected.
+  await page.getByRole("textbox", { name: "Search signs" }).fill("Milk");
   await page.locator("main button").filter({ hasText: "Milk" }).first().click();
-  await page.waitForTimeout(300);
-  await page.click("button:has-text('Done')");
+  await page.waitForSelector("text=1 flagged");
+  await page.locator("button").filter({ hasText: /^Done/ }).first().click();
   await page.waitForSelector("text=Your household");
 });
 
@@ -211,10 +240,20 @@ await step("the flag lands ABOVE the trail on the learner's home", async () => {
   await page.waitForTimeout(400);
   await tab("Learn").click();
   await page.waitForSelector("text=Flagged for your family");
-  const txt = await bodyText();
+  // The eyebrow is uppercased in CSS and innerText reports RENDERED text, so a
+  // case-sensitive indexOf compares against a string that is never in the DOM
+  // and "finds" it at -1 — which happens to be less than everything, and the
+  // assert passes no matter where the card sits. Lowercase both sides.
+  const txt = (await bodyText()).toLowerCase();
+  const flag = txt.indexOf("flagged for your family");
+  const trail = txt.indexOf("the arabic alphabet");
+  assert(flag !== -1 && trail !== -1, "home lost the flag card or the trail");
+  assert(flag < trail, "the family request is still below the trail");
+  // Exactly one sign is flagged at this point, so the card has to say so in the
+  // singular. It read "1 family requests".
   assert(
-    txt.indexOf("Flagged for your family") < txt.indexOf("The Arabic Alphabet"),
-    "the family request is still below the trail",
+    txt.includes("1 family request") && !txt.includes("1 family requests"),
+    "the promoted card does not count in the singular",
   );
 });
 

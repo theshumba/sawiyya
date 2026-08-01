@@ -386,11 +386,12 @@ export function Home() {
                     onClick={() => go({ name: "family" })}
                     className="inline-flex items-center gap-1 rounded-full px-1 text-sm font-bold text-coral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
-                    {pick(
-                      lang,
-                      `${num(flags.length, lang)} family requests`,
-                      `${num(flags.length, lang)} طلبات العائلة`,
-                    )}
+                    {/* One flag is the common case, and it read "1 family
+                        requests". Same singular/plural shape Family.tsx uses
+                        for its learner count. */}
+                    {flags.length === 1
+                      ? t("homeFlagOne", lang)
+                      : `${num(flags.length, lang)} ${t("homeFlagMany", lang)}`}
                     <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
                   </button>
                 </div>

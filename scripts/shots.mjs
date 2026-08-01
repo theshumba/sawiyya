@@ -208,10 +208,16 @@ const ROUTES = [
     await page.waitForTimeout(2000);
     await shot("en-lesson-alphabet");
   });
-  await step("lesson-words", async () => {
+  // Phase 1 put the path in order, so a fresh learner CANNOT reach the words
+  // lesson — this address now renders the locked refusal. The shot kept its old
+  // "lesson-words" name for one run and showed a padlock captioned as the words
+  // lesson, which is exactly the kind of quietly-wrong artefact a design review
+  // trusts. Name it for what it is. The drill chrome itself is already covered
+  // by en-lesson-alphabet; only the content differs.
+  await step("lesson-locked", async () => {
     await goto("#/lesson/a1-u1-l1");
     await page.waitForTimeout(2000);
-    await shot("en-lesson-words");
+    await shot("en-lesson-locked");
   });
 }
 
