@@ -10,6 +10,7 @@ import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign, SignProgress } from "../types";
 import { buildChoices, buildDrillQueue } from "../lesson/engine";
+import { currentLessonId, lessonPlayable } from "../lesson/unlock";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
 import { HandSkeleton, hasHandShape } from "../components/HandSkeleton";
 import { Confetti, celebrate } from "../components/Confetti";
@@ -66,6 +67,40 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   const lang = profile.language;
   const lesson = lessonById(lessonId);
 
+  // Locked: reached by typing #/lesson/<id> or by a stale link. The path is in
+  // order, so say which lesson is actually next and offer to start THAT one —
+  // a padlock the app enforces has to give somewhere to go.
+  const prog = app.progress[profileId] ?? {};
+  if (!lessonPlayable(lessonId, prog)) {
+    const nextId = currentLessonId(prog);
+    return (
+      <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
+        <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center justify-center gap-5 px-6 pb-10 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-sand text-muted">
+            <Icon name="lock" fill className="text-4xl" />
+          </span>
+          <div className="space-y-1.5">
+            <h1 className="font-display text-2xl font-bold text-ink">{t("pathLocked", lang)}</h1>
+            <p className="text-muted">{t("pathLockedMeta", lang)}</p>
+          </div>
+          {nextId && (
+            <Button
+              full
+              variant="primary"
+              className="h-[54px] rounded-[17px]"
+              onClick={() => go({ name: "lesson", lessonId: nextId })}
+            >
+              {t("lsLockedGoCurrent", lang)}
+            </Button>
+          )}
+          <Button variant="ghost" onClick={() => go({ name: "home" })}>
+            {t("lsBackHome", lang)}
+          </Button>
+        </div>
+      </ScreenShell>
+    );
+  }
+
   // Nothing to do (e.g. a review lesson with no due cards). Instead of bouncing
   // to a blank takeover with no escape, keep the close-to-home chrome and offer a
   // practice-first camera CTA so the screen is never a dead end (§5.1/§5.4).
@@ -92,15 +127,18 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
                 : pick(lang, "You're ahead, keep your hands warm with some camera practice.", "أنت متقدّم، أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
             </p>
           </div>
+          {/* The Practise tab, not the raw camera. One door per surface: the
+              camera opens from a lesson, from the Practise tab's Alphabet tile,
+              or from a sign's own detail — nothing else. */}
           <Button
             full
             variant="primary"
             className="h-[54px] rounded-[17px]"
-            onClick={() => go({ name: "camera" })}
+            onClick={() => go({ name: "practiseChooser" })}
           >
             <span className="flex items-center justify-center gap-2">
               <Icon name="videocam" className="text-xl" />
-              {t("practiceCamera", lang)}
+              {t("practiseTitle", lang)}
             </span>
           </Button>
           <Button variant="ghost" onClick={() => go({ name: "home" })}>

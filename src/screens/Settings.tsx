@@ -302,25 +302,24 @@ export function Settings() {
               </p>
             </Block>
 
-            {/* Live permission status. When not yet granted, offer a direct route
-                into camera practice — that's where the real getUserMedia prompt
-                fires (the browser won't grant from a passive settings row). */}
+            {/* Live permission status — a status, and nothing else. "Not granted
+                yet" used to BE the button, so a label describing a state was the
+                app's sixteenth camera door. The route out is a separate, labelled
+                row that says where it goes. */}
             <Block>
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-semibold text-ink">{t("setCameraPermission", lang)}</span>
                 {camState === "granted" ? (
                   <span className="text-sm font-bold text-success">✓ {t("setGranted", lang)}</span>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => go({ name: "camera" })}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1.5 text-sm font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                  >
-                    <Icon name="videocam" className="text-base" />
-                    {t("setNotGranted", lang)}
-                  </button>
+                  <span className="text-sm font-bold text-muted">{t("setNotGranted", lang)}</span>
                 )}
               </div>
+              {camState !== "granted" && (
+                <p className="mt-1.5 text-xs leading-snug text-muted">
+                  {t("setGrantWhere", lang)}
+                </p>
+              )}
             </Block>
 
             {/* Transparency / privacy routes */}
@@ -434,21 +433,15 @@ export function Settings() {
 
         {/* ── About ────────────────────────────────────────────────── */}
         <div className="pt-4">
+          {/* "Manage profiles" and "Privacy policy" used to be repeated here,
+              identical label, identical destination and identical colour chip to
+              the rows in Account and in Camera & privacy above. Four rows, two
+              destinations, one screen. The originals stay; these are gone. */}
           <Group lang={lang} title={pick(lang, "About", "حول")}>
-            <ChipRow
-              chip="bg-gold"
-              label={pick(lang, "Manage profiles", "إدارة الملفات")}
-              onClick={() => go({ name: "family" })}
-            />
             <ChipRow
               chip="bg-teal"
               label={pick(lang, "Signs dictionary", "قاموس الإشارات")}
               onClick={() => go({ name: "allSigns" })}
-            />
-            <ChipRow
-              chip="bg-muted"
-              label={pick(lang, "Privacy policy", "سياسة الخصوصية")}
-              onClick={() => go({ name: "privacy" })}
               last
             />
           </Group>

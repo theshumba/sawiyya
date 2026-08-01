@@ -224,14 +224,13 @@ export function Progress() {
               reviewCount={reviewCount}
               reviewCapped={reviewCapped}
               onReview={startReview}
-              onCamera={() => go({ name: "camera" })}
-              // H5 gate: a sign the camera cannot grade must never open the
-              // trainer, or the learner is asked to teach a handshape the app
-              // itself has no verified reference for. Those go to the dictionary.
-              onSign={(id) => {
-                const s = signById(id);
-                go(s?.cameraGradable ? { name: "camera", targetSignId: id } : { name: "allSigns", signId: id });
-              }}
+              // The Practise tab, not a bare camera: this screen has no sign in
+              // mind, so it hands over to the hub that does.
+              onCamera={() => go({ name: "practiseChooser" })}
+              // Every constellation node opens its sign's own detail. It used to
+              // fork on cameraGradable, so tapping two adjacent circles landed on
+              // two different screens with nothing on either to predict which.
+              onSign={(id) => go({ name: "allSigns", signId: id })}
             />
           )}
           {tab === "stats" && (
@@ -506,7 +505,7 @@ function OasisTab({
               className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-teal/10 px-5 py-2.5 font-display font-bold text-teal transition hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               <Icon name="videocam" className="text-lg" />
-              {t("practiceCamera", lang)}
+              {t("practiseTitle", lang)}
             </button>
           </div>
         ) : (

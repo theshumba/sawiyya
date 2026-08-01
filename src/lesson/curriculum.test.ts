@@ -60,6 +60,17 @@ function playPass(S: Sim, lessonId: string): DrillSpec[] {
   return q;
 }
 
+/** Walk the profile up the trail so `lessonId` is the current one. The path is
+ *  enforced in order now (lesson/unlock.ts), so a test that wants to inspect a
+ *  later lesson's drills has to arrive there first. */
+function unlockUpTo(S: Sim, lessonId: string) {
+  const rec = S.useApp.getState().recordDrillResult;
+  for (const l of LESSONS) {
+    if (l.id === lessonId) return;
+    for (const id of l.signIds) rec(id, "hard", { selfMark: true }); // → mastery 2
+  }
+}
+
 beforeEach(() => {
   localStorage.clear();
 });
@@ -223,6 +234,7 @@ describe("visual-gated recognise (H23)", () => {
   it("word lessons emit NO recognise drills while their signs have no visual", async () => {
     const S = await fresh();
     for (const lesson of LESSONS.filter((l) => l.unitId === "a1-u1")) {
+      unlockUpTo(S, lesson.id); // the trail is in order — arrive before inspecting
       const q = S.buildDrillQueue(lesson.id, S.useApp.getState(), S.pid);
       expect(q.some((d) => d.type === "recognise")).toBe(false);
       expect(q.some((d) => d.type === "recall")).toBe(true); // quizzed honestly instead

@@ -126,9 +126,6 @@ export function FlagPicker() {
   const clearMine = () => app.clearFlags(profile.id);
   const flagFor = (signId: string) => flags.find((f) => f.signId === signId);
 
-  // Practice-first: the first gradable flagged sign the "Practise these" CTA targets.
-  const firstFlaggedGradable = flaggedSigns.find((s) => s.cameraGradable)?.id;
-
   // The household member behind an INCOMING flag — powers the STATE-C pulse
   // badge. No self-fallback: the old `?? requestors[0]` addressed you in the
   // third person about your own flag ("Melusi flagged this for you"), with your
@@ -352,16 +349,10 @@ export function FlagPicker() {
                     <li key={s.id}>
                       <button
                         type="button"
-                        // H5: gradable → camera on THIS sign; otherwise its own
-                        // dictionary/watch detail (never a wrong camera target).
-                        onClick={() =>
-                          s.cameraGradable
-                            ? go({ name: "camera", targetSignId: s.id })
-                            : go({ name: "allSigns", signId: s.id })
-                        }
-                        aria-label={`${pick(lang, s.glossEn, s.glossAr)}${pick(lang, ", ", "، ")}${
-                          s.cameraGradable ? t("practiceCamera", lang) : t("lsWatchTitle", lang)
-                        }`}
+                        // The sign's own detail, gradable or not — the camera
+                        // opens from there, labelled, rather than from a list row.
+                        onClick={() => go({ name: "allSigns", signId: s.id })}
+                        aria-label={`${pick(lang, s.glossEn, s.glossAr)}${pick(lang, ", ", "، ")}${t("lsWatchTitle", lang)}`}
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
                         <span aria-hidden="true">
@@ -420,25 +411,19 @@ export function FlagPicker() {
 
               {flaggedSigns.length > 0 && (
                 <div className="space-y-2">
-                  {/* Practice-first: straight into the camera on the first gradable
-                      flagged sign; when NONE is gradable, open the first flagged
-                      sign's own watch/dictionary detail (H5 — never a wrong
-                      camera target). B15 · coral spring CTA. */}
+                  {/* Opens the first flagged sign's own detail. It used to fork
+                      into a live camera when that sign happened to be gradable,
+                      under a label ("Practise these") that named no sign at all.
+                      B15 · coral spring CTA. */}
                   <SpringButton
                     variant="coral"
                     size="lg"
                     full
-                    onClick={() =>
-                      firstFlaggedGradable
-                        ? go({ name: "camera", targetSignId: firstFlaggedGradable })
-                        : go({ name: "allSigns", signId: flaggedSigns[0]?.id })
-                    }
+                    onClick={() => go({ name: "allSigns", signId: flaggedSigns[0]?.id })}
                     className="gap-2"
                   >
-                    <Icon name={firstFlaggedGradable ? "videocam" : "visibility"} />
-                    {firstFlaggedGradable
-                      ? pick(lang, "Practise these", "تدرّب على هذه")
-                      : pick(lang, "Watch these", "شاهد هذه")}
+                    <Icon name="visibility" />
+                    {pick(lang, "Watch these", "شاهد هذه")}
                   </SpringButton>
                   <button
                     type="button"

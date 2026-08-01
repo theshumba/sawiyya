@@ -10,7 +10,8 @@
 import { useMemo, useState } from "react";
 import { pick, t } from "../i18n";
 import type { Lang, Sign } from "../types";
-import { ALL_SIGNS, SEEDED_ALPHABET, UNITS } from "../content/signs";
+import { ALL_SIGNS, LESSONS, SEEDED_ALPHABET, UNITS } from "../content/signs";
+import { lessonPlayable } from "../lesson/unlock";
 import { activeProfile, todayKey, useApp } from "../store/app";
 import { isDue } from "../store/srs";
 import { useUi } from "../store/ui";
@@ -193,9 +194,16 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   // ONE denominator: the 28 seeded letters. Counting the 3 reference-only edge
   // forms in the numerator while dividing by 28 produced "30 of 28 learned".
   const alphaLearned = SEEDED_ALPHABET.filter((s) => (progress[s.id]?.masteryLevel ?? 0) > 0).length;
-  const alphaCurrentId =
-    SEEDED_ALPHABET.find((s) => (progress[s.id]?.masteryLevel ?? 0) === 0)?.id ?? null;
   const alphaPct = Math.min(100, Math.round((alphaLearned / SEEDED_ALPHABET.length) * 100));
+  // A letter is reachable when the lesson that teaches it is reachable — the same
+  // rule the trail's padlocks draw (lesson/unlock.ts). These cells used to be a
+  // background colour with a live onClick, so "locked" was a paint job and the
+  // detail sheet's camera CTA opened on any letter in the alphabet. The three
+  // reference-only edge forms (ة/لا/ال) belong to no lesson and stay open.
+  const signUnlocked = (signId: string): boolean => {
+    const lesson = LESSONS.find((l) => l.signIds.includes(signId));
+    return lesson ? lessonPlayable(lesson.id, progress) : true;
+  };
 
   // Live filter chips only — the dialect "Coming Soon" pill moved to onboarding /
   // PractiseChooser, and the empty roadmap unit is no longer offered here.
@@ -219,11 +227,11 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   // that pollute the recognizer (#2). DetailPanel hides the camera CTA for those.
   const practiceSign = (sign: Sign) => go({ name: "camera", targetSignId: sign.id });
 
-  // ── ONE dominant action above the grid: practise the family-flagged signs ──────
-  // Targets the first gradable flagged sign (dynamic flags can't be graded). Demoted
-  // to nothing else fights it; falls back silently when no gradable flag exists.
+  // ── ONE dominant action above the grid: open the family-flagged signs ─────────
+  // Always the first flagged sign's own detail sheet. It used to jump straight to
+  // the camera when that sign happened to be gradable, so the same button did two
+  // different things under one label that named no sign.
   const flaggedCount = flaggedIds.size;
-  const firstGradableFlag = ALL_SIGNS.find((s) => flaggedIds.has(s.id) && s.cameraGradable);
   const firstFlaggedId = ALL_SIGNS.find((s) => flaggedIds.has(s.id))?.id;
 
   if (!profile) return <NoProfileFallback />;
@@ -283,22 +291,14 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
             variant="teal"
             size="lg"
             full
-            // Target the first gradable flagged sign; when none is gradable open
-            // the first flagged sign's OWN detail (watch surface) — the old
-            // generic-camera fallback dropped learners onto Alif, the wrong
-            // sign entirely (H5).
-            onClick={() =>
-              firstGradableFlag
-                ? practiceSign(firstGradableFlag)
-                : setSelectedId(firstFlaggedId ?? null)
-            }
+            onClick={() => setSelectedId(firstFlaggedId ?? null)}
             className="mb-6 gap-3"
           >
-            <Icon name="videocam" className="text-2xl" />
+            <Icon name="visibility" className="text-2xl" />
             {pick(
               lang,
-              `Practise your ${flaggedCount} flagged ${flaggedCount === 1 ? "sign" : "signs"}`,
-              `تدرّب على ${toLocaleDigits(flaggedCount, lang)} إشارة محدّدة`,
+              `Open your ${flaggedCount} flagged ${flaggedCount === 1 ? "sign" : "signs"}`,
+              `افتح ${toLocaleDigits(flaggedCount, lang)} إشارة محدّدة`,
             )}
           </SpringButton>
         )}
@@ -351,12 +351,15 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
                 <p className="mt-[7px] font-sans text-[11px] font-semibold text-muted">
                   {toLocaleDigits(alphaLearned, lang)} {t("signsAlphaProgress", lang)}
                 </p>
+                <p className="mt-3 font-sans text-[11px] leading-snug text-muted">
+                  {t("signsAlphaLockedNote", lang)}
+                </p>
                 <ul className="mt-4 grid grid-cols-4 gap-[10px] sm:grid-cols-6 lg:grid-cols-7">
                   {signs.map((sign) => {
                     const mastered = (progress[sign.id]?.masteryLevel ?? 0) > 0;
                     const state: "learned" | "current" | "locked" = mastered
                       ? "learned"
-                      : sign.id === alphaCurrentId
+                      : signUnlocked(sign.id)
                         ? "current"
                         : "locked";
                     return (
@@ -499,21 +502,41 @@ function LetterCell({
   lang: Lang;
   onSelect: () => void;
 }) {
+  // Locked stays VISIBLE and politely blocked (Carroll & Carrithers 1984, and
+  // what Duolingo does with locked stories): the letter is still legible, it just
+  // carries a padlock and does not respond. Hiding it would cost the learner the
+  // shape of what is ahead.
+  const locked = state === "locked";
   const cellStyle =
     state === "learned"
       ? { backgroundColor: "#0F6E6A", color: "#FBF7EF" }
       : state === "current"
         ? { backgroundColor: "#FBF3EF", color: "#E8654C", boxShadow: "0 0 0 2px #E8654C" }
-        : { backgroundColor: "#F6EFE3", color: "#16302E", boxShadow: "inset 0 0 0 1px #EDE3D2" };
+        : { backgroundColor: "#F6EFE3", color: "#566B68", boxShadow: "inset 0 0 0 1px #EDE3D2" };
   return (
     <button
       type="button"
-      onClick={onSelect}
-      aria-label={pick(lang, sign.glossEn, sign.glossAr)}
+      disabled={locked}
+      onClick={locked ? undefined : onSelect}
+      aria-label={
+        locked
+          ? `${pick(lang, sign.glossEn, sign.glossAr)}, ${t("pathLocked", lang)}`
+          : pick(lang, sign.glossEn, sign.glossAr)
+      }
       style={cellStyle}
-      className="flex aspect-square w-full items-center justify-center rounded-[15px] font-display text-[26px] font-bold transition active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60"
+      className={`relative flex aspect-square w-full items-center justify-center rounded-[15px] font-display text-[26px] font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
+        locked ? "cursor-default opacity-70" : "active:scale-95"
+      }`}
     >
       <span aria-hidden="true">{sign.code ?? sign.glossEn}</span>
+      {locked && (
+        <Icon
+          name="lock"
+          fill
+          className="absolute end-1 top-1 !text-[13px] leading-none text-muted"
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }

@@ -9,6 +9,7 @@ import {
   REVIEW_SESSION_SIZE,
 } from "../store/app";
 import { isTrained } from "../recognizer/knn";
+import { lessonPlayable } from "./unlock";
 import { ALPHABET, lessonById, signById } from "../content/signs";
 import { hasHandShape } from "../components/HandSkeleton";
 import type { DrillSpec, Lesson, Sign } from "../types";
@@ -47,8 +48,11 @@ export function buildDrillQueue(
 
   const lesson = lessonById(lessonId);
   if (!lesson) return [];
-  if (lesson.unitId === "alpha-u1") return buildAlphabetQueue(lesson, state, profileId);
   const prog = state.progress[profileId] ?? {};
+  // The lock is enforced HERE, not only at the button that draws it: `#/lesson/<id>`
+  // is a real entry point and used to play any lesson in the curriculum.
+  if (!lessonPlayable(lessonId, prog)) return [];
+  if (lesson.unitId === "alpha-u1") return buildAlphabetQueue(lesson, state, profileId);
 
   const queue: DrillSpec[] = [];
 

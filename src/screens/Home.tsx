@@ -1,42 +1,37 @@
-// Home → Learn tab. Presentation-only re-skin to the "Home learning path" design
-// (design/rebuild-source/Sawiyya Home Path.dc.html): a teal app bar (greeting +
-// three stat chips) above a winding vertical node trail — unit banner → nodes
-// (done / current / locked) → treasure milestone — with Fanan cheering beside the
-// current node and a bottom-sheet start popover on tap. The old landscape/palm
-// hero is dropped. Logic unchanged (contract §1) — every store hook, route (incl.
-// cameraGradable→targetSignId gate + lessonId fallback), guard and i18n key is
-// preserved; ScreenShell/AppNav still own the status bar + bottom tab bar.
+// Home → Learn tab: a teal app bar (greeting + streak / today's goal / family)
+// above a winding vertical node trail — unit banner → nodes (done / current /
+// locked) → treasure milestone — with Fanan cheering beside the current node and
+// a bottom-sheet start popover on tap.
+//
+// Phase 1, "one road" (2026-08-01 UX audit): the trail IS the screen. The eight-
+// card secondary stack that used to sit beneath it offered nine different answers
+// to "what do I do now", six of them the same camera screen under six names, so
+// opening Sawiyya was a decision rather than an action. It is gone. The only card
+// that survives is the family flag request, promoted ABOVE the trail because it is
+// the one thing on this screen nobody else's app does. Node status now comes from
+// lesson/unlock.ts, so the padlocks mean what they say.
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { num, pick, t } from "../i18n";
 import { signById, LESSONS, UNITS } from "../content/signs";
 import {
   GOAL_XP,
-  REVIEW_DAILY_CAP,
   activeProfile,
-  dueSignIds,
-  nextNewLetterId,
   pinnedFlagSigns,
-  reviewsTodayFor,
   streakFor,
   useApp,
   xpTodayFor,
 } from "../store/app";
 import { useUi } from "../store/ui";
-import { ScreenCard, Icon, Eyebrow, Title } from "../components/ui";
+import { Icon, Eyebrow } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
-import { GoalCard } from "../components/GoalCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
 import { useDialog } from "../components/useDialog";
 import { nextMilestone } from "../lesson/milestones";
+import { currentLessonId, lessonState } from "../lesson/unlock";
 import type { Lesson } from "../types";
-
-/** First camera-gradable sign in a lesson, gated so non-gradable lessons open the
- *  generic camera (practice-first) rather than dropping into a stale lesson. */
-const lessonCameraTarget = (lesson: Lesson): string | undefined =>
-  lesson.signIds.map(signById).find((s) => s?.cameraGradable)?.id;
 
 type NodeStatus = "current" | "done" | "locked" | "milestone";
 interface PathNode {
@@ -91,18 +86,11 @@ export function Home() {
   const goalXp = GOAL_XP[profile.dailyGoal];
   const xpToday = xpTodayFor(profile); // today's XP, not yesterday's stale total (#5)
   const goalProgress = xpToday / goalXp;
-  const goalPct = Math.round(Math.min(1, goalProgress) * 100);
 
-  // next lesson = first lesson with an unseen sign. Undefined once the whole
-  // curriculum sits at mastery 2: the old `?? LESSONS[0]` fallback resurrected
-  // lesson 1 as the pulsing START node for a learner who had finished everything.
   const prog = app.progress[profile.id] ?? {};
-  const nextLesson = LESSONS.find((l) =>
-    l.signIds.some((id) => (prog[id]?.masteryLevel ?? 0) < 2),
-  );
+  // The lesson to do next, or undefined once the whole path is behind them.
+  const nextLessonId = currentLessonId(prog);
 
-  const due = dueSignIds(app, profile.id);
-  const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
   // A one-person household is the default after onboarding, and there the raiser
   // IS the learner, so hiding own-flags left flagging with no visible effect
   // anywhere. Households of two or more still hide them, otherwise a Deaf member
@@ -112,17 +100,14 @@ export function Home() {
     (f) => solo || f.raisedByProfileId !== profile.id,
   );
 
-  // journey node status derived from existing progress data. `complete` is
-  // tested first so a finished lesson can never read as the next one to start.
-  const nodes = LESSONS.map((lesson) => {
-    const complete = lesson.signIds.every((id) => (prog[id]?.masteryLevel ?? 0) >= 2);
-    const status: "current" | "done" | "locked" = complete
-      ? "done"
-      : lesson.id === nextLesson?.id
-        ? "current"
-        : "locked";
-    return { lesson, status };
-  });
+  // Node status comes from the shared trail rule, not from each lesson's own
+  // signs: four Words self-marks reach mastery 2 on the whole of "First
+  // connections", which used to draw a green tick on the fifth node while the
+  // four alphabet nodes before it were still locked.
+  const nodes = LESSONS.map((lesson) => ({
+    lesson,
+    status: lessonState(lesson.id, prog),
+  }));
 
   const ms = nextMilestone(app, profile.id, lang);
 
@@ -158,22 +143,22 @@ export function Home() {
 
   // Route a rung at whatever advances it. Never the camera for the word rung:
   // all 19 A1 signs are cameraGradable:false, so it would land on Alif (H5).
+  // With the path finished there is no lesson left to route to, so the rung
+  // hands over to the Practise tab rather than opening a bare camera.
   const goMilestone = () => {
     if (!ms) return;
     if (ms.kind === "family") go({ name: "family" });
     else if (ms.kind === "words") go({ name: "words" });
-    else if (nextLesson) go({ name: "lesson", lessonId: nextLesson.id });
-    else go({ name: "camera" });
+    else if (nextLessonId) go({ name: "lesson", lessonId: nextLessonId });
+    else go({ name: "practiseChooser" });
   };
-
-  const goalLabel =
-    goalProgress >= 1
-      ? t("homeAllDone", lang)
-      : `${num(xpToday, lang)} / ${num(goalXp, lang)} ${t("xp", lang)}`;
 
   const initial = profile.displayName.trim().charAt(0) || "•";
 
-  // App-bar stat chips (streak / gold / family), matching the design markers.
+  // App-bar stat chips (streak / today's goal / family). The gold chip used to
+  // carry lifetime XP, a number nothing on this screen can move; today's goal is
+  // the one the trail actually advances, so it lives here now and the Daily goal
+  // card below the trail is gone.
   const stats: { marker: JSX.Element; value: string; label: string }[] = [
     {
       marker: (
@@ -186,8 +171,11 @@ export function Home() {
       marker: (
         <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#F0C879", flex: "none" }} />
       ),
-      value: num(profile.xp, lang),
-      label: t("homeGoldStat", lang),
+      value:
+        goalProgress >= 1
+          ? `${num(goalXp, lang)} / ${num(goalXp, lang)}`
+          : `${num(xpToday, lang)} / ${num(goalXp, lang)}`,
+      label: t("homeGoalStat", lang),
     },
     {
       marker: (
@@ -371,8 +359,54 @@ export function Home() {
       </header>
 
       <div className="mx-auto max-w-xl px-5">
-        {/* Block B — winding node trail. The current-node START is the one dominant action. */}
-        <section aria-label={t("homeToday", lang)} className="pt-4">
+        {/* Family requests — ABOVE the trail, and only when someone has actually
+            raised one. This is the differentiator: the Deaf member picks what the
+            household learns. Buried at the bottom of an eight-card stack it was
+            the least visible thing on the screen. The sign opens its own detail,
+            never a camera pre-targeted at a sign the learner has not met. */}
+        {flags.length > 0 &&
+          (() => {
+            const flag = flags[0];
+            const sign = signById(flag.signId);
+            // "You needs this" is not a sentence: name the requester only when it
+            // is someone else, which in a solo household it never is.
+            const by =
+              flag.raisedByProfileId === profile.id
+                ? undefined
+                : app.profiles.find((p) => p.id === flag.raisedByProfileId);
+            if (!sign) return null;
+            return (
+              <section className="space-y-3 pt-5" aria-label={t("homeFlagged", lang)}>
+                <div className="flex items-center justify-between gap-3">
+                  <Eyebrow lang={lang} className="!text-coral">
+                    {t("homeFlagged", lang)}
+                  </Eyebrow>
+                  <button
+                    type="button"
+                    onClick={() => go({ name: "family" })}
+                    className="inline-flex items-center gap-1 rounded-full px-1 text-sm font-bold text-coral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                  >
+                    {pick(
+                      lang,
+                      `${num(flags.length, lang)} family requests`,
+                      `${num(flags.length, lang)} طلبات العائلة`,
+                    )}
+                    <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
+                  </button>
+                </div>
+                <FlagCard
+                  sign={sign}
+                  requestedBy={by ? `${by.displayName} ${t("homeNeeds", lang)}` : undefined}
+                  lang={lang}
+                  compact
+                  onClick={() => go({ name: "allSigns", signId: sign.id })}
+                />
+              </section>
+            );
+          })()}
+
+        {/* Block B — the winding node trail. This is the screen. */}
+        <section aria-label={t("homeToday", lang)} className="pt-4 pb-4">
           {/* B1 · One teal unit banner per unit, each followed by its own nodes. */}
           {unitGroups.map((g) => (
             <div key={g.unit.id}>
@@ -398,248 +432,6 @@ export function Home() {
           {/* B3 · Treasure milestone closes the trail, after the last unit. */}
           {milestoneNode && renderNode(milestoneNode)}
         </section>
-
-        {/* Block D — secondary stack (functional contract; reskinned to tokens). */}
-        <section className="mt-6 space-y-6 pb-2">
-          {/* Slim secondary "Practise" link — keeps the camera route alive. */}
-          <ScreenCard
-            variant="elevated"
-            className="flex items-center gap-3 p-5"
-            onClick={() => go({ name: "camera" })}
-          >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-coral/10">
-              <Icon name="videocam" fill className="!text-2xl text-coral" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-display font-bold text-ink">{t("camPractice", lang)}</p>
-              <p className="text-sm text-muted">{t("camPrivacy", lang)}</p>
-            </div>
-            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </ScreenCard>
-
-          {/* Everyday words (2026-08-01) — the Words hub, discoverable from Home. */}
-          <ScreenCard
-            variant="elevated"
-            className="flex items-center gap-3 p-5"
-            onClick={() => go({ name: "words" })}
-          >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
-              <Icon name="front_hand" className="!text-2xl text-gold-deep" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-display font-bold text-ink">{t("wordsTitle", lang)}</p>
-              <p className="text-sm text-muted">{t("wordsSubtitle", lang)}</p>
-            </div>
-            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </ScreenCard>
-
-          {/* Fingerspell entry (M6) — spell your name, letter by letter. */}
-          <ScreenCard
-            variant="elevated"
-            className="flex items-center gap-3 p-5"
-            onClick={() => go({ name: "fingerspell" })}
-          >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
-              <Icon name="spellcheck" className="!text-2xl text-teal" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-display font-bold text-ink">{t("fspHomeCard", lang)}</p>
-              <p className="text-sm text-muted">{t("fspHomeCardSub", lang)}</p>
-            </div>
-            <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-          </ScreenCard>
-
-          {/* Family flags — one compact FlagCard + a count deep-link to the Family tab. */}
-          {flags.length > 0 &&
-            (() => {
-              const slice = flags.slice(0, 3);
-              const flag = slice[0];
-              const sign = signById(flag.signId);
-              // Own flags now reach this list in a solo household, and "You needs
-              // this" is not a sentence: name the requester only when it is
-              // someone else.
-              const by =
-                flag.raisedByProfileId === profile.id
-                  ? undefined
-                  : app.profiles.find((p) => p.id === flag.raisedByProfileId);
-              if (!sign) return null;
-              return (
-                <section className="space-y-3" aria-label={t("homeFlagged", lang)}>
-                  <div className="flex items-center justify-between gap-3">
-                    <Eyebrow lang={lang} className="!text-coral">
-                      {t("homeFlagged", lang)}
-                    </Eyebrow>
-                    <button
-                      type="button"
-                      onClick={() => go({ name: "family" })}
-                      className="inline-flex items-center gap-1 text-sm font-bold text-coral focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal rounded-full px-1"
-                    >
-                      {pick(
-                        lang,
-                        // L7: the real count, not the display slice's capped 3.
-                        `${num(flags.length, lang)} family requests`,
-                        `${num(flags.length, lang)} طلبات العائلة`,
-                      )}
-                      <Icon name="arrow_forward" className="!text-base rtl:rotate-180" />
-                    </button>
-                  </div>
-                  <FlagCard
-                    sign={sign}
-                    requestedBy={by ? `${by.displayName} ${t("homeNeeds", lang)}` : undefined}
-                    lang={lang}
-                    compact
-                    // H5: camera only when gradable; otherwise the sign's OWN
-                    // dictionary/watch detail — never the generic Alif camera.
-                    onClick={() =>
-                      sign.cameraGradable
-                        ? go({ name: "camera", targetSignId: sign.id })
-                        : go({ name: "allSigns", signId: sign.id })
-                    }
-                  />
-                </section>
-              );
-            })()}
-
-          {/* Review-due — opens a real review SESSION (10 cards, mixed drills — H3),
-              not a single camera sign. Past the daily cap it becomes an honest
-              "done for today" note instead of an endless queue. */}
-          {due.length > 0 && !reviewCapReached && (
-            <ScreenCard
-              variant="elevated"
-              className="flex items-center gap-4 p-5"
-              onClick={() => go({ name: "lesson", lessonId: "review" })}
-            >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
-                <Icon name="history" className="!text-3xl text-gold-deep" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-ink">{t("homeReviewDue", lang)}</p>
-                <p className="text-sm text-muted">
-                  {num(due.length, lang)} {t("homeReviewCta", lang)}
-                </p>
-              </div>
-              <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </ScreenCard>
-          )}
-          {due.length > 0 && reviewCapReached && (
-            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10">
-                <Icon name="task_alt" className="!text-3xl text-teal" />
-              </span>
-              <p className="min-w-0 flex-1 font-display font-bold text-ink">
-                {t("reviewCapDone", lang)}
-              </p>
-            </ScreenCard>
-          )}
-
-          {/* Empty queue, goal unmet → inject new content (M5 starvation fix):
-              offer the next letter in curriculum order that has no SRS card. */}
-          {flags.length === 0 &&
-            due.length === 0 &&
-            goalProgress < 1 &&
-            (() => {
-              const letterId = nextNewLetterId(app, profile.id);
-              const letter = letterId ? signById(letterId) : undefined;
-              if (!letter) return null;
-              return (
-                <ScreenCard
-                  variant="elevated"
-                  className="flex items-center gap-4 p-5"
-                  onClick={() => go({ name: "camera", targetSignId: letter.id })}
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-extrabold text-teal">
-                    {letter.code}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-display font-bold text-ink">{t("homeNewLetter", lang)}</p>
-                    <p className="text-sm text-muted">{t("homeNewLetterSub", lang)}</p>
-                  </div>
-                  <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-                </ScreenCard>
-              );
-            })()}
-
-          {/* Empty state — nothing flagged, nothing due, and either the goal is met
-              or every letter already has a card. */}
-          {flags.length === 0 &&
-            due.length === 0 &&
-            (goalProgress >= 1 || !nextNewLetterId(app, profile.id)) && (
-            <ScreenCard
-              variant="elevated"
-              className="flex items-center gap-4 p-5"
-              onClick={() => go({ name: "camera" })}
-            >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-coral/10">
-                <Icon name="videocam" fill className="!text-2xl text-coral" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-ink">
-                  {pick(lang, "All caught up — keep your hands warm", "كل شيء مكتمل — أبقِ يديك جاهزتين")}
-                </p>
-                <p className="text-sm text-muted">
-                  {pick(lang, "Practise any sign on camera", "تدرّب على أي إشارة بالكاميرا")}
-                </p>
-              </div>
-              <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />
-            </ScreenCard>
-          )}
-
-          {/* Daily goal — the single GoalCard widget. */}
-          <div className="space-y-3">
-            <Title className="!text-2xl">{t("homeDailyGoal", lang)}</Title>
-            <GoalCard
-              label={goalLabel}
-              caption={`${num(goalPct, lang)}${lang === "ar" ? "٪" : "%"}`}
-              progress={goalProgress}
-              done={goalProgress >= 1}
-              onClick={() => go({ name: "camera" })}
-            />
-          </div>
-
-          {/* Milestone: a readout, not a button. The same `ms` is already a
-              tappable node on the trail above, so Home was showing one live and
-              one dead copy of the milestone, and the dead one opened a generic
-              camera that did not advance it. */}
-          {ms && (
-            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
-                <Icon name="emoji_events" fill className="!text-3xl text-gold-deep" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-ink">{ms.label}</p>
-                <p className="text-sm text-muted">{milestoneMeta}</p>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal/10">
-                  <div
-                    className="h-full rounded-full bg-gold transition-all"
-                    style={{ width: `${Math.max(4, ms.progress * 100)}%` }}
-                  />
-                </div>
-              </div>
-            </ScreenCard>
-          )}
-
-          {/* Every rung cleared. Without this the ladder just vanished and Home
-              gave a finished learner no acknowledgement at all. */}
-          {!ms && (
-            <ScreenCard variant="elevated" className="flex items-center gap-4 p-5">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold/20">
-                <Icon name="emoji_events" fill className="!text-3xl text-gold-deep" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-display font-bold text-ink">
-                  {pick(lang, "Every milestone reached", "أنجزت كل المراحل")}
-                </p>
-                <p className="text-sm text-muted">
-                  {pick(
-                    lang,
-                    "You've finished everything we have. Keep it sharp with review.",
-                    "أنهيت كل ما لدينا. حافظ على إتقانك بالمراجعة.",
-                  )}
-                </p>
-              </div>
-            </ScreenCard>
-          )}
-        </section>
       </div>
 
       {/* Block C — node start popover (bottom sheet). */}
@@ -664,25 +456,13 @@ export function Home() {
           const iconBg = locked ? "#B8C4C1" : teal ? "#0F6E6A" : "#B54834";
           const btnBg = locked ? "#EDE3D2" : teal ? "#0F6E6A" : "#B54834";
           const btnSh = locked ? "none" : teal ? "0 5px 0 #0A4F4C" : "0 5px 0 #9C3D2C";
-          // One notion of "is there a camera target here", shared by the primary
-          // action and the secondary button below it.
-          const cameraTarget = openNode.lesson ? lessonCameraTarget(openNode.lesson) : undefined;
+          // One node, one action. The sheet used to carry a second "Practise with
+          // camera" button under the primary one, which is how the trail became
+          // its own camera door: the lesson already mixes watch, quiz and camera
+          // drills via engine.ts, so the lesson IS the way to the camera.
           const onAction = () => {
-            if (st === "current" && openNode.lesson) {
-              // The lesson is the primary path (H1): LessonPlayer mixes watch,
-              // quiz and camera drills via engine.ts, so non-gradable signs can
-              // reach mastery and the path actually completes. The old
-              // practice-first camera route deadlocked Lesson 1 forever; the
-              // camera stays one tap below as the secondary action.
+            if (openNode.lesson && (st === "current" || st === "done")) {
               go({ name: "lesson", lessonId: openNode.lesson.id });
-            } else if (st === "done" && openNode.lesson) {
-              // H5: a word lesson has no gradable sign, so the camera would open
-              // on its default Alif. Replaying the lesson is the honest review.
-              go(
-                cameraTarget
-                  ? { name: "camera", targetSignId: cameraTarget }
-                  : { name: "lesson", lessonId: openNode.lesson.id },
-              );
             } else if (isMilestone) {
               goMilestone();
             }
@@ -744,21 +524,6 @@ export function Home() {
                 >
                   {btnLabel}
                 </button>
-                {/* Secondary: straight to camera practice on the lesson's first
-                    gradable sign (the demoted practice-first route, H1). */}
-                {st === "current" && cameraTarget && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      go({ name: "camera", targetSignId: cameraTarget });
-                      setOpenId(null);
-                    }}
-                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                    style={{ display: "block", width: "100%", marginTop: 10, textAlign: "center", font: "700 14px/1 Rubik,sans-serif", padding: 12, borderRadius: 14, border: "2px solid #0F6E6A", background: "transparent", color: "#0F6E6A", cursor: "pointer" }}
-                  >
-                    {t("practiceCamera", lang)}
-                  </button>
-                )}
               </div>
             </div>
           );

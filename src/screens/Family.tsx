@@ -70,10 +70,11 @@ export function Family() {
 
   const flags = activeFlags(app);
   const board = signsAllCanDo(app);
-  const goToSign = (sign: { id: string; cameraGradable: boolean }) =>
-    sign.cameraGradable
-      ? go({ name: "camera", targetSignId: sign.id })
-      : go({ name: "allSigns", signId: sign.id });
+  // Every flagged sign opens its OWN detail, gradable or not. It used to fork:
+  // a gradable sign dropped you straight into a live camera from a family list,
+  // which is both a surprise and one of the app's seventeen camera doors. The
+  // detail sheet carries the camera CTA, labelled, one tap further on.
+  const goToSign = (sign: { id: string }) => go({ name: "allSigns", signId: sign.id });
   const sharedStreak = householdStreak(app);
   const activeToday = profilesActiveToday(app);
   const deafMembers = app.profiles.filter((p) => p.role === "deaf");

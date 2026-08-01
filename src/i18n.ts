@@ -148,6 +148,12 @@ const dict = {
   setCameraPermission: { en: "Camera permission", ar: "إذن الكاميرا" },
   setGranted: { en: "Granted", ar: "ممنوح" },
   setNotGranted: { en: "Not granted yet", ar: "لم يُمنح بعد" },
+  // The browser only ever asks on a screen that opens the camera, so a settings
+  // row cannot grant it. Say where it happens instead of pretending to be a button.
+  setGrantWhere: {
+    en: "Your browser asks the first time you practise on camera, on the Practise tab.",
+    ar: "يسألك المتصفح أول مرة تتدرّب فيها بالكاميرا، من تبويب التدرّب.",
+  },
 
   // generic
   back: { en: "Back", ar: "رجوع" },
@@ -230,10 +236,16 @@ const dict = {
   // FSRS + camera gate that Progress, the Constellation and the family board all
   // count as "mastered", so the node must not claim that word.
   pathDoneMeta: { en: "Practised · tap to review", ar: "تمرّنت عليها · انقر للمراجعة" },
-  pathLockedMeta: { en: "Finish the sign before this to unlock.", ar: "أكمل الإشارة السابقة لفتحها." },
+  // The lock is real now (lesson/unlock.ts): the path runs in order and this
+  // string has to describe that, not a per-sign rule the app never had.
+  pathLockedMeta: { en: "Finish the lesson before this one to unlock it.", ar: "أكمل الدرس السابق لفتح هذا." },
   pathChestMeta: { en: "Clear Unit 1 to open the reward chest.", ar: "أكمل الوحدة ١ لفتح الصندوق." },
+  // Home's top bar carries today's goal, not a lifetime total: a number you can
+  // move today is the only one worth putting next to the streak.
+  homeGoalStat: { en: "today's goal", ar: "هدف اليوم" },
 
   // ── reskin: lesson
+  lsLockedGoCurrent: { en: "Go to your lesson", ar: "اذهب إلى درسك" },
   lsWatchStep: { en: "Watch the sign", ar: "شاهد الإشارة" },
   lsSignBack: { en: "Sign it back", ar: "أعد الإشارة" },
   lsSignerDemo: { en: "SIGN DEMO", ar: "عرض الإشارة" },
@@ -371,6 +383,12 @@ const dict = {
   signsAlphaTitle: { en: "The alphabet", ar: "الأبجدية" },
   signsAlphaBody: { en: "All 28 Arabic letters.", ar: "كل الحروف العربية الـ٢٨." },
   signsAlphaProgress: { en: "of 28 learned", ar: "من ٢٨ مُتعلَّمة" },
+  // The grid's key. Three cell colours with no legend was one of the audit's
+  // "pure lists with no instruction", and the padlock now means something.
+  signsAlphaLockedNote: {
+    en: "Teal is learned, coral is open now, padlocked letters open with their lesson.",
+    ar: "الأخضر مُتعلَّم، والمرجاني متاح الآن، والحروف المقفلة تُفتح مع درسها.",
+  },
   signSignerDemo: { en: "Sign demo", ar: "عرض الإشارة" },
   signBadgeGraded: { en: "Graded", ar: "مُقيَّم" },
   // "Watch" not "Motion": since the iloveyou/stop demotion the non-graded set

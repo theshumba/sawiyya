@@ -194,7 +194,10 @@ export function AiTransparency() {
             </h4>
             <p className="mt-3 text-[15px] leading-relaxed text-ink/80 md:text-base">{proudCard.body}</p>
             <div className="mt-6 flex justify-center md:justify-start">
-              <Button variant="primary" size="lg" onClick={() => go({ name: "camera" })}>
+              {/* The Practise tab, not the grader. An AI-explainer page turning
+                  its hero CTA straight into a live camera was the least expected
+                  camera door in the app. */}
+              <Button variant="primary" size="lg" onClick={() => go({ name: "practiseChooser" })}>
                 {T("Let's Practice Together", "لنتدرّب معًا")}
               </Button>
             </div>
