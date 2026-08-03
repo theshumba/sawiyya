@@ -8,11 +8,19 @@
 // progress, Fanan poses per screen, teal/coral selection chips and the signature
 // hard-shadow footer CTA. Bilingual EN(LTR)/AR(RTL) via logical properties.
 import { useEffect, useState } from "react";
-import { pick, t, applyDir, langFromSearch } from "../i18n";
+import {
+  pick,
+  t,
+  applyDir,
+  langFromSearch,
+  weekdayName,
+  weekdayIcsCode,
+  WEEKDAY_COUNT,
+} from "../i18n";
 import { PERSONA_TAGLINE } from "../content/signs";
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
-import type { DailyGoal, Lang, Persona } from "../types";
+import type { DailyGoal, Lang, Persona, PriorSigning } from "../types";
 import { Fanan } from "../components/Fanan";
 import { SpringButton, MonoLabel } from "../components/dc";
 
@@ -22,20 +30,29 @@ import { SpringButton, MonoLabel } from "../components/dc";
 // handedness step is gone: nothing reads dominantHand and the recognizer
 // canonicalises both hands itself, so asking was a lever with nothing on the
 // other end.
+// Phase 2 · ONE first run. The "What do you want to learn?" track chooser is
+// gone: it branched the app in three directions, and one of them (Everyday
+// signs) could not reach the aha moment at all, because the 19 word signs are
+// watch-only. Everyone now walks the same road and lands on the same lesson
+// one. Per the Headspace teardown, the ASKING is the mechanism — answers are
+// recorded and shown back, they do not fork the curriculum.
+//
+// splash · meet · lang · why · know · plan · reminders · recap · name · camera
+//
+// The camera explainer moved to the END, immediately before FirstSign asks the
+// browser for the permission. It used to sit six screens early, so the sentence
+// explaining the camera had been forgotten by the time the prompt appeared.
 type Step =
   | "splash"
   | "meet"
   | "lang"
-  | "learn"
   | "why"
-  | "camera"
-  | "goal"
+  | "know"
+  | "plan"
   | "reminders"
-  | "name";
-
-// Which track the "What do you want to learn?" step recorded. null means the
-// user continued without picking a card, which keeps the original landing.
-type Track = "alphabet" | "words" | null;
+  | "recap"
+  | "name"
+  | "camera";
 
 // Persona choices (PRESERVE §1 data table — values/keys/ar/icon stay intact).
 const PERSONAS: {
@@ -58,6 +75,18 @@ const GOALS: { value: DailyGoal; key: "obCasual" | "obRegular" | "obSerious"; ic
   { value: "serious", key: "obSerious", icon: "forest" },
 ];
 
+// "What do you know already?" — recorded, shown back on the recap, and used
+// nowhere else. Ordered easiest-to-admit first.
+const PRIORS: {
+  value: PriorSigning;
+  key: "obKnowNone" | "obKnowSome" | "obKnowFluent";
+  subKey: "obKnowNoneSub" | "obKnowSomeSub" | "obKnowFluentSub";
+}[] = [
+  { value: "none", key: "obKnowNone", subKey: "obKnowNoneSub" },
+  { value: "some", key: "obKnowSome", subKey: "obKnowSomeSub" },
+  { value: "fluent", key: "obKnowFluent", subKey: "obKnowFluentSub" },
+];
+
 // Choice-card affordance (PRESERVE §1 — retuned to the new paper/hairline look).
 const cardBase =
   "relative flex w-full items-center rounded-2xl border border-line bg-paper text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 shadow-[0_2px_0_#EDE3D2]";
@@ -70,12 +99,19 @@ const chipIdle = "bg-paper text-ink shadow-[inset_0_0_0_1px_#EDE3D2]";
 // notifications (no push, no email — everything stays on-device), so the only
 // honest offer is a downloadable .ics with a daily RRULE that the user's own
 // calendar app owns from then on.
-function downloadReminderIcs(lang: Lang) {
+function downloadReminderIcs(lang: Lang, practiseDays: number[]) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const start = new Date();
   start.setDate(start.getDate() + 1); // first occurrence: tomorrow
   const dtStart = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T180000`;
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  // The days the learner just picked ARE the recurrence. Answering "Mondays and
+  // Thursdays" and then being handed a daily reminder is the app not listening.
+  // No days picked (or all seven) stays a plain daily rule.
+  const byDay =
+    practiseDays.length > 0 && practiseDays.length < WEEKDAY_COUNT
+      ? `;BYDAY=${[...practiseDays].sort((a, b) => a - b).map(weekdayIcsCode).join(",")}`
+      : "";
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -85,7 +121,7 @@ function downloadReminderIcs(lang: Lang) {
     `DTSTAMP:${stamp}`,
     `DTSTART:${dtStart}`, // floating local time — 6:00 pm wherever the user is
     "DURATION:PT10M",
-    "RRULE:FREQ=DAILY",
+    `RRULE:FREQ=WEEKLY${byDay || ";BYDAY=SU,MO,TU,WE,TH,FR,SA"}`,
     `SUMMARY:${t("obRemindEventTitle", lang)}`,
     "URL:https://theshumba.github.io/sawiyya/",
     "END:VEVENT",
@@ -122,16 +158,22 @@ export function Onboarding() {
   }, []);
   const [persona, setPersona] = useState<Persona>("parent");
   const [goal, setGoal] = useState<DailyGoal>("regular");
-  const [track, setTrack] = useState<Track>(null);
+  const [prior, setPrior] = useState<PriorSigning>("none");
+  // Empty until they touch it, and it stays empty if they skip — Home then says
+  // nothing rather than inventing a commitment.
+  const [days, setDays] = useState<number[]>([]);
   const [name, setName] = useState("");
   // Reminder .ics downloaded this session (label feedback only — the user's
   // calendar app owns the reminder from here).
   const [icsDownloaded, setIcsDownloaded] = useState(false);
 
-  // Only the name step finishes onboarding, so a profile is never created
-  // without the learner being asked what to call them. Whatever they answered
-  // before that point is kept as-is: the initial values here are the same
-  // sensible defaults the old "skip everything" branch hard-coded.
+  // The camera explainer is the terminal step, so a profile is never created
+  // before the learner has been asked their name AND told what the camera does.
+  // Whatever they did not answer keeps the sensible defaults above.
+  //
+  // ONE destination. There is no track to honour any more: everybody lands on
+  // FirstSign, which teaches the head of the path, and FirstSign hands them on
+  // to Home with the first node lit.
   const finish = () => {
     const displayName = name.trim() || (lang === "ar" ? "أنا" : "Me");
     createProfile({
@@ -142,37 +184,42 @@ export function Onboarding() {
       dominantHand: "R",
       language: lang,
       dailyGoal: goal,
+      priorSigning: prior,
+      practiseDays: days,
     });
     completeOnboarding();
-    // The learn step's answer is honoured here: the alphabet track opens the
-    // camera on alpha-alif, the words track opens the full sign list, and no
-    // answer keeps firstSign as the default landing.
-    go(
-      track === "alphabet"
-        ? { name: "camera", targetSignId: "alpha-alif", autoStart: true }
-        : track === "words"
-          ? { name: "allSigns" }
-          : { name: "firstSign" },
-    );
+    go({ name: "firstSign" });
   };
 
   const chooseLang = (l: Lang) => {
     setLang(l);
     applyDir(l);
-    setStep("learn");
+    setStep("why");
   };
 
-  // Extended so back / progress stay honest across the new design steps.
+  const toggleDay = (d: number) =>
+    setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort((a, b) => a - b)));
+
+  const everyDay = days.length === WEEKDAY_COUNT;
+
+  // How the chosen days read back, used by the recap and by the calendar
+  // preview. No answer means the .ics falls back to daily, so it says so.
+  const daysLabel =
+    everyDay || days.length === 0
+      ? t("obPlanEveryDay", lang)
+      : days.map((d) => weekdayName(d, lang)).join(pick(lang, ", ", "، "));
+
   const STEP_ORDER: Step[] = [
     "splash",
     "meet",
     "lang",
-    "learn",
     "why",
-    "camera",
-    "goal",
+    "know",
+    "plan",
     "reminders",
+    "recap",
     "name",
+    "camera",
   ];
   const stepIndex = STEP_ORDER.indexOf(step);
   const total = STEP_ORDER.length;
@@ -186,7 +233,8 @@ export function Onboarding() {
   const dark = step === "splash"; // sand hero background (design s0).
   const progressPct = `${((stepIndex + 1) / total) * 100}%`;
 
-  // Footer CTA per step (design Block D). Name owns its own submit button.
+  // Footer CTA per step (design Block D). Name owns its own submit button, and
+  // the camera explainer is terminal: its CTA is what creates the profile.
   const footer: { label: string; onClick: () => void; variant: "teal" | "coral" } | null =
     step === "splash"
       ? { label: t("obWelcomeCta", lang), onClick: advance, variant: "coral" }
@@ -194,17 +242,13 @@ export function Onboarding() {
         ? { label: t("obFananCta", lang), onClick: advance, variant: "teal" }
         : step === "lang"
           ? { label: t("obContinue", lang), onClick: () => chooseLang(lang), variant: "teal" }
-          : step === "learn"
-            ? { label: t("obContinue", lang), onClick: () => setStep("why"), variant: "teal" }
-            : step === "why"
-              ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
+          : step === "why" || step === "know" || step === "plan" || step === "reminders"
+            ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
+            : step === "recap"
+              ? { label: t("obRecapCta", lang), onClick: advance, variant: "teal" }
               : step === "camera"
-                ? { label: t("obCamCta", lang), onClick: advance, variant: "teal" }
-                : step === "goal"
-                  ? { label: t("obGoalCta", lang), onClick: () => setStep("reminders"), variant: "teal" }
-                  : step === "reminders"
-                    ? { label: t("obContinue", lang), onClick: advance, variant: "teal" }
-                    : null;
+                ? { label: t("obCamCta", lang), onClick: finish, variant: "coral" }
+                : null;
 
   return (
     <div className={`flex min-h-dvh w-full justify-center ${dark ? "bg-sand" : "bg-paper"}`}>
@@ -250,9 +294,11 @@ export function Onboarding() {
 
           {/* Skip jumps to the name step rather than finishing: it means "use
               defaults for what I have not answered", never "throw away what I
-              already chose" and never a profile called Me. The name step is
-              terminal and owns its own submit, so it shows no Skip. */}
-          {step !== "splash" && step !== "name" ? (
+              already chose" and never a profile called Me. It still passes
+              through the camera explainer, because that sentence has to be read
+              before the browser asks for the permission. Name owns its own
+              submit and camera is terminal, so neither shows a Skip. */}
+          {step !== "splash" && step !== "name" && step !== "camera" ? (
             <button
               type="button"
               onClick={() => setStep("name")}
@@ -334,97 +380,151 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* Learning path chooser (existing — practice-first destination preserved) */}
-          {step === "learn" && (
+          {/* Q2 · what you already know. Recorded, shown back on the recap,
+              and deliberately not used for anything else. */}
+          {step === "know" && (
             <div className="flex flex-1 flex-col">
-              <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">
-                {pick(lang, "What do you want to learn?", "ماذا تريد أن تتعلّم؟")}
-              </h1>
-              <p className="mt-1.5 text-[14px] leading-[1.4] text-muted">
-                {pick(
-                  lang,
-                  "Qatari Sign Language, start here on your device.",
-                  "لغة الإشارة القطرية، ابدأ هنا على جهازك.",
-                )}
-              </p>
-              <div className="mt-5 flex flex-col gap-3">
-                {/* Arabic alphabet, the practice-first short path: it goes
-                    straight to the name step and finishes into the camera on
-                    alpha-alif from there. */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTrack("alphabet");
-                    setStep("name");
-                  }}
-                  className={`${cardBase} gap-4 p-4`}
-                >
-                  <span
-                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal/10 font-display text-2xl font-black text-teal"
-                    dir="rtl"
-                  >
-                    ا ب
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-display text-[16px] font-bold text-ink">
-                        {pick(lang, "Arabic Alphabet", "الحروف العربية")}
-                      </span>
-                      <span className="rounded-full bg-teal px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-paper">
-                        {pick(lang, "Ready", "جاهز")}
-                      </span>
-                    </div>
-                    <p className="text-[13px] text-muted">
-                      {pick(lang, "28 core letters, camera-graded", "٢٨ حرفًا أساسيًا، بتقييم الكاميرا")}
-                    </p>
-                  </div>
-                </button>
-
-                {/* Everyday signs, teach-mode: finishes on the full sign list. */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTrack("words");
-                    setStep("why");
-                  }}
-                  className={`${cardBase} gap-4 p-4`}
-                >
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
-                    <span className="h-5 w-5 rounded-full bg-gold" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-display text-[16px] font-bold text-ink">
-                      {pick(lang, "Everyday signs", "إشارات يومية")}
-                    </span>
-                    <p className="text-[13px] text-muted">
-                      {pick(lang, "Hello, milk, more, thank you…", "مرحبا، حليب، المزيد، شكرًا…")}
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-ink/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted">
-                    {pick(lang, "Teach & practise", "علّم وتدرّب")}
-                  </span>
-                </button>
-
-                {/* Other dialects: a note, not a choice. Tapping it used to do
-                    exactly what the two real cards do, so it read as an option
-                    the app had accepted. Nothing here is selectable yet. */}
-                <div
-                  aria-disabled="true"
-                  className="flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-line p-4 text-start opacity-80"
-                >
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-ink/5">
-                    <span className="h-5 w-5 rounded-full border-2 border-teal/30" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-display text-[16px] font-bold text-ink/70">
-                      {pick(lang, "Other Gulf dialects", "لهجات خليجية أخرى")}
-                    </span>
-                    <p className="text-[13px] text-muted">
-                      {pick(lang, "Emirati, Saudi and more, coming soon", "الإماراتية والسعودية وغيرها، قريبًا")}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Fanan pose="think" scale={0.56} />
+                <div>
+                  <h1 className="font-display text-[24px] font-extrabold leading-[1.08] text-ink">
+                    {t("obKnowTitle", lang)}
+                  </h1>
+                  <p className="mt-1 text-[13px] leading-[1.35] text-muted">{t("obKnowSub", lang)}</p>
                 </div>
               </div>
+              <div className="mt-5 flex flex-col gap-2.5">
+                {PRIORS.map((p) => {
+                  const sel = prior === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      aria-pressed={sel}
+                      onClick={() => setPrior(p.value)}
+                      className={`flex w-full items-center justify-between gap-2.5 rounded-2xl px-4 py-3.5 text-start transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${sel ? chipSel : chipIdle}`}
+                    >
+                      <span className="flex flex-col">
+                        <span className="font-display text-[16px] font-bold">{t(p.key, lang)}</span>
+                        <span className={`mt-0.5 text-[12px] ${sel ? "text-paper/80" : "text-muted"}`}>
+                          {t(p.subKey, lang)}
+                        </span>
+                      </span>
+                      {sel && <CheckGlyph />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Q3 · which days, and how long. One decision about commitment,
+              asked two ways, so it stays one screen. */}
+          {step === "plan" && (
+            <div className="flex flex-1 flex-col">
+              <h1 className="font-display text-[24px] font-extrabold leading-[1.08] text-ink">
+                {t("obPlanTitle", lang)}
+              </h1>
+              <p className="mt-1 text-[13px] leading-[1.35] text-muted">{t("obPlanSub", lang)}</p>
+
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                {Array.from({ length: WEEKDAY_COUNT }, (_, d) => {
+                  const sel = days.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      aria-pressed={sel}
+                      onClick={() => toggleDay(d)}
+                      className={`min-w-0 rounded-2xl px-1 py-3 text-center font-display text-[13px] font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${sel ? chipSel : chipIdle}`}
+                    >
+                      <span className="block truncate">{weekdayName(d, lang)}</span>
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  aria-pressed={everyDay}
+                  onClick={() =>
+                    setDays(everyDay ? [] : Array.from({ length: WEEKDAY_COUNT }, (_, i) => i))
+                  }
+                  className={`min-w-0 rounded-2xl px-1 py-3 text-center font-display text-[13px] font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${everyDay ? chipSel : chipIdle}`}
+                >
+                  <span className="block truncate">{t("obPlanEveryDay", lang)}</span>
+                </button>
+              </div>
+
+              <p className="mt-6 font-display text-[15px] font-bold text-ink">{t("obPlanHowLong", lang)}</p>
+              <div className="mt-2.5 flex flex-col gap-2.5">
+                {GOALS.map((g) => {
+                  const sel = goal === g.value;
+                  const sub =
+                    g.value === "casual"
+                      ? t("obGoalCasualSub", lang)
+                      : g.value === "regular"
+                        ? t("obGoalRegularSub", lang)
+                        : t("obGoalSeriousSub", lang);
+                  return (
+                    <button
+                      key={g.value}
+                      type="button"
+                      aria-pressed={sel}
+                      onClick={() => setGoal(g.value)}
+                      className={`flex w-full items-center justify-between gap-2.5 rounded-2xl px-4 py-3.5 text-start transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${sel ? chipSel : chipIdle}`}
+                    >
+                      <span className="flex flex-col">
+                        <span className="font-display text-[16px] font-bold">{t(g.key, lang)}</span>
+                        <span className={`mt-0.5 text-[12px] ${sel ? "text-paper/80" : "text-muted"}`}>{sub}</span>
+                      </span>
+                      {sel && <CheckGlyph />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* The recap — the three answers read back, and the ONE place the
+              four tabs are named. Nothing in the app named them anywhere. */}
+          {step === "recap" && (
+            <div className="flex flex-1 flex-col">
+              <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">
+                {t("obRecapTitle", lang)}
+              </h1>
+              <p className="mt-1.5 text-[14px] leading-[1.4] text-muted">{t("obRecapSub", lang)}</p>
+
+              <dl className={`${cardBase} mt-5 flex-col gap-3 p-4`}>
+                {[
+                  { label: t("obRecapLearningFor", lang), value: t(PERSONAS.find((p) => p.value === persona)!.key, lang) },
+                  { label: t("obRecapStartingFrom", lang), value: t(PRIORS.find((p) => p.value === prior)!.key, lang) },
+                  {
+                    label: t("obRecapPractising", lang),
+                    // Not daysLabel: an unanswered question reads as unanswered
+                    // here, even though the .ics falls back to daily.
+                    value: days.length === 0 ? t("obRecapNoDays", lang) : daysLabel,
+                  },
+                ].map((row) => (
+                  <div key={row.label} className="flex w-full items-baseline justify-between gap-3">
+                    <dt className="shrink-0 text-[13px] font-semibold text-muted">{row.label}</dt>
+                    <dd className="min-w-0 text-end font-display text-[14px] font-bold text-ink">{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <p className="mt-6 font-display text-[15px] font-bold text-ink">{t("obRecapTabsTitle", lang)}</p>
+              <ul className="mt-2.5 flex flex-col gap-2">
+                {[
+                  { name: t("navLearn", lang), body: t("obRecapTabLearn", lang) },
+                  { name: t("navPractise", lang), body: t("obRecapTabPractise", lang) },
+                  { name: t("navDictionary", lang), body: t("obRecapTabSigns", lang) },
+                  { name: t("navFamily", lang), body: t("obRecapTabFamily", lang) },
+                ].map((tab) => (
+                  <li key={tab.name} className="flex items-baseline gap-2.5">
+                    <span className="shrink-0 font-display text-[14px] font-bold text-teal">{tab.name}</span>
+                    <span className="min-w-0 text-[13px] leading-[1.4] text-muted">{tab.body}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -470,7 +570,13 @@ export function Onboarding() {
                             selected ? "text-ink/70" : "text-gold-deep"
                           }`}
                         >
-                          {pick(lang, "Special Path", "مسار خاص")}
+                          {/* Was "Special Path". There is no special path any
+                              more — everyone walks the same one. What a Deaf
+                              member actually gets is the DIRECTING role: they
+                              flag the signs and the household's queue follows.
+                              Family.tsx and FlagPicker already say exactly
+                              that, so this badge now says it too. */}
+                          {pick(lang, "Directs learning", "يوجّه التعلّم")}
                         </span>
                       )}
                       {selected && (
@@ -538,49 +644,6 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* s7 · Daily goal */}
-          {step === "goal" && (
-            <div className="flex flex-1 flex-col">
-              <div className="flex items-center gap-3">
-                <Fanan pose="cheer" scale={0.56} />
-                <div>
-                  <h1 className="font-display text-[24px] font-extrabold leading-[1.08] text-ink">
-                    {t("obGoalTitle", lang)}
-                  </h1>
-                  <p className="mt-1 text-[13px] leading-[1.35] text-muted">{t("obGoalSub", lang)}</p>
-                </div>
-              </div>
-              <div className="mt-5 flex flex-col gap-2.5">
-                {GOALS.map((g) => {
-                  const sel = goal === g.value;
-                  const sub =
-                    g.value === "casual"
-                      ? t("obGoalCasualSub", lang)
-                      : g.value === "regular"
-                        ? t("obGoalRegularSub", lang)
-                        : t("obGoalSeriousSub", lang);
-                  return (
-                    <button
-                      key={g.value}
-                      type="button"
-                      aria-pressed={sel}
-                      onClick={() => {
-                        setGoal(g.value);
-                        setStep("reminders");
-                      }}
-                      className={`flex w-full items-center justify-between gap-2.5 rounded-2xl px-4 py-3.5 text-start transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${sel ? chipSel : chipIdle}`}
-                    >
-                      <span className="flex flex-col">
-                        <span className="font-display text-[16px] font-bold">{t(g.key, lang)}</span>
-                        <span className={`mt-0.5 text-[12px] ${sel ? "text-paper/80" : "text-muted"}`}>{sub}</span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* s8 · Daily reminder — honest (H20): the app sends no notifications,
               so the offer is a real .ics the user's own calendar takes over. */}
           {step === "reminders" && (
@@ -603,13 +666,15 @@ export function Onboarding() {
                   <div className="font-display text-[12px] font-bold text-ink">
                     {t("obRemindEventTitle", lang)}
                   </div>
-                  <p className="mt-0.5 text-[12px] leading-[1.35] text-muted">{t("obRemindEventWhen", lang)}</p>
+                  <p className="mt-0.5 text-[12px] leading-[1.35] text-muted">
+                    {t("obRemindEventWhen", lang).replace("{days}", daysLabel)}
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => {
-                  downloadReminderIcs(lang);
+                  downloadReminderIcs(lang, days);
                   setIcsDownloaded(true);
                 }}
                 className={`mt-4 rounded-full px-5 py-3 text-[14px] font-bold transition active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
@@ -623,7 +688,8 @@ export function Onboarding() {
             </div>
           )}
 
-          {/* Name (existing — terminal, owns finish()) */}
+          {/* Name — owns its own submit, but is no longer terminal: it hands on
+              to the camera explainer, which is what creates the profile. */}
           {step === "name" && (
             <div className="flex flex-1 flex-col">
               <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">{t("obNameTitle", lang)}</h1>
@@ -634,7 +700,7 @@ export function Onboarding() {
                 className="mt-6 flex flex-1 flex-col"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  finish();
+                  advance();
                 }}
               >
                 <input

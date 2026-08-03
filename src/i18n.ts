@@ -17,7 +17,13 @@ const dict = {
 
   // onboarding
   obWhoTitle: { en: "Who are you learning for?", ar: "لمن تتعلم الإشارة؟" },
-  obWhoSub: { en: "We'll start you on the signs that matter most.", ar: "سنبدأ معك بالإشارات الأهم لك." },
+  // The old sub said "We'll start you on the signs that matter most." Nothing
+  // implemented it, and Phase 2 makes it untrue BY DESIGN: everyone gets the
+  // same lesson one, because the asking is the mechanism, not the matching.
+  obWhoSub: {
+    en: "This changes what we say, not what you learn.",
+    ar: "هذا يغيّر ما نقوله، لا ما تتعلّمه.",
+  },
   obParent: { en: "My child", ar: "طفلي" },
   obSibling: { en: "My brother or sister", ar: "أخي أو أختي" },
   obTeacher: { en: "My student", ar: "طالبي" },
@@ -30,14 +36,65 @@ const dict = {
   obHandSub: { en: "Either hand works: the camera reads both the same way.", ar: "أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها." },
   obRight: { en: "Right hand", ar: "اليد اليمنى" },
   obLeft: { en: "Left hand", ar: "اليد اليسرى" },
-  obGoalTitle: { en: "Your daily goal", ar: "هدفك اليومي" },
-  obGoalSub: { en: "Small and steady beats heroic and rare.", ar: "القليل المستمر خير من الكثير المنقطع." },
+  // obGoalTitle / obGoalSub / obGoalCta are gone with the standalone daily-goal
+  // step: the length choice now sits under the days question on `plan`, since
+  // both answer the same thing. Dead keys read as live copy to the next person.
   obCasual: { en: "Casual · 3 min", ar: "خفيف · ٣ دقائق" },
   obRegular: { en: "Regular · 7 min", ar: "منتظم · ٧ دقائق" },
   obSerious: { en: "Serious · 15 min", ar: "جاد · ١٥ دقيقة" },
   obNameTitle: { en: "What should we call you?", ar: "ماذا نناديك؟" },
   obSkip: { en: "Skip", ar: "تخطّي" },
   obContinue: { en: "Continue", ar: "متابعة" },
+
+  // Phase 2 · question 2 — what you already know. Recorded and shown back on
+  // the recap. It does NOT change the curriculum: everyone starts at lesson one.
+  obKnowTitle: { en: "What do you know already?", ar: "ماذا تعرف من قبل؟" },
+  obKnowSub: {
+    en: "No wrong answer. Everyone starts at the same first lesson.",
+    ar: "لا توجد إجابة خاطئة. الجميع يبدأ من الدرس الأول نفسه.",
+  },
+  obKnowNone: { en: "Nothing yet", ar: "لا شيء بعد" },
+  obKnowNoneSub: { en: "I have never signed", ar: "لم أستخدم لغة الإشارة من قبل" },
+  obKnowSome: { en: "A few signs", ar: "بضع إشارات" },
+  obKnowSomeSub: { en: "I can do a handful", ar: "أعرف عددًا قليلًا" },
+  obKnowFluent: { en: "I sign already", ar: "أُشير بالفعل" },
+  obKnowFluentSub: { en: "I am here for the Qatari dialect", ar: "أنا هنا من أجل اللهجة القطرية" },
+
+  // Phase 2 · question 3 — which days, and how long. One screen: it is one
+  // decision about commitment asked two ways.
+  obPlanTitle: { en: "Which days will you practise?", ar: "في أي أيام ستتدرّب؟" },
+  obPlanSub: {
+    en: "Pick the days that are realistic, not the ones that sound good.",
+    ar: "اختر الأيام الواقعية، لا التي تبدو جيدة.",
+  },
+  obPlanEveryDay: { en: "Every day", ar: "كل يوم" },
+  obPlanHowLong: { en: "And how long each time?", ar: "وكم المدة في كل مرة؟" },
+
+  // Phase 2 · the recap. Shows the three answers back, and names the four tabs
+  // — which nothing in the app did anywhere before this screen.
+  obRecapTitle: { en: "That's your setup", ar: "هذا هو إعدادك" },
+  // Deliberately NOT "change it later in Settings": Settings carries the daily
+  // goal but not the other two, and a promise the app cannot keep is the exact
+  // defect this phase deleted from the persona step.
+  obRecapSub: {
+    en: "Your first lesson is the same either way.",
+    ar: "درسك الأول هو نفسه في كل الأحوال.",
+  },
+  obRecapLearningFor: { en: "Learning for", ar: "تتعلم من أجل" },
+  obRecapStartingFrom: { en: "Starting from", ar: "تبدأ من" },
+  obRecapPractising: { en: "Practising", ar: "تتدرّب" },
+  obRecapNoDays: { en: "No days picked", ar: "لم تختر أيامًا" },
+  obRecapTabsTitle: { en: "Four tabs, and that's the whole app", ar: "أربع علامات، وهذا كل التطبيق" },
+  obRecapTabLearn: { en: "Your lesson, one at a time", ar: "درسك، واحدًا تلو الآخر" },
+  obRecapTabPractise: { en: "The camera, whenever you want it", ar: "الكاميرا، متى شئت" },
+  obRecapTabSigns: { en: "Every sign, to look up", ar: "كل الإشارات، للبحث" },
+  obRecapTabFamily: { en: "Who you're learning with", ar: "من تتعلم معهم" },
+  obRecapCta: { en: "Looks right", ar: "يبدو صحيحًا" },
+
+  // Phase 2 · the practise-days answer, written back onto Home so the question
+  // visibly mattered. Silent when no days were picked.
+  homePractiseToday: { en: "Today is one of your practice days", ar: "اليوم من أيام تدريبك" },
+  homePractiseNext: { en: "Your next practice day is {day}", ar: "يوم تدريبك القادم هو {day}" },
 
   // first sign
   fsIntro: { en: "Let's learn the first thing you'll say:", ar: "لنتعلم أول ما ستقوله:" },
@@ -277,7 +334,6 @@ const dict = {
   obGoalCasualSub: { en: "A sign a day", ar: "إشارة كل يوم" },
   obGoalRegularSub: { en: "Build a habit", ar: "ابنِ عادة" },
   obGoalSeriousSub: { en: "Go all in", ar: "انغمس تمامًا" },
-  obGoalCta: { en: "Set my goal", ar: "حدّد هدفي" },
   // Honest reminders (H20): the app sends no notifications — the offer is a
   // real .ics download that the user's own calendar app takes over.
   obRemindTitle: { en: "A gentle nudge?", ar: "تذكير لطيف؟" },
@@ -286,7 +342,10 @@ const dict = {
     ar: "سويّة لا ترسل إشعارات — لا شيء يغادر جهازك. أتريد تذكيرًا يوميًا؟ أضِف موعد تدريب إلى تقويمك.",
   },
   obRemindEventTitle: { en: "Practise Sawiyya", ar: "تمرّن على سويّة" },
-  obRemindEventWhen: { en: "Every day · 6:00 pm · in your calendar", ar: "كل يوم · ٦:٠٠ مساءً · في تقويمك" },
+  // The preview has to describe the .ics the button actually writes, so the
+  // days half is filled in from the answer given one screen earlier. It said
+  // "Every day" no matter what was picked, while the file said otherwise.
+  obRemindEventWhen: { en: "{days} · 6:00 pm · in your calendar", ar: "{days} · ٦:٠٠ مساءً · في تقويمك" },
   obRemindCal: { en: "Add to my calendar (.ics)", ar: "أضِفه إلى تقويمي (.ics)" },
   obRemindCalDone: { en: "Downloaded — open it to add the reminder", ar: "تم التنزيل — افتحه لإضافة التذكير" },
 
@@ -557,3 +616,27 @@ export function langFromSearch(search: string): Lang | null {
 export function num(n: number, lang: Lang): string {
   return new Intl.NumberFormat(lang === "ar" ? "ar-QA" : "en-GB").format(n);
 }
+
+/** Weekday names, indexed the way `Date.getDay()` indexes them: 0 = Sunday.
+ *  The week starts on Sunday in Qatar, so index order is also display order. */
+const WEEKDAYS: { en: string; ar: string; ics: string }[] = [
+  { en: "Sun", ar: "الأحد", ics: "SU" },
+  { en: "Mon", ar: "الاثنين", ics: "MO" },
+  { en: "Tue", ar: "الثلاثاء", ics: "TU" },
+  { en: "Wed", ar: "الأربعاء", ics: "WE" },
+  { en: "Thu", ar: "الخميس", ics: "TH" },
+  { en: "Fri", ar: "الجمعة", ics: "FR" },
+  { en: "Sat", ar: "السبت", ics: "SA" },
+];
+
+export function weekdayName(day: number, lang: Lang): string {
+  const d = WEEKDAYS[day];
+  return d ? pick(lang, d.en, d.ar) : "";
+}
+
+/** RFC 5545 BYDAY codes for an .ics recurrence rule. */
+export function weekdayIcsCode(day: number): string {
+  return WEEKDAYS[day]?.ics ?? "";
+}
+
+export const WEEKDAY_COUNT = WEEKDAYS.length;

@@ -185,3 +185,111 @@ describe("own-recording match metric (M2)", () => {
     expect(G().metrics.ownRecordingMatches).toBe(1);
   });
 });
+
+// Phase 2 · the first run asks two new questions, and their answers are the
+// only record that the asking happened. An old blob predates both, so the
+// normalizer has to invent a truthful "not answered" rather than a default
+// that reads as a commitment the learner never made.
+describe("onboarding answers: priorSigning + practiseDays (Phase 2)", () => {
+  it("stores both answers on the profile it creates", async () => {
+    const app = await freshStore();
+    const id = app.useApp.getState().createProfile({
+      displayName: "Noora",
+      role: "parent",
+      dominantHand: "R",
+      language: "en",
+      dailyGoal: "regular",
+      priorSigning: "some",
+      practiseDays: [1, 4],
+    });
+    const p = app.useApp.getState().profiles.find((x) => x.id === id)!;
+    expect(p.priorSigning).toBe("some");
+    expect(p.practiseDays).toEqual([1, 4]);
+  });
+
+  it("defaults to unanswered when a caller does not ask (family members added later)", async () => {
+    const app = await freshStore();
+    const id = app.useApp.getState().createProfile({
+      displayName: "Layla",
+      role: "sibling",
+      dominantHand: "R",
+      language: "en",
+      dailyGoal: "casual",
+    });
+    const p = app.useApp.getState().profiles.find((x) => x.id === id)!;
+    expect(p.priorSigning).toBe("none");
+    // Empty, NOT every day: Home stays silent instead of claiming a schedule.
+    expect(p.practiseDays).toEqual([]);
+  });
+
+  it("backfills a blob written before either field existed", async () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        state: {
+          onboarded: true,
+          profiles: [
+            {
+              id: "p-old",
+              displayName: "Amal",
+              role: "parent",
+              emoji: "🦊",
+              dominantHand: "R",
+              language: "ar",
+              xp: 10,
+              streak: 1,
+              lastActiveDay: "2026-06-01",
+              dailyGoal: "regular",
+              createdAt: "2026-05-01T09:00:00.000Z",
+            },
+          ],
+          activeProfileId: "p-old",
+          progress: {},
+          srs: {},
+          flags: [],
+        },
+        version: 1,
+      }),
+    );
+    const app = await freshStore();
+    const p = app.useApp.getState().profiles[0];
+    expect(p.priorSigning).toBe("none");
+    expect(p.practiseDays).toEqual([]);
+  });
+
+  it("sanitises a hand-edited practiseDays instead of trusting it", async () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        state: {
+          onboarded: true,
+          profiles: [
+            {
+              id: "p-bad",
+              displayName: "Amal",
+              role: "parent",
+              emoji: "🦊",
+              dominantHand: "R",
+              language: "en",
+              dailyGoal: "regular",
+              createdAt: "2026-05-01T09:00:00.000Z",
+              // out of range, wrong type, duplicated, and fractional
+              practiseDays: [1, 1, 9, -2, "3", 2.5, 6],
+              priorSigning: "expert",
+            },
+          ],
+          activeProfileId: "p-bad",
+          progress: {},
+          srs: {},
+          flags: [],
+        },
+        version: 1,
+      }),
+    );
+    const app = await freshStore();
+    const p = app.useApp.getState().profiles[0];
+    expect(p.practiseDays).toEqual([1, 6]);
+    // "expert" is not a PriorSigning, so it reads as unanswered.
+    expect(p.priorSigning).toBe("none");
+  });
+});

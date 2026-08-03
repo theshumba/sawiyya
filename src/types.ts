@@ -5,6 +5,9 @@ export type Hand = "L" | "R";
 export type Persona = "parent" | "sibling" | "teacher" | "friend" | "deaf";
 export type SignType = "alphabet" | "static" | "dynamic";
 export type DailyGoal = "casual" | "regular" | "serious"; // 3 / 7 / 15 min
+/** Onboarding question 2. Stored and surfaced, never used to branch: everyone
+ *  gets the same lesson one. The asking is the mechanism, not the matching. */
+export type PriorSigning = "none" | "some" | "fluent";
 
 export interface Profile {
   id: string;
@@ -33,6 +36,13 @@ export interface Profile {
   lastActiveDay: string | null; // YYYY-MM-DD
   activeDays: string[]; // recent active days (cap ~90) — feeds shared streak
   dailyGoal: DailyGoal;
+  /** Onboarding answer, surfaced on the recap. Never branches the curriculum. */
+  priorSigning: PriorSigning;
+  /** Onboarding answer: weekday numbers (0 Sun … 6 Sat) the learner said they
+   *  would practise. Empty means they never answered — Home then says nothing
+   *  rather than inventing a commitment they did not make. Surfaced on Home and
+   *  used for the reminder .ics recurrence. */
+  practiseDays: number[];
   createdAt: string;
 }
 

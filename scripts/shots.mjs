@@ -52,8 +52,18 @@ async function newPage() {
 // Copy the onboarding chain needs, per language. Kept here rather than imported
 // from i18n so a copy change that breaks the drive shows up as a loud failure.
 const COPY = {
-  en: { start: "Get started", meet: "Nice to meet you", lang: "English", cont: "Continue", cam: "Got it", goal: "Regular", name: "Noora" },
-  ar: { start: "لنبدأ", meet: "تشرّفنا", lang: "العربية", cont: "متابعة", cam: "فهمت", goal: "منتظم", name: "نورة" },
+  en: {
+    start: "Get started", meet: "Nice to meet you", lang: "English", cont: "Continue",
+    cam: "Got it", recap: "Looks right", name: "Noora",
+    // Picked before the plan screen is shot: an all-unselected day row is an
+    // empty state, and a design review should see the screen in real use.
+    days: ["Mon", "Thu"],
+  },
+  ar: {
+    start: "لنبدأ", meet: "تشرّفنا", lang: "العربية", cont: "متابعة",
+    cam: "فهمت", recap: "يبدو صحيحًا", name: "نورة",
+    days: ["الاثنين", "الخميس"],
+  },
 };
 
 const mk = (page) => {
@@ -115,6 +125,10 @@ const mk = (page) => {
     // override should give a true 390 — assert it rather than trust it.
     const w = await page.evaluate(() => document.documentElement.clientWidth);
     if (w !== 390) throw new Error(`layout viewport is ${w}px, not 390 — screenshots would lie`);
+    // Phase 2 · ONE sequence, no branch:
+    // splash · meet · lang · why · know · plan · reminders · recap · name · camera
+    // Picking the language advances straight to the first question — the track
+    // chooser that used to sit here is gone.
     const p = shots ? (n) => shot(`${lang}-ob-${n}`) : async () => {};
     await p("1-splash");
     await click(c.start);
@@ -122,19 +136,24 @@ const mk = (page) => {
     await click(c.meet);
     await p("3-language");
     await click(c.lang);
-    await p("4-learn");
-    await click(c.cont); // no track chosen → default firstSign landing
-    await p("5-who");
+    await p("4-who");
     await click(c.cont);
-    await p("6-camera");
-    await click(c.cam);
-    await p("7-goal");
-    await click(c.goal);
-    await p("8-reminder");
+    await p("5-know");
     await click(c.cont);
+    // Answer the days question before shooting it, so the screenshot shows the
+    // screen as a learner leaves it rather than untouched.
+    for (const d of c.days) await click(d);
+    await p("6-plan");
+    await click(c.cont);
+    await p("7-reminder");
+    await click(c.cont);
+    await p("8-recap");
+    await click(c.recap);
     await p("9-name");
     await page.fill("input", c.name);
     await click(c.cont);
+    await p("10-camera");
+    await click(c.cam); // terminal: creates the profile and opens FirstSign
     await page.waitForTimeout(900);
   };
 

@@ -12,7 +12,7 @@
 // lesson/unlock.ts, so the padlocks mean what they say.
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { num, pick, t } from "../i18n";
+import { num, pick, t, weekdayName, WEEKDAY_COUNT } from "../i18n";
 import { signById, LESSONS, UNITS } from "../content/signs";
 import {
   GOAL_XP,
@@ -154,6 +154,24 @@ export function Home() {
   };
 
   const initial = profile.displayName.trim().charAt(0) || "•";
+
+  // Phase 2 item 4 — onboarding asked which days they'd practise, so Home has
+  // to show it knows. null when they picked none (or every day, where "today is
+  // one of your practice days" is true but says nothing), and the greeting's
+  // usual line stands.
+  const practiseLine = (() => {
+    const picked = profile.practiseDays;
+    if (picked.length === 0 || picked.length === WEEKDAY_COUNT) return null;
+    const today = new Date().getDay();
+    if (picked.includes(today)) return t("homePractiseToday", lang);
+    // The next picked day at or after tomorrow, wrapping through the week.
+    const next = Array.from({ length: WEEKDAY_COUNT }, (_, i) => (today + 1 + i) % WEEKDAY_COUNT).find(
+      (d) => picked.includes(d),
+    );
+    return next === undefined
+      ? null
+      : t("homePractiseNext", lang).replace("{day}", weekdayName(next, lang));
+  })();
 
   // App-bar stat chips (streak / today's goal / family). The gold chip used to
   // carry lifetime XP, a number nothing on this screen can move; today's goal is
@@ -329,8 +347,11 @@ export function Home() {
                 {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
               </h1>
+              {/* Phase 2 item 4: the practise-days answer written back here, so
+                  the question visibly mattered. Silent when they never picked
+                  any — an unanswered question must not become a claim. */}
               <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.9)", marginTop: 3 }}>
-                {t("homeGreetSub", lang)}
+                {practiseLine ?? t("homeGreetSub", lang)}
               </div>
             </div>
             <div

@@ -58,25 +58,81 @@ const bodyText = () => page.locator("body").innerText();
  *  onboarding step (the shell's Skip link is first). */
 const primary = () => page.locator("button:visible").last();
 const tab = (label) => page.locator("nav button", { hasText: label }).first();
+/** Today's weekday chip, so the run picks a practise day whose consequence on
+ *  Home is knowable in advance whatever day the harness runs on. */
+const TODAY_LABEL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date().getDay()];
 
 await step("app loads on the splash", async () => {
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("text=Teach the world to sign", { timeout: 15000 });
 });
 
-await step("onboarding runs end to end without picking a track", async () => {
-  // splash · guide · language · track · persona · camera · goal · reminder.
-  // Picking nothing is deliberate: it is the route that reaches FirstSign.
-  for (let i = 0; i < 8; i++) {
-    await primary().click();
-    await page.waitForTimeout(400);
+// ── Phase 2: one first run ──────────────────────────────────────────────────
+await step("there is no track to choose: language leads straight to the questions", async () => {
+  await primary().click(); // splash → meet
+  await page.waitForTimeout(400);
+  await primary().click(); // meet → lang
+  await page.waitForSelector("text=Choose your language");
+  await primary().click(); // lang → why (was: the track chooser)
+  await page.waitForSelector("text=Who are you learning for?");
+  const txt = await bodyText();
+  assert(!txt.includes("What do you want to learn"), "the track chooser is back");
+  assert(!txt.includes("Everyday signs"), "the words track is back");
+  assert(
+    !txt.includes("signs that matter most"),
+    "the persona step still promises a curriculum it does not branch",
+  );
+  // The Deaf option's badge said "Special Path". No path is special now — what
+  // it really carries is the directing role, which is what it must say.
+  // The badge is CSS-uppercased, and innerText reports RENDERED text — compare
+  // lowercased, or this silently checks a string the DOM never contains.
+  const lower = txt.toLowerCase();
+  assert(!lower.includes("special path"), "the Deaf option still advertises a separate path");
+  assert(lower.includes("directs learning"), "the Deaf option lost its real role");
+});
+
+await step("the three questions are asked, and the days answer is recorded", async () => {
+  await primary().click(); // why → know
+  await page.waitForSelector("text=What do you know already?");
+  await page.click("button:has-text('A few signs')");
+  await primary().click(); // know → plan
+  await page.waitForSelector("text=Which days will you practise?");
+  // Pick TODAY, so what Home should say afterwards is knowable from here.
+  await page.getByRole("button", { name: TODAY_LABEL, exact: true }).click();
+  await primary().click(); // plan → reminders
+  await page.waitForSelector("text=Practise Sawiyya");
+  assert(
+    (await bodyText()).includes(TODAY_LABEL),
+    "the calendar preview still says 'every day' after specific days were picked",
+  );
+});
+
+await step("the recap reads the answers back and names the four tabs", async () => {
+  await primary().click(); // reminders → recap
+  await page.waitForSelector("text=That's your setup");
+  const txt = await bodyText();
+  assert(txt.includes("A few signs"), "the recap lost the what-you-know answer");
+  assert(txt.includes(TODAY_LABEL), "the recap lost the practise-days answer");
+  // The four tabs are named exactly once in the whole app, and this is it.
+  for (const tabName of ["Learn", "Practise", "Signs", "Family"]) {
+    assert(txt.includes(tabName), `the recap does not name the ${tabName} tab`);
   }
+  await primary().click(); // recap → name
   await page.waitForSelector("text=What should we call you?");
 });
 
-await step("name → first sign", async () => {
+await step("name → the camera is explained, THEN the browser is asked", async () => {
   await page.fill("input", "Noora");
-  await primary().click();
+  await primary().click(); // name → camera explainer (terminal step)
+  await page.waitForSelector("text=Sign it to the camera", { timeout: 10000 });
+  assert(
+    (await bodyText()).includes("never leaves your phone"),
+    "the camera step lost its on-device sentence",
+  );
+});
+
+await step("everyone lands on the same first sign", async () => {
+  await primary().click(); // camera → finish → FirstSign
   // The first sign is whatever leads LESSONS, and since Phase 1 that is the
   // ALPHABET — so this screen teaches Alif, not the design mock's "I love you".
   // Anchor on the demo step's own title and on the fact that the caption
@@ -102,6 +158,17 @@ await step("self-mark → celebration (never hard-fail)", async () => {
 await step("celebration → home", async () => {
   await page.click("text=Keep going");
   await page.waitForSelector("text=Marhaba");
+});
+
+await step("the practise-days answer is written back onto Home", async () => {
+  // Today was picked during setup, so the greeting has to say so instead of
+  // falling back to the generic line. This is the whole point of asking.
+  const txt = await bodyText();
+  assert(
+    txt.includes("Today is one of your practice days"),
+    "Home ignored the days the learner picked during setup",
+  );
+  assert(!txt.includes("Ready to sign today?"), "Home fell back to the generic greeting");
 });
 
 await step("home carries today's goal in the top bar, not a card", async () => {

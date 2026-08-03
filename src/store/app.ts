@@ -9,6 +9,7 @@ import type {
   Lang,
   Metrics,
   Persona,
+  PriorSigning,
   Profile,
   SignProgress,
   StoredCard,
@@ -67,6 +68,10 @@ export interface AppState {
     dominantHand: Hand;
     language: Lang;
     dailyGoal: DailyGoal;
+    /** Optional so every other caller (tests, family members added later) keeps
+     *  working: only the first run asks these two. */
+    priorSigning?: PriorSigning;
+    practiseDays?: number[];
   }) => string;
   switchProfile: (id: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
@@ -259,6 +264,15 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
             : [],
           dailyGoal:
             pr.dailyGoal === "casual" || pr.dailyGoal === "serious" ? pr.dailyGoal : "regular",
+          // Added in Phase 2. A blob written before these existed answered
+          // neither question, so it backfills to "no answer" — an empty
+          // practiseDays makes Home stay silent rather than claim a commitment
+          // the learner never made.
+          priorSigning:
+            pr.priorSigning === "some" || pr.priorSigning === "fluent" ? pr.priorSigning : "none",
+          practiseDays: Array.isArray(pr.practiseDays)
+            ? [...new Set(pr.practiseDays.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))]
+            : [],
           createdAt: typeof pr.createdAt === "string" ? pr.createdAt : new Date().toISOString(),
         };
       })
@@ -335,7 +349,15 @@ export const useApp = create<AppState>()(
       flags: [],
       metrics: { ...emptyMetrics, appFirstOpenAt: new Date().toISOString() },
 
-      createProfile: ({ displayName, role, dominantHand, language, dailyGoal }) => {
+      createProfile: ({
+        displayName,
+        role,
+        dominantHand,
+        language,
+        dailyGoal,
+        priorSigning,
+        practiseDays,
+      }) => {
         const id = uid("p");
         const emoji = AVATARS[get().profiles.length % AVATARS.length];
         const profile: Profile = {
@@ -354,6 +376,8 @@ export const useApp = create<AppState>()(
           lastActiveDay: null,
           activeDays: [],
           dailyGoal,
+          priorSigning: priorSigning ?? "none",
+          practiseDays: practiseDays ?? [],
           createdAt: new Date().toISOString(),
         };
         set((s) => ({
