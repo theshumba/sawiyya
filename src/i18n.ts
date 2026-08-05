@@ -581,6 +581,49 @@ const dict = {
   // Watch-only signs: no model exists for any word sign, so the honest action is
   // watch, then mark yourself. Used by the dictionary and the camera reference.
   signRefOnlyNote: { en: "Reference only, no camera grading", ar: "للاطلاع فقط، بلا تقييم بالكاميرا" },
+
+  // ── Phase 3 · stages (2026-08-05) ─────────────────────────────────────────
+  // The ladder's own rows live in journey/journey.ts, next to the order that
+  // ranks them — these are the chrome around them. "Getting started" and not
+  // "milestones": lesson/milestones.ts already owns that word for the mastery
+  // ladder that Home's chest and Progress's "Next milestone" both read.
+  jrTitle: { en: "Getting started", ar: "لنبدأ" },
+  jrBody: {
+    en: "Six things that show you the whole app. They tick themselves off as you go.",
+    ar: "ستة أشياء تعرّفك بالتطبيق كله. تُشطب من تلقاء نفسها كلما تقدّمت.",
+  },
+  jrDone: { en: "Done", ar: "تم" },
+  jrNext: { en: "Next", ar: "التالي" },
+  jrLater: { en: "Later", ar: "لاحقًا" },
+  jrNotNow: { en: "Not now", ar: "ليس الآن" },
+  jrPutAside: { en: "Put aside — it's still here whenever you want it.", ar: "أُجّلت — تبقى هنا متى أردتها." },
+  // The review row cannot be honoured with an empty queue, so it says why
+  // instead of sending the learner to a screen with nothing on it.
+  jrWaitingReview: {
+    en: "Nothing is due yet. Signs come back a day after you first learn them.",
+    ar: "لا شيء مستحق بعد. تعود الإشارات بعد يوم من تعلّمها أول مرة.",
+  },
+
+  // Install. Never "install the app": what is actually at stake is the progress,
+  // and iOS Safari deletes an uninstalled site's storage after seven unused days.
+  jrInstallTitle: { en: "Keep your progress", ar: "احفظ تقدّمك" },
+  jrInstallWhy: {
+    en: "Everything you've learned is saved in this browser, and phones clear that on their own. Adding Sawiyya to your home screen stops it happening.",
+    ar: "كل ما تعلّمته محفوظ في هذا المتصفح، والهواتف تمسحه من تلقاء نفسها. إضافة سويّة إلى شاشتك الرئيسية تمنع ذلك.",
+  },
+  jrInstallCta: { en: "Add to home screen", ar: "أضِف إلى الشاشة الرئيسية" },
+  jrInstallIos1: {
+    en: "On iPhone: tap the Share button in Safari's toolbar.",
+    ar: "على الآيفون: اضغط زر المشاركة في شريط سفاري.",
+  },
+  jrInstallIos2: {
+    en: "Choose “Add to Home Screen”, then Add.",
+    ar: "اختر «إضافة إلى الشاشة الرئيسية»، ثم أضِف.",
+  },
+  jrInstallAndroid: {
+    en: "On Android: open the browser menu and choose “Install app” or “Add to Home screen”.",
+    ar: "على أندرويد: افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».",
+  },
   signMarkPractised: { en: "I practised this", ar: "تمرّنت على هذه" },
   signMarkedPractised: { en: "Marked as practised. It will come back in review.", ar: "سجّلناها كتمرين. ستعود في المراجعة." },
 } satisfies Record<string, Entry>;

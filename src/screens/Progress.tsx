@@ -38,6 +38,8 @@ import { Confetti, celebrate } from "../components/Confetti";
 import { Fanan } from "../components/Fanan";
 import { toLocaleDigits, formatPercent } from "../components/dc";
 import { SignGlyph } from "../components/SignGlyph";
+import { HintNote, JourneyLadder } from "../components/Journey";
+import { useHint } from "../journey/hints";
 import { useDialog } from "../components/useDialog";
 import type { Lang, Metrics, Profile, Sign } from "../types";
 
@@ -315,6 +317,7 @@ function OasisTab({
   onCamera: () => void;
   onSign: (id: string) => void;
 }) {
+  const dueHint = useHint("progress-due", empty);
   return (
     <div className="space-y-4">
       {/* Title + body */}
@@ -322,6 +325,11 @@ function OasisTab({
         <h2 className="font-display text-[25px] font-extrabold leading-[1.1] text-ink">{t("prOasisTitle", lang)}</h2>
         <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("prOasisBody", lang)}</p>
       </div>
+
+      {/* Phase 3 · the full ladder as a readout. Home shows at most one row of
+          it; this is where "how far along am I" is a fair question to answer.
+          Renders nothing once every step is behind the learner. */}
+      <JourneyLadder lang={lang} dueCount={due.length} />
 
       {/* Oasis scene — non-interactive, illustrated. Fanan never mirrors. */}
       <div
@@ -507,6 +515,10 @@ function OasisTab({
               <Icon name="videocam" className="text-lg" />
               {t("practiseTitle", lang)}
             </button>
+            {/* Phase 3 · the empty state is where the schedule is worth
+                explaining — "nothing due" is otherwise indistinguishable from
+                "nothing happening". At most one hint lands anywhere per session. */}
+            <HintNote lang={lang} text={dueHint && pick(lang, dueHint.en, dueHint.ar)} />
           </div>
         ) : (
           <div className="space-y-3">
@@ -726,6 +738,7 @@ function LeagueTab({
   activeProfileId: string | null;
   onAddFamily: () => void;
 }) {
+  const soloHint = useHint("progress-league", profiles.length <= 1);
   const ranked = [...profiles].sort((a, b) => b.xp - a.xp);
   const max = Math.max(1, ...ranked.map((p) => p.xp));
   const colorFor = (p: Profile) =>
@@ -761,6 +774,7 @@ function LeagueTab({
             <Icon name="person_add" className="text-lg" />
             {t("famAdd", lang)}
           </button>
+          <HintNote lang={lang} text={soloHint && pick(lang, soloHint.en, soloHint.ar)} />
         </div>
       ) : (
         // Ranked rows — real names, real XP, "you" = the active profile.

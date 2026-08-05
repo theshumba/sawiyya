@@ -25,6 +25,8 @@ import { Card, Pill, SpringButton, formatPercent } from "../components/dc";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { SignGlyph } from "../components/SignGlyph";
+import { HintNote } from "../components/Journey";
+import { useHint } from "../journey/hints";
 
 // H5: a flagged sign must open ITS OWN surface — camera only when gradable,
 // otherwise the sign's dictionary/watch detail. The old generic-camera fallback
@@ -65,6 +67,9 @@ export function Family() {
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState<Persona>("sibling");
+  // Above the no-profile bail: hooks cannot sit behind an early return, and the
+  // shared board does not depend on which profile is active.
+  const boardHint = useHint("family-board", signsAllCanDo(app).length === 0);
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
@@ -420,6 +425,10 @@ export function Family() {
           {board.length === 0 ? (
             <Card className="mt-3 p-4 text-center text-sm text-muted">
               {t("famBoardEmpty", lang)}
+              {/* Phase 3 · "when every member masters a sign" is the promise;
+                  the hint says what mastering actually takes, which is the part
+                  an empty board leaves people guessing at. */}
+              <HintNote lang={lang} text={boardHint && pick(lang, boardHint.en, boardHint.ar)} />
             </Card>
           ) : (
             <>

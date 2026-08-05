@@ -17,6 +17,7 @@ import { signById, LESSONS, UNITS } from "../content/signs";
 import {
   GOAL_XP,
   activeProfile,
+  dueSignIds,
   pinnedFlagSigns,
   streakFor,
   useApp,
@@ -28,6 +29,7 @@ import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
+import { JourneyStrip } from "../components/Journey";
 import { useDialog } from "../components/useDialog";
 import { nextMilestone } from "../lesson/milestones";
 import { currentLessonId, lessonState } from "../lesson/unlock";
@@ -454,6 +456,13 @@ export function Home() {
           {/* B3 · Treasure milestone closes the trail, after the last unit. */}
           {milestoneNode && renderNode(milestoneNode)}
         </section>
+
+        {/* Phase 3 · one getting-started row, BELOW the trail and only when the
+            trail cannot carry it itself — install, review, the family flag. The
+            road keeps primacy; this is the app naming a part of itself the road
+            never passes. It renders nothing at all once there is nothing left to
+            introduce, which is why Phase 1's card stack is not creeping back. */}
+        <JourneyStrip lang={lang} dueCount={dueSignIds(app, profile.id).length} />
       </div>
 
       {/* Block C — node start popover (bottom sheet). */}

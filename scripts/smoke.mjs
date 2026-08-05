@@ -192,6 +192,23 @@ await step("home has NO secondary card stack under the trail", async () => {
   }
 });
 
+// ── Phase 3: stages ─────────────────────────────────────────────────────────
+await step("Home stays quiet while the trail is already the answer", async () => {
+  // The ladder HAS banked the first sign by now (FirstSign ran a camera drill),
+  // so its next step is "finish your first lesson" — which IS the trail's
+  // current node. Home must not repeat it: that is the first card of the stack
+  // Phase 1 deleted. Both halves matter: without the state check this step is a
+  // negative assertion that any build without the feature also passes.
+  const banked = await page.evaluate(() => {
+    const raw = localStorage.getItem("sawiyya.app.v1");
+    return raw ? (JSON.parse(raw).state.journey?.steps ?? []) : [];
+  });
+  assert(banked.includes("first-sign"), "the ladder never noticed the first sign");
+  const txt = await bodyText();
+  assert(!txt.includes("Getting started"), "the getting-started strip repeats the trail");
+  assert(!txt.includes("Finish your first lesson"), "Home duplicates the trail's own answer");
+});
+
 await step("the trail is the screen: every lesson is a node", async () => {
   const nodes = page.locator("button[aria-haspopup='dialog']");
   assert((await nodes.count()) >= 8, "trail is missing nodes");
@@ -250,9 +267,16 @@ await step("deep-linking a locked lesson is refused, with a way forward", async 
 });
 
 await step("lesson player runs a full drill loop", async () => {
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 40; i++) {
     if (await page.isVisible("text=Great session!")) break;
-    if (await page.isVisible("text=Keep going")) break; // part-done card
+    // The part-done card is not an ending: the queue caps in two passes, and
+    // stopping here left the lesson unfinished, which meant recordLessonComplete
+    // never fired and Phase 3's ladder could never reach its later rows.
+    if (await page.isVisible("text=Keep going")) {
+      await page.click("text=Keep going");
+      await page.waitForTimeout(300);
+      continue;
+    }
     if (await page.isVisible("text=I signed it right")) {
       await page.click("text=I signed it right"); // camera drill in headless
       await page.waitForTimeout(200);
@@ -273,9 +297,41 @@ await step("lesson player runs a full drill loop", async () => {
   );
 });
 
+await step("finishing a lesson banks it on the getting-started ladder", async () => {
+  // Phase 3: no screen announces this — the store reads it off the completion
+  // the lesson already records. Checked here, at the moment it happens.
+  const banked = await page.evaluate(() => {
+    const raw = localStorage.getItem("sawiyya.app.v1");
+    return raw ? (JSON.parse(raw).state.journey?.steps ?? []) : [];
+  });
+  assert(banked.includes("first-sign"), "the first camera drill was never banked");
+  assert(banked.includes("first-lesson"), "a completed lesson was never banked");
+  assert(!banked.includes("install"), "the ladder claimed an install that never happened");
+});
+
 await step("lesson end card → home", async () => {
-  await page.click("text=Back home");
+  // Two different end cards, two different labels for the same destination: the
+  // part-done card says "Back home", the completed one says "Continue". Both
+  // route to Home. Naming only one of them is what made this step pass only for
+  // the ending the loop happened to stop on.
+  await page
+    .locator("button:has-text('Back home'), button:has-text('Continue')")
+    .last()
+    .click();
   await page.waitForSelector("text=Marhaba");
+});
+
+// ── Phase 3: the session's one hint lands on the first empty state ──────────
+await step("the empty family board carries this session's one hint", async () => {
+  // Its own step, BEFORE the Phase 1 family gate: an assertion in the middle of
+  // that gate aborted it on failure, which took the flag with it and reported a
+  // Phase 1 regression that had not happened.
+  await tab("Family").click();
+  await page.waitForSelector("text=Your household");
+  assert(
+    (await bodyText()).includes("camera-checked twice"),
+    "the empty family board carries no hint",
+  );
 });
 
 // ── Phase 1: the family request is the one card, and it sits on top ──────────
@@ -358,6 +414,70 @@ await step("the AI explainer no longer opens the grader", async () => {
   await page.click("text=Let's Practice Together");
   await page.waitForTimeout(600);
   assert(page.url().includes("#/practise"), `landed on ${page.url()}, expected the Practise tab`);
+});
+
+// ── Phase 3: the ladder is a readout, not a checklist someone typed out ─────
+await step("the getting-started ladder reports what actually happened", async () => {
+  await page.goto(`${BASE}#/progress`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("text=Getting started");
+  const txt = await bodyText();
+  for (const row of [
+    "Sign your first letter",
+    "Finish your first lesson",
+    "Keep your progress",
+    "Do a review",
+    "Ask for a sign",
+    "Finish a whole unit",
+  ]) {
+    assert(txt.includes(row), `the ladder is missing "${row}"`);
+  }
+  // Two steps this run really did, and the row state has to say so — sr-only
+  // text is what carries done/next/later to anyone not looking at the tick.
+  const rowState = async (label) =>
+    (await page.locator("li", { hasText: label }).first().innerText()).toLowerCase();
+  assert((await rowState("Sign your first letter")).includes("done"), "the first sign is not ticked");
+  assert((await rowState("Ask for a sign")).includes("done"), "the raised flag is not ticked");
+  // …and one it did not. Nothing installed this browser, so nothing may claim it.
+  assert(
+    !(await rowState("Keep your progress")).includes("done"),
+    "the ladder claims an install that never happened",
+  );
+});
+
+await step("install offers written steps when the browser has no install prompt", async () => {
+  await page.click("text=Keep your progress");
+  await page.waitForSelector("[role=dialog]");
+  const sheet = await page.locator("[role=dialog]").innerText();
+  // Headless Chromium fires no beforeinstallprompt, so a one-tap button here
+  // would be a button that does nothing. The honest branch is the instructions.
+  assert(sheet.includes("Share button"), "no written install steps on a browser with no prompt");
+  assert(!sheet.includes("Add to home screen"), "a dead one-tap install button is on screen");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+});
+
+await step("a step the app cannot drive can be put aside, and the pointer moves on", async () => {
+  await page.click("text=Not now");
+  await page.waitForTimeout(300);
+  const txt = await bodyText();
+  assert(txt.includes("still here whenever you want it"), "the put-aside row lost its state");
+  assert(txt.includes("Keep your progress"), "putting a step aside deleted it from the ladder");
+});
+
+// A guard rather than a gate: it cannot fail on a build with no hints at all.
+// The "never on the launch screen" half of the budget is exercised properly in
+// src/journey/hints.test.ts, which can reset the module state a browser cannot.
+await step("a hint the learner has already met does not come back", async () => {
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("text=Marhaba");
+  await tab("Family").click(); // in-app, so the launch-screen rule is not what's acting
+  await page.waitForSelector("text=Your household");
+  const txt = await bodyText();
+  assert(
+    txt.includes("it appears here"),
+    "the shared board is no longer empty, so this step proves nothing",
+  );
+  assert(!txt.includes("camera-checked twice"), "a hint the learner already met came back");
 });
 
 await step("Arabic flips the document, and back", async () => {

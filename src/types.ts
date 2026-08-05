@@ -133,6 +133,26 @@ export interface Flag {
   createdAt: string;
 }
 
+/**
+ * Where the learner is on the getting-started ladder, and what the app has
+ * already introduced (Phase 3). Device-level, not per-profile: "has this app
+ * introduced itself on this phone" is a property of the phone. The ladder's own
+ * definitions live in journey/journey.ts — nothing here is an enum, so adding or
+ * removing a step needs no migration.
+ */
+export interface Journey {
+  /** Completed step ids, in the order they were reached. */
+  steps: string[];
+  /** surfaceId → the rev of it the learner has acknowledged. */
+  seen: Record<string, number>;
+  /** Step ids the learner explicitly put aside. */
+  dismissed: string[];
+  // The plan's fourth field, `firstOpenAt`, is deliberately absent: it is
+  // `metrics.appFirstOpenAt`, which already records first open on this device
+  // and is already normalized and persisted. Two fields holding one fact is the
+  // naming collision Phase 4 exists to clean up, not one to add.
+}
+
 export interface Metrics {
   appFirstOpenAt: string | null;
   firstSignMs: number | null; // time-to-first-sign (G1)

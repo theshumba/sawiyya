@@ -16,6 +16,7 @@ import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
 import { Words } from "./screens/Words";
+import { useInstallDetection } from "./components/Journey";
 
 // M13: the camera screens pull in the whole recognizer stack — @mediapipe
 // tasks-vision, CameraTrainer, the MLP — none of which the app shell needs on
@@ -117,6 +118,10 @@ export default function App() {
   useEffect(() => {
     applyDir(lang);
   }, [lang]);
+
+  // Phase 3 · "keep your progress" is the one ladder step no screen in the app
+  // can complete, so it is banked here off the observed display mode instead.
+  useInstallDetection();
 
   // M16: announce the destination screen on every SPA route change.
   const [announce, setAnnounce] = useState("");

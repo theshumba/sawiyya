@@ -6,6 +6,7 @@ import type {
   DailyGoal,
   Flag,
   Hand,
+  Journey,
   Lang,
   Metrics,
   Persona,
@@ -14,7 +15,9 @@ import type {
   SignProgress,
   StoredCard,
 } from "../types";
-import { ALPHABET } from "../content/signs";
+import { ALPHABET, LESSONS, UNITS } from "../content/signs";
+import { lessonFinished } from "../lesson/unlock";
+import { coldStartSeen, stepById, stepsImpliedBy, type StepId } from "../journey/journey";
 import { isDue, newStoredCard, rateCard, type SrsOutcome } from "./srs";
 
 /** Daily soft cap on reviews (H3 flood spreader) and per-session card count. */
@@ -60,6 +63,8 @@ export interface AppState {
   srs: Record<string, Record<string, StoredCard>>;
   flags: Flag[];
   metrics: Metrics;
+  /** Getting-started ladder + what the app has already introduced (Phase 3). */
+  journey: Journey;
 
   // actions
   createProfile: (p: {
@@ -108,6 +113,34 @@ export interface AppState {
   markFirstSignTime: () => void;
   toggleFlag: (signId: string, raisedByProfileId: string) => void;
   bumpMetric: (key: keyof Metrics, by?: number) => void;
+  /** Mark a getting-started step done, plus everything it implies. Every other
+   *  step is detected from what the learner actually did; this is only called
+   *  directly for `install`, which the app can only observe. */
+  completeStep: (id: StepId) => void;
+  /** Put a step aside. Ignored for steps that are not dismissible — the ladder
+   *  must not be silently emptied by a stray call. */
+  dismissStep: (id: StepId) => void;
+  /** Record that a hint (or, later, a feature announcement) has been met. */
+  ackHint: (id: string, rev: number) => void;
+}
+
+// ── the getting-started ladder ───────────────────────────────────────────────
+// Pure helpers over the journey slice. Each returns the SAME object when nothing
+// changes, so a drill that advances no step re-renders nothing.
+
+const emptyJourney: Journey = { steps: [], seen: {}, dismissed: [] };
+
+function withStep(j: Journey, id: StepId): Journey {
+  const add = stepsImpliedBy(id).filter((s) => !j.steps.includes(s));
+  return add.length === 0 ? j : { ...j, steps: [...j.steps, ...add] };
+}
+
+/** Has the active profile finished every lesson in any one unit? */
+function anyUnitFinished(prog: Record<string, SignProgress>): boolean {
+  return UNITS.some((u) => {
+    const lessons = LESSONS.filter((l) => l.unitId === u.id);
+    return lessons.length > 0 && lessons.every((l) => lessonFinished(l.id, prog));
+  });
 }
 
 const emptyMetrics: Metrics = {
@@ -277,6 +310,48 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
         };
       })
     : current.profiles;
+  const progress = normalizeProgress(p.progress);
+  const srs = normalizeSrs(p.srs);
+  const flags: Flag[] = Array.isArray(p.flags)
+    ? p.flags
+        .filter(isRecord)
+        .map((raw) => {
+          const f = raw as Partial<Flag>;
+          return {
+            id: typeof f.id === "string" ? f.id : uid("flag"),
+            raisedByProfileId: typeof f.raisedByProfileId === "string" ? f.raisedByProfileId : "",
+            supporters: Array.isArray(f.supporters)
+              ? f.supporters.filter((x): x is string => typeof x === "string")
+              : [],
+            signId: typeof f.signId === "string" ? f.signId : "",
+            active: f.active !== false,
+            archived: f.archived === true,
+            createdAt: typeof f.createdAt === "string" ? f.createdAt : new Date().toISOString(),
+          };
+        })
+        .filter((f) => f.signId !== "")
+    : [];
+  // Metrics coerce field-by-field like every other slice — a spread let
+  // string/object values through, and `drillsCompleted + 1` on a string
+  // silently corrupts the honesty counters forever after.
+  const m = isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {};
+  const metrics: Metrics = {
+    appFirstOpenAt:
+      typeof m.appFirstOpenAt === "string" ? m.appFirstOpenAt : current.metrics.appFirstOpenAt,
+    firstSignMs:
+      typeof m.firstSignMs === "number" && Number.isFinite(m.firstSignMs) ? m.firstSignMs : null,
+    drillsCompleted: finiteOr(m.drillsCompleted, 0),
+    cameraAttempts: finiteOr(m.cameraAttempts, 0),
+    cameraMatches: finiteOr(m.cameraMatches, 0),
+    ownRecordingMatches: finiteOr(m.ownRecordingMatches, 0),
+    selfMarks: finiteOr(m.selfMarks, 0),
+    lessonsCompleted: finiteOr(m.lessonsCompleted, 0),
+  };
+  const activeProfileId =
+    typeof p.activeProfileId === "string" && profiles.some((pr) => pr.id === p.activeProfileId)
+      ? p.activeProfileId
+      : (profiles[0]?.id ?? null);
+
   // NO blind `...p` spread: a hostile/hand-edited import could smuggle keys
   // that collide with store ACTION names (e.g. {"toggleFlag": 42}) and brick
   // the app permanently. Only the explicit whitelist below is restored.
@@ -284,58 +359,76 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
     ...current,
     onboarded: p.onboarded === true,
     profiles,
-    activeProfileId:
-      typeof p.activeProfileId === "string" && profiles.some((pr) => pr.id === p.activeProfileId)
-        ? p.activeProfileId
-        : (profiles[0]?.id ?? null),
-    progress: normalizeProgress(p.progress),
-    srs: normalizeSrs(p.srs),
+    journey: normalizeJourney(p.journey, {
+      progress: activeProfileId ? (progress[activeProfileId] ?? {}) : {},
+      srs,
+      flags,
+      metrics,
+    }),
+    activeProfileId,
+    progress,
+    srs,
     // Flags written before supporters/archived existed (pre-Batch-5) backfill
     // cleanly; malformed entries are dropped rather than crashing selectors.
-    flags: Array.isArray(p.flags)
-      ? p.flags
-          .filter(isRecord)
-          .map((raw) => {
-            const f = raw as Partial<Flag>;
-            return {
-              id: typeof f.id === "string" ? f.id : uid("flag"),
-              raisedByProfileId:
-                typeof f.raisedByProfileId === "string" ? f.raisedByProfileId : "",
-              supporters: Array.isArray(f.supporters)
-                ? f.supporters.filter((x): x is string => typeof x === "string")
-                : [],
-              signId: typeof f.signId === "string" ? f.signId : "",
-              active: f.active !== false,
-              archived: f.archived === true,
-              createdAt:
-                typeof f.createdAt === "string" ? f.createdAt : new Date().toISOString(),
-            };
-          })
-          .filter((f) => f.signId !== "")
-      : [],
-    // Metrics coerce field-by-field like every other slice — a spread let
-    // string/object values through, and `drillsCompleted + 1` on a string
-    // silently corrupts the honesty counters forever after.
-    metrics: (() => {
-      const m = isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {};
-      return {
-        appFirstOpenAt:
-          typeof m.appFirstOpenAt === "string"
-            ? m.appFirstOpenAt
-            : current.metrics.appFirstOpenAt,
-        firstSignMs:
-          typeof m.firstSignMs === "number" && Number.isFinite(m.firstSignMs)
-            ? m.firstSignMs
-            : null,
-        drillsCompleted: finiteOr(m.drillsCompleted, 0),
-        cameraAttempts: finiteOr(m.cameraAttempts, 0),
-        cameraMatches: finiteOr(m.cameraMatches, 0),
-        ownRecordingMatches: finiteOr(m.ownRecordingMatches, 0),
-        selfMarks: finiteOr(m.selfMarks, 0),
-        lessonsCompleted: finiteOr(m.lessonsCompleted, 0),
-      };
-    })(),
+    flags,
+    metrics,
   };
+}
+
+/**
+ * The journey slice, rehydrated. Three cases, and they are genuinely different:
+ *
+ * 1. No `journey` key at all AND nothing else either — the store's own initial
+ *    state already carries the cold-start `seen` map, so this branch never runs
+ *    on a truly first run (persist only merges when a blob exists).
+ * 2. No `journey` key but real progress — a blob written before Phase 3. The
+ *    ladder is BACKFILLED FROM EVIDENCE below, or a learner who mastered half
+ *    the alphabet last week is told to go and sign their first letter. `seen`
+ *    stays empty on purpose: they are not a new learner, so a future feature
+ *    announcement SHOULD reach them.
+ * 3. A real journey key — validated field by field like every other slice.
+ */
+function normalizeJourney(
+  v: unknown,
+  evidence: {
+    progress: Record<string, SignProgress>;
+    srs: AppState["srs"];
+    flags: Flag[];
+    metrics: Metrics;
+  },
+): Journey {
+  if (isRecord(v)) {
+    const j = v as Partial<Journey>;
+    const seen: Record<string, number> = {};
+    if (isRecord(j.seen)) {
+      for (const [k, rev] of Object.entries(j.seen)) {
+        if (k === "__proto__") continue; // see normalizeProgress
+        if (typeof rev === "number" && Number.isFinite(rev)) seen[k] = rev;
+      }
+    }
+    const strings = (x: unknown): string[] =>
+      Array.isArray(x) ? [...new Set(x.filter((s): s is string => typeof s === "string"))] : [];
+    return { steps: strings(j.steps), seen, dismissed: strings(j.dismissed) };
+  }
+
+  // Case 2 — read the ladder off what the learner already did. Every claim here
+  // is evidence the app recorded at the time, never an assumption:
+  //   first-sign   a camera drill ran at all
+  //   first-lesson the lessons-completed counter moved
+  //   first-review an SRS card was rated more than once, which only a review does
+  //   first-flag   a flag exists
+  //   first-unit   every lesson of some unit is finished for the active profile
+  // `install` is never backfilled — it is detected live at boot instead.
+  let out = emptyJourney;
+  if (evidence.metrics.cameraAttempts > 0) out = withStep(out, "first-sign");
+  if (evidence.metrics.lessonsCompleted > 0) out = withStep(out, "first-lesson");
+  const reviewed = Object.values(evidence.srs).some((cards) =>
+    Object.values(cards).some((c) => c.reps >= 2),
+  );
+  if (reviewed) out = withStep(out, "first-review");
+  if (evidence.flags.length > 0) out = withStep(out, "first-flag");
+  if (anyUnitFinished(evidence.progress)) out = withStep(out, "first-unit");
+  return out;
 }
 
 export const useApp = create<AppState>()(
@@ -348,6 +441,11 @@ export const useApp = create<AppState>()(
       srs: {},
       flags: [],
       metrics: { ...emptyMetrics, appFirstOpenAt: new Date().toISOString() },
+      // A genuinely first run: every current announcement rev is written in as
+      // already met, so the first feature that ever announces itself does not
+      // arrive alongside a backlog of "new" badges for an app this learner has
+      // only just opened (plan point 9). Hints are NOT seeded — see coldStartSeen.
+      journey: { ...emptyJourney, seen: coldStartSeen() },
 
       createProfile: ({
         displayName,
@@ -514,6 +612,14 @@ export const useApp = create<AppState>()(
           }
           if (opts.selfMark) metrics.selfMarks += 1;
 
+          // 4b. The getting-started ladder, read off what just happened rather
+          //     than announced by the caller. `withStep` returns the same object
+          //     when nothing advanced, so an ordinary drill re-renders nothing.
+          let journey = s.journey;
+          if (opts.camera) journey = withStep(journey, "first-sign");
+          if (wasReview) journey = withStep(journey, "first-review");
+          if (anyUnitFinished(profileProg)) journey = withStep(journey, "first-unit");
+
           // 5. Flag auto-archive (M8): when every non-raiser HEARING member has
           //    reached mastery ≥ 2 on a flagged sign, the flag archives — kept
           //    in state as history, out of the queues and Home pins.
@@ -540,6 +646,7 @@ export const useApp = create<AppState>()(
             profiles,
             metrics,
             flags,
+            journey,
           };
         });
       },
@@ -547,6 +654,7 @@ export const useApp = create<AppState>()(
       recordLessonComplete: () =>
         set((s) => ({
           metrics: { ...s.metrics, lessonsCompleted: s.metrics.lessonsCompleted + 1 },
+          journey: withStep(s.journey, "first-lesson"),
         })),
 
       // Explicitly schedule a sign for review (due now) without inflating mastery,
@@ -665,7 +773,15 @@ export const useApp = create<AppState>()(
                 })
               : s.profiles;
 
-          return { flags: [...s.flags, flag], srs, profiles };
+          // A raised flag is the household mechanism working — the ladder counts
+          // it here, on creation, not on the H7 co-request or deactivate paths
+          // above, which return early.
+          return {
+            flags: [...s.flags, flag],
+            srs,
+            profiles,
+            journey: withStep(s.journey, "first-flag"),
+          };
         }),
 
       // H7: "Clear all" clears only the CALLER's own raised flags — never the
@@ -685,6 +801,24 @@ export const useApp = create<AppState>()(
           if (typeof cur !== "number") return s;
           return { metrics: { ...s.metrics, [key]: cur + by } };
         }),
+
+      completeStep: (id) => set((s) => ({ journey: withStep(s.journey, id) })),
+
+      dismissStep: (id) =>
+        set((s) => {
+          // Only a dismissible step may be put aside. Without this guard a stray
+          // call could empty the ladder, and there is no way back to it.
+          if (!stepById(id)?.dismissible) return s;
+          if (s.journey.dismissed.includes(id)) return s;
+          return { journey: { ...s.journey, dismissed: [...s.journey.dismissed, id] } };
+        }),
+
+      ackHint: (id, rev) =>
+        set((s) =>
+          s.journey.seen[id] === rev
+            ? s
+            : { journey: { ...s.journey, seen: { ...s.journey.seen, [id]: rev } } },
+        ),
     }),
     {
       name: STORE_KEY,
