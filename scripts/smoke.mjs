@@ -221,9 +221,13 @@ await step("Home stays quiet while the trail is already the answer", async () =>
 
 await step("the trail is the screen: every lesson is a node", async () => {
   const nodes = page.locator("button[aria-haspopup='dialog']");
-  assert((await nodes.count()) >= 8, "trail is missing nodes");
+  // 4 alphabet lessons since the word unit went (2026-08-05); was 8.
+  assert((await nodes.count()) >= 4, "trail is missing nodes");
   await page.waitForSelector("text=The Arabic Alphabet");
-  await page.waitForSelector("text=Family & First Words");
+  // "Family & First Words" was unit 2 until 2026-08-05. The trail is the
+  // alphabet alone until a unit with a real source behind it exists.
+  const trail = await bodyText();
+  assert(!trail.includes("Family & First Words"), "the unsourced word unit is back on the trail");
 });
 
 // ── Phase 1: the padlocks are real ───────────────────────────────────────────
@@ -359,10 +363,10 @@ await step("family: add a Deaf member and flag a sign", async () => {
   await page.waitForTimeout(400);
   await page.click("button:has-text('Flag signs we need')");
   await page.waitForSelector("text=You direct what they learn");
-  // Milk sits in the Food group and the picker opens on Home, so the tile is
-  // not on screen. Search for it instead of assuming which chip is selected.
-  await page.getByRole("textbox", { name: "Search signs" }).fill("Milk");
-  await page.locator("main button").filter({ hasText: "Milk" }).first().click();
+  // Was "Milk" until 2026-08-05, when the unsourced word signs were removed —
+  // the picker is letters only now. Search rather than assume a scroll position.
+  await page.getByRole("textbox", { name: "Search signs" }).fill("Meem");
+  await page.locator("main button").filter({ hasText: "Meem" }).first().click();
   await page.waitForSelector("text=1 flagged");
   await page.locator("button").filter({ hasText: /^Done/ }).first().click();
   await page.waitForSelector("text=Your household");
@@ -551,24 +555,35 @@ await step("the dictionary answers to ONE name", async () => {
   );
 });
 
-await step("the word room is the dictionary filtered, not a screen of its own", async () => {
-  await page.goto(`${BASE}#/practise`, { waitUntil: "domcontentloaded" });
-  await page.click("button:has-text('Everyday words')");
-  await page.waitForTimeout(600);
-  assert(page.url().endsWith("#/words"), `landed on ${page.url()}, expected #/words`);
+// 2026-08-05 · the 19 word signs were ASL-adapted and never verified as Qatari,
+// so they were removed rather than disclosed (docs/RECORD-WORD-SIGNS.md). These
+// two steps are the Phase 4 word-filter gates INVERTED, not deleted: the corner
+// stays guarded, so nothing re-adds an unsourced sign or a chip with no content.
+await step("no unsourced word sign is anywhere in the dictionary", async () => {
+  await page.goto(`${BASE}#/signs`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("h1:has-text('Dictionary')");
-  const chip = page.locator("button[aria-label='Everyday words']");
-  assert((await chip.getAttribute("aria-pressed")) === "true", "the words chip is not applied");
   const txt = await bodyText();
-  assert(txt.includes("I love you"), "the word signs are not listed");
-  assert(!txt.includes("Alif"), "the filter let the alphabet through");
+  for (const gone of ["I love you", "Everyday words", "Bedtime", "All done", "Thank you"]) {
+    assert(!txt.includes(gone), `the removed word sign "${gone}" is back in the dictionary`);
+  }
+  assert(txt.includes("Alif"), "the dictionary lost the alphabet too");
 });
 
-await step("a bookmarked #/words still lands on the words", async () => {
+await step("a bookmarked #/words lands on the dictionary, not a 404", async () => {
   await page.goto(`${BASE}#/words`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("h1:has-text('Dictionary')");
-  const chip = page.locator("button[aria-label='Everyday words']");
-  assert((await chip.getAttribute("aria-pressed")) === "true", "the address lost its filter");
+  // The old bookmark still opens the dictionary rather than a 404 or Home. The
+  // hash is left alone (nothing rewrites the address bar on arrival); what
+  // matters is that it resolves and that the removed content is not behind it.
+  const txt = await bodyText();
+  assert(!txt.includes("I love you"), "the words came back via the old address");
+});
+
+await step("the Practise hub has no dead word tile", async () => {
+  await page.goto(`${BASE}#/practise`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(400);
+  const txt = await bodyText();
+  assert(!txt.includes("Everyday words"), "the words tile is back and opens an empty list");
 });
 
 await step("tone: the trail's button is a verb, not a verb and an arrow", async () => {

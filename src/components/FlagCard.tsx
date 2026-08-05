@@ -26,7 +26,7 @@ export function FlagCard({
   return (
     <ScreenCard variant="elevated" onClick={onClick} className="flex items-center gap-4 p-4">
       <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sand">
-        <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-12 w-12 rounded-lg object-cover" />
+        <SignGlyph sign={sign} lang={lang} className="text-3xl" />
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate font-display font-bold text-ink">{gloss}</p>

@@ -174,9 +174,6 @@ const step = async (name, fn) => {
 const ROUTES = [
   ["home", "#/"],
   ["practise", "#/practise"],
-  // Phase 4: still an address, but it is the dictionary filtered to the
-  // everyday words now, not a screen of its own.
-  ["dictionary-words", "#/words"],
   ["fingerspell", "#/fingerspell"],
   ["dictionary", "#/signs"],
   ["dictionary-sign", "#/signs/alpha-alif"],
@@ -229,14 +226,14 @@ const ROUTES = [
     await page.waitForTimeout(2000);
     await shot("en-lesson-alphabet");
   });
-  // Phase 1 put the path in order, so a fresh learner CANNOT reach the words
-  // lesson — this address now renders the locked refusal. The shot kept its old
-  // "lesson-words" name for one run and showed a padlock captioned as the words
-  // lesson, which is exactly the kind of quietly-wrong artefact a design review
-  // trusts. Name it for what it is. The drill chrome itself is already covered
-  // by en-lesson-alphabet; only the content differs.
+  // Phase 1 put the path in order, so a fresh learner CANNOT reach a later
+  // lesson — this address renders the locked refusal. It pointed at the word
+  // lesson until 2026-08-05; that lesson no longer exists, and a dead id would
+  // have shot a generic fallback captioned as a padlock, which is exactly the
+  // quietly-wrong artefact a design review trusts. Point it at a real locked
+  // node. The drill chrome is already covered by en-lesson-alphabet.
   await step("lesson-locked", async () => {
-    await goto("#/lesson/a1-u1-l1");
+    await goto("#/lesson/alpha-u1-l3");
     await page.waitForTimeout(2000);
     await shot("en-lesson-locked");
   });

@@ -175,14 +175,7 @@ export default function App() {
         {screen.name === "flagPicker" && <FlagPicker />}
         {screen.name === "progress" && <Progress />}
         {screen.name === "allSigns" && (
-          // The key includes the filter: arriving from the Practise hub's word
-          // tile while already browsing the dictionary has to re-mount with the
-          // filter applied, not silently keep the old chip.
-          <AllSigns
-            key={screen.signId ?? screen.filter ?? "browse"}
-            initialSignId={screen.signId}
-            initialFilter={screen.filter}
-          />
+          <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
         )}
         {screen.name === "practiseChooser" && <PractiseChooser />}
         {/* Fingerspell drives the camera in practise-along — same risky subtree

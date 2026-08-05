@@ -1,9 +1,11 @@
-// Content gates for the 2026-07-31 batch: real signer photos, the Words hub's
-// hands annotations, and Latin→Arabic fingerspell transliteration.
+// Content gates: real signer photos, the no-unsourced-signs rule, and
+// Latin→Arabic fingerspell transliteration.
 import { describe, expect, it } from "vitest";
 import {
-  A1_SIGNS,
+  ALL_SIGNS,
   ALPHABET,
+  LESSONS,
+  UNITS,
   fingerspellSequence,
   hasLatin,
   lessonById,
@@ -29,24 +31,37 @@ describe("real signer photos (ArSL21L)", () => {
   });
 });
 
-describe("Words hub content", () => {
-  it("every A1 word declares hands (1 or 2)", () => {
-    for (const s of A1_SIGNS) expect([1, 2], s.id).toContain(s.hands);
+describe("no sign ships without a real source (2026-08-05)", () => {
+  // The 19 A1 word signs were adapted from ASL and never verified as Qatari.
+  // They were removed rather than disclosed, because a disclosure does not make
+  // a wrong sign right. See docs/RECORD-WORD-SIGNS.md for the record and the
+  // restore steps. These gates exist so they cannot come back by accident —
+  // only deliberately, by a change that also updates this test.
+  it("every shipped sign is a sourced alphabet letter", () => {
+    for (const s of ALL_SIGNS) expect(s.tier, s.id).toBe("alphabet");
   });
 
-  it("me / man / woman exist, one-handed and watch-only like the rest of A1", () => {
-    for (const id of ["me", "man", "woman"]) {
-      const s = A1_SIGNS.find((x) => x.id === id);
-      expect(s, id).toBeTruthy();
-      expect(s!.hands).toBe(1);
-      expect(s!.cameraGradable).toBe(false);
+  it("the 19 removed word ids resolve to nothing", () => {
+    const removed = [
+      "iloveyou", "hello", "yes", "no", "stop", "more", "finished", "hungry",
+      "milk", "sleep", "mum", "dad", "thankyou", "help", "careful", "name",
+      "me", "man", "woman",
+    ];
+    const ids = new Set(ALL_SIGNS.map((s) => s.id));
+    for (const id of removed) expect(ids.has(id), id).toBe(false);
+  });
+
+  it("no unit or lesson references the removed word content", () => {
+    for (const u of UNITS) expect(u.id, u.id).not.toContain("a1");
+    for (const l of LESSONS) expect(l.unitId, l.id).toBe("alpha-u1");
+    expect(lessonById("a1-u1-l4")).toBeUndefined();
+  });
+
+  it("every sign in every lesson actually exists", () => {
+    const ids = new Set(ALL_SIGNS.map((s) => s.id));
+    for (const l of LESSONS) {
+      for (const id of l.signIds) expect(ids.has(id), `${l.id} → ${id}`).toBe(true);
     }
-  });
-
-  it("the people trio has its own lesson in the A1 unit", () => {
-    const l = lessonById("a1-u1-l4");
-    expect(l?.unitId).toBe("a1-u1");
-    expect(l?.signIds).toEqual(["me", "man", "woman"]);
   });
 });
 

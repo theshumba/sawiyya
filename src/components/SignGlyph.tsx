@@ -2,11 +2,12 @@
 // Centralises the branching that was re-implemented (and drifted) across Home,
 // Family, FlagPicker, AllSigns, LessonPlayer, CameraTrainer, Progress:
 //   sign.photo     → REAL signer photo (ArSL21L, CC BY 4.0) — all 31 letters
-//   iloveyou       → brand demo image
 //   alphabet       → averaged-handshape skeleton (fallback if a photo is missing)
 //   alphabet edge  → the Arabic letter (dir=rtl)
-//   else (words)   → honest sign icon (NO emoji — we don't fake a hand we lack)
-// Phase-2 swaps in Deaf-signer video [B].
+//   else           → honest sign icon (NO emoji — we don't fake a hand we lack)
+// The word branch is unreachable today: the unsourced A1 words were removed
+// 2026-08-05 and every shipped sign is a letter with a photo. It stays because
+// it is what will draw a word that has no footage yet (docs/RECORD-WORD-SIGNS.md).
 import { pick } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { Icon } from "./ui";
@@ -16,14 +17,11 @@ export function SignGlyph({
   sign,
   lang,
   className = "text-5xl",
-  imgClassName = "h-full w-full rounded-xl object-cover",
 }: {
   sign: Sign;
   lang: Lang;
   /** sizing for the text/icon glyph (also sizes the handshape box via em units) */
   className?: string;
-  /** sizing for the iloveyou brand image */
-  imgClassName?: string;
 }) {
   const gloss = pick(lang, sign.glossEn, sign.glossAr);
   // Real signer photo — the letter's actual hand, cropped square. Sized to the
@@ -37,9 +35,6 @@ export function SignGlyph({
         </span>
       </span>
     );
-  }
-  if (sign.id === "iloveyou") {
-    return <img src="brand/stitch-34.png" alt={gloss} className={imgClassName} />;
   }
   // The 28 seeded letters draw their real averaged hand; sized to the text box so
   // every existing call-site (text-3xl/4xl/5xl) lays out unchanged.

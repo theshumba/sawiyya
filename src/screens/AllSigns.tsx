@@ -7,7 +7,7 @@
 // alphabet grid (filter === "alphabet"), sign detail (selectedId), and search
 // (query). All logic, store wiring, camera gating, and honest empty/never-fake-grade
 // branches are preserved; only the visuals are repainted to the design tokens.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { pick, t, type TKey } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { ALL_SIGNS, LESSONS, SEEDED_ALPHABET, UNITS } from "../content/signs";
@@ -23,11 +23,13 @@ import { demoShowsHint, SignDemo } from "../components/SignDemo";
 import { MonoLabel, SpringButton, toLocaleDigits } from "../components/dc";
 import { useDialog } from "../components/useDialog";
 
-// Phase 4: "unit1" is now "words". It always filtered tier A1 — the 19 everyday
-// word signs — and that is what the deleted Words screen listed, so the chip may
-// as well say what it holds. "unit2" stays as an honest empty state for a
-// deep-link into the roadmap unit that has no content yet.
-type Filter = "all" | "learned" | "flagged" | "alphabet" | "words" | "unit2";
+// The "words" filter went with the A1 word unit on 2026-08-05 — a chip that can
+// only ever show an empty list is worse than no chip (docs/RECORD-WORD-SIGNS.md).
+// A bookmarked #/words still resolves, to the unfiltered dictionary, because
+// Phase 4 shipped that address two hours before the words were removed.
+// "unit2" stays as an honest empty state for a deep-link into the roadmap unit
+// that has no content yet.
+type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit2";
 
 type Status = "mastered" | "flagged" | "review" | "letter" | "unit" | "new";
 
@@ -82,13 +84,6 @@ function categoryTags(sign: Sign, lang: Lang): { label: string; tone: "teal" | "
       ? { label: pick(lang, "Phrase", "عبارة"), tone: "gold" }
       : { label: pick(lang, "Common", "شائعة"), tone: "gold" },
   );
-  // Phase 4 · one-handed vs two-handed came from the deleted Words screen, which
-  // sorted its list by it because you can copy a one-handed sign while holding
-  // the phone. That is real information about doing the sign, so it survives the
-  // merge as a tag rather than as a section header on a screen of its own.
-  if (sign.tier === "A1") {
-    tags.push({ label: t(sign.hands === 2 ? "wordsTwoHands" : "wordsOneHand", lang), tone: "teal" });
-  }
   return tags;
 }
 
@@ -111,15 +106,7 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
   );
 }
 
-export function AllSigns({
-  initialSignId,
-  initialFilter,
-}: {
-  initialSignId?: string;
-  /** Phase 4 · the Practise hub's word tile and the trail's word rung both land
-   *  here pre-filtered, which is what replaced the separate Words screen. */
-  initialFilter?: Filter;
-}) {
+export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   const app = useApp();
   const go = useUi((s) => s.go);
   const toggleFlag = useApp((s) => s.toggleFlag);
@@ -128,17 +115,7 @@ export function AllSigns({
   const lang = profile?.language ?? "en";
   const rtl = lang === "ar";
 
-  const [filter, setFilter] = useState<Filter>(initialFilter ?? "all");
-  // Arriving pre-filtered, the chip that IS the filter starts off the end of a
-  // scrollable row on a phone, so the screen looks unfiltered and the learner
-  // cannot see what was applied on their behalf. Bring it into view.
-  const chipRowRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!initialFilter) return;
-    chipRowRef.current
-      ?.querySelector('[aria-pressed="true"]')
-      ?.scrollIntoView({ inline: "center", block: "nearest" });
-  }, [initialFilter]);
+  const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   // Deep-linkable detail (H5): flagged non-gradable signs land here on their
   // exact watch/dictionary surface instead of the wrong camera target.
@@ -168,7 +145,7 @@ export function AllSigns({
     if (card && isDue(card)) return "review";
     if (sign.tier === "alphabet") return "letter";
     if (mastery > 0) return "unit";
-    return sign.tier === "A1" ? "unit" : "new";
+    return "new";
   };
 
   const learnedCount = ALL_SIGNS.filter((s) => (progress[s.id]?.masteryLevel ?? 0) > 0).length;
@@ -184,8 +161,8 @@ export function AllSigns({
   };
   const selfMark = (signId: string) => {
     if (markedToday(signId)) return;
-    // Self-mark rates 'hard', never 'good' (H2): nothing confirmed it. Same call
-    // Words.tsx makes, so a flagged word reaches mastery 2 and the flag archives.
+    // Self-mark rates 'hard', never 'good' (H2): nothing confirmed it. Still
+    // reachable for the three edge forms (ة، لا، ال), which have no ground truth.
     app.recordDrillResult(signId, "hard", { selfMark: true });
   };
 
@@ -196,7 +173,6 @@ export function AllSigns({
       if (filter === "learned" && (progress[sign.id]?.masteryLevel ?? 0) === 0) return false;
       if (filter === "flagged" && !flaggedIds.has(sign.id)) return false;
       if (filter === "alphabet" && sign.tier !== "alphabet") return false;
-      if (filter === "words" && sign.tier !== "A1") return false;
       // Unit 2 is on the roadmap but has no content yet → resolves to the empty
       // "coming soon" state rather than a fabricated set. The chip no longer
       // surfaces this filter (dialect framing moved to the picker), but the rule
@@ -236,15 +212,13 @@ export function AllSigns({
 
   // Live filter chips only — the dialect "Coming Soon" pill moved to onboarding /
   // PractiseChooser, and the empty roadmap unit is no longer offered here.
-  // Phase 4: the A1 chip is named for what it holds, "Everyday words", which is
-  // the name the deleted Words screen carried and the name every door to it
-  // still uses. A bare "Unit 2" named a position in the path, not a set of signs.
+  // The "Everyday words" chip went with the words on 2026-08-05: a chip that can
+  // only ever show an empty list is worse than no chip.
   const FILTERS: { id: Filter; key: TKey }[] = [
     { id: "all", key: "signsFilterAll" },
     { id: "learned", key: "signsFilterLearned" },
     { id: "flagged", key: "signsFilterFlagged" },
     { id: "alphabet", key: "prAlphabet" },
-    { id: "words", key: "wordsTitle" },
   ];
 
   // Only gradable (static/alphabet) signs get a camera target. Dynamic signs can't be
@@ -285,7 +259,6 @@ export function AllSigns({
         {/* ── Filter chips (live only, L11: role="group" — these are filters, not
             tabs with an associated tabpanel/keyboard arrow-nav) ─────────────── */}
         <div
-          ref={chipRowRef}
           className="no-scrollbar -mx-5 mb-6 flex items-center gap-[7px] overflow-x-auto px-5 pb-1 md:mx-0 md:px-0"
           role="group"
           aria-label={pick(lang, "Filter signs", "تصفية الإشارات")}
@@ -613,9 +586,9 @@ function SignCard({
         </span>
       )}
       <div className="mb-1 mt-4 flex aspect-square w-full max-w-[84px] items-center justify-center rounded-[13px] bg-sand p-3">
-        {/* Real hand (alphabet skeleton) / brand image (iloveyou) / honest sign icon
+        {/* Real hand (photo, or the averaged alphabet skeleton) / honest sign icon
             for un-recorded words — via SignGlyph, the one source of truth. No emoji. */}
-        <SignGlyph sign={sign} lang={lang} className="text-4xl md:text-5xl" imgClassName="h-4/5 w-4/5 rounded-2xl object-cover" />
+        <SignGlyph sign={sign} lang={lang} className="text-4xl md:text-5xl" />
       </div>
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
@@ -810,10 +783,11 @@ function DetailPanel({
             {t("practiceCamera", lang)}
           </SpringButton>
         ) : (
-          // Non-gradable sign: the camera can't grade it, so the primary action is
-          // the same never-hard-fail self-mark Words uses. It writes a real drill
-          // result (rated 'hard', H2), which is what lets a flagged word reach
-          // mastery 2 and archive its flag. The old CTA here only relabelled itself.
+          // Non-gradable sign — since 2026-08-05 that means one of the three edge
+          // forms (ة، لا، ال), which have no ground truth. The camera can't grade
+          // them, so the primary action is a never-hard-fail self-mark. It writes
+          // a real drill result (rated 'hard', H2), which is what lets a flagged
+          // sign reach mastery 2 and archive its flag.
           <>
             {marked ? (
               <div className="flex items-center gap-3 rounded-2xl bg-gold/15 p-4">

@@ -143,14 +143,13 @@ export function Home() {
   // actually represents instead of a fixed "Clear Unit 1" line.
   const milestoneMeta = ms ? `${num(ms.done, lang)} / ${num(ms.target, lang)}` : "";
 
-  // Route a rung at whatever advances it. Never the camera for the word rung:
-  // all 19 A1 signs are cameraGradable:false, so it would land on Alif (H5).
-  // With the path finished there is no lesson left to route to, so the rung
-  // hands over to the Practise tab rather than opening a bare camera.
+  // Route a rung at whatever advances it. With the path finished there is no
+  // lesson left to route to, so the rung hands over to the Practise tab rather
+  // than opening a bare camera. (The "words" rung went with the A1 word unit,
+  // 2026-08-05 — docs/RECORD-WORD-SIGNS.md.)
   const goMilestone = () => {
     if (!ms) return;
     if (ms.kind === "family") go({ name: "family" });
-    else if (ms.kind === "words") go({ name: "allSigns", filter: "words" });
     else if (nextLessonId) go({ name: "lesson", lessonId: nextLessonId });
     else go({ name: "practiseChooser" });
   };

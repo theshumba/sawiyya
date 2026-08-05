@@ -112,9 +112,9 @@ describe("rating semantics (M3, H2, M4)", () => {
     expect(p.cameraHits).toBeGreaterThanOrEqual(2);
   });
 
-  it("the word-unit milestone counts only A1 signs; the alphabet row gates first (M4/H22)", async () => {
+  it("the alphabet row gates last, and the ladder ENDS there (M4/H22)", async () => {
     const S = await fresh();
-    // Master 16 alphabet letters — the reachable whole-alphabet row gates next.
+    // Master 16 alphabet letters — the whole-alphabet row is what gates next.
     const prog: Record<string, { masteryLevel: number; lastSeen: string }> = {};
     for (const l of SEEDED_LETTERS.slice(0, 16))
       prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
@@ -124,14 +124,14 @@ describe("rating semantics (M3, H2, M4)", () => {
     expect(ms!.label).toMatch(/Whole alphabet/);
     expect(ms!.progress).toBeCloseTo(16 / 28);
 
-    // Master all 28 — the word-unit row is next, and letters count ZERO toward it.
+    // Master all 28 and the ladder is finished. The word-unit rung was removed
+    // with the A1 words on 2026-08-05: keyed to an empty set it would have read
+    // 0/0 and fired instantly (docs/RECORD-WORD-SIGNS.md).
     for (const l of SEEDED_LETTERS)
       prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
     S.useApp.setState((s) => ({ progress: { ...s.progress, [S.pid]: { ...prog } } }));
     ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
-    expect(ms).not.toBeNull();
-    expect(ms!.label).toMatch(/word unit/);
-    expect(ms!.progress).toBe(0); // zero A1 signs mastered — not 16/16
+    expect(ms).toBeNull();
   });
 });
 

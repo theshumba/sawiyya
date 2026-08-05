@@ -20,7 +20,7 @@
 // the heatmap's intensity is binary, pending a per-day volume source.
 import { useEffect, useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS, ALPHABET, SEEDED_ALPHABET, signById } from "../content/signs";
+import { ALPHABET, SEEDED_ALPHABET, signById } from "../content/signs";
 import {
   activeProfile,
   dueSignIds,
@@ -127,7 +127,6 @@ export function Progress() {
 
   const mastered = Object.values(prog).filter((p) => p.masteryLevel >= 3).length;
   const seen = Object.values(prog).filter((p) => p.masteryLevel >= 1).length;
-  const a1Done = A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length;
   // Letters THIS profile actually practised successfully — from the store, never
   // the recognizer's isTrained() (bundled seeds mark all 28 letters trained for a
   // brand-new user; rendering that as progress is a C6-class fabrication).
@@ -143,11 +142,13 @@ export function Progress() {
     .sort((a, b) => new Date(a[1].due).getTime() - new Date(b[1].due).getTime())
     .slice(0, 6);
 
-  // World growth — share of the A1 unit + alphabet brought to life. Feeds the
-  // next-milestone bar (done / target). Same 28-letter denominator as the
-  // numerator above, or the bar could never reach the end.
-  const totalTracked = A1_SIGNS.length + SEEDED_ALPHABET.length;
-  const milestoneDone = a1Done + alphaTaught;
+  // World growth — share of the alphabet brought to life. Feeds the next-
+  // milestone bar (done / target). Same 28-letter denominator as the numerator
+  // above, or the bar could never reach the end. The A1 word unit used to be
+  // half of this total; it was removed 2026-08-05 (docs/RECORD-WORD-SIGNS.md),
+  // so the bar now measures the alphabet alone and reads 28, not 47.
+  const totalTracked = SEEDED_ALPHABET.length;
+  const milestoneDone = alphaTaught;
   const growth = Math.round((milestoneDone / Math.max(1, totalTracked)) * 100);
 
   const goalXp = GOAL_XP[profile.dailyGoal];
@@ -736,7 +737,7 @@ function ForecastRow({
       <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-teal/5 bg-sand">
         {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
         <span aria-hidden="true">
-          <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-10 w-10 object-contain" />
+          <SignGlyph sign={sign} lang={lang} className="text-3xl" />
         </span>
       </span>
       <span className="flex-grow">

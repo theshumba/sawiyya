@@ -10,7 +10,7 @@ import { HandSkeleton, hasHandShape } from "./HandSkeleton";
 /** True when SignDemo renders the hint INSIDE its stage (word sign, no footage)
  *  — callers should then skip their own hint card, or it prints twice. */
 export function demoShowsHint(sign: Sign): boolean {
-  return !sign.media && !sign.photo && sign.id !== "iloveyou" && sign.type !== "alphabet";
+  return !sign.media && !sign.photo && sign.type !== "alphabet";
 }
 
 export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: Lang; compact?: boolean }) {
@@ -70,15 +70,6 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
               {sign.code}
             </span>
           </div>
-        ) : sign.id === "iloveyou" ? (
-          // The ILY hand ILLUSTRATION (stitch-54). The AI-generated "signer" photo
-          // (stitch-30) is retired — we never present a generated person as a Deaf signer.
-          <img
-            key={`d-${replayKey}`}
-            src="brand/stitch-54.png"
-            alt={gloss}
-            className="animate-pop-in relative z-10 h-full w-full object-contain p-4 drop-shadow-2xl"
-          />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // Averaged-handshape skeleton — fallback only (a letter without a photo).
           <div
@@ -203,14 +194,11 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1">
               <Icon name="info" className="text-xs leading-none text-ink/70" />
               <span className="font-display text-[10px] font-bold uppercase tracking-wider text-ink/70">
-                {sign.tier === "A1"
-                  ? pick(lang, "Unverified as QSL", "غير معتمدة بلغة الإشارة القطرية")
-                  : pick(lang, "Demo placeholder", "عرض مؤقت")}
+                {pick(lang, "Demo placeholder", "عرض مؤقت")}
               </span>
             </span>
             <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
-              {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
-              {sign.tier === "A1" ? t("a1AslProvenance", lang) : t("lsDemoPlaceholder", lang)}
+              {t("lsDemoPlaceholder", lang)}
             </p>
           </div>
         )

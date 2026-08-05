@@ -4,16 +4,14 @@
 //   · an alphabet lesson is completable through the REAL queue in two passes,
 //     and its recognise checkpoints carry pools of MET letters only (H22)
 //   · fingerspellSequence is honest — folds, ة reference, digits skipped (M6)
-//   · ALL A1 words are watch-only — no word sign has a trained model, so
-//     camera-grading one could only match the user's own recording (M7 +
-//     2026-07-04 iloveyou/stop demotion)
-//   · a sign with no real visual is never a recognise stimulus (H23)
+//   · a sign with no real visual is never a recognise stimulus (H23) — checked
+//     against a synthetic sign since 2026-08-05, because every sign that now
+//     ships has a real photo (docs/RECORD-WORD-SIGNS.md)
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DrillSpec, Sign } from "../types";
 
 // Content-only imports (no store) — safe at module scope.
 import {
-  A1_SIGNS,
   ALPHABET,
   LESSONS,
   UNITS,
@@ -58,17 +56,6 @@ function playPass(S: Sim, lessonId: string): DrillSpec[] {
   const q = S.buildDrillQueue(lessonId, S.useApp.getState(), S.pid);
   for (const d of q) doDrill(S, d);
   return q;
-}
-
-/** Walk the profile up the trail so `lessonId` is the current one. The path is
- *  enforced in order now (lesson/unlock.ts), so a test that wants to inspect a
- *  later lesson's drills has to arrive there first. */
-function unlockUpTo(S: Sim, lessonId: string) {
-  const rec = S.useApp.getState().recordDrillResult;
-  for (const l of LESSONS) {
-    if (l.id === lessonId) return;
-    for (const id of l.signIds) rec(id, "hard", { selfMark: true }); // → mastery 2
-  }
 }
 
 beforeEach(() => {
@@ -201,57 +188,42 @@ describe("fingerspellSequence (M6)", () => {
   });
 });
 
-// ── yes/no honesty (M7) ──────────────────────────────────────────────────────
-describe("yes/no static-motion contradiction (M7)", () => {
-  it("yes and no are dynamic + watch-only; no A1 word is camera-gradable", () => {
-    for (const id of ["yes", "no"]) {
-      const s = signById(id)!;
-      expect(s.type).toBe("dynamic");
-      expect(s.cameraGradable).toBe(false);
-    }
-    // The MLP knows the 28 letters only — a "gradable" word sign could only
-    // teach-then-match the user's own recording, which is circular. Every A1
-    // word stays watch + self-mark until real signer reference data lands.
-    for (const s of A1_SIGNS) {
-      expect(s.cameraGradable).toBe(false);
-    }
-  });
-});
-
 // ── H23 recognise gating ─────────────────────────────────────────────────────
 describe("visual-gated recognise (H23)", () => {
-  it("hasVisual: every letter yes (real photos, incl. edge forms); A1 words no; media flips it", async () => {
+  it("hasVisual: every letter yes (real photos, incl. edge forms); a sign with no asset no; media flips it", async () => {
     const S = await fresh();
     for (const l of SEEDED) expect(S.hasVisual(l)).toBe(true);
     // 2026-07-31: the edge forms gained real ArSL21L photos, so they're now
     // honest recognise stimuli too (they still never enter lessons or grade).
     for (const id of EDGE_IDS) expect(S.hasVisual(signById(id)!)).toBe(true);
-    for (const s of A1_SIGNS) expect(S.hasVisual(s)).toBe(false); // no photo, no footage yet
-    const filmed: Sign = { ...signById("hello")!, media: { type: "video", src: "signs/hello/demo.webm" } };
+    // Synthetic, because since 2026-08-05 no SHIPPED sign lacks a visual — the
+    // A1 words were the only ones and they were removed. The gate still has to
+    // work, because it is what will hold the line when words come back.
+    const unsourced: Sign = {
+      id: "not-shipped", tier: "A1", glossEn: "x", glossAr: "س", emoji: "🤟",
+      hintEn: "x", hintAr: "س", type: "dynamic", cameraGradable: false, hands: 1,
+    };
+    expect(S.hasVisual(unsourced)).toBe(false);
+    const filmed: Sign = { ...unsourced, media: { type: "video", src: "signs/x.webm" } };
     expect(S.hasVisual(filmed)).toBe(true);
   });
 
-  it("word lessons emit NO recognise drills while their signs have no visual", async () => {
-    const S = await fresh();
-    for (const lesson of LESSONS.filter((l) => l.unitId === "a1-u1")) {
-      unlockUpTo(S, lesson.id); // the trail is in order — arrive before inspecting
-      const q = S.buildDrillQueue(lesson.id, S.useApp.getState(), S.pid);
-      expect(q.some((d) => d.type === "recognise")).toBe(false);
-      expect(q.some((d) => d.type === "recall")).toBe(true); // quizzed honestly instead
-    }
-  });
-
-  it("review sessions drill visual-less words as recall, never as a shown stimulus", async () => {
+  it("review sessions send gradable letters to the camera and edge forms to a receptive drill", async () => {
     const S = await fresh();
     vi.useFakeTimers();
     try {
       vi.setSystemTime(new Date("2026-07-06T10:00:00"));
-      S.useApp.getState().addToReview("hello");
-      S.useApp.getState().addToReview("mum");
+      S.useApp.getState().addToReview("alpha-alif"); // seeded → gradable
+      S.useApp.getState().addToReview("alpha-taMarbuta"); // edge form → not gradable
       vi.setSystemTime(new Date("2026-07-07T10:00:00"));
       const q = S.buildDrillQueue("review", S.useApp.getState(), S.pid);
       expect(q.length).toBe(2);
-      for (const d of q) expect(d.type).toBe("recall");
+      expect(q.find((d) => d.signId === "alpha-alif")?.type).toBe("camera");
+      // It has a real ArSL21L photo, so it is an honest stimulus — never blind
+      // recall — but it has no ground truth, so never the camera either.
+      const edge = q.find((d) => d.signId === "alpha-taMarbuta")!;
+      expect(edge.type).not.toBe("camera");
+      expect(["review", "recall"]).toContain(edge.type);
     } finally {
       vi.useRealTimers();
     }

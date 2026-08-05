@@ -4,56 +4,28 @@
 //
 // Redesign (spec §5.7): sub-route behind Family inside the shared takeover
 // shell (close/back → Family). The desktop top-nav + mobile app-bar twins are
-// deleted (the shell owns chrome). ONE horizontally-scrolling group Chip row at
-// ALL sizes (fixes the md dead-zone). Flags persist on tap — Save was a no-op —
+// deleted (the shell owns chrome). Flags persist on tap — Save was a no-op —
 // so there is a single "Done" affordance. The fabricated weekly-goal /5 and the
 // index-based priority labels are dropped (no fabrication in a judged demo). One
 // card-radius/spacing scale; the secondary gloss follows the content language.
 import { useMemo, useState } from "react";
 import { num, pick, t } from "../i18n";
-import { A1_SIGNS, ALL_SIGNS, ALPHABET, signById } from "../content/signs";
+import { ALL_SIGNS, ALPHABET, signById } from "../content/signs";
 import { activeFlags, activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { ScreenShell } from "../components/ScreenShell";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Button, Icon } from "../components/ui";
 import { SpringButton } from "../components/dc";
-import { Chip } from "../components/Tile";
 import { SignGlyph } from "../components/SignGlyph";
 import type { Sign } from "../types";
 
 const initialOf = (name: string) => [...name.trim()][0] ?? "؟";
 
-// Learning-group taxonomy (mobile/desktop group switcher). No `category` field
-// exists on Sign (frozen content), so groups are derived from a presentational
-// id→group map; anything unmapped lives under "home".
-type GroupId = "all" | "letters" | "home" | "food" | "feelings" | "school";
-
-const SIGN_GROUP: Record<string, Exclude<GroupId, "all">> = {
-  // Food & drink
-  milk: "food",
-  hungry: "food",
-  more: "food",
-  finished: "food",
-  // Feelings & social
-  iloveyou: "feelings",
-  hello: "feelings",
-  yes: "feelings",
-  no: "feelings",
-  thankyou: "feelings",
-  // School / instruction
-  help: "school",
-  careful: "school",
-  name: "school",
-  stop: "school",
-};
-
-const groupOf = (sign: Sign): Exclude<GroupId, "all"> =>
-  sign.tier === "alphabet" ? "letters" : (SIGN_GROUP[sign.id] ?? "home");
-
-// The letters are the only content the app can actually grade, so they have to
-// be flaggable: without this group the Deaf member could direct the household
-// to watch-only word signs and nothing else.
+// The word categories (home/food/feelings/school) went with the A1 word unit on
+// 2026-08-05 — every remaining sign is a letter, so the picker is one flat list
+// and the group rail is gone (docs/RECORD-WORD-SIGNS.md). The gradable letters
+// are what the Deaf member can meaningfully direct the household at.
 const LETTER_SIGNS = ALPHABET.filter((s) => s.cameraGradable);
 
 export function FlagPicker() {
@@ -61,7 +33,6 @@ export function FlagPicker() {
   const { go } = useUi();
   const profile = activeProfile(app);
   const [query, setQuery] = useState("");
-  const [group, setGroup] = useState<GroupId>("home");
   const [mostNeeded, setMostNeeded] = useState(true);
 
   const flags = activeFlags(app);
@@ -69,8 +40,7 @@ export function FlagPicker() {
 
   const q = query.trim().toLowerCase();
   const signs = useMemo(() => {
-    let list =
-      group === "letters" ? LETTER_SIGNS : A1_SIGNS.filter((s) => groupOf(s) === group);
+    let list: Sign[] = LETTER_SIGNS;
     if (q) {
       // Search spans EVERY sign, and matches `code` as well as the two glosses:
       // a letter's glossAr IS its code, so typing "ب" or "ba" has to find Ba.
@@ -90,7 +60,7 @@ export function FlagPicker() {
     }
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [group, q, query, mostNeeded, flags.length]);
+  }, [q, query, mostNeeded, flags.length]);
 
   // Guard AFTER every hook: React counts hooks per render, and an early return
   // above the useMemo made this file one refactor away from "rendered fewer
@@ -105,18 +75,8 @@ export function FlagPicker() {
     .map((id) => app.profiles.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-  // Learning groups — labels via existing copy, counts from the live signs.
-  const groups: { id: GroupId; label: string; icon: string }[] = [
-    { id: "letters", label: t("prAlphabet", lang), icon: "abc" },
-    { id: "home", label: pick(lang, "Home", "المنزل"), icon: "home" },
-    { id: "food", label: pick(lang, "Food", "طعام"), icon: "restaurant" },
-    { id: "feelings", label: pick(lang, "Feelings", "مشاعر"), icon: "mood" },
-    { id: "school", label: pick(lang, "School", "مدرسة"), icon: "school" },
-  ];
-
-  // Flagged signs, in flag order, for the summary rail. Resolve via signById (the
-  // single source of truth) so flagged ALPHABET signs resolve too — A1_SIGNS.find
-  // silently dropped them (#M3).
+  // Flagged signs, in flag order, for the summary rail. Resolve via signById,
+  // the single source of truth.
   const flaggedSigns = flags
     .map((f) => signById(f.signId))
     .filter((s): s is Sign => Boolean(s));
@@ -213,32 +173,6 @@ export function FlagPicker() {
               )}
             </div>
 
-            {/* One group switcher — a single horizontally-scrolling Chip row at
-                ALL sizes (fixes the md dead-zone). */}
-            {/* L11: these are filter chips, not tabs — no tabpanel, no keyboard
-                arrow-nav — role="group" (Chip already sets aria-pressed). */}
-            <div
-              className="-mb-1 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
-              role="group"
-              aria-label={pick(lang, "Learning groups", "مجموعات التعلّم")}
-            >
-              {groups.map((gr) => {
-                const active = group === gr.id && !q;
-                return (
-                  <Chip
-                    key={gr.id}
-                    selected={active}
-                    onClick={() => {
-                      setGroup(gr.id);
-                      setQuery("");
-                    }}
-                  >
-                    <Icon name={gr.icon} fill={active} className="text-base" />
-                    {gr.label}
-                  </Chip>
-                );
-              })}
-            </div>
           </div>
 
           {/* Sign grid */}
@@ -289,7 +223,7 @@ export function FlagPicker() {
                       >
                         {/* SignGlyph — real handshape / letter / honest icon (H14, no emoji-as-sign). */}
                         <span aria-hidden="true">
-                          <SignGlyph sign={sign} lang={lang} className="text-5xl" imgClassName="h-16 w-16 object-contain" />
+                          <SignGlyph sign={sign} lang={lang} className="text-5xl" />
                         </span>
                       </span>
 
@@ -356,7 +290,7 @@ export function FlagPicker() {
                         className="flex w-full items-center gap-3 rounded-2xl border border-[#F5C9BE] bg-[#FBF3EF] p-3 text-start transition hover:border-coral/40 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
                       >
                         <span aria-hidden="true">
-                          <SignGlyph sign={s} lang={lang} className="text-2xl" imgClassName="h-8 w-8 object-contain" />
+                          <SignGlyph sign={s} lang={lang} className="text-2xl" />
                         </span>
                         <span className="flex-1 font-bold text-teal">{pick(lang, s.glossEn, s.glossAr)}</span>
                         {/* the icon has to follow the branch above it: a camera

@@ -28,8 +28,12 @@ const arrivedAt = (lessonId: string): Record<string, SignProgress> => {
   return practised(ids);
 };
 
-const WORD_LESSON = "a1-u1-l1"; // the fifth node: iloveyou · hello · yes · no
-const LAST_ALPHA = "alpha-u1-l4";
+// The third node. This used to be the word lesson "First connections", which
+// was the audit's original bypass; the words were removed 2026-08-05 and the
+// bypass it proved is a property of the trail, not of that lesson, so the test
+// simply points at a later alphabet node instead (docs/RECORD-WORD-SIGNS.md).
+const LATER_LESSON = "alpha-u1-l3";
+const LESSON_BEFORE = "alpha-u1-l2";
 
 async function freshStore() {
   vi.resetModules();
@@ -75,23 +79,23 @@ describe("the trail runs in order", () => {
   });
 });
 
-// Bypass 1 (the one the audit found on the trail itself): four Words self-marks
-// reach mastery 2 on every sign of "First connections", which used to draw a
-// green tick on the fifth node while the four alphabet nodes were still locked.
+// Bypass 1 (the one the audit found on the trail itself): self-marking every
+// sign of a LATER node used to draw a green tick on it while the nodes before
+// it were still locked.
 describe("a lesson cannot complete out of order", () => {
   it("practising a later lesson's signs does NOT unlock or complete its node", () => {
-    const prog = practised(LESSONS.find((l) => l.id === WORD_LESSON)!.signIds);
-    expect(lessonFinished(WORD_LESSON, prog)).toBe(true); // its own signs ARE practised
-    expect(lessonState(WORD_LESSON, prog)).toBe("locked"); // and it is still locked
+    const prog = practised(LESSONS.find((l) => l.id === LATER_LESSON)!.signIds);
+    expect(lessonFinished(LATER_LESSON, prog)).toBe(true); // its own signs ARE practised
+    expect(lessonState(LATER_LESSON, prog)).toBe("locked"); // and it is still locked
     expect(trailPosition(prog)).toBe(0); // the learner has not moved
-    expect(lessonPlayable(WORD_LESSON, prog)).toBe(false);
+    expect(lessonPlayable(LATER_LESSON, prog)).toBe(false);
   });
 
   it("it unlocks once the lessons before it are actually finished", () => {
-    const prog = arrivedAt(WORD_LESSON);
-    expect(lessonState(WORD_LESSON, prog)).toBe("current");
-    expect(lessonPlayable(WORD_LESSON, prog)).toBe(true);
-    expect(lessonState(LAST_ALPHA, prog)).toBe("done");
+    const prog = arrivedAt(LATER_LESSON);
+    expect(lessonState(LATER_LESSON, prog)).toBe("current");
+    expect(lessonPlayable(LATER_LESSON, prog)).toBe(true);
+    expect(lessonState(LESSON_BEFORE, prog)).toBe("done");
   });
 });
 
@@ -100,8 +104,8 @@ describe("a lesson cannot complete out of order", () => {
 describe("buildDrillQueue enforces the lock", () => {
   it("a locked lesson yields no drills, however it was reached", async () => {
     const S = await freshStore();
-    expect(S.buildDrillQueue(WORD_LESSON, S.useApp.getState(), S.pid)).toEqual([]);
-    expect(S.buildDrillQueue(LAST_ALPHA, S.useApp.getState(), S.pid)).toEqual([]);
+    expect(S.buildDrillQueue(LATER_LESSON, S.useApp.getState(), S.pid)).toEqual([]);
+    expect(S.buildDrillQueue("alpha-u1-l4", S.useApp.getState(), S.pid)).toEqual([]);
   });
 
   it("the current lesson still builds a real queue", async () => {

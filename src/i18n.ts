@@ -170,7 +170,6 @@ const dict = {
   lsWhatsNext: { en: "What's next", ar: "ما التالي" },
   lsBackHome: { en: "Back home", ar: "العودة للرئيسية" },
   lsDemoPlaceholder: { en: "Demo placeholder — a Deaf Qatari signer records the real demonstrations in Phase 2.", ar: "عرض مؤقت — سيسجّل العروض الحقيقية شخص أصم قطري في المرحلة الثانية." },
-  a1AslProvenance: { en: "Adapted from ASL — not yet verified as Qatari Sign Language. A Deaf Qatari signer records the native versions in Phase 2.", ar: "مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. سيسجّل النسخ الأصلية شخص أصم قطري في المرحلة الثانية." },
 
   // home
   // homeToday is gone: it was the trail section's screen-reader-only label, and
@@ -378,8 +377,6 @@ const dict = {
   loopLineNotquite: { en: "So close — again", ar: "اقتربت — مجددًا" },
   loopLineDemo: { en: "Wave with me", ar: "لوّح معي" },
   loopKindLetter: { en: "Arabic letter · static handshape", ar: "حرف عربي · إشارة ثابتة" },
-  loopKindWordStatic: { en: "Word · static handshape", ar: "كلمة · إشارة ثابتة" },
-  loopKindWordMotion: { en: "Word · motion sign", ar: "كلمة · إشارة حركية" },
 
   // ── reskin: practise hub
   practiseTitle: { en: "Practise", ar: "تمرّن" },
@@ -387,20 +384,11 @@ const dict = {
   practiseAlphabet: { en: "Alphabet", ar: "الأبجدية" },
   practiseAlphabetSub: { en: "28 letters", ar: "٢٨ حرفًا" },
   practiseAlphabetSubOf: { en: "{n} of {t} practised", ar: "تدرّبت على {n} من {t}" },
-  // practiseWords ("Words") is gone: the tile that used it now carries
-  // wordsTitle, so the door and the thing behind it say the same word.
-  // All 16 A1 words are watch-only: no trained model exists for any word sign
-  // (iloveyou/stop demoted 2026-07-04 — teach-then-match-yourself was circular).
-  practiseWordsSub: { en: "Watch & copy, from day one", ar: "شاهد وقلّد من اليوم الأول" },
-
-  // Phase 4 · the Words screen is gone: it listed sign cards, opened the same
-  // SignDemo sheet and wrote the identical self-mark as the dictionary, so it
-  // was a smaller copy of a screen one tab away. "Everyday words" is now a
-  // FILTER inside the dictionary, and this key labels that chip. wordsSubtitle
-  // went with the screen — a dead key reads as live copy to the next person.
-  wordsTitle: { en: "Everyday words", ar: "كلمات يومية" },
-  wordsOneHand: { en: "One hand", ar: "بيد واحدة" },
-  wordsTwoHands: { en: "Two hands", ar: "بيدين" },
+  // The word-sign copy (title, subtitle, hand tags, practise tile, ASL
+  // provenance) went with the A1 words themselves on 2026-08-05 — a dead key
+  // reads as live copy to the next person (docs/RECORD-WORD-SIGNS.md).
+  // Kept after the word signs went (2026-08-05): the three edge forms (ة، لا، ال)
+  // have no ground truth, so self-mark is still their only route.
   wordsMarked: { en: "Marked — it'll come back in review.", ar: "سجّلناها — ستعود في المراجعة." },
   wdHowTo: { en: "How to sign it", ar: "كيف تُشير بها" },
   wdMoving: { en: "Moving sign", ar: "إشارة متحركة" },
@@ -507,7 +495,7 @@ const dict = {
   },
   signSignerDemo: { en: "Sign demo", ar: "عرض الإشارة" },
   signBadgeGraded: { en: "Graded", ar: "مُقيَّم" },
-  // "Watch" not "Motion": since the iloveyou/stop demotion the non-graded set
+  // "Watch" not "Motion": the non-graded set
   // includes static handshapes too — the badge signals watch-only, not movement.
   signBadgeMotion: { en: "Watch", ar: "مشاهدة" },
   signWatchPractise: { en: "Watch & practise", ar: "شاهد وتمرّن" },

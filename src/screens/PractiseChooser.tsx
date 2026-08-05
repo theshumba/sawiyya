@@ -84,19 +84,9 @@ export function PractiseChooser() {
             </div>
           </button>
 
-          {/* 2 · Words — Phase 4: the word room is the dictionary's "Everyday
-              words" filter, not a screen of its own. Same signs, same sheet,
-              same self-mark, one fewer name for it. */}
-          <button
-            type="button"
-            onClick={() => go({ name: "allSigns", filter: "words" })}
-            className={`${TILE_BASE} bg-coral-deep`}
-          >
-            {/* 🤟 handshape — never mirrors */}
-            <div className={CHIP()} aria-hidden>🤟</div>
-            <div className={TILE_TITLE()}>{t("wordsTitle", lang)}</div>
-            <div className={TILE_SUB()}>{t("practiseWordsSub", lang)}</div>
-          </button>
+          {/* Tile 2 was "Everyday words". It went with the word signs on
+              2026-08-05 (docs/RECORD-WORD-SIGNS.md) — a tile that opens an empty
+              list is a dead end, and the dictionary is one tab away regardless. */}
 
           {/* The old tile 3, "Free camera · Sign anything", is gone (2026-08-01).
               It called go({ name: "camera" }) with no target, and CameraPractice

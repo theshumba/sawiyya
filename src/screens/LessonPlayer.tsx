@@ -5,7 +5,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { pick, t } from "../i18n";
-import { A1_SIGNS, ALPHABET, lessonById, signById } from "../content/signs";
+import { ALPHABET, lessonById, signById } from "../content/signs";
 import { activeProfile, dueSignIds, streakFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import type { DrillSpec, Lang, Sign, SignProgress } from "../types";
@@ -222,11 +222,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           burst={burst}
           onContinue={() => go({ name: "home" })}
           onPractice={(targetSignId) => go({ name: "camera", targetSignId })}
-          onOpenSign={(signId) =>
-            // Phase 4 · both branches are the dictionary now: one sign's detail,
-            // or the dictionary filtered to the everyday words.
-            go(signId ? { name: "allSigns", signId } : { name: "allSigns", filter: "words" })
-          }
+          onOpenSign={(signId) => go(signId ? { name: "allSigns", signId } : { name: "allSigns" })}
         />
       </ScreenShell>
     );
@@ -448,12 +444,6 @@ function WatchDrill({
             <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
               {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
-            {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
-            {sign.tier === "A1" && (
-              <p className="mt-1 text-[11px] italic leading-snug text-muted">
-                {t("a1AslProvenance", lang)}
-              </p>
-            )}
           </div>
         </div>
       )}
@@ -550,8 +540,9 @@ function ChoiceDrill({
   onDone: (o: DrillOutcome) => void;
 }) {
   const { recordDrillResult } = useApp();
-  const pool =
-    poolOverride ?? (sign.type === "alphabet" ? ALPHABET : A1_SIGNS).map((s) => s.id);
+  // Every remaining sign is a letter — the A1 word tier was removed 2026-08-05
+  // (docs/RECORD-WORD-SIGNS.md), so there is only one pool to draw choices from.
+  const pool = poolOverride ?? ALPHABET.map((s) => s.id);
   const [choices] = useState(() => buildChoices(sign.id, pool));
   const [picked, setPicked] = useState<string | null>(null);
   const correct = picked === sign.id;
@@ -631,13 +622,6 @@ function ChoiceDrill({
         })}
       </div>
 
-      {/* Honest provenance: recall tiles surface A1 hints, which are ASL-adapted (C3). */}
-      {mode === "recall" && choices.some((id) => signById(id)?.tier === "A1") && (
-        <p className="mx-auto mt-3 w-full max-w-md px-1 text-[11px] italic leading-snug text-muted">
-          {t("a1AslProvenance", lang)}
-        </p>
-      )}
-
       {/* soft feedback band — never a hard fail (PRD §8) */}
       <div aria-live="polite" className="mx-auto w-full max-w-md">
         {picked !== null && (
@@ -653,7 +637,7 @@ function ChoiceDrill({
             {!correct && (
               <ScreenCard className="mt-2 flex items-center gap-3 p-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center" aria-hidden="true">
-                  <SignGlyph sign={sign} lang={lang} className="text-3xl" imgClassName="h-full w-full rounded-lg object-cover" />
+                  <SignGlyph sign={sign} lang={lang} className="text-3xl" />
                 </span>
                 <p className="font-display font-bold">{pick(lang, sign.glossEn, sign.glossAr)}</p>
               </ScreenCard>
@@ -808,7 +792,7 @@ function ChoiceTile({
       ) : (
         <>
           <span className="flex h-12 items-center justify-center leading-none" aria-hidden="true">
-            <SignGlyph sign={sign} lang={lang} className="text-[32px]" imgClassName="h-10 w-10 object-contain" />
+            <SignGlyph sign={sign} lang={lang} className="text-[32px]" />
           </span>
           {hint !== undefined && (
             <span
@@ -856,13 +840,6 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
             src={sign.photo}
             alt={t("lsRecogniseTitle", lang)}
             className="h-full w-full object-cover"
-          />
-        ) : sign.id === "iloveyou" ? (
-          // ILY hand illustration (stitch-34) — the AI-generated "signer" photo is retired (C2).
-          <img
-            src="brand/stitch-34.png"
-            alt={t("lsRecogniseTitle", lang)}
-            className="h-4/5 w-4/5 object-contain"
           />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // Skeleton fallback (letter without a photo) — never the glyph.
@@ -1075,7 +1052,7 @@ function ResultsCard({
                 className="flex items-center gap-2 rounded-[11px] border border-line bg-paper px-2.5 py-[7px] transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
                 <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center" aria-hidden="true">
-                  <SignGlyph sign={s} lang={lang} className="text-base" imgClassName="h-full w-full rounded object-cover" />
+                  <SignGlyph sign={s} lang={lang} className="text-base" />
                 </span>
                 <span className="text-[12px] font-semibold text-ink">
                   <BilingualGloss sign={s} />
@@ -1110,7 +1087,7 @@ function ResultsCard({
           >
             <span className="flex items-center justify-center gap-2">
               <Icon name="sign_language" className="text-xl" />
-              {t("wordsTitle", lang)}
+              {t("navDictionary", lang)}
             </span>
           </Button>
         )}

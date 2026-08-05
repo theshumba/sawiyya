@@ -465,12 +465,9 @@ export function CameraTrainer({
             ? t("loopLineDetecting", lang)
             : t("loopLineLooking", lang)
           : t("loopLineWatch", lang);
-  const kindLabel =
-    sign.type === "alphabet"
-      ? t("loopKindLetter", lang)
-      : gradable
-        ? t("loopKindWordStatic", lang)
-        : t("loopKindWordMotion", lang);
+  // Every sign the trainer can be handed is a letter since the A1 word tier was
+  // removed (2026-08-05). The word variants of this label went with it.
+  const kindLabel = t("loopKindLetter", lang);
 
   // Honest failure copy, split on WHICH failure happened. "denied" deliberately
   // gets no retry button: once a permission prompt has been refused the browser
@@ -501,8 +498,6 @@ export function CameraTrainer({
   const referenceChip = (sizeClass: string) =>
     sign.photo && coachFingerIdx === null ? (
       <img src={sign.photo} alt={gloss} className="h-full w-full rounded-full object-cover" />
-    ) : sign.id === "iloveyou" ? (
-      <img src="brand/stitch-34.png" alt={gloss} className="h-full w-full rounded-2xl object-cover" />
     ) : sign.type === "alphabet" && knowsModel ? (
       <span className="relative flex h-full w-full items-center justify-center" role="img" aria-label={gloss}>
         {/* Sign Coach: the finger to fix glows gold on the reference itself */}
@@ -582,12 +577,6 @@ export function CameraTrainer({
             <p className="mt-1 font-sans text-[12.5px] leading-[1.4] text-ink">
               {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
-            {/* Honest provenance: A1 word descriptions are ASL-adapted, not verified QSL (C3). */}
-            {sign.tier === "A1" && (
-              <p className="mt-1 font-sans text-[11px] italic leading-snug text-muted">
-                {t("a1AslProvenance", lang)}
-              </p>
-            )}
           </div>
         </div>
       )}

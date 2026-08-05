@@ -1,18 +1,20 @@
-// Phase 4 · the Words screen became a filter on the dictionary, and the router
-// is where that has to hold: "#/words" was a real address (the screenshot
-// harness uses it, and anyone who bookmarked the word room has it), so it must
-// keep landing on the words rather than on Home's catch-all.
+// The dictionary's addresses. "#/words" was the word room's address: Phase 4
+// folded that screen into a filter, and 2026-08-05 removed the words themselves
+// (docs/RECORD-WORD-SIGNS.md). The address still has to resolve, because people
+// bookmarked it and the app must not 404 them, but it now lands on the plain
+// dictionary and is never minted again.
 import { describe, expect, it } from "vitest";
 import { hashToScreen, screenToHash } from "./ui";
 
-describe("the word room after the merge", () => {
-  it("still answers to #/words, as the dictionary filtered", () => {
-    expect(hashToScreen("#/words")).toEqual({ name: "allSigns", filter: "words" });
+describe("the words address after the words were removed", () => {
+  it("#/words still resolves, to the unfiltered dictionary", () => {
+    expect(hashToScreen("#/words")).toEqual({ name: "allSigns" });
   });
 
-  it("round-trips: the filter survives a push and a Back", () => {
+  it("is one-way: nothing in the app mints #/words again", () => {
     const screen = hashToScreen("#/words");
-    expect(screenToHash(screen)).toBe("#/words");
+    expect(screenToHash(screen)).toBe("#/signs");
+    // And it settles there — a second round-trip does not oscillate.
     expect(hashToScreen(screenToHash(screen))).toEqual(screen);
   });
 
@@ -23,7 +25,8 @@ describe("the word room after the merge", () => {
     expect(screenToHash({ name: "allSigns", signId: "alpha-alif" })).toBe("#/signs/alpha-alif");
   });
 
-  it("does not let an unfiltered dictionary claim the words address", () => {
-    expect(screenToHash({ name: "allSigns", signId: "a1-milk" })).not.toBe("#/words");
+  it("no screen anywhere serialises to #/words", () => {
+    expect(screenToHash({ name: "allSigns", signId: "alpha-meem" })).not.toBe("#/words");
+    expect(screenToHash({ name: "allSigns" })).not.toBe("#/words");
   });
 });

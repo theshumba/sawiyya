@@ -350,7 +350,6 @@ export function Family() {
                         sign={sign}
                         lang={lang}
                         className="text-2xl"
-                        imgClassName="h-10 w-10 rounded-lg object-cover"
                       />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -461,7 +460,7 @@ export function Family() {
                       >
                         {/* SignGlyph — real handshape / letter / honest icon, never emoji-as-sign (H14). */}
                         <span aria-hidden="true">
-                          <SignGlyph sign={sign} lang={lang} className="text-lg" imgClassName="h-6 w-6 object-contain" />
+                          <SignGlyph sign={sign} lang={lang} className="text-lg" />
                         </span>
                       </button>
                     );
@@ -487,7 +486,7 @@ export function Family() {
                       ariaLabel={pick(lang, sign.glossEn, sign.glossAr)}
                     >
                       <span aria-hidden="true">
-                        <SignGlyph sign={sign} lang={lang} className="text-base" imgClassName="h-5 w-5 object-contain" />
+                        <SignGlyph sign={sign} lang={lang} className="text-base" />
                       </span>
                       {pick(lang, sign.glossEn, sign.glossAr)}
                     </Pill>

@@ -22,10 +22,10 @@ export type Screen =
   | { name: "privacy" }
   | { name: "devMetrics" }
   | { name: "firstSign" }
-  // Phase 4 · `filter` replaced the separate Words screen. The dictionary
-  // already had a tier-A1 filter doing the same job, so the word room is a
-  // chip on this screen rather than a second screen with its own name.
-  | { name: "allSigns"; signId?: string; filter?: "words" }
+  // Phase 4 folded the Words screen into this one as a filter; 2026-08-05
+  // removed the words themselves, so the filter went with them and only the
+  // address survives (see hashToScreen).
+  | { name: "allSigns"; signId?: string }
   | { name: "practiseChooser" }
   | { name: "fingerspell" };
 
@@ -44,10 +44,6 @@ export function screenToHash(screen: Screen): string {
     case "camera":
       return screen.targetSignId ? `#/camera/${encodeURIComponent(screen.targetSignId)}` : "#/camera";
     case "allSigns":
-      // "#/words" survives the merge on purpose: it is the address the word room
-      // has always answered to, it is in the screenshot harness, and a learner
-      // who bookmarked it must land on the words, not on a 404 or on Home.
-      if (screen.filter === "words") return "#/words";
       return screen.signId ? `#/signs/${encodeURIComponent(screen.signId)}` : "#/signs";
     case "practiseChooser":
       return "#/practise";
@@ -105,7 +101,10 @@ export function hashToScreen(hash: string): Screen {
     case "first-sign":
       return { name: "firstSign" };
     case "words":
-      return { name: "allSigns", filter: "words" };
+      // The words are gone (2026-08-05) but the address is not: anyone who
+      // bookmarked the word room lands on the dictionary rather than on a 404.
+      // One-way on purpose — screenToHash never mints "#/words" again.
+      return { name: "allSigns" };
     case "family":
     case "progress":
     case "settings":

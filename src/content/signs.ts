@@ -69,95 +69,19 @@ export const ALPHABET: Sign[] = [
   L("al", "ال", "Al", true),
 ];
 
-// ── A1 · Unit 1 — "Family & First Words" (PRD §19 candidate set) ─────────────
-// PROVENANCE (C3, disclosed in-app via i18n `a1AslProvenance`): these word-sign
-// descriptions are ADAPTED FROM ASL and are NOT yet verified as Qatari Sign
-// Language. No public QSL word dataset exists; a native Deaf Qatari signer
-// records and verifies every A1 sign in Phase 2 (docs/real-sign-content-plan.md).
-const S = (
-  id: string,
-  glossEn: string,
-  glossAr: string,
-  emoji: string,
-  type: "static" | "dynamic",
-  cameraGradable: boolean,
-  hintEn: string,
-  hintAr: string,
-  hands: 1 | 2 = 1,
-): Sign => ({ id, tier: "A1", glossEn, glossAr, emoji, hintEn, hintAr, type, cameraGradable, hands });
+// ── A1 word signs — REMOVED 2026-08-05. ──────────────────────────────────────
+// The 19 "Family & First Words" signs were adapted from American Sign Language
+// and never verified as Qatari. A disclosure does not make a wrong sign right,
+// and six of them turned out to have a DIFFERENT documented Qatari counterpart
+// (Mada's Jumla dictionary), so they were most likely wrong, not merely
+// unverified. Sawiyya now teaches only content with a real source behind it:
+// the 28 letters, from a CC BY 4.0 dataset of real signers.
+//
+// The complete record — the exact source removed, every Qatari route researched
+// and why each is closed, and the restore steps — is docs/RECORD-WORD-SIGNS.md.
+// They come back when Mada licences a lexicon or a Deaf Qatari signer records them.
 
-// iloveyou/stop demoted to watch-only (2026-07-04): the MLP knows the 28
-// letters ONLY, so "gradable" for a word sign could only mean teach-then-
-// match-your-own-recording — circular for a learner (you can't record a
-// correct reference for a sign you don't know). Watch + self-mark until a
-// native signer records real reference data (Phase 2, real-sign-content-plan).
-export const A1_SIGNS: Sign[] = [
-  S("iloveyou", "I love you", "أحبك", "🤟", "static", false,
-    "Thumb, index and little finger up — middle and ring folded. Hold it steady, palm out.",
-    "الإبهام والسبابة والخنصر مرفوعة — الوسطى والبنصر مطويتان. ثبّت يدك وراحتها للأمام."),
-  S("hello", "Hello", "مرحبا", "👋", "dynamic", false,
-    "Open hand by your temple, small wave outward.",
-    "يد مفتوحة قرب الصدغ، تلويحة صغيرة للخارج."),
-  // M7: both hints describe MOTION (nodding / tapping), so a static camera
-  // grade would pass a frozen wrong sign — dynamic + watch-only is the honest
-  // typing until real signer footage lands.
-  S("yes", "Yes", "نعم", "✊", "dynamic", false,
-    "Make a fist and nod it gently — like a head saying yes.",
-    "اقبض يدك وحرّكها كأنها رأس يقول نعم."),
-  S("no", "No", "لا", "🤞", "dynamic", false,
-    "Index and middle finger tap against the thumb.",
-    "السبابة والوسطى تنقران على الإبهام."),
-  S("stop", "Stop", "قف", "✋", "static", false,
-    "Flat open hand, palm facing forward — hold it firm.",
-    "يد مفتوحة مسطّحة، الراحة للأمام — ثبّتها."),
-  S("more", "More", "زيادة", "🤏", "dynamic", false,
-    "Fingertips of both hands pinched, tapping together.",
-    "أطراف أصابع اليدين مضمومة تتلامس معًا.", 2),
-  S("finished", "All done", "خلاص", "🙌", "dynamic", false,
-    "Both open hands flip outward — all done!",
-    "اليدان المفتوحتان تنقلبان للخارج — خلاص!", 2),
-  S("hungry", "Hungry", "جوعان", "🍽️", "dynamic", false,
-    "Cupped hand moves down the chest from throat.",
-    "يد مقعّرة تنزل على الصدر من الحلق."),
-  S("milk", "Milk", "حليب", "🥛", "dynamic", false,
-    "Squeeze a fist — like milking. Repeat softly.",
-    "اقبض اليد وافتحها — كأنك تحلب. كرّرها بلطف."),
-  S("sleep", "Bedtime", "نوم", "😴", "dynamic", false,
-    "Open hand draws down over your face, eyes closing.",
-    "اليد المفتوحة تنزل على وجهك، والعينان تغمضان."),
-  S("mum", "Mum", "ماما", "👩", "dynamic", false,
-    "Open hand, thumb to chin.",
-    "يد مفتوحة، الإبهام على الذقن."),
-  S("dad", "Dad", "بابا", "👨", "dynamic", false,
-    "Open hand, thumb to forehead.",
-    "يد مفتوحة، الإبهام على الجبين."),
-  S("thankyou", "Thank you", "شكرًا", "🙏", "dynamic", false,
-    "Flat hand from chin moving forward — giving thanks.",
-    "يد مسطّحة من الذقن تتحرك للأمام — تقديم الشكر."),
-  S("help", "Help", "ساعدني", "🤲", "dynamic", false,
-    "Fist on open palm, both rise together.",
-    "قبضة على راحة مفتوحة، ترتفعان معًا.", 2),
-  S("careful", "Careful", "انتبه", "👀", "dynamic", false,
-    "Two fingers from your eyes outward — watch out.",
-    "إصبعان من عينيك إلى الخارج — انتبه."),
-  S("name", "Name", "اسم", "🔤", "dynamic", false,
-    "Two fingers of each hand tap crossed.",
-    "إصبعان من كل يد ينقران متقاطعين.", 2),
-  // "People" trio (2026-07-31, owner ask): simple one-handed words available
-  // from day one in the Words hub. Same provenance rule as the rest of A1 —
-  // ASL-adapted descriptions, disclosed via a1AslProvenance, watch-only.
-  S("me", "Me", "أنا", "🙋", "static", false,
-    "Point to the middle of your chest with your index finger.",
-    "أشِر إلى منتصف صدرك بسبابتك."),
-  S("man", "Man", "رجل", "🧔", "dynamic", false,
-    "Open hand, thumb taps your forehead, then moves down to your chest.",
-    "يد مفتوحة، الإبهام يلمس الجبين ثم ينزل إلى الصدر."),
-  S("woman", "Woman", "امرأة", "🧕", "dynamic", false,
-    "Open hand, thumb taps your chin, then moves down to your chest.",
-    "يد مفتوحة، الإبهام يلمس الذقن ثم ينزل إلى الصدر."),
-];
-
-export const ALL_SIGNS: Sign[] = [...A1_SIGNS, ...ALPHABET];
+export const ALL_SIGNS: Sign[] = [...ALPHABET];
 
 export const signById = (id: string): Sign | undefined =>
   ALL_SIGNS.find((s) => s.id === id);
@@ -181,17 +105,10 @@ export const UNIT_ALPHA: Unit = {
   signIds: SEEDED_ALPHABET.map((s) => s.id),
 };
 
-export const UNIT_A1_U1: Unit = {
-  id: "a1-u1",
-  tier: "A1",
-  titleEn: "Family & First Words",
-  titleAr: "العائلة وأول الكلمات",
-  signIds: A1_SIGNS.map((s) => s.id),
-};
-
-/** Path order: the alphabet unit first (real graded content), then A1 words.
+/** The path. One unit until there is a second one with a real source behind it
+ *  — the A1 word unit was removed 2026-08-05 (docs/RECORD-WORD-SIGNS.md).
  *  Unit number shown in the UI = index here + 1. */
-export const UNITS: Unit[] = [UNIT_ALPHA, UNIT_A1_U1];
+export const UNITS: Unit[] = [UNIT_ALPHA];
 
 export const unitById = (id: string): Unit | undefined =>
   UNITS.find((u) => u.id === id);
@@ -210,34 +127,6 @@ export const LESSONS: Lesson[] = [
   alphaLesson(2, "Dal to Sad", "من الدال إلى الصاد"),
   alphaLesson(3, "Dad to Qaf", "من الضاد إلى القاف"),
   alphaLesson(4, "Kaf to Ya", "من الكاف إلى الياء"),
-  {
-    id: "a1-u1-l1",
-    unitId: "a1-u1",
-    titleEn: "First connections",
-    titleAr: "أولى الوصلات",
-    signIds: ["iloveyou", "hello", "yes", "no"],
-  },
-  {
-    id: "a1-u1-l2",
-    unitId: "a1-u1",
-    titleEn: "Everyday needs",
-    titleAr: "احتياجات اليوم",
-    signIds: ["more", "finished", "hungry", "milk", "stop"],
-  },
-  {
-    id: "a1-u1-l3",
-    unitId: "a1-u1",
-    titleEn: "Home & people",
-    titleAr: "البيت والناس",
-    signIds: ["mum", "dad", "sleep", "thankyou", "help", "careful", "name"],
-  },
-  {
-    id: "a1-u1-l4",
-    unitId: "a1-u1",
-    titleEn: "People around you",
-    titleAr: "الناس من حولك",
-    signIds: ["me", "man", "woman"],
-  },
 ];
 
 export const lessonById = (id: string): Lesson | undefined =>
