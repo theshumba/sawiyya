@@ -22,9 +22,11 @@ export type Screen =
   | { name: "privacy" }
   | { name: "devMetrics" }
   | { name: "firstSign" }
-  | { name: "allSigns"; signId?: string }
+  // Phase 4 · `filter` replaced the separate Words screen. The dictionary
+  // already had a tier-A1 filter doing the same job, so the word room is a
+  // chip on this screen rather than a second screen with its own name.
+  | { name: "allSigns"; signId?: string; filter?: "words" }
   | { name: "practiseChooser" }
-  | { name: "words" }
   | { name: "fingerspell" };
 
 /**
@@ -42,6 +44,10 @@ export function screenToHash(screen: Screen): string {
     case "camera":
       return screen.targetSignId ? `#/camera/${encodeURIComponent(screen.targetSignId)}` : "#/camera";
     case "allSigns":
+      // "#/words" survives the merge on purpose: it is the address the word room
+      // has always answered to, it is in the screenshot harness, and a learner
+      // who bookmarked it must land on the words, not on a 404 or on Home.
+      if (screen.filter === "words") return "#/words";
       return screen.signId ? `#/signs/${encodeURIComponent(screen.signId)}` : "#/signs";
     case "practiseChooser":
       return "#/practise";
@@ -53,7 +59,7 @@ export function screenToHash(screen: Screen): string {
       return "#/dev";
     case "firstSign":
       return "#/first-sign";
-    // family · progress · settings · privacy · words · fingerspell
+    // family · progress · settings · privacy · fingerspell
     default:
       return `#/${screen.name}`;
   }
@@ -98,11 +104,12 @@ export function hashToScreen(hash: string): Screen {
       return { name: "devMetrics" };
     case "first-sign":
       return { name: "firstSign" };
+    case "words":
+      return { name: "allSigns", filter: "words" };
     case "family":
     case "progress":
     case "settings":
     case "privacy":
-    case "words":
     case "fingerspell":
       return { name: head };
     default:

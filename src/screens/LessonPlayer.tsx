@@ -223,7 +223,9 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           onContinue={() => go({ name: "home" })}
           onPractice={(targetSignId) => go({ name: "camera", targetSignId })}
           onOpenSign={(signId) =>
-            go(signId ? { name: "allSigns", signId } : { name: "words" })
+            // Phase 4 · both branches are the dictionary now: one sign's detail,
+            // or the dictionary filtered to the everyday words.
+            go(signId ? { name: "allSigns", signId } : { name: "allSigns", filter: "words" })
           }
         />
       </ScreenShell>

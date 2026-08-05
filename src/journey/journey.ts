@@ -64,8 +64,9 @@ export const STEPS: JourneyStep[] = [
     id: "first-sign",
     en: "Sign your first letter",
     ar: "أشِر أول حرف",
-    bodyEn: "One letter to the camera. That's the whole app in ten seconds.",
-    bodyAr: "حرف واحد أمام الكاميرا. هذا هو التطبيق كله في عشر ثوانٍ.",
+    // Digits even under ten (Phase 4 tone pass): a count reads as a count.
+    bodyEn: "One letter to the camera. That's the whole app in 10 seconds.",
+    bodyAr: "حرف واحد أمام الكاميرا. هذا هو التطبيق كله في ١٠ ثوانٍ.",
     go: { name: "home" },
     entails: [],
     dismissible: false,
@@ -189,7 +190,10 @@ export function isActionable(step: JourneyStep, ctx: { dueCount: number }): bool
 // tested worse than nothing. The session budget (one hint, and never on the
 // screen the app launched on) lives in ./hints.ts — this array is just content.
 
-export type HintPlace = "family-board" | "progress-due" | "progress-league";
+// Phase 4 · "progress-league" became "household-solo": Progress lost its Family
+// league tab (it ranked the household the Family tab already lists), so the
+// hint about adding people moved to Family, which is where adding people is.
+export type HintPlace = "family-board" | "progress-due" | "household-solo";
 
 export interface Hint {
   id: string;
@@ -216,8 +220,10 @@ export const HINTS: Hint[] = [
     ar: "تظهر المراجعات وفق جدولها: بعد يوم من أول إشارة، ثم مدة أطول كلما أصبتها.",
   },
   {
+    // The id is FROZEN even though the place moved: `seen` is keyed by id, and
+    // renaming it would show this hint again to everyone who already met it.
     id: "hint-progress-league",
-    place: "progress-league",
+    place: "household-solo",
     rev: 1,
     en: "Add the person you're learning to sign with, and they get their own progress on this device.",
     ar: "أضف من تتعلّم الإشارة من أجله، وسيحصل على تقدّمه الخاص على هذا الجهاز.",

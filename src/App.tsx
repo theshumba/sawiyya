@@ -15,7 +15,6 @@ import { AiTransparency, Privacy } from "./screens/InfoPages";
 import { DevMetrics } from "./screens/DevMetrics";
 import { AllSigns } from "./screens/AllSigns";
 import { PractiseChooser } from "./screens/PractiseChooser";
-import { Words } from "./screens/Words";
 import { useInstallDetection } from "./components/Journey";
 
 // M13: the camera screens pull in the whole recognizer stack — @mediapipe
@@ -48,7 +47,6 @@ const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
   progress: "navProgress",
   settings: "setTitle",
   practiseChooser: "practiseTitle",
-  words: "wordsTitle",
   fingerspell: "fspTitle",
   flagPicker: "famFlagTitle",
   firstSign: "srFirstSign",
@@ -177,10 +175,16 @@ export default function App() {
         {screen.name === "flagPicker" && <FlagPicker />}
         {screen.name === "progress" && <Progress />}
         {screen.name === "allSigns" && (
-          <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
+          // The key includes the filter: arriving from the Practise hub's word
+          // tile while already browsing the dictionary has to re-mount with the
+          // filter applied, not silently keep the old chip.
+          <AllSigns
+            key={screen.signId ?? screen.filter ?? "browse"}
+            initialSignId={screen.signId}
+            initialFilter={screen.filter}
+          />
         )}
         {screen.name === "practiseChooser" && <PractiseChooser />}
-        {screen.name === "words" && <Words />}
         {/* Fingerspell drives the camera in practise-along — same risky subtree
             treatment as the other camera screens (H12). */}
         {screen.name === "fingerspell" && (

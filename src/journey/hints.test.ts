@@ -23,7 +23,7 @@ describe("claimHint", () => {
   it("spends the whole session's budget on the first hint", () => {
     expect(claimHint("family-board", {})).not.toBeNull();
     expect(claimHint("progress-due", {})).toBeNull();
-    expect(claimHint("progress-league", {})).toBeNull();
+    expect(claimHint("household-solo", {})).toBeNull();
   });
 
   it("does not repeat a hint the learner has already met", () => {

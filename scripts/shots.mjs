@@ -174,7 +174,9 @@ const step = async (name, fn) => {
 const ROUTES = [
   ["home", "#/"],
   ["practise", "#/practise"],
-  ["words", "#/words"],
+  // Phase 4: still an address, but it is the dictionary filtered to the
+  // everyday words now, not a screen of its own.
+  ["dictionary-words", "#/words"],
   ["fingerspell", "#/fingerspell"],
   ["dictionary", "#/signs"],
   ["dictionary-sign", "#/signs/alpha-alif"],

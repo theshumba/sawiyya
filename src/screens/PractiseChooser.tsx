@@ -84,15 +84,17 @@ export function PractiseChooser() {
             </div>
           </button>
 
-          {/* 2 · Words — the word room: instant access, no letter progress needed */}
+          {/* 2 · Words — Phase 4: the word room is the dictionary's "Everyday
+              words" filter, not a screen of its own. Same signs, same sheet,
+              same self-mark, one fewer name for it. */}
           <button
             type="button"
-            onClick={() => go({ name: "words" })}
+            onClick={() => go({ name: "allSigns", filter: "words" })}
             className={`${TILE_BASE} bg-coral-deep`}
           >
             {/* 🤟 handshape — never mirrors */}
             <div className={CHIP()} aria-hidden>🤟</div>
-            <div className={TILE_TITLE()}>{t("practiseWords", lang)}</div>
+            <div className={TILE_TITLE()}>{t("wordsTitle", lang)}</div>
             <div className={TILE_SUB()}>{t("practiseWordsSub", lang)}</div>
           </button>
 

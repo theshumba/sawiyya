@@ -150,7 +150,7 @@ export function Home() {
   const goMilestone = () => {
     if (!ms) return;
     if (ms.kind === "family") go({ name: "family" });
-    else if (ms.kind === "words") go({ name: "words" });
+    else if (ms.kind === "words") go({ name: "allSigns", filter: "words" });
     else if (nextLessonId) go({ name: "lesson", lessonId: nextLessonId });
     else go({ name: "practiseChooser" });
   };
@@ -363,21 +363,35 @@ export function Home() {
               <bdi style={{ fontWeight: 800, fontSize: 18, color: "#16302E" }}>{initial}</bdi>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          {/* Phase 4 · the chip row is the door to Progress. Progress used to be
+              reachable only from a menu behind the learner's own avatar, and
+              nothing in the app said so. These three numbers ARE the summary of
+              that screen, so tapping them to see the rest is the obvious move —
+              and it costs the trail nothing, unlike another card under it. */}
+          <button
+            type="button"
+            onClick={() => go({ name: "progress" })}
+            aria-label={t("homeSeeProgress", lang)}
+            className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-teal active:scale-[.99]"
+            style={{ display: "flex", gap: 8, marginTop: 14, alignItems: "stretch", border: "none", background: "none", padding: 0, cursor: "pointer", textAlign: "start" }}
+          >
             {stats.map((s, i) => (
-              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,.08)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
+              <span key={i} style={{ flex: 1, background: "rgba(255,255,255,.08)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
                 {s.marker}
-                <div>
-                  <div className="font-display" style={{ fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
+                <span>
+                  <span className="font-display" style={{ display: "block", fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
                     {s.value}
-                  </div>
-                  <div style={{ font: "500 9px/1 'Readex Pro',sans-serif", color: "#FBF7EF", marginTop: 2 }}>
+                  </span>
+                  <span style={{ display: "block", font: "500 9px/1 'Readex Pro',sans-serif", color: "#FBF7EF", marginTop: 2 }}>
                     {s.label}
-                  </div>
-                </div>
-              </div>
+                  </span>
+                </span>
+              </span>
             ))}
-          </div>
+            <span style={{ display: "flex", alignItems: "center", color: "#FBF7EF", flex: "none" }} aria-hidden="true">
+              <Icon name="chevron_right" className="!text-xl rtl:rotate-180" />
+            </span>
+          </button>
         </div>
       </header>
 
@@ -430,7 +444,22 @@ export function Home() {
           })()}
 
         {/* Block B — the winding node trail. This is the screen. */}
-        <section aria-label={t("homeToday", lang)} className="pt-4 pb-4">
+        <section aria-labelledby="trail-title" className="pt-4 pb-4">
+          {/* Phase 4 · the trail says what it is, out loud. Home's only heading
+              was "Marhaba, <name>", and the trail itself was named for screen
+              readers and nobody else. The word is navLearn — the same word on
+              the tab that opens this screen, not a fifth name for it. */}
+          <h2
+            id="trail-title"
+            className="font-display"
+            style={{ fontWeight: 800, fontSize: 22, lineHeight: 1.1, color: "#16302E", marginTop: 4 }}
+          >
+            {t("navLearn", lang)}
+          </h2>
+          <p style={{ font: "500 13px/1.35 'Readex Pro',sans-serif", color: "#566B68", marginTop: 3 }}>
+            {t("homeTrailSub", lang)}
+          </p>
+
           {/* B1 · One teal unit banner per unit, each followed by its own nodes. */}
           {unitGroups.map((g) => (
             <div key={g.unit.id}>

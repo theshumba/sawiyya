@@ -70,6 +70,10 @@ export function Family() {
   // Above the no-profile bail: hooks cannot sit behind an early return, and the
   // shared board does not depend on which profile is active.
   const boardHint = useHint("family-board", signsAllCanDo(app).length === 0);
+  // Phase 4 · this hint used to live on Progress's Family league tab, which is
+  // gone. A household of one is a Family-screen state, and adding someone is a
+  // Family-screen action, so it belongs here.
+  const soloHint = useHint("household-solo", app.profiles.length <= 1);
   if (!profile) return <NoProfileFallback />;
   const lang = profile.language;
 
@@ -149,6 +153,9 @@ export function Family() {
               {num(activeToday, lang)}/{num(app.profiles.length, lang)} {t("famSignedToday", lang)}
             </span>
           </div>
+          {/* One learner is not a household yet — say what adding someone does.
+              At most one hint lands anywhere per session. */}
+          <HintNote lang={lang} text={soloHint && pick(lang, soloHint.en, soloHint.ar)} />
         </header>
 
         {/* B6 · Member row — horizontal scroll; each card switches active profile ─ */}

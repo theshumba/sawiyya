@@ -7,8 +7,8 @@
 // alphabet grid (filter === "alphabet"), sign detail (selectedId), and search
 // (query). All logic, store wiring, camera gating, and honest empty/never-fake-grade
 // branches are preserved; only the visuals are repainted to the design tokens.
-import { useMemo, useState } from "react";
-import { pick, t } from "../i18n";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { pick, t, type TKey } from "../i18n";
 import type { Lang, Sign } from "../types";
 import { ALL_SIGNS, LESSONS, SEEDED_ALPHABET, UNITS } from "../content/signs";
 import { lessonPlayable } from "../lesson/unlock";
@@ -23,7 +23,11 @@ import { demoShowsHint, SignDemo } from "../components/SignDemo";
 import { MonoLabel, SpringButton, toLocaleDigits } from "../components/dc";
 import { useDialog } from "../components/useDialog";
 
-type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit1" | "unit2";
+// Phase 4: "unit1" is now "words". It always filtered tier A1 — the 19 everyday
+// word signs — and that is what the deleted Words screen listed, so the chip may
+// as well say what it holds. "unit2" stays as an honest empty state for a
+// deep-link into the roadmap unit that has no content yet.
+type Filter = "all" | "learned" | "flagged" | "alphabet" | "words" | "unit2";
 
 type Status = "mastered" | "flagged" | "review" | "letter" | "unit" | "new";
 
@@ -78,6 +82,13 @@ function categoryTags(sign: Sign, lang: Lang): { label: string; tone: "teal" | "
       ? { label: pick(lang, "Phrase", "عبارة"), tone: "gold" }
       : { label: pick(lang, "Common", "شائعة"), tone: "gold" },
   );
+  // Phase 4 · one-handed vs two-handed came from the deleted Words screen, which
+  // sorted its list by it because you can copy a one-handed sign while holding
+  // the phone. That is real information about doing the sign, so it survives the
+  // merge as a tag rather than as a section header on a screen of its own.
+  if (sign.tier === "A1") {
+    tags.push({ label: t(sign.hands === 2 ? "wordsTwoHands" : "wordsOneHand", lang), tone: "teal" });
+  }
   return tags;
 }
 
@@ -100,7 +111,15 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
   );
 }
 
-export function AllSigns({ initialSignId }: { initialSignId?: string }) {
+export function AllSigns({
+  initialSignId,
+  initialFilter,
+}: {
+  initialSignId?: string;
+  /** Phase 4 · the Practise hub's word tile and the trail's word rung both land
+   *  here pre-filtered, which is what replaced the separate Words screen. */
+  initialFilter?: Filter;
+}) {
   const app = useApp();
   const go = useUi((s) => s.go);
   const toggleFlag = useApp((s) => s.toggleFlag);
@@ -109,7 +128,17 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
   const lang = profile?.language ?? "en";
   const rtl = lang === "ar";
 
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>(initialFilter ?? "all");
+  // Arriving pre-filtered, the chip that IS the filter starts off the end of a
+  // scrollable row on a phone, so the screen looks unfiltered and the learner
+  // cannot see what was applied on their behalf. Bring it into view.
+  const chipRowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!initialFilter) return;
+    chipRowRef.current
+      ?.querySelector('[aria-pressed="true"]')
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [initialFilter]);
   const [query, setQuery] = useState("");
   // Deep-linkable detail (H5): flagged non-gradable signs land here on their
   // exact watch/dictionary surface instead of the wrong camera target.
@@ -167,7 +196,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
       if (filter === "learned" && (progress[sign.id]?.masteryLevel ?? 0) === 0) return false;
       if (filter === "flagged" && !flaggedIds.has(sign.id)) return false;
       if (filter === "alphabet" && sign.tier !== "alphabet") return false;
-      if (filter === "unit1" && sign.tier !== "A1") return false;
+      if (filter === "words" && sign.tier !== "A1") return false;
       // Unit 2 is on the roadmap but has no content yet → resolves to the empty
       // "coming soon" state rather than a fabricated set. The chip no longer
       // surfaces this filter (dialect framing moved to the picker), but the rule
@@ -207,19 +236,15 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
 
   // Live filter chips only — the dialect "Coming Soon" pill moved to onboarding /
   // PractiseChooser, and the empty roadmap unit is no longer offered here.
-  // The word-unit chip takes its NUMBER from the content layer (UNITS order), so
-  // it reads "Unit 2" here and on Home instead of contradicting the path.
-  const wordUnitNo = UNITS.findIndex((u) => u.tier === "A1") + 1;
-  const FILTERS: { id: Filter; en: string; ar: string }[] = [
-    { id: "all", en: "All", ar: "الكل" },
-    { id: "learned", en: "Learned", ar: "المتعلمة" },
-    { id: "flagged", en: "Flagged", ar: "المحددة" },
-    { id: "alphabet", en: t("prAlphabet", "en"), ar: t("prAlphabet", "ar") },
-    {
-      id: "unit1",
-      en: `${t("homeUnit", "en")} ${toLocaleDigits(wordUnitNo, "en")}`,
-      ar: `${t("homeUnit", "ar")} ${toLocaleDigits(wordUnitNo, "ar")}`,
-    },
+  // Phase 4: the A1 chip is named for what it holds, "Everyday words", which is
+  // the name the deleted Words screen carried and the name every door to it
+  // still uses. A bare "Unit 2" named a position in the path, not a set of signs.
+  const FILTERS: { id: Filter; key: TKey }[] = [
+    { id: "all", key: "signsFilterAll" },
+    { id: "learned", key: "signsFilterLearned" },
+    { id: "flagged", key: "signsFilterFlagged" },
+    { id: "alphabet", key: "prAlphabet" },
+    { id: "words", key: "wordsTitle" },
   ];
 
   // Only gradable (static/alphabet) signs get a camera target. Dynamic signs can't be
@@ -240,12 +265,17 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
     <ScreenShell lang={lang} chrome="tabs">
       <div className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
         {/* ── Page header: title + search (search reclaims the old Home-btn space) ── */}
+        {/* Phase 4 · the title is navDictionary, the same key the tab, the route
+            announcement, the Settings row and the camera's escape hatch all
+            render. It used to be a hardcoded literal that agreed with none of
+            them. The tap instruction sits here, at every width: it used to live
+            inside the desktop-only aside, so on a phone nothing said what a
+            card does. */}
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
           <div className="min-w-0">
-            <Title as="h1">{pick(lang, "Sign Dictionary", "القاموس")}</Title>
-            <p className="mt-1 font-sans text-sm font-semibold text-ink/70">
-              {pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")}
-            </p>
+            <Title as="h1">{t("navDictionary", lang)}</Title>
+            <p className="mt-1 font-sans text-sm font-semibold text-ink/70">{t("signsSubtitle", lang)}</p>
+            <p className="mt-1 font-sans text-[13px] leading-snug text-muted">{t("signsTapHint", lang)}</p>
           </div>
           <div className="md:ms-auto md:w-full md:max-w-md">
             <SearchInput lang={lang} value={query} onChange={setQuery} />
@@ -255,25 +285,27 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
         {/* ── Filter chips (live only, L11: role="group" — these are filters, not
             tabs with an associated tabpanel/keyboard arrow-nav) ─────────────── */}
         <div
+          ref={chipRowRef}
           className="no-scrollbar -mx-5 mb-6 flex items-center gap-[7px] overflow-x-auto px-5 pb-1 md:mx-0 md:px-0"
           role="group"
           aria-label={pick(lang, "Filter signs", "تصفية الإشارات")}
         >
           {FILTERS.map((f) => {
             const active = filter === f.id;
+            const label = t(f.key, lang);
             return (
               <button
                 key={f.id}
                 type="button"
                 aria-pressed={active}
-                aria-label={pick(lang, f.en, f.ar)}
+                aria-label={label}
                 onClick={() => setFilter(f.id)}
                 style={active ? { boxShadow: "0 3px 0 #0A4F4C" } : undefined}
                 className={`flex-none rounded-full px-[13px] py-2 font-sans text-xs font-semibold leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
                   active ? "bg-teal text-paper" : "border border-line bg-sand text-muted"
                 }`}
               >
-                {pick(lang, f.en, f.ar)}
+                {label}
                 {f.id === "learned" && learnedCount > 0 ? (
                   <span className={active ? "text-paper/70" : "text-teal"}>
                     {" · "}
@@ -409,9 +441,8 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
               ) : (
                 <div className="flex flex-col items-center justify-center rounded-[20px] border border-dashed border-line bg-paper/50 px-8 py-20 text-center">
                   <Icon name="touch_app" className="mb-3 text-4xl text-teal/40" />
-                  <p className="font-display font-semibold text-muted">
-                    {pick(lang, "Pick a sign to see how it's made.", "اختر إشارة لترى كيف تُؤدّى.")}
-                  </p>
+                  {/* Same sentence as the header's, not a second wording of it. */}
+                  <p className="font-display font-semibold text-muted">{t("signsTapHint", lang)}</p>
                 </div>
               )}
             </div>

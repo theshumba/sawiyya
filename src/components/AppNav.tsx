@@ -30,8 +30,10 @@ const TABS: Tab[] = [
     // practice place now has separate parts (Letters camera · Words · Fingerspell
     // · Free camera), so the straight-to-camera shortcut hid everything but
     // letters. One tap deeper for the camera, everything else visible.
+    // Phase 4 dropped "words" from this list: the word room is the dictionary
+    // filtered, so the Dictionary tab is the honest one to light up there.
     name: "practiseChooser",
-    active: ["practiseChooser", "camera", "words", "fingerspell"],
+    active: ["practiseChooser", "camera", "fingerspell"],
     icon: "videocam",
     label: (l) => t("navPractise", l),
   },

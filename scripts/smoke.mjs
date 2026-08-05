@@ -33,6 +33,11 @@ const executablePath = join(
 
 const browser = await chromium.launch({ executablePath });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+// A failing step should cost seconds, not half a minute. At Playwright's 30s
+// default a broken build took twelve minutes to finish reporting itself, which
+// is long enough that you stop running the harness. The one wait that genuinely
+// needs longer (the first paint, cold) passes its own timeout.
+page.setDefaultTimeout(8000);
 
 const errors = [];
 page.on("console", (msg) => {
@@ -111,14 +116,19 @@ await step("the recap reads the answers back and names the four tabs", async () 
   await primary().click(); // reminders → recap
   await page.waitForSelector("text=That's your setup");
   const txt = await bodyText();
+  // DRIVE first, JUDGE second. This step used to assert before advancing, so a
+  // single copy mismatch here stranded the run mid-onboarding and every later
+  // step failed for a reason that had nothing to do with what it tests.
+  await primary().click(); // recap → name
+  await page.waitForSelector("text=What should we call you?");
   assert(txt.includes("A few signs"), "the recap lost the what-you-know answer");
   assert(txt.includes(TODAY_LABEL), "the recap lost the practise-days answer");
   // The four tabs are named exactly once in the whole app, and this is it.
-  for (const tabName of ["Learn", "Practise", "Signs", "Family"]) {
+  // Phase 4: the third one is "Dictionary" here, on the tab, on the screen
+  // itself, in Settings and on the camera's escape hatch — one name, five doors.
+  for (const tabName of ["Learn", "Practise", "Dictionary", "Family"]) {
     assert(txt.includes(tabName), `the recap does not name the ${tabName} tab`);
   }
-  await primary().click(); // recap → name
-  await page.waitForSelector("text=What should we call you?");
 });
 
 await step("name → the camera is explained, THEN the browser is asked", async () => {
@@ -382,8 +392,9 @@ await step("the flag lands ABOVE the trail on the learner's home", async () => {
 
 // ── Phase 1: doors ──────────────────────────────────────────────────────────
 await step("the dictionary's locked letters are locked", async () => {
-  await tab("Signs").click();
-  await page.waitForSelector("text=Sign Dictionary");
+  // Phase 4 renamed the tab and the screen to the same word.
+  await tab("Dictionary").click();
+  await page.waitForSelector("h1:has-text('Dictionary')");
   await page.click("button[aria-label='Alphabet']");
   await page.waitForTimeout(400);
   const cells = page.locator("ul li button");
@@ -478,6 +489,97 @@ await step("a hint the learner has already met does not come back", async () => 
     "the shared board is no longer empty, so this step proves nothing",
   );
   assert(!txt.includes("camera-checked twice"), "a hint the learner already met came back");
+});
+
+// ── Phase 4: say what things are ────────────────────────────────────────────
+await step("Home names the trail out loud, not just to screen readers", async () => {
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("text=Marhaba");
+  const title = page.locator("#trail-title");
+  assert((await title.count()) === 1, "the trail has no visible heading");
+  assert((await title.innerText()).trim() === "Learn", "the trail's heading is not the tab's own word");
+  assert(
+    (await bodyText()).includes("Your road, one lesson at a time"),
+    "the trail does not say what it is",
+  );
+});
+
+await step("Progress has a door that is not hidden behind the avatar", async () => {
+  // The stat chips ARE the summary of Progress, so they open it. Progress used
+  // to be reachable only from a menu behind the learner's own face.
+  await page.click("button[aria-label='See your progress']");
+  await page.waitForTimeout(500);
+  assert(page.url().includes("#/progress"), `landed on ${page.url()}, expected Progress`);
+});
+
+await step("Progress is ONE readout and its header stops renaming itself", async () => {
+  await page.waitForSelector("h1:has-text('Progress')");
+  const txt = await bodyText();
+  for (const section of ["Your stats", "Achievements", "Coming up", "The Constellation"]) {
+    assert(txt.includes(section), `the readout is missing "${section}"`);
+  }
+  // The four tabs are gone, and with them the header that renamed itself four
+  // times inside one screen.
+  const tabBar = page.locator("[role=group][aria-label='Progress views']");
+  assert((await tabBar.count()) === 0, "the Progress tab bar is back");
+  for (const gone of ["Your oasis", "Family league", "signs planted", "palms grown"]) {
+    assert(!txt.includes(gone), `Progress still carries "${gone}"`);
+  }
+});
+
+await step("the readout's pictures and grids carry their own key", async () => {
+  const txt = await bodyText();
+  assert(txt.includes("Tap a letter to open it"), "the Constellation is still 31 circles with a slogan");
+  assert(txt.includes("One square is one day"), "the month grid still has no key");
+  assert(
+    txt.includes("A palm for every letter you have started"),
+    "the oasis scene still draws itself without saying what it draws",
+  );
+});
+
+await step("the dictionary answers to ONE name", async () => {
+  await page.goto(`${BASE}#/signs`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("h1:has-text('Dictionary')");
+  const txt = await bodyText();
+  assert(!txt.includes("Sign Dictionary"), "the old second name is back on the screen");
+  assert((await tab("Dictionary").count()) === 1, "the tab does not carry the screen's own name");
+  // The instruction used to live in a `hidden md:block` aside, so on a phone —
+  // the only shape this app really ships in — nothing said what a card does.
+  assert(
+    txt.includes("Tap a sign to see how it's made"),
+    "the dictionary gives a phone no instruction",
+  );
+});
+
+await step("the word room is the dictionary filtered, not a screen of its own", async () => {
+  await page.goto(`${BASE}#/practise`, { waitUntil: "domcontentloaded" });
+  await page.click("button:has-text('Everyday words')");
+  await page.waitForTimeout(600);
+  assert(page.url().endsWith("#/words"), `landed on ${page.url()}, expected #/words`);
+  await page.waitForSelector("h1:has-text('Dictionary')");
+  const chip = page.locator("button[aria-label='Everyday words']");
+  assert((await chip.getAttribute("aria-pressed")) === "true", "the words chip is not applied");
+  const txt = await bodyText();
+  assert(txt.includes("I love you"), "the word signs are not listed");
+  assert(!txt.includes("Alif"), "the filter let the alphabet through");
+});
+
+await step("a bookmarked #/words still lands on the words", async () => {
+  await page.goto(`${BASE}#/words`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("h1:has-text('Dictionary')");
+  const chip = page.locator("button[aria-label='Everyday words']");
+  assert((await chip.getAttribute("aria-pressed")) === "true", "the address lost its filter");
+});
+
+await step("tone: the trail's button is a verb, not a verb and an arrow", async () => {
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("text=Marhaba");
+  await page.locator("button[aria-haspopup='dialog']").nth(1).click();
+  await page.waitForSelector("[role=dialog]");
+  const cta = (await page.locator("[role=dialog] button").last().innerText()).trim();
+  assert(cta === "Start" || cta === "Review", `the node CTA reads "${cta}"`);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
 });
 
 await step("Arabic flips the document, and back", async () => {

@@ -438,9 +438,11 @@ export function Settings() {
               the rows in Account and in Camera & privacy above. Four rows, two
               destinations, one screen. The originals stay; these are gone. */}
           <Group lang={lang} title={pick(lang, "About", "حول")}>
+            {/* Phase 4 · this row said "Signs dictionary" while the tab said
+                "Signs" and the screen said "Sign Dictionary". One key now. */}
             <ChipRow
               chip="bg-teal"
-              label={pick(lang, "Signs dictionary", "قاموس الإشارات")}
+              label={t("navDictionary", lang)}
               onClick={() => go({ name: "allSigns" })}
               last
             />

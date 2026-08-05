@@ -12,7 +12,11 @@ const dict = {
   navMain: { en: "Main navigation", ar: "التنقل الرئيسي" },
   navLearn: { en: "Learn", ar: "تعلّم" },
   navPractise: { en: "Practise", ar: "تدرّب" },
-  navDictionary: { en: "Signs", ar: "القاموس" },
+  // Phase 4 · ONE name for this screen. It answered to four in English — "Signs"
+  // on the tab, "Sign Dictionary" on arrival, "Signs dictionary" in Settings and
+  // "Browse the signs" on the camera's error escape. Every one of those doors
+  // now says this, and the screen's own title is this key, not a literal.
+  navDictionary: { en: "Dictionary", ar: "القاموس" },
   navProfile: { en: "Profile", ar: "حسابي" },
 
   // onboarding
@@ -84,7 +88,8 @@ const dict = {
   obRecapStartingFrom: { en: "Starting from", ar: "تبدأ من" },
   obRecapPractising: { en: "Practising", ar: "تتدرّب" },
   obRecapNoDays: { en: "No days picked", ar: "لم تختر أيامًا" },
-  obRecapTabsTitle: { en: "Four tabs, and that's the whole app", ar: "أربع علامات، وهذا كل التطبيق" },
+  // Digits even under ten (Duolingo's published rule, Phase 4 tone pass).
+  obRecapTabsTitle: { en: "4 tabs, and that's the whole app", ar: "٤ تبويبات، وهذا كل التطبيق" },
   obRecapTabLearn: { en: "Your lesson, one at a time", ar: "درسك، واحدًا تلو الآخر" },
   obRecapTabPractise: { en: "The camera, whenever you want it", ar: "الكاميرا، متى شئت" },
   obRecapTabSigns: { en: "Every sign, to look up", ar: "كل الإشارات، للبحث" },
@@ -116,7 +121,8 @@ const dict = {
   camMatchOwn: { en: "Matched your own recording", ar: "طابَق تسجيلك الخاص" },
   camUnsure: { en: "Almost — the camera isn't sure, but your hands might be right. Try once more?", ar: "قريب — الكاميرا غير متأكدة، لكن ربما يداك صحيحتان. جرّب مرة أخرى؟" },
   camSelfMark: { en: "I signed it right", ar: "أدّيتها صح" },
-  camSelfMarkSub: { en: "Mark it yourself — you know your hands.", ar: "قيّم نفسك — أنت أدرى بيديك." },
+  // No punctuation inside a button, and this line renders inside one.
+  camSelfMarkSub: { en: "Mark it yourself — you know your hands", ar: "قيّم نفسك — أنت أدرى بيديك" },
   camTryAgain: { en: "Try again", ar: "حاول مجددًا" },
   camSkip: { en: "Skip this one", ar: "تجاوز هذه" },
   camStillTricky: { en: "Still tricky — let's see it again", ar: "ما زالت صعبة — لنشاهدها من جديد" },
@@ -167,13 +173,19 @@ const dict = {
   a1AslProvenance: { en: "Adapted from ASL — not yet verified as Qatari Sign Language. A Deaf Qatari signer records the native versions in Phase 2.", ar: "مقتبسة من لغة الإشارة الأمريكية — لم تُعتمد بعد بلغة الإشارة القطرية. سيسجّل النسخ الأصلية شخص أصم قطري في المرحلة الثانية." },
 
   // home
-  homeToday: { en: "Today's lesson", ar: "درس اليوم" },
+  // homeToday is gone: it was the trail section's screen-reader-only label, and
+  // the trail now has a visible heading that labels it for everyone.
   homeStreak: { en: "day streak", ar: "أيام متتالية" },
   homeNeeds: { en: "needs this", ar: "بحاجة لهذه" },
   homeFlagged: { en: "Flagged for your family", ar: "مطلوبة من عائلتك" },
   homeFlagOne: { en: "1 family request", ar: "طلب واحد من العائلة" },
   homeFlagMany: { en: "family requests", ar: "طلبات العائلة" },
   homeReviewDue: { en: "Review due", ar: "مراجعة مستحقة" },
+  // Phase 4 · Home says what it is above the trail. Its only heading was the
+  // greeting, and the trail itself was named for screen readers and nobody
+  // else. The heading is navLearn, the same word as the tab that opens it.
+  homeTrailSub: { en: "Your road, one lesson at a time", ar: "طريقك، درسًا بعد درس" },
+  homeSeeProgress: { en: "See your progress", ar: "اطّلع على تقدّمك" },
   homeReviewCta: { en: "signs to review", ar: "إشارات للمراجعة" },
   homeDailyGoal: { en: "Daily goal", ar: "الهدف اليومي" },
   homeAllDone: { en: "Goal met — beautiful work today.", ar: "تحقق الهدف — عمل رائع اليوم." },
@@ -194,10 +206,13 @@ const dict = {
   famOnlyDeafFlags: { en: "flags the signs — the curriculum follows them.", ar: "يحدد الإشارات — والمنهج يتبعهم." },
 
   // progress
-  prMastered: { en: "signs mastered", ar: "إشارات متقنة" },
+  // prMastered ("signs mastered") is gone with the readout rebuild: it was the
+  // third name for the number prStatMastered already carries.
   prUpcoming: { en: "Coming up for review", ar: "قادمة للمراجعة" },
   prAlphabet: { en: "Alphabet", ar: "الحروف" },
-  prNothingDue: { en: "Nothing due — you're ahead.", ar: "لا شيء مستحق — أنت متقدم." },
+  // No full stop in a headline (Phase 4 tone pass) — this is the empty state's
+  // heading, not its body.
+  prNothingDue: { en: "Nothing due — you're ahead", ar: "لا شيء مستحق — أنت متقدم" },
 
   // settings
   setTitle: { en: "Settings", ar: "الإعدادات" },
@@ -228,18 +243,19 @@ const dict = {
   // ── reskin: celebrations
   celStreakTitle: { en: "{n}-day streak!", ar: "تتابع {n} أيام!" },
   celStreakBody: { en: "You've signed every day this week. You're on fire.", ar: "أشرت كل يوم هذا الأسبوع. أنت في أوجك." },
-  celStreakCta: { en: "Keep it going →", ar: "واصل التقدّم ←" },
+  // Phase 4 tone pass: no trailing arrows or ornaments in button labels.
+  celStreakCta: { en: "Keep it going", ar: "واصل التقدّم" },
   celGoalTitle: { en: "Daily goal met!", ar: "تحقّق هدف اليوم!" },
   celGoalBody: { en: "{xp} / {goal} XP today. Fanan is proud of you.", ar: "{xp} / {goal} نقاط اليوم. فَنَن فخور بك." },
   celBadgeEyebrow: { en: "Achievement unlocked", ar: "إنجاز مفتوح" },
   celBadgeBodySample: { en: "You mastered your first 5 signs. A whole conversation starts here.", ar: "أتقنت أول ٥ إشارات. محادثة كاملة تبدأ من هنا." },
-  celBadgeCta: { en: "Collect ⭐", ar: "استلم ⭐" },
+  celBadgeCta: { en: "Collect", ar: "استلم" },
   celLevelEyebrow: { en: "Unit {n} complete", ar: "اكتملت الوحدة {n}" },
   celLevelTitle: { en: "Level up!", ar: "ترقية!" },
   celLevelBody: { en: 'You unlocked "{unit}"', ar: "فتحت «{unit}»" },
-  celLevelCta: { en: "Start Unit {n} →", ar: "ابدأ الوحدة {n} ←" },
+  celLevelCta: { en: "Start Unit {n}", ar: "ابدأ الوحدة {n}" },
   celConnectEyebrow: { en: "Connection made", ar: "تمّ التواصل" },
-  celConnectTitle: { en: 'You signed "{sign}" with {name}.', ar: "أشرت «{sign}» مع {name}." },
+  celConnectTitle: { en: 'You signed "{sign}" with {name}', ar: "أشرت «{sign}» مع {name}" },
   celConnectBody: { en: "Not a lesson — a moment. This is why Sawiyya exists.", ar: "ليست حصّة — بل لحظة. لهذا وُجدت سويّة." },
   celConnectCta: { en: "Share this moment", ar: "شارك هذه اللحظة" },
   celCertEyebrow: { en: "Certificate of achievement", ar: "شهادة إنجاز" },
@@ -247,7 +263,7 @@ const dict = {
   celCertBody: { en: "All 28 letters, signed and camera-checked.", ar: "كل الحروف الـ٢٨، بالإشارة وبتحقّق الكاميرا." },
   celCertNameLbl: { en: "Learner", ar: "المتعلّمة" },
   celCertDateLbl: { en: "Completed", ar: "أُنجزت" },
-  celCertCta: { en: "Share certificate ↑", ar: "شارك الشهادة ↑" },
+  celCertCta: { en: "Share certificate", ar: "شارك الشهادة" },
 
   // ── reskin: family
   famLearners: { en: "learners", ar: "متعلّمين" },
@@ -287,8 +303,8 @@ const dict = {
   homeGoldStat: { en: "XP", ar: "نقطة" },
   homeFamilyStat: { en: "family", ar: "العائلة" },
   homeStartBadge: { en: "START", ar: "ابدأ" },
-  pathStartCta: { en: "Start →", ar: "ابدأ ←" },
-  pathReview: { en: "Review →", ar: "مراجعة ←" },
+  pathStartCta: { en: "Start", ar: "ابدأ" },
+  pathReview: { en: "Review", ar: "مراجعة" },
   pathLocked: { en: "Locked", ar: "مقفل" },
   pathNewSign: { en: "New sign · camera-graded", ar: "إشارة جديدة · تقييم بالكاميرا" },
   // A done node only needs mastery 2 ("practised"). Mastery 3 is the far harder
@@ -312,11 +328,12 @@ const dict = {
   lsSessionTitle: { en: "Great session!", ar: "جلسة رائعة!" },
 
   // ── reskin: onboarding
-  obWelcomeTitle: { en: "Teach the world to sign.", ar: "علّم العالم الإشارة." },
+  obWelcomeTitle: { en: "Teach the world to sign", ar: "علّم العالم الإشارة" },
   obWelcomeBody: { en: "Learn to sign and connect with someone who can’t hear you — as equals.", ar: "تعلّم الإشارة وتواصل مع من لا يسمعك — كأنداد." },
   obWelcomeCta: { en: "Get started", ar: "لنبدأ" },
   obFananEyebrow: { en: "Meet your guide", ar: "تعرّف على مرشدك" },
-  obFananTitle: { en: "Hi, I’m Fanan!", ar: "مرحبًا، أنا فَنَن!" },
+  // Exclamation marks are for success, not for greetings (Phase 4 tone pass).
+  obFananTitle: { en: "Hi, I’m Fanan", ar: "مرحبًا، أنا فَنَن" },
   obFananBody: { en: "I’ll cheer you on, catch your signs, and never let you learn alone.", ar: "سأشجّعك، وألتقط إشاراتك، ولن أدعك تتعلّم وحدك أبدًا." },
   obFananCta: { en: "Nice to meet you", ar: "تشرّفنا" },
   obLangTitle: { en: "Choose your language", ar: "اختر لغتك" },
@@ -352,12 +369,14 @@ const dict = {
   // ── reskin: practice loop
   loopHintLbl: { en: "Hint", ar: "تلميح" },
   loopSignerCap: { en: "SIGN DEMO", ar: "عرض الإشارة" },
-  loopLineWatch: { en: "Watch me first!", ar: "شاهدني أولًا!" },
+  // Only loopLineCorrect keeps its exclamation mark: it is the one line here
+  // that marks a success (Phase 4 tone pass).
+  loopLineWatch: { en: "Watch me first", ar: "شاهدني أولًا" },
   loopLineLooking: { en: "Show me your hand", ar: "أرني يدك" },
   loopLineDetecting: { en: "Ooh, nice…", ar: "جميل…" },
   loopLineCorrect: { en: "That's it!", ar: "أحسنت!" },
-  loopLineNotquite: { en: "So close — again!", ar: "اقتربت — مجددًا!" },
-  loopLineDemo: { en: "Wave with me!", ar: "لوّح معي!" },
+  loopLineNotquite: { en: "So close — again", ar: "اقتربت — مجددًا" },
+  loopLineDemo: { en: "Wave with me", ar: "لوّح معي" },
   loopKindLetter: { en: "Arabic letter · static handshape", ar: "حرف عربي · إشارة ثابتة" },
   loopKindWordStatic: { en: "Word · static handshape", ar: "كلمة · إشارة ثابتة" },
   loopKindWordMotion: { en: "Word · motion sign", ar: "كلمة · إشارة حركية" },
@@ -368,17 +387,18 @@ const dict = {
   practiseAlphabet: { en: "Alphabet", ar: "الأبجدية" },
   practiseAlphabetSub: { en: "28 letters", ar: "٢٨ حرفًا" },
   practiseAlphabetSubOf: { en: "{n} of {t} practised", ar: "تدرّبت على {n} من {t}" },
-  practiseWords: { en: "Words", ar: "الكلمات" },
+  // practiseWords ("Words") is gone: the tile that used it now carries
+  // wordsTitle, so the door and the thing behind it say the same word.
   // All 16 A1 words are watch-only: no trained model exists for any word sign
   // (iloveyou/stop demoted 2026-07-04 — teach-then-match-yourself was circular).
   practiseWordsSub: { en: "Watch & copy, from day one", ar: "شاهد وقلّد من اليوم الأول" },
 
-  // Words hub (2026-07-31) — instant word practice, one-handed signs first
+  // Phase 4 · the Words screen is gone: it listed sign cards, opened the same
+  // SignDemo sheet and wrote the identical self-mark as the dictionary, so it
+  // was a smaller copy of a screen one tab away. "Everyday words" is now a
+  // FILTER inside the dictionary, and this key labels that chip. wordsSubtitle
+  // went with the screen — a dead key reads as live copy to the next person.
   wordsTitle: { en: "Everyday words", ar: "كلمات يومية" },
-  wordsSubtitle: {
-    en: "Watch, copy, mark yourself — no letters needed first.",
-    ar: "شاهد وقلّد وقيّم نفسك — لا تحتاج الحروف أولًا.",
-  },
   wordsOneHand: { en: "One hand", ar: "بيد واحدة" },
   wordsTwoHands: { en: "Two hands", ar: "بيدين" },
   wordsMarked: { en: "Marked — it'll come back in review.", ar: "سجّلناها — ستعود في المراجعة." },
@@ -390,16 +410,38 @@ const dict = {
   practiseReviewCountSuffix: { en: "due", ar: "مستحقّة" },
   practiseReviewBody: { en: "signs are ready for a quick refresh.", ar: "إشارات جاهزة لتذكير سريع." },
 
-  // ── reskin: progress
-  prTabOasis: { en: "Your oasis", ar: "واحتك" },
-  prTabStats: { en: "Stats", ar: "إحصاءات" },
-  prTabAchieve: { en: "Achievements", ar: "الإنجازات" },
-  prTabLeague: { en: "Family league", ar: "دوري العائلة" },
+  // ── progress · Phase 4 rebuilt it as ONE readout ──────────────────────────
+  // The four tabs are gone. Three of them (Stats, Achievements, Family league)
+  // were dead ends with a back arrow, and the league duplicated the Family tab
+  // it also linked to. The header no longer changes with the tab either: it is
+  // "Progress" always, the same word as the door that opens it.
+  prReadoutSub: {
+    en: "Everything Sawiyya has recorded about your learning",
+    ar: "كل ما سجّلته سويّة عن تعلّمك",
+  },
   prOasisTitle: { en: "The world you're building", ar: "العالم الذي تبنيه" },
   prOasisBody: { en: "Every sign you learn plants something new.", ar: "كل إشارة تتعلّمها تزرع شيئًا جديدًا." },
-  prPlanted: { en: "signs planted", ar: "إشارة مزروعة" },
-  prPalmsGrown: { en: "palms grown", ar: "نخلات نمت" },
+  // The scene's key. "signs planted" and "palms grown" were invented units that
+  // contradicted "Signs mastered" one tab away; the numbers now live once, in
+  // the stats grid, and the picture explains what it is drawing.
+  prOasisKey: {
+    en: "A palm for every letter you have started, a sprout for every sign you have mastered",
+    ar: "نخلة لكل حرف بدأته، وشتلة لكل إشارة أتقنتها",
+  },
   prNextMilestone: { en: "Next milestone", ar: "المحطة التالية" },
+  prWeeklyStreak: { en: "Weekly streak", ar: "المواظبة الأسبوعية" },
+  prConstellation: { en: "The Constellation", ar: "الكوكبة" },
+  // Thirty-one tappable circles with a slogan under them was one of the audit's
+  // "pure lists with no instruction". Say what a tap does.
+  prConstellationTap: { en: "Tap a letter to open it", ar: "انقر حرفًا لفتحه" },
+  prConstellationFound: { en: "found", ar: "مكتشفة" },
+  // The heatmap had a less/more legend and no statement of what a cell is.
+  prMonthKey: {
+    en: "One square is one day. A filled square is a day you practised",
+    ar: "كل مربع يوم واحد. المربع الملوّن يوم تدرّبت فيه",
+  },
+  prComingUp: { en: "Coming up", ar: "قادمة قريبًا" },
+  prStartReview: { en: "Start review session", ar: "ابدأ جلسة المراجعة" },
   prStatsTitle: { en: "Your stats", ar: "إحصاءاتك" },
   prStatMastered: { en: "Signs mastered", ar: "إشارة مُتقَنة" },
   prAvgAccuracy: { en: "Avg accuracy", ar: "متوسط الدقّة" },
@@ -420,10 +462,9 @@ const dict = {
   prAchAlphabetStarted: { en: "Alphabet started", ar: "بدء الأبجدية" },
   prAchFamilyFlag: { en: "Family flag", ar: "علم عائلي" },
   prAchWholeAlphabet: { en: "Whole alphabet", ar: "الأبجدية كاملة" },
-  prLeagueTitle: { en: "Family league", ar: "دوري العائلة" },
-  prLeagueBody: { en: "Growing together.", ar: "ننمو معًا." },
-  prLeagueSolo: { en: "It's just you so far — add family members and you'll grow here together.", ar: "أنت وحدك حتى الآن — أضف أفراد عائلتك لتنموا هنا معًا." },
-  prLeagueWarm: { en: "We climb together — no losers here, only progress.", ar: "نصعد معًا — لا خاسرين هنا، فقط تقدّم." },
+  // prLeague* are gone with the Family league tab: it ranked the same household
+  // the Family tab already lists, from inside a screen hidden behind an avatar,
+  // and its own empty state linked to Family. One place for the household.
 
   // ── reskin: settings
   aiFlowCamera: { en: "Camera", ar: "الكاميرا" },
@@ -440,7 +481,21 @@ const dict = {
   aboutCredits: { en: "The 28-letter alphabet is graded from real signers' hands in the open Zenodo ArSL dataset (CC-BY-4.0) — thank you to everyone who contributed to it. Recordings by Deaf Qatari signers arrive in Phase 2.", ar: "تُقيَّم الحروف الـ٢٨ من أيدي مُشيرين حقيقيين في مجموعة بيانات Zenodo ArSL المفتوحة (CC-BY-4.0) — شكرًا لكل من ساهم فيها. تسجيلات مُشيرين قطريين صُمّ قادمة في المرحلة الثانية." },
   aboutVersion: { en: "Sawiyya v1.0 · Made in Qatar", ar: "سويّة الإصدار ١٫٠ · صُنع في قطر" },
 
-  // ── reskin: signs dictionary
+  // ── the dictionary ────────────────────────────────────────────────────────
+  // What the screen is for, said on the screen, at every width. The only
+  // instruction it had lived in a `hidden md:block` aside, so on a phone — the
+  // only shape this app really ships in — nothing said what a card does.
+  signsSubtitle: {
+    en: "Every sign in Sawiyya, to look up",
+    ar: "كل إشارات سويّة، للبحث",
+  },
+  signsTapHint: {
+    en: "Tap a sign to see how it's made",
+    ar: "انقر إشارة لترى كيف تُؤدّى",
+  },
+  signsFilterAll: { en: "All", ar: "الكل" },
+  signsFilterLearned: { en: "Learned", ar: "المتعلمة" },
+  signsFilterFlagged: { en: "Flagged", ar: "المحدّدة" },
   signsAlphaTitle: { en: "The alphabet", ar: "الأبجدية" },
   signsAlphaBody: { en: "All 28 Arabic letters.", ar: "كل الحروف العربية الـ٢٨." },
   signsAlphaProgress: { en: "of 28 learned", ar: "من ٢٨ مُتعلَّمة" },
@@ -458,9 +513,10 @@ const dict = {
   signWatchPractise: { en: "Watch & practise", ar: "شاهد وتمرّن" },
 
   // ── reskin: states (permission / empty / error / offline / grader edge cases)
-  stNoCamTitle: { en: "No camera? No problem.", ar: "لا كاميرا؟ لا مشكلة." },
+  stNoCamTitle: { en: "No camera? No problem", ar: "لا كاميرا؟ لا مشكلة" },
   stNoCamBody: { en: "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available.", ar: "يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا." },
-  stBrowseSigns: { en: "Browse the signs →", ar: "تصفّح الإشارات ←" },
+  // Names the destination the way the destination names itself.
+  stBrowseSigns: { en: "Open the dictionary", ar: "افتح القاموس" },
   stNoProfileTitle: { en: "No profile yet", ar: "لا يوجد ملف بعد" },
   stNoProfileBody: { en: "Set up a profile to start signing", ar: "أنشئ ملفًا لتبدأ الإشارة" },
   stSetUpProfile: { en: "Set up profile", ar: "إنشاء ملف" },
@@ -589,8 +645,8 @@ const dict = {
   // ladder that Home's chest and Progress's "Next milestone" both read.
   jrTitle: { en: "Getting started", ar: "لنبدأ" },
   jrBody: {
-    en: "Six things that show you the whole app. They tick themselves off as you go.",
-    ar: "ستة أشياء تعرّفك بالتطبيق كله. تُشطب من تلقاء نفسها كلما تقدّمت.",
+    en: "6 things that show you the whole app. They tick themselves off as you go.",
+    ar: "٦ أشياء تعرّفك بالتطبيق كله. تُشطب من تلقاء نفسها كلما تقدّمت.",
   },
   jrDone: { en: "Done", ar: "تم" },
   jrNext: { en: "Next", ar: "التالي" },
@@ -629,6 +685,10 @@ const dict = {
 } satisfies Record<string, Entry>;
 
 export type TKey = keyof typeof dict;
+
+/** The whole dictionary, exported for the Phase 4 tone gate in i18n.tone.test.ts.
+ *  Nothing in the app should read this: use `t()`. */
+export const DICT: Record<string, Entry> = dict;
 
 export function t(key: TKey, lang: Lang): string {
   return dict[key][lang];
