@@ -21,10 +21,11 @@ import { ScreenShell } from "../components/ScreenShell";
 import { FlagCard } from "../components/FlagCard";
 import { NoProfileFallback } from "../components/NoProfileFallback";
 import { Fanan } from "../components/Fanan";
-import { JourneyStrip } from "../components/Journey";
+import { JourneyLadder, JourneyStrip } from "../components/Journey";
 import { useDialog } from "../components/useDialog";
 import { nextMilestone } from "../lesson/milestones";
 import { currentLessonId, lessonState } from "../lesson/unlock";
+import { stageOf } from "../journey/journey";
 import type { Lesson } from "../types";
 
 type NodeStatus = "current" | "done" | "locked" | "milestone";
@@ -91,6 +92,9 @@ export function Home() {
   // would see their own requests come back as incoming ones.
   const solo = app.profiles.length === 1;
   const flags = pinnedFlagSigns(app, profile.id).filter((f) => solo || f.raisedByProfileId !== profile.id);
+  const hasFlag = flags.length > 0 && !!signById(flags[0].signId);
+  const hasJourney = stageOf(new Set(app.journey.steps), new Set(app.journey.dismissed)) !== "settled";
+  const hasDesktopRail = hasFlag || hasJourney;
 
   // Node status comes from the shared trail rule, not from each lesson's own
   // signs: four Words self-marks reach mastery 2 on the whole of "First
@@ -407,7 +411,7 @@ export function Home() {
         className="sticky top-0 z-10"
         style={{ background: "#0F6E6A", borderRadius: "0 0 24px 24px", boxShadow: "0 6px 16px rgba(15,110,106,.25)" }}
       >
-        <div className="mx-auto max-w-xl" style={{ padding: "8px 20px 18px" }}>
+        <div className="mx-auto max-w-xl xl:max-w-5xl" style={{ padding: "8px 20px 18px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div style={{ minWidth: 0 }}>
               {/* M17: Home had zero headings — this greeting is the natural h1. */}
@@ -507,7 +511,13 @@ export function Home() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-xl px-5">
+      <div
+        className={`mx-auto items-start px-5 ${
+          hasDesktopRail
+            ? "grid max-w-xl xl:max-w-5xl xl:grid-cols-[576px_minmax(320px,360px)] xl:gap-x-10"
+            : "max-w-xl"
+        }`}
+      >
         {/* Family requests — ABOVE the trail, and only when someone has actually
             raised one. This is the differentiator: the Deaf member picks what the
             household learns. Buried at the bottom of an eight-card stack it was
@@ -525,7 +535,10 @@ export function Home() {
                 : app.profiles.find((p) => p.id === flag.raisedByProfileId);
             if (!sign) return null;
             return (
-              <section className="space-y-3 pt-5" aria-label={t("homeFlagged", lang)}>
+              <section
+                className="space-y-3 pt-5 xl:col-start-2 xl:row-start-1 xl:sticky xl:top-24"
+                aria-label={t("homeFlagged", lang)}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <Eyebrow lang={lang} className="!text-coral">
                     {t("homeFlagged", lang)}
@@ -556,7 +569,10 @@ export function Home() {
           })()}
 
         {/* Block B — the winding node trail. This is the screen. */}
-        <section aria-labelledby="trail-title" className="pt-4 pb-4">
+        <section
+          aria-labelledby="trail-title"
+          className={`pt-4 pb-4 ${hasDesktopRail ? "xl:col-start-1 xl:row-start-1 xl:row-span-2" : ""}`}
+        >
           {/* Phase 4 · the trail says what it is, out loud. Home's only heading
               was "Marhaba, <name>", and the trail itself was named for screen
               readers and nobody else. The word is navLearn — the same word on
@@ -644,7 +660,16 @@ export function Home() {
             road keeps primacy; this is the app naming a part of itself the road
             never passes. It renders nothing at all once there is nothing left to
             introduce, which is why Phase 1's card stack is not creeping back. */}
-        <JourneyStrip lang={lang} dueCount={dueSignIds(app, profile.id).length} />
+        {hasJourney && (
+          <div
+            className={`hidden xl:col-start-2 xl:block xl:sticky xl:top-24 ${hasFlag ? "xl:row-start-2" : "xl:row-start-1"}`}
+          >
+            <JourneyLadder lang={lang} dueCount={dueSignIds(app, profile.id).length} />
+          </div>
+        )}
+        <div className="xl:col-start-2 xl:sticky xl:top-24 xl:hidden">
+          <JourneyStrip lang={lang} dueCount={dueSignIds(app, profile.id).length} />
+        </div>
       </div>
 
       {/* Block C — node start popover (bottom sheet). */}
