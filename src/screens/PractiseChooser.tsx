@@ -150,7 +150,7 @@ export function PractiseChooser() {
         )}
 
         {/* B4 · More dialects — coming soon (no fabricated data, decision #6) */}
-        <div className="mt-6 max-w-sm rounded-3xl border-2 border-dashed border-teal/20 bg-paper/50 p-5 text-center lg:mt-8">
+        <div className="mt-6 rounded-3xl border-2 border-dashed border-teal/20 bg-paper/50 p-5 text-center lg:mt-8 lg:max-w-sm">
           <Icon name="public" className="text-3xl text-teal/40" />
           <p className="mt-1 font-display font-bold text-ink">
             {pick(lang, "More dialects coming soon", "لهجات أخرى قريبًا")}

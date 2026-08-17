@@ -252,7 +252,7 @@ export function Progress() {
         </div>
 
         {/* ── The world you're building ──────────────────────────────────── */}
-        <section className="space-y-3">
+        <section className="space-y-3 lg:max-w-4xl">
           <SectionTitle>{t("prOasisTitle", lang)}</SectionTitle>
           <p className="text-[13px] leading-[1.35] text-muted">{t("prOasisBody", lang)}</p>
           <OasisScene alphaTaught={alphaTaught} mastered={mastered} />
@@ -262,12 +262,14 @@ export function Progress() {
         </section>
 
         {/* ── The Constellation — live alphabet ring ─────────────────────── */}
-        <Constellation
-          lang={lang}
-          alphaTaught={alphaTaught}
-          alphaLit={alphaLit}
-          onTap={(id) => go({ name: "allSigns", signId: id })}
-        />
+        <div className="lg:max-w-4xl">
+          <Constellation
+            lang={lang}
+            alphaTaught={alphaTaught}
+            alphaLit={alphaLit}
+            onTap={(id) => go({ name: "allSigns", signId: id })}
+          />
+        </div>
 
         {/* ── Achievements ──────────────────────────────────────────────── */}
         <Achievements
@@ -558,7 +560,7 @@ function Achievements({
     <section className="space-y-3">
       <SectionTitle>{t("prAchievements", lang)}</SectionTitle>
       <p className="text-[13px] leading-[1.35] text-muted">{summary}</p>
-      <div className="grid grid-cols-2 gap-[11px]">
+      <div className="grid grid-cols-2 gap-[11px] lg:grid-cols-3">
         {items.map((a, i) => (
           <div
             key={i}
