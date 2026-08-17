@@ -47,13 +47,13 @@ export function PractiseChooser() {
 
   return (
     <ScreenShell lang={lang}>
-      <div className="mx-auto max-w-md px-[22px] pb-6 pt-6 md:max-w-2xl md:px-8">
+      <div className="mx-auto max-w-md px-[22px] pb-6 pt-6 md:max-w-2xl md:px-8 lg:max-w-5xl">
         {/* B1 · Header */}
         <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">{t("practiseTitle", lang)}</h1>
         <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("practiseSubtitle", lang)}</p>
 
         {/* B2 · Hub card grid */}
-        <div className="mt-[18px] grid grid-cols-2 gap-3">
+        <div className="mt-[18px] grid grid-cols-2 gap-3 lg:grid-cols-3">
           {/* 1 · Alphabet — READY (real gradable data). Sub goes live once any
               letter has been practised: "n of 28" beats a static "28 letters". */}
           <button
@@ -150,7 +150,7 @@ export function PractiseChooser() {
         )}
 
         {/* B4 · More dialects — coming soon (no fabricated data, decision #6) */}
-        <div className="mt-6 rounded-3xl border-2 border-dashed border-teal/20 bg-paper/50 p-5 text-center">
+        <div className="mt-6 max-w-sm rounded-3xl border-2 border-dashed border-teal/20 bg-paper/50 p-5 text-center lg:mt-8">
           <Icon name="public" className="text-3xl text-teal/40" />
           <p className="mt-1 font-display font-bold text-ink">
             {pick(lang, "More dialects coming soon", "لهجات أخرى قريبًا")}

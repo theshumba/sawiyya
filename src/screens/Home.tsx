@@ -407,7 +407,7 @@ export function Home() {
         className="sticky top-0 z-10"
         style={{ background: "#0F6E6A", borderRadius: "0 0 24px 24px", boxShadow: "0 6px 16px rgba(15,110,106,.25)" }}
       >
-        <div className="mx-auto max-w-xl" style={{ padding: "8px 20px 18px" }}>
+        <div className="mx-auto max-w-xl lg:max-w-5xl" style={{ padding: "8px 20px 18px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div style={{ minWidth: 0 }}>
               {/* M17: Home had zero headings — this greeting is the natural h1. */}
@@ -507,7 +507,7 @@ export function Home() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-xl px-5">
+      <div className="mx-auto grid max-w-xl items-start px-5 lg:max-w-5xl lg:grid-cols-[minmax(0,576px)_minmax(320px,360px)] lg:gap-x-10">
         {/* Family requests — ABOVE the trail, and only when someone has actually
             raised one. This is the differentiator: the Deaf member picks what the
             household learns. Buried at the bottom of an eight-card stack it was
@@ -525,7 +525,10 @@ export function Home() {
                 : app.profiles.find((p) => p.id === flag.raisedByProfileId);
             if (!sign) return null;
             return (
-              <section className="space-y-3 pt-5" aria-label={t("homeFlagged", lang)}>
+              <section
+                className="space-y-3 pt-5 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-24"
+                aria-label={t("homeFlagged", lang)}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <Eyebrow lang={lang} className="!text-coral">
                     {t("homeFlagged", lang)}
@@ -556,7 +559,7 @@ export function Home() {
           })()}
 
         {/* Block B — the winding node trail. This is the screen. */}
-        <section aria-labelledby="trail-title" className="pt-4 pb-4">
+        <section aria-labelledby="trail-title" className="pt-4 pb-4 lg:col-start-1 lg:row-start-1 lg:row-span-2">
           {/* Phase 4 · the trail says what it is, out loud. Home's only heading
               was "Marhaba, <name>", and the trail itself was named for screen
               readers and nobody else. The word is navLearn — the same word on
@@ -644,7 +647,9 @@ export function Home() {
             road keeps primacy; this is the app naming a part of itself the road
             never passes. It renders nothing at all once there is nothing left to
             introduce, which is why Phase 1's card stack is not creeping back. */}
-        <JourneyStrip lang={lang} dueCount={dueSignIds(app, profile.id).length} />
+        <div className="lg:col-start-2 lg:sticky lg:top-24">
+          <JourneyStrip lang={lang} dueCount={dueSignIds(app, profile.id).length} />
+        </div>
       </div>
 
       {/* Block C — node start popover (bottom sheet). */}

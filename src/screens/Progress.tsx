@@ -167,85 +167,89 @@ export function Progress() {
     // four times inside one screen.
     <ScreenShell lang={lang} chrome="takeover" title={t("navProgress", lang)} onClose={() => go({ name: "home" })}>
       <style>{OASIS_KEYFRAMES}</style>
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-4 md:px-6">
+      <div className="mx-auto max-w-2xl space-y-6 px-4 py-4 md:px-6 lg:max-w-5xl">
         <p className="text-[13px] leading-[1.35] text-muted">{t("prReadoutSub", lang)}</p>
 
-        {/* Phase 3 · the full ladder as a readout. Home shows at most one row of
-            it; this is where "how far along am I" is a fair question to answer.
-            Renders nothing once every step is behind the learner. */}
-        <JourneyLadder lang={lang} dueCount={due.length} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-x-10">
+          {/* Phase 3 · the full ladder as a readout. Home shows at most one row of
+              it; this is where "how far along am I" is a fair question to answer.
+              Renders nothing once every step is behind the learner. */}
+          <JourneyLadder lang={lang} dueCount={due.length} />
 
-        {/* ── Your stats ─────────────────────────────────────────────────── */}
-        <section className="space-y-3">
-          <SectionTitle>{t("prStatsTitle", lang)}</SectionTitle>
-          <StatGrid lang={lang} mastered={mastered} streak={streak} metrics={app.metrics} />
+          <div className="space-y-6">
+            {/* ── Your stats ─────────────────────────────────────────────────── */}
+            <section className="space-y-3">
+              <SectionTitle>{t("prStatsTitle", lang)}</SectionTitle>
+              <StatGrid lang={lang} mastered={mastered} streak={streak} metrics={app.metrics} />
 
-          {/* Next-milestone bar — fill mirrors in RTL via document dir. */}
-          <div className="rounded-[16px] border border-line bg-paper p-[14px]">
-            <div className="mb-2 flex justify-between text-[12px] font-semibold leading-none">
-              <span className="text-ink">{t("prNextMilestone", lang)}</span>
-              <span className="text-muted">
-                {toLocaleDigits(milestoneDone, lang)} / {toLocaleDigits(totalTracked, lang)}
-              </span>
-            </div>
-            <div className="h-[9px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${Math.min(100, Math.max(0, growth))}%`,
-                  background: "linear-gradient(90deg,#F0C879,#E6B24C)",
-                }}
-              />
-            </div>
+              {/* Next-milestone bar — fill mirrors in RTL via document dir. */}
+              <div className="rounded-[16px] border border-line bg-paper p-[14px]">
+                <div className="mb-2 flex justify-between text-[12px] font-semibold leading-none">
+                  <span className="text-ink">{t("prNextMilestone", lang)}</span>
+                  <span className="text-muted">
+                    {toLocaleDigits(milestoneDone, lang)} / {toLocaleDigits(totalTracked, lang)}
+                  </span>
+                </div>
+                <div className="h-[9px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min(100, Math.max(0, growth))}%`,
+                      background: "linear-gradient(90deg,#F0C879,#E6B24C)",
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* ── Weekly streak + month heatmap ──────────────────────────────── */}
+            <section className="space-y-3">
+              <SectionTitle>{t("prWeeklyStreak", lang)}</SectionTitle>
+              <div className="rounded-[16px] border border-line bg-paper p-[14px]">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span aria-hidden="true">🔥</span>
+                    <span className="font-display text-[15px] font-extrabold text-ink">{num(streak, lang)}</span>
+                    <span className="ms-1 text-[11px] font-semibold text-muted">{t("homeStreak", lang)}</span>
+                  </span>
+                  <span className="text-[11px] font-semibold text-muted">
+                    {num(profile.xp, lang)} {t("xp", lang)}
+                  </span>
+                </div>
+                <div className="flex items-end justify-between gap-1.5">
+                  {week.map((d, i) => {
+                    const label = (rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i];
+                    if (d.state === "active") {
+                      return (
+                        <div key={i} className={`flex flex-col items-center gap-1.5 ${d.today ? "scale-110" : ""}`}>
+                          <span
+                            className="relative flex h-8 w-8 items-center justify-center rounded-full text-ink"
+                            style={{ background: "#E6B24C", boxShadow: d.today ? "0 3px 0 #C89A3D" : "none" }}
+                          >
+                            <Icon name="check" fill className="text-[16px]" />
+                            {d.today && (
+                              <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />
+                            )}
+                          </span>
+                          <span className="text-[11px] font-bold text-teal">{label}</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-1.5">
+                        <span
+                          className={`h-8 w-8 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
+                        />
+                        <span className="text-[11px] font-bold text-teal">{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <MonthHeat lang={lang} heat={heat} />
+            </section>
           </div>
-        </section>
-
-        {/* ── Weekly streak + month heatmap ──────────────────────────────── */}
-        <section className="space-y-3">
-          <SectionTitle>{t("prWeeklyStreak", lang)}</SectionTitle>
-          <div className="rounded-[16px] border border-line bg-paper p-[14px]">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <span aria-hidden="true">🔥</span>
-                <span className="font-display text-[15px] font-extrabold text-ink">{num(streak, lang)}</span>
-                <span className="ms-1 text-[11px] font-semibold text-muted">{t("homeStreak", lang)}</span>
-              </span>
-              <span className="text-[11px] font-semibold text-muted">
-                {num(profile.xp, lang)} {t("xp", lang)}
-              </span>
-            </div>
-            <div className="flex items-end justify-between gap-1.5">
-              {week.map((d, i) => {
-                const label = (rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i];
-                if (d.state === "active") {
-                  return (
-                    <div key={i} className={`flex flex-col items-center gap-1.5 ${d.today ? "scale-110" : ""}`}>
-                      <span
-                        className="relative flex h-8 w-8 items-center justify-center rounded-full text-ink"
-                        style={{ background: "#E6B24C", boxShadow: d.today ? "0 3px 0 #C89A3D" : "none" }}
-                      >
-                        <Icon name="check" fill className="text-[16px]" />
-                        {d.today && (
-                          <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />
-                        )}
-                      </span>
-                      <span className="text-[11px] font-bold text-teal">{label}</span>
-                    </div>
-                  );
-                }
-                return (
-                  <div key={i} className="flex flex-col items-center gap-1.5">
-                    <span
-                      className={`h-8 w-8 rounded-full border-2 border-dashed ${d.state === "future" ? "border-teal/20 bg-teal/5" : "border-coral/30 bg-coral/5"}`}
-                    />
-                    <span className="text-[11px] font-bold text-teal">{label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <MonthHeat lang={lang} heat={heat} />
-        </section>
+        </div>
 
         {/* ── The world you're building ──────────────────────────────────── */}
         <section className="space-y-3">
