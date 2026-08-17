@@ -39,13 +39,13 @@ export const ONBOARDING_STEPS = [
 
 ```ts
 const completedStepSet = useMemo(() => new Set(completedSteps), [completedSteps]);
-const nextStep = ONBOARDING_STEPS.find(step => !completedStepSet.has(step.id))?.id;
-const allStepsCompleted = ONBOARDING_STEPS.every(step => completedStepSet.has(step.id));
+const nextStep = ONBOARDING_STEPS.find((step) => !completedStepSet.has(step.id))?.id;
+const allStepsCompleted = ONBOARDING_STEPS.every((step) => completedStepSet.has(step.id));
 ```
 
 Three things to take from Ghost:
 
-1. The canonical next action is one line. Order in the array *is* the priority. There is no rules engine and no scoring.
+1. The canonical next action is one line. Order in the array _is_ the priority. There is no rules engine and no scoring.
 2. There are two independent axes, not one. `completedSteps: string[]` tracks progress. `checklistState: "pending" | "started" | "dismissed" | "completed"` tracks the lifecycle of the checklist surface itself. Conflating those is a common mistake: a user who dismissed the checklist is not the same as a user who completed it, and you need to be able to tell them apart forever.
 3. Ghost gates the entire new system behind a hardcoded date, not a version number:
 
@@ -58,16 +58,25 @@ Users whose `startedAt` predates the cutoff get the checklist auto-dismissed. Th
 **Inngest** (`ui/apps/dashboard/src/components/Onboarding/useOnboardingStep.ts`) is the closest match to Sawiyya's constraints because it is localStorage-only with an explicit "we will store this in the backend in the future" comment. It contributes two ideas Ghost does not:
 
 - **Backfill on out-of-order completion.** If a user completes step 4 without having done 2 and 3, it marks 2 and 3 complete automatically and tracks them with `completionSource: 'automatic'`. Without this, a user who jumps ahead is permanently stuck being told to do something they have moved past.
-- **Cross-tab sync by hand.** It listens for the `storage` event *and* dispatches a custom same-window event, because `storage` does not fire in the tab that wrote it.
+- **Cross-tab sync by hand.** It listens for the `storage` event _and_ dispatches a custom same-window event, because `storage` does not fire in the tab that wrote it.
 
-**daily.dev** (`packages/shared/src/hooks/useChecklist.ts`) adds a display detail worth stealing: it keeps `steps` in declaration order for computing `activeStep`, but exposes a *separately sorted* `sortedStepsByCompletion` array that floats completed items to the top. Progress order and render order are different concerns.
+**daily.dev** (`packages/shared/src/hooks/useChecklist.ts`) adds a display detail worth stealing: it keeps `steps` in declaration order for computing `activeStep`, but exposes a _separately sorted_ `sortedStepsByCompletion` array that floats completed items to the top. Progress order and render order are different concerns.
 
 **Dub** (`apps/web/lib/onboarding/types.ts`) shows the other shape: a single stored cursor string advanced imperatively.
 
 ```ts
 export const ONBOARDING_STEPS = [
-  "workspace", "products", "domain", "domain/custom", "domain/subdomain",
-  "domain/register", "program", "program/reward", "plan", "success", "completed",
+  "workspace",
+  "products",
+  "domain",
+  "domain/custom",
+  "domain/subdomain",
+  "domain/register",
+  "program",
+  "program/reward",
+  "plan",
+  "success",
+  "completed",
 ] as const;
 ```
 
@@ -113,17 +122,17 @@ Recommendation on this axis: a plain `Record<string, boolean>` derived from the 
 
 All data below verified 2026-08-01 against the npm registry and the GitHub API.
 
-| Library | Latest | Published | Repo last commit | Licence | min+gzip (measured) | Built-in persistence | Multi-session sequencing | RTL | a11y |
-|---|---|---|---|---|---|---|---|---|---|
-| react-joyride | 3.2.0 | 2026-07-09 | 2026-07-09 | MIT | **27,318 B** | none | no | **none** | strongest: focus trap, `aria-modal`, `aria-live` |
-| shepherd.js | 15.2.2 | 2026-03-11 | 2026-07-15 | **AGPL-3.0 + commercial** | **14,655 B** + 1,004 B CSS | none | no | positioning only | weak; 2 open a11y issues since 2024 |
-| driver.js | 1.8.0 | 2026-07-17 | 2026-07-18 | MIT | **7,287 B** + 981 B CSS; hints +4,761 B | none | no | **none**, PR closed unmerged | Esc + arrow keys, aria-labelledby/describedby, no focus trap |
-| intro.js | 8.5.0 | 2026-07-21 | 2026-07-21 | **AGPL-3.0 + commercial** | **18,350 B** + 1,717 B CSS | none | no | opt-in `introjs-rtl.min.css`, 187 B gz | `role`, `aria-label`, `aria-valuenow` progress |
-| @reactour/tour | 3.8.0 | 2025-05-07 | 2026-05-19 | MIT | **9,516 B** | none | no | **`rtl` boolean prop** | minimal: `aria-label`, `aria-hidden` |
-| @flows/react | 1.26.3 | 2026-07-22 | 2026-07-29 | MIT | not measured | server-side | yes, server-side | n/a | n/a |
-| @frigade/react | 2.10.7 | 2026-07-30 | 2026-07-30 | **ELv2** | not measured | server-side | yes, server-side | n/a | n/a |
-| nextstepjs | 2.3.0 | 2026-07-20 | 2026-07-20 | MIT | not measured | none | no | n/a | n/a |
-| onborda | 1.2.5 | **2024-12-22** | 2026-06-08 | MIT | not measured | none | no | n/a | n/a |
+| Library        | Latest | Published      | Repo last commit | Licence                   | min+gzip (measured)                     | Built-in persistence | Multi-session sequencing | RTL                                    | a11y                                                         |
+| -------------- | ------ | -------------- | ---------------- | ------------------------- | --------------------------------------- | -------------------- | ------------------------ | -------------------------------------- | ------------------------------------------------------------ |
+| react-joyride  | 3.2.0  | 2026-07-09     | 2026-07-09       | MIT                       | **27,318 B**                            | none                 | no                       | **none**                               | strongest: focus trap, `aria-modal`, `aria-live`             |
+| shepherd.js    | 15.2.2 | 2026-03-11     | 2026-07-15       | **AGPL-3.0 + commercial** | **14,655 B** + 1,004 B CSS              | none                 | no                       | positioning only                       | weak; 2 open a11y issues since 2024                          |
+| driver.js      | 1.8.0  | 2026-07-17     | 2026-07-18       | MIT                       | **7,287 B** + 981 B CSS; hints +4,761 B | none                 | no                       | **none**, PR closed unmerged           | Esc + arrow keys, aria-labelledby/describedby, no focus trap |
+| intro.js       | 8.5.0  | 2026-07-21     | 2026-07-21       | **AGPL-3.0 + commercial** | **18,350 B** + 1,717 B CSS              | none                 | no                       | opt-in `introjs-rtl.min.css`, 187 B gz | `role`, `aria-label`, `aria-valuenow` progress               |
+| @reactour/tour | 3.8.0  | 2025-05-07     | 2026-05-19       | MIT                       | **9,516 B**                             | none                 | no                       | **`rtl` boolean prop**                 | minimal: `aria-label`, `aria-hidden`                         |
+| @flows/react   | 1.26.3 | 2026-07-22     | 2026-07-29       | MIT                       | not measured                            | server-side          | yes, server-side         | n/a                                    | n/a                                                          |
+| @frigade/react | 2.10.7 | 2026-07-30     | 2026-07-30       | **ELv2**                  | not measured                            | server-side          | yes, server-side         | n/a                                    | n/a                                                          |
+| nextstepjs     | 2.3.0  | 2026-07-20     | 2026-07-20       | MIT                       | not measured                            | none                 | no                       | n/a                                    | n/a                                                          |
+| onborda        | 1.2.5  | **2024-12-22** | 2026-06-08       | MIT                       | not measured                            | none                 | no                       | n/a                                    | n/a                                                          |
 
 ### Per-library notes
 
@@ -189,16 +198,15 @@ Across all four production implementations I read, the same shape recurs, and it
 **An ordered array of candidates, plus `.find()` with a predicate. First match wins. Array order is the priority.**
 
 Ghost:
+
 ```ts
-const nextStep = ONBOARDING_STEPS.find(step => !completedStepSet.has(step.id))?.id;
+const nextStep = ONBOARDING_STEPS.find((step) => !completedStepSet.has(step.id))?.id;
 ```
 
 daily.dev:
+
 ```ts
-const activeStep = useMemo(
-  () => steps.find((item) => !item.action.completedAt)?.action.type,
-  [steps],
-);
+const activeStep = useMemo(() => steps.find((item) => !item.action.completedAt)?.action.type, [steps]);
 ```
 
 Inngest uses a numeric cursor instead, `steps.find(s => s.stepNumber === lastCompletedStep.stepNumber + 1)`, which is the same idea with a different index.
@@ -211,13 +219,13 @@ Four constraints keep it from getting there, all of them visible in the code abo
 
 1. **Priority is the array, not a number.** No `weight: 0.7` fields. To change priority you move a line. Diffs are readable and there is exactly one place to look.
 2. **Each candidate owns one pure predicate over one state object.** `when(state) => boolean`, no I/O, no time-of-day branching inside the predicate, no reaching into React context. Every predicate is a unit test that is three lines long.
-3. **Eligibility and ordering stay separate.** A candidate's `when` decides whether it is *allowed*; its position decides whether it *wins*. Merging those into a score is the exact move that produces the mess.
+3. **Eligibility and ordering stay separate.** A candidate's `when` decides whether it is _allowed_; its position decides whether it _wins_. Merging those into a score is the exact move that produces the mess.
 4. **Exactly one result.** `find`, never `filter`. The moment the function can return two things, the caller has to arbitrate, and the arbitration logic is where the rules engine grows back.
 
 The escape hatch, when a genuine exception appears, is a "suppressed" set consulted once at the top of the function, not a new clause inside a predicate:
 
 ```ts
-const nextAction = ACTIONS.find(a => !suppressed.has(a.id) && a.when(state));
+const nextAction = ACTIONS.find((a) => !suppressed.has(a.id) && a.when(state));
 ```
 
 That keeps the number of places a decision can be made at two, forever.
@@ -232,7 +240,7 @@ Backfilling. `updateCompletedSteps` marks every lower-numbered incomplete step a
 
 ### 4.1 The evidence that they help
 
-**Nunes, J. C., & Drèze, X. (2006). "The Endowed Progress Effect: How Artificial Advancement Increases Effort." *Journal of Consumer Research*, 32(4), 504–512. DOI: 10.1086/500480.** I verified title, authors, journal, volume, issue, pages and year against the Oxford Academic record; this is a primary source, not a blog restatement.
+**Nunes, J. C., & Drèze, X. (2006). "The Endowed Progress Effect: How Artificial Advancement Increases Effort." _Journal of Consumer Research_, 32(4), 504–512. DOI: 10.1086/500480.** I verified title, authors, journal, volume, issue, pages and year against the Oxford Academic record; this is a primary source, not a blog restatement.
 
 Field experiment at a car wash, 300 loyalty cards, two conditions. Group A needed ten stamps but the card arrived with two already stamped. Group B needed eight stamps and started empty. Identical real effort: eight washes either way. Reported redemption: **34% for Group A versus 19% for Group B.** The abstract's own framing: "By converting a task requiring eight steps into a task requiring 10 steps but with two steps already complete, the task is reframed as one that has been undertaken and incomplete rather than not yet begun."
 
@@ -244,27 +252,27 @@ Also relevant, from Nielsen's progressive disclosure article: "Two-level designs
 
 **Kendrick, A. (2020-03-08). "Mobile Tutorials: Wasted Effort or Efficiency Boost?" Nielsen Norman Group.** A between-subjects remote unmoderated quantitative usability test, 70 users (35 per group), 4 iPhone apps (Movesum, Brainsparker, LaunchCenter Pro, Sketch.Book). Group A viewed the tutorial, Group B skipped it.
 
-| Measure | Saw tutorial | Skipped tutorial | Significance |
-|---|---|---|---|
-| Task success | 91% | 94% | p = 0.443, not significant |
-| Perceived ease of use (SEQ, 1–7) | 4.92 | 5.49 | **p = 0.047, significant** |
-| Task completion time (geometric mean) | 93.49 s | 85.17 s | p > 0.1, not significant |
+| Measure                               | Saw tutorial | Skipped tutorial | Significance               |
+| ------------------------------------- | ------------ | ---------------- | -------------------------- |
+| Task success                          | 91%          | 94%              | p = 0.443, not significant |
+| Perceived ease of use (SEQ, 1–7)      | 4.92         | 5.49             | **p = 0.047, significant** |
+| Task completion time (geometric mean) | 93.49 s      | 85.17 s          | p > 0.1, not significant   |
 
-Read that carefully, because it is stronger than "tutorials do not help". Tutorials produced **no** measurable benefit to success or speed, and made the app feel *significantly harder to use*. NN/g's own conclusion: "Tutorials take time and effort to design and develop, and those would be better spent on making the UI easy to use."
+Read that carefully, because it is stronger than "tutorials do not help". Tutorials produced **no** measurable benefit to success or speed, and made the app feel _significantly harder to use_. NN/g's own conclusion: "Tutorials take time and effort to design and develop, and those would be better spent on making the UI easy to use."
 
 **Laubheimer, P. (2023-02-12). "Onboarding Tutorials vs. Contextual Help." Nielsen Norman Group.** Argues for replacing "push revelations" (things the app decides to show you) with "pull revelations" (help triggered by what the user is doing). Quoted: "Tutorials interrupt users, don't necessarily improve task performance, and are quickly forgotten." Three failure modes named: users want to start using the product immediately, out-of-context help is not recalled when needed, and dismissing pop-ups is itself a cost.
 
-The underlying mechanism is **Carroll, J. M., & Rosson, M. B. (1987). "The paradox of the active user." In J. M. Carroll (Ed.), *Interfacing Thought: Cognitive Aspects of Human-Computer Interaction*, pp. 80–111. MIT Press.** (ACM DL: 10.5555/28446.28451.) Users will not read instructions first, even when reading them first would demonstrably be faster.
+The underlying mechanism is **Carroll, J. M., & Rosson, M. B. (1987). "The paradox of the active user." In J. M. Carroll (Ed.), _Interfacing Thought: Cognitive Aspects of Human-Computer Interaction_, pp. 80–111. MIT Press.** (ACM DL: 10.5555/28446.28451.) Users will not read instructions first, even when reading them first would demonstrably be faster.
 
 ### 4.3 What I could not verify
 
 Search snippets attributed "average onboarding checklist completion rate 19.2%, median 10.1%, from 188 companies" to a Userpilot benchmark article. **I fetched that page and those numbers are not on it.** The page contains no sample size, no date range, no methodology and no numeric benchmarks; it links to a separate gated report. **Do not use those figures.** I could not find a checklist completion benchmark from a source that is both non-vendor and methodologically stated. Every number in that space that I checked traces back to an onboarding-tools vendor with an obvious interest and no published methodology.
 
-So the honest summary of the evidence: the *endowed progress* effect is real and well-sourced. The claim that *checklists* specifically drive activation is vendor marketing that I could not verify at source. The evidence that *front-loaded tutorials* hurt is real, experimental, and specific.
+So the honest summary of the evidence: the _endowed progress_ effect is real and well-sourced. The claim that _checklists_ specifically drive activation is vendor marketing that I could not verify at source. The evidence that _front-loaded tutorials_ hurt is real, experimental, and specific.
 
 ### 4.4 The synthesis
 
-- A modal tour on first open is the pattern with the best evidence *against* it. Do not build it.
+- A modal tour on first open is the pattern with the best evidence _against_ it. Do not build it.
 - A persistent, dismissible, already-partly-complete checklist sits in a defensible middle: it is pull rather than push, and it gets the endowed-progress benefit.
 - Contextual, non-blocking hints attached to the feature itself, shown at the moment the feature becomes relevant, are what both NN/g articles actually recommend. This is what driver.js 1.8.0's new hints module does, and what a small custom component does equally well.
 
@@ -277,7 +285,7 @@ So the honest summary of the evidence: the *endowed progress* effect is real and
 This is the most common design error in this area, so it is worth stating flatly:
 
 - **Store schema version** is one integer for the whole persisted blob. It answers "the shape of what I saved has changed, how do I reshape it". Zustand's `version` + `migrate` is exactly this.
-- **Per-feature revision** is one integer *per introduced thing*. It answers "this feature changed enough that a user who saw the old version should see it again".
+- **Per-feature revision** is one integer _per introduced thing_. It answers "this feature changed enough that a user who saw the old version should see it again".
 
 They are different mechanisms with different lifetimes. Bumping the store `version` to reintroduce a feature is wrong: it triggers a migration for everyone and discards state if no `migrate` is supplied.
 
@@ -294,15 +302,16 @@ From the Zustand `persist` reference (`docs/reference/middlewares/persist.md`, r
 - `skipHydration`: defer hydration, then call `rehydrate()` manually.
 
 The documented migrate signature and example:
+
 ```ts
 migrate: (persisted: any, version) => {
   if (version === 0) {
-    persisted.position = { x: persisted.x, y: persisted.y }
-    delete persisted.x
-    delete persisted.y
+    persisted.position = { x: persisted.x, y: persisted.y };
+    delete persisted.x;
+    delete persisted.y;
   }
-  return persisted
-}
+  return persisted;
+};
 ```
 
 Two warnings from the docs that apply directly here:
@@ -313,8 +322,8 @@ Two warnings from the docs that apply directly here:
 I also verified by reading `node_modules/zustand/esm/middleware.mjs` that **`persist` contains zero `addEventListener` calls**. It does not sync across tabs or windows. It exposes `persist.rehydrate()`, `persist.hasHydrated()` and `persist.onFinishHydration()`. Cross-tab sync is about six lines you add yourself:
 
 ```ts
-window.addEventListener('storage', (e) => {
-  if (e.key === 'sawiyya-journey') useJourney.persist.rehydrate();
+window.addEventListener("storage", (e) => {
+  if (e.key === "sawiyya-journey") useJourney.persist.rehydrate();
 });
 ```
 
@@ -362,9 +371,9 @@ Second, cheap mitigation: `navigator.storage.persist()`. I checked MDN's browser
 // One flat, persisted slice. Flat because zustand's default merge is shallow.
 type JourneyState = {
   firstOpenAt: number;
-  milestones: Record<string, number>;  // milestoneId -> completedAt
-  seen: Record<string, number>;        // introKey -> highest rev seen
-  dismissed: Record<string, number>;   // introKey -> dismissedAt
+  milestones: Record<string, number>; // milestoneId -> completedAt
+  seen: Record<string, number>; // introKey -> highest rev seen
+  dismissed: Record<string, number>; // introKey -> dismissedAt
 };
 ```
 
@@ -387,15 +396,15 @@ Add one flat, persisted slice to the existing Zustand store (`milestones`, `seen
 ```ts
 // Stages are derived, never stored. Order is the ladder.
 const STAGES = [
-  { id: 'arrived',   reached: () => true },
-  { id: 'practised', reached: (m) => !!m['first-sign-viewed'] },
-  { id: 'returning', reached: (m) => !!m['second-session'] },
+  { id: "arrived", reached: () => true },
+  { id: "practised", reached: (m) => !!m["first-sign-viewed"] },
+  { id: "returning", reached: (m) => !!m["second-session"] },
 ] as const;
 
-const stage = [...STAGES].reverse().find(s => s.reached(milestones))!.id;
+const stage = [...STAGES].reverse().find((s) => s.reached(milestones))!.id;
 
 // One canonical next action. Array order is the priority. First match wins.
-const nextAction = ACTIONS.find(a => a.when({ stage, milestones, seen }));
+const nextAction = ACTIONS.find((a) => a.when({ stage, milestones, seen }));
 ```
 
 Then render exactly one next-action card on the home screen. Nothing else changes.
@@ -475,7 +484,8 @@ Five things where a pre-2026 recollection is now wrong:
 ## Sources
 
 Primary research:
-- [Nunes & Drèze (2006), *Journal of Consumer Research* 32(4), 504–512, DOI 10.1086/500480](https://academic.oup.com/jcr/article-abstract/32/4/504/1796024)
+
+- [Nunes & Drèze (2006), _Journal of Consumer Research_ 32(4), 504–512, DOI 10.1086/500480](https://academic.oup.com/jcr/article-abstract/32/4/504/1796024)
 - [Kendrick, A. (2020). Mobile Tutorials: Wasted Effort or Efficiency Boost? NN/g](https://www.nngroup.com/articles/mobile-tutorials/)
 - [Laubheimer, P. (2023). Onboarding Tutorials vs. Contextual Help. NN/g](https://www.nngroup.com/articles/onboarding-tutorials/)
 - [Nielsen, J. (2006). Progressive Disclosure. NN/g](https://www.nngroup.com/articles/progressive-disclosure/)
@@ -483,6 +493,7 @@ Primary research:
 - [Wilander, J. (2020). Full Third-Party Cookie Blocking and More. WebKit](https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/)
 
 Production source read:
+
 - [TryGhost/Ghost, apps/admin/src/onboarding/](https://github.com/TryGhost/Ghost/tree/main/apps/admin/src/onboarding)
 - [inngest/inngest, ui/apps/dashboard/src/components/Onboarding/useOnboardingStep.ts](https://github.com/inngest/inngest/blob/main/ui/apps/dashboard/src/components/Onboarding/useOnboardingStep.ts)
 - [dailydotdev/apps, packages/shared/src/hooks/useChecklist.ts](https://github.com/dailydotdev/apps/blob/main/packages/shared/src/hooks/useChecklist.ts)
@@ -492,6 +503,7 @@ Production source read:
 - [scalar/scalar, projects/scalar-app/src/features/whats-new/hooks/use-whats-new.ts](https://github.com/scalar/scalar/blob/main/projects/scalar-app/src/features/whats-new/hooks/use-whats-new.ts)
 
 Library and API references:
+
 - [pmndrs/zustand persist reference](https://github.com/pmndrs/zustand/blob/main/docs/reference/middlewares/persist.md)
 - [XState persistence docs](https://stately.ai/docs/persistence)
 - [nilbuild/driver.js](https://github.com/nilbuild/driver.js) · [1.8.0 release](https://github.com/nilbuild/driver.js/releases/tag/1.8.0) · [PR #569, closed unmerged](https://github.com/nilbuild/driver.js/pull/569)
@@ -503,4 +515,5 @@ Library and API references:
 - [MDN StorageManager.persist()](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) · [mdn/browser-compat-data api/StorageManager.json](https://github.com/mdn/browser-compat-data/blob/main/api/StorageManager.json)
 
 Unverifiable claim, listed so it is not reused:
+
 - [Userpilot onboarding checklist benchmarks](https://userpilot.com/blog/onboarding-checklist-completion-rate-benchmarks/): page contains no methodology and none of the numbers attributed to it.

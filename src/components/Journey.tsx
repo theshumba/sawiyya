@@ -16,19 +16,8 @@ import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { Icon } from "./ui";
 import { useDialog } from "./useDialog";
-import {
-  isActionable,
-  nextStep,
-  stageOf,
-  STEPS,
-  type JourneyStep,
-} from "../journey/journey";
-import {
-  canPromptInstall,
-  isInstalled,
-  onInstallAvailabilityChange,
-  promptInstall,
-} from "../journey/install";
+import { isActionable, nextStep, stageOf, STEPS, type JourneyStep } from "../journey/journey";
+import { canPromptInstall, isInstalled, onInstallAvailabilityChange, promptInstall } from "../journey/install";
 
 /** Live "can we offer a one-tap install?" — `beforeinstallprompt` can land after
  *  this component mounts, and a sheet that opened a second too early would show
@@ -71,15 +60,16 @@ export function JourneyStrip({ lang, dueCount }: { lang: Lang; dueCount: number 
           style={{ boxShadow: "0 3px 0 #EDE3D2" }}
         >
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] bg-teal/10 text-teal">
-            <Icon name={next.id === "install" ? "download_for_offline" : "arrow_forward"} className="!text-2xl rtl:rotate-180" />
+            <Icon
+              name={next.id === "install" ? "download_for_offline" : "arrow_forward"}
+              className="!text-2xl rtl:rotate-180"
+            />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-mono text-[10px] font-bold uppercase tracking-[.12em] text-muted">
               {t("jrTitle", lang)}
             </span>
-            <span className="mt-[3px] block font-display text-[15px] font-bold leading-[1.15] text-ink">
-              {label}
-            </span>
+            <span className="mt-[3px] block font-display text-[15px] font-bold leading-[1.15] text-ink">{label}</span>
             <span className="mt-[2px] block text-[12px] leading-[1.35] text-muted">{body}</span>
           </span>
         </button>
@@ -114,9 +104,7 @@ export function JourneyLadder({ lang, dueCount }: { lang: Lang; dueCount: number
   return (
     <section className="space-y-3">
       <div>
-        <h3 className="font-display text-[17px] font-bold leading-[1.15] text-ink">
-          {t("jrTitle", lang)}
-        </h3>
+        <h3 className="font-display text-[17px] font-bold leading-[1.15] text-ink">{t("jrTitle", lang)}</h3>
         <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("jrBody", lang)}</p>
       </div>
 
@@ -156,9 +144,7 @@ export function JourneyLadder({ lang, dueCount }: { lang: Lang; dueCount: number
                   </span>
                 )}
                 {putAside && (
-                  <span className="mt-[3px] block text-[12px] leading-[1.35] text-muted">
-                    {t("jrPutAside", lang)}
-                  </span>
+                  <span className="mt-[3px] block text-[12px] leading-[1.35] text-muted">{t("jrPutAside", lang)}</span>
                 )}
               </span>
               {/* Screen-reader state, so the tick and the border are not the only
@@ -220,11 +206,7 @@ function InstallSheet({ lang, onClose }: { lang: Lang; onClose: () => void }) {
   };
 
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-40 flex items-end"
-      style={{ background: "rgba(22,48,46,.5)" }}
-    >
+    <div onClick={onClose} className="fixed inset-0 z-40 flex items-end" style={{ background: "rgba(22,48,46,.5)" }}>
       <div
         ref={ref}
         onClick={(e) => e.stopPropagation()}
@@ -241,9 +223,7 @@ function InstallSheet({ lang, onClose }: { lang: Lang; onClose: () => void }) {
         }}
       >
         <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
-        <h2 className="font-display text-[20px] font-extrabold leading-[1.1] text-ink">
-          {t("jrInstallTitle", lang)}
-        </h2>
+        <h2 className="font-display text-[20px] font-extrabold leading-[1.1] text-ink">{t("jrInstallTitle", lang)}</h2>
         <p className="mt-2 text-[13px] leading-[1.45] text-muted">{t("jrInstallWhy", lang)}</p>
 
         {canPrompt ? (

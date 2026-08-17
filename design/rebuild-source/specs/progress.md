@@ -9,6 +9,7 @@ Existing impl: `src/screens/Progress.tsx`
 The **design turns Progress into a 4-tab surface**: `Your oasis` · `Stats` · `Achievements` · `Family league`. The **existing `Progress.tsx` is a single-scroll live-data view** (stats strip → weekly streak → oasis hero → CTA → Constellation → Coming Up → celebration overlay).
 
 The reskin must:
+
 1. **Keep every live-data wiring and navigation call listed in §PRESERVE** — they are the functional contract.
 2. **Adopt the design's visual language** (oasis scene, card treatment, hard shadows, colours, type) for the surfaces that already have data (oasis/stats/streak/constellation/coming-up).
 3. Add the tab shell + the **new Stats-heatmap, Achievements, and Family-league** surfaces. These three are **NOT wired to a data source in the current app** — build them from the design's literal mock values as static/placeholder surfaces (or gate behind a "coming soon" if the build agent prefers), and flag any that need a future data hook. Do **not** delete the live oasis / constellation / coming-up / celebration behaviour to do this.
@@ -22,6 +23,7 @@ If the build agent must ship minimal: the **oasis tab is the live default**; sta
 Quote = exact identifier in `Progress.tsx`. All must survive the reskin.
 
 **Store / hooks**
+
 - `const app = useApp();` — root store.
 - `const { go } = useUi();` — navigation dispatcher (every route below goes through `go`).
 - `const profile = activeProfile(app);` + guard `if (!profile) return <NoProfileFallback />;` — keep the no-profile fallback.
@@ -29,6 +31,7 @@ Quote = exact identifier in `Progress.tsx`. All must survive the reskin.
 - `const prog = app.progress[profile.id] ?? {};`
 
 **Derived live data (keep all computations)**
+
 - `mastered` = `Object.values(prog).filter((p) => p.masteryLevel >= 3).length` → feeds the "signs mastered/planted" numbers + oasis floating stat + celebration copy.
 - `seen` = `masteryLevel >= 1` count.
 - `a1Done` = `A1_SIGNS.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 2).length`.
@@ -41,9 +44,11 @@ Quote = exact identifier in `Progress.tsx`. All must survive the reskin.
 - `goalXp = GOAL_XP[profile.dailyGoal];` → passed to celebration.
 
 **Celebration (keep intact)**
+
 - `celebrating` / `setCelebrating`, `lastStreak = useRef(profile.streak)`, the `useEffect(... profile.streak > lastStreak.current && profile.streak > 1 ...)`, `<StreakCelebration ... />`, `<Confetti />`, `celebrate()`. Fires once on a fresh streak milestone.
 
 **Navigation / handlers (all route through `go`)**
+
 - `startReview()` → `go({ name: "camera", targetSignId: firstDueGradable })` where `firstDueGradable = due.map(signById).find((s) => s?.cameraGradable)?.id`.
 - CTA fallback → `go({ name: "camera" })`.
 - Constellation `onTap={(id) => go({ name: "camera", targetSignId: id })}`.
@@ -51,15 +56,18 @@ Quote = exact identifier in `Progress.tsx`. All must survive the reskin.
 - ScreenShell close → `onClose={() => go({ name: "home" })}`.
 
 **Component / prop contract**
+
 - `<ScreenShell lang={lang} chrome="takeover" title={headerTitle} onClose={...}>` — keep the takeover shell.
 - `<Constellation lang alphaTaught onTap />`, `<ForecastRow sign lang tone badge onClick />`, `<StreakCelebration profile lang mastered goalXp week onContinue />` — signatures preserved.
 - Icons via `<Icon name=... fill className=... />`; `<Title/> <Subtitle/> <Eyebrow/>`.
 
 **Content / helpers**
+
 - `A1_SIGNS`, `ALPHABET`, `signById` from `../content/signs`; `isTrained` from `../recognizer/knn`; `num`, `pick`, `t` from `../i18n`.
 - `DAY_LABELS_EN = ["M","T","W","T","F","S","S"]`, `DAY_LABELS_AR = ["إث","ث","أر","خ","ج","س","ح"]`.
 
 **Assets**
+
 - `/brand/stitch-32.png` — oasis hero image (existing). Design substitutes an illustrated oasis scene + `Fanan pose="cheer"`; either keep the PNG or rebuild the scene per §2, but the hero must remain non-interactive (`aria-hidden`, NOT a button).
 - `/brand/stitch-46.png` — celebration mascot (keep).
 
@@ -72,9 +80,11 @@ Quote = exact identifier in `Progress.tsx`. All must survive the reskin.
 Global: screen bg `#F6EFE3`; canvas behind `#F1E7D6`; cards `#FBF7EF`; hairline border `1px solid #EDE3D2`; card elevation `box-shadow: 0 2px 0 #EDE3D2`. Fonts: **Rubik** (headings/UI/numbers), **Readex Pro** (body + all Arabic). Section titles `font: 800 25px/1.1 Rubik; color:#16302E`. Body sub `font: 400 13px/1.35 Readex; color:#5C726F`.
 
 ### Block A — ScreenShell header (PRESERVED)
+
 Takeover shell with `title` + close. Keep existing behaviour. Title copy per active tab (see COPY).
 
 ### Block B — Tab bar (NEW)
+
 - Container: `bg #FBF7EF; border 1px #EDE3D2; border-radius 18px; padding 12px; box-shadow 0 2px 0 #EDE3D2; display flex; gap 8px; flex-wrap wrap; margin-top 22px`.
 - Tab button: `font 700 12px/1 Rubik; padding 10px 14px; border-radius 12px; border none; cursor pointer`.
   - **Active:** `background #0F6E6A; color #FBF7EF; box-shadow 0 3px 0 #0A4F4C`.
@@ -82,7 +92,9 @@ Takeover shell with `title` + close. Keep existing behaviour. Title copy per act
 - Order: `Your oasis` → `Stats` → `Achievements` → `Family league`. Default active = **oasis**.
 
 ### Block C — OASIS tab (LIVE data; screenshot 01)
+
 Scroll area `padding 6px 22px 20px`.
+
 1. Title `font 800 25px Rubik #16302E` — copy `prOasisTitle`.
 2. Body `font 400 13px Readex #5C726F; margin-top 3px` — copy `prOasisBody`.
 3. **Oasis scene** — `position relative; height 236px; border-radius 22px; overflow hidden; margin-top 16px; background linear-gradient(180deg,#FBF7EF 0%,#FBF3E6 55%,#F0E4CC 100%)`. Non-interactive.
@@ -103,19 +115,21 @@ Scroll area `padding 6px 22px 20px`.
 > Keep the live **Constellation** and **Coming Up / ForecastRow / empty state** sections from the existing impl, restyled to the card system above (they have no design equivalent on the oasis tab but carry required data). Constellation stays `dir="ltr"` grid; empty state uses `t("prNothingDue")` + `t("practiceCamera")`.
 
 ### Block D — STATS tab (screenshot 02)
+
 1. Title `prStatsTitle` (800 25px).
 2. **Stat grid 2×2** — `display grid; grid-template-columns 1fr 1fr; gap 10px; margin-top 14px`. Each cell: `bg #FBF7EF; border 1px #EDE3D2; border-radius 16px; padding 14px`. Value `font 800 26px/1 Rubik {color}`; label `font 600 11px/1.2 Readex #5C726F; margin-top 5px`.
    - `18` `#0F6E6A` — `prStatMastered`
    - `92%` `#0F6E6A` — `prAvgAccuracy`
    - `340` `#C89A3D` — `prMinutesSigned`
    - `9` `#E8654C` — `prBestStreak`
-   (Wire to live values where available: mastered → cell 1; best streak → `profile.streak`/best. Accuracy + minutes have no source → static placeholder, flag for future hook.)
+     (Wire to live values where available: mastered → cell 1; best streak → `profile.streak`/best. Accuracy + minutes have no source → static placeholder, flag for future hook.)
 3. Heatmap label `font 700 11px/1 ui-monospace,Menlo; letter-spacing .1em; text-transform uppercase; color #0F6E6A; margin-top 22px` — `prThisMonth`.
 4. **Heatmap card** — `bg #FBF7EF; border 1px #EDE3D2; border-radius 16px; padding 16px; margin-top 11px`.
    - Grid: `display grid; grid-template-columns repeat(7,1fr); gap 6px`. 35 cells, each `aspect-ratio 1; border-radius 4px`. Shade scale (4 levels): `['#EDE3D2','#9DC6C2','#3E9A93','#0F6E6A']`. Wire intensity from `activeSet`/`profile.activeDays`; fall back to design levels array `[0,1,0,2,3,1,0, 1,2,3,3,1,0,0, 0,1,2,3,2,3,1, 2,3,1,0,1,2,3, 1,0,2,3,3,2,1]`.
    - Legend: `display flex; align-items center; justify-content flex-end; gap 5px; margin-top 12px`. `prLess` `font 500 10px Readex #94A5A2` → four `11×11 border-radius 3px` swatches (`#EDE3D2`,`#9DC6C2`,`#3E9A93`,`#0F6E6A`) → `prMore`. **Legend order mirrors in RTL** (less/more swap sides — see screenshot 02 AR panel).
 
 ### Block E — ACHIEVEMENTS tab (screenshot 03)
+
 1. Title `prAchievements` (800 25px).
 2. Body `prAchieveSummary` — `font 400 13px Readex #5C726F; margin-top 3px` (design "4 of 7 unlocked." / "٤ من ٧ مفتوحة.").
 3. **Badge grid** — `display grid; grid-template-columns 1fr 1fr; gap 11px; margin-top 16px`.
@@ -130,9 +144,10 @@ Scroll area `padding 6px 22px 20px`.
      4. `أ` `prAchAlphabetStarted` · `prUnlocked` · earned
      5. `👪` `prAchFamilyFlag` · status "2 / 5 signs"/"٢ / ٥ إشارات" · locked
      6. `🏆` `prAchWholeAlphabet` · status "12 / 28"/"١٢ / ٢٨" · locked
-   (Static/placeholder unless a badge store exists — flag for future data hook.)
+        (Static/placeholder unless a badge store exists — flag for future data hook.)
 
 ### Block F — FAMILY LEAGUE tab (screenshot 04)
+
 1. Title `prLeagueTitle` (800 25px).
 2. Body `prLeagueBody` (`font 400 13px Readex #5C726F; margin-top 3px`).
 3. **Warm note** — `display flex; align-items center; gap 9px; background #E6F0EE; border 1px #C9E0DC; border-radius 14px; padding 11px 13px; margin-top 14px`. Leading `20×20; border-radius 6px; background #0F6E6A` square. Text `prLeagueWarm` `font 600 12px/1.3 Readex #0F6E6A`.
@@ -150,51 +165,53 @@ Scroll area `padding 6px 22px 20px`.
    - Toggle (OFF): `46×27; border-radius 99px; background #D6CDBB; position relative`. Knob `21×21; border-radius 50%; background #FBF7EF; box-shadow 0 1px 3px rgba(0,0,0,.25); top 3px; inset-inline-start 3px`. Off by default; opt-in. (Flag: needs a real household-competition setting to wire.)
 
 ### Block G — StreakCelebration overlay (PRESERVED)
+
 Full-screen `bg #16302E`, gold wordmark, `/brand/stitch-46.png`, confetti, day dots, motivational note, `t("obContinue")` CTA. Keep as-is.
 
 ---
 
 ## 3 · COPY — every visible string
 
-| Key | English | Arabic (verbatim from RTL panel) |
-|---|---|---|
-| `prTabOasis` | Your oasis | واحتك |
-| `prTabStats` | Stats | إحصاءات |
-| `prTabAchieve` | Achievements | الإنجازات |
-| `prTabLeague` | Family league | دوري العائلة |
-| `prOasisTitle` | The world you're building | العالم الذي تبنينه |
-| `prOasisBody` | Every sign you learn plants something new. | كل إشارة تتعلّمينها تزرع شيئًا جديدًا. |
-| `prPlanted` | signs planted | إشارة مزروعة |
-| `prPalmsGrown` | palms grown | نخلتان |
-| `prNextMilestone` | Next milestone | المحطة التالية |
-| (milestone value) | 18 / 25 (live) | ١٨ / ٢٥ (live, Eastern digits via `num`) |
-| `prStatsTitle` | Your stats | إحصاءاتك |
-| `prStatMastered` | Signs mastered | إشارة مُتقَنة |
-| `prAvgAccuracy` | Avg accuracy | متوسط الدقّة |
-| `prMinutesSigned` | Minutes signed | دقيقة إشارة |
-| `prBestStreak` | Best streak | أطول تتابع |
-| `prThisMonth` | This month | هذا الشهر |
-| `prLess` | less | أقل |
-| `prMore` | more | أكثر |
-| `prAchievements` | Achievements | الإنجازات |
-| `prAchieveSummary` | {n} of {total} unlocked. (design: 4 of 7 unlocked.) | ٤ من ٧ مفتوحة. |
-| `prUnlocked` | Unlocked | مفتوح |
-| `prAchFirstSign` | First sign | أول إشارة |
-| `prAch7Day` | 7-day streak | تتابع ٧ أيام |
-| `prAch5Words` | 5 words | ٥ كلمات |
-| `prAchAlphabetStarted` | Alphabet started | بدء الأبجدية |
-| `prAchFamilyFlag` | Family flag | علم عائلي |
-| `prAchWholeAlphabet` | Whole alphabet | الأبجدية كاملة |
-| `prLeagueTitle` | Family league | دوري العائلة |
-| `prLeagueBody` | This week, together. | هذا الأسبوع، معًا. |
-| `prLeagueWarm` | We climb together — no losers here, only progress. | نصعد معًا — لا خاسرين هنا، فقط تقدّم. |
-| `prCompetition` | Friendly competition | منافسة ودّية |
-| `prCompetitionHint` | Off by default · opt-in anytime | مطفأة افتراضيًا · فعّلها متى شئت |
+| Key                    | English                                             | Arabic (verbatim from RTL panel)         |
+| ---------------------- | --------------------------------------------------- | ---------------------------------------- |
+| `prTabOasis`           | Your oasis                                          | واحتك                                    |
+| `prTabStats`           | Stats                                               | إحصاءات                                  |
+| `prTabAchieve`         | Achievements                                        | الإنجازات                                |
+| `prTabLeague`          | Family league                                       | دوري العائلة                             |
+| `prOasisTitle`         | The world you're building                           | العالم الذي تبنينه                       |
+| `prOasisBody`          | Every sign you learn plants something new.          | كل إشارة تتعلّمينها تزرع شيئًا جديدًا.   |
+| `prPlanted`            | signs planted                                       | إشارة مزروعة                             |
+| `prPalmsGrown`         | palms grown                                         | نخلتان                                   |
+| `prNextMilestone`      | Next milestone                                      | المحطة التالية                           |
+| (milestone value)      | 18 / 25 (live)                                      | ١٨ / ٢٥ (live, Eastern digits via `num`) |
+| `prStatsTitle`         | Your stats                                          | إحصاءاتك                                 |
+| `prStatMastered`       | Signs mastered                                      | إشارة مُتقَنة                            |
+| `prAvgAccuracy`        | Avg accuracy                                        | متوسط الدقّة                             |
+| `prMinutesSigned`      | Minutes signed                                      | دقيقة إشارة                              |
+| `prBestStreak`         | Best streak                                         | أطول تتابع                               |
+| `prThisMonth`          | This month                                          | هذا الشهر                                |
+| `prLess`               | less                                                | أقل                                      |
+| `prMore`               | more                                                | أكثر                                     |
+| `prAchievements`       | Achievements                                        | الإنجازات                                |
+| `prAchieveSummary`     | {n} of {total} unlocked. (design: 4 of 7 unlocked.) | ٤ من ٧ مفتوحة.                           |
+| `prUnlocked`           | Unlocked                                            | مفتوح                                    |
+| `prAchFirstSign`       | First sign                                          | أول إشارة                                |
+| `prAch7Day`            | 7-day streak                                        | تتابع ٧ أيام                             |
+| `prAch5Words`          | 5 words                                             | ٥ كلمات                                  |
+| `prAchAlphabetStarted` | Alphabet started                                    | بدء الأبجدية                             |
+| `prAchFamilyFlag`      | Family flag                                         | علم عائلي                                |
+| `prAchWholeAlphabet`   | Whole alphabet                                      | الأبجدية كاملة                           |
+| `prLeagueTitle`        | Family league                                       | دوري العائلة                             |
+| `prLeagueBody`         | This week, together.                                | هذا الأسبوع، معًا.                       |
+| `prLeagueWarm`         | We climb together — no losers here, only progress.  | نصعد معًا — لا خاسرين هنا، فقط تقدّم.    |
+| `prCompetition`        | Friendly competition                                | منافسة ودّية                             |
+| `prCompetitionHint`    | Off by default · opt-in anytime                     | مطفأة افتراضيًا · فعّلها متى شئت         |
 
 **Reused existing keys on this screen:** `xp`, `prMastered`, `prUpcoming`, `prNothingDue`, `homeReviewDue`, `practiceCamera`, `obContinue`, `close`. Live-data numbers all go through `num(value, lang)` (Eastern-Arabic digits in AR); `%` renders as `٪` trailing in AR.
 
 **Notes / caveats:**
-- `prPalmsGrown` AR "نخلتان" is grammatically *dual* ("two palms"). If the live count ≠ 2, use a count-agnostic AR ("نخلة مزروعة") — flag to Melusi; verbatim design value retained above.
+
+- `prPalmsGrown` AR "نخلتان" is grammatically _dual_ ("two palms"). If the live count ≠ 2, use a count-agnostic AR ("نخلة مزروعة") — flag to Melusi; verbatim design value retained above.
 - Achievement status strings "2 / 5 signs" / "12 / 28" are inline literals (contain live-style counts) — render with `num` + `pick`, no dedicated key needed beyond the name keys.
 
 ---
@@ -245,6 +262,7 @@ Only keys not already present. Ready to paste inside the strings object (near th
 ## 5 · MOTION / STATES
 
 **Animations (from design `<style>`):**
+
 - `@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }` — Fanan in oasis, 3s ease-in-out infinite.
 - `@keyframes sway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }` — palms, 4s / 4.6s ease-in-out infinite, transform-origin bottom center.
 - `@keyframes rise { 0%{translateY(12px);opacity:0} 100%{translateY(0);opacity:1} }` — screen/element entrance.
@@ -253,6 +271,7 @@ Only keys not already present. Ready to paste inside the strings object (near th
 **Transitions:** tab switch uses Ease-standard `cubic-bezier(.4,0,.2,1) 220ms`. Button press = Spring-out `cubic-bezier(.34,1.56,.64,1) 260ms`; on press translateY(4px) and drop the hard shadow (signature button). Constellation node lit-state `transition-all duration-500`.
 
 **Interactive states:**
+
 - Tab buttons: active vs inactive per §2 Block B.
 - Achievement cards: earned (solid gold border, full opacity) vs locked (dashed `#C7BBA4`, opacity 0.72, greyscale icon).
 - League "you" row highlighted (coral-tinted `#FBF3EF` / border `#F5C9BE`).
@@ -271,6 +290,7 @@ Only keys not already present. Ready to paste inside the strings object (near th
 Arabic panel is authoritative; design the AR screen first.
 
 **MIRRORS (swap start/end):**
+
 - Reading flow, text alignment, tab order, section title/body alignment.
 - Sun position (`right 24px` → use `inset-inline-end`), Fanan `bottom/right` → logical end edge.
 - All progress fills (next-milestone bar, league XP bars) fill from the start (right in RTL).
@@ -280,6 +300,7 @@ Arabic panel is authoritative; design the AR screen first.
 - Card internal `justify-content: space-between` rows naturally mirror.
 
 **NEVER MIRRORS:**
+
 - Status-bar clock `9:41` and battery glyph.
 - **Fanan** (mascot) — never flips; same character, `pose="cheer"`.
 - The **checkmark** (weekly streak / celebration day dots) and any handshape/sign glyphs (🤟, `أ` handshape) — physical, never mirror.
@@ -290,4 +311,5 @@ Arabic panel is authoritative; design the AR screen first.
 ---
 
 ## Summary
+
 7 layout blocks (ScreenShell header, tab bar, oasis tab, stats+heatmap tab, achievements tab, family-league tab, streak-celebration overlay). 31 new i18n keys.

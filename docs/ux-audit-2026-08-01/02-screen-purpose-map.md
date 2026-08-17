@@ -18,10 +18,10 @@ Those are not counted in the per-screen entry lists below, which cover in-app do
 
 ### 1. Home · `src/screens/Home.tsx`
 
-| | |
-|---|---|
-| **Real title** | No screen title. The `<h1>` is a greeting: `pick(lang, "Marhaba, ", "مرحبًا يا ")` + display name (`Home.tsx:340-343`). |
-| **Real subtitle** | `homeGreetSub` = `"Ready to sign today?"` / `"مستعد للإشارة اليوم؟"` (`Home.tsx:345-347`) |
+|                                 |                                                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Real title**                  | No screen title. The `<h1>` is a greeting: `pick(lang, "Marhaba, ", "مرحبًا يا ")` + display name (`Home.tsx:340-343`).              |
+| **Real subtitle**               | `homeGreetSub` = `"Ready to sign today?"` / `"مستعد للإشارة اليوم؟"` (`Home.tsx:345-347`)                                            |
 | **Other names for this screen** | Nav tab label `navLearn` = `"Learn"` / `"تعلّم"` (`AppNav.tsx:27`); screen-reader route announcement also `navLearn` (`App.tsx:42`). |
 
 **What it is actually FOR:** the curriculum path, a vertical trail of lesson nodes where the one
@@ -43,6 +43,7 @@ Below the trail, Block D (`Home.tsx:403-642`) adds eight more cards, each a diff
 milestone readout (603). The screen therefore answers "what do I do now" nine different ways.
 
 **Entry points**
+
 - `AppNav.tsx:27` Learn tab, `AppNav.tsx:149` tab click handler
 - `FirstSign.tsx:208` "Keep going" (`fsKeepGoing`), `FirstSign.tsx:232` takeover close
 - `LessonPlayer.tsx:78`, `106` (`lsBackHome` "Back home"), `153`, `164`, `185` (`lsContinue`
@@ -56,6 +57,7 @@ strongest signal in the app. But it is competing with eight cards below it, and 
 states that the trail is the main path. Partly says so.
 
 **Unexplained jargon / icon-only controls**
+
 - `homeGoldStat` = `"XP"` / `"نقطة"` on a gold dot chip (`Home.tsx:186-192`). Never defined anywhere
   in the app.
 - Stat chip markers are bare coloured shapes: coral circle for streak, gold circle for XP, coral
@@ -72,11 +74,11 @@ states that the trail is the main path. Partly says so.
 
 ### 2. PractiseChooser · `src/screens/PractiseChooser.tsx`
 
-| | |
-|---|---|
-| **Real title** | `practiseTitle` = `"Practise"` / `"تمرّن"` (`PractiseChooser.tsx:61-63`) |
-| **Real subtitle** | `practiseSubtitle` = `"Pick how you want to sign today."` / `"اختر كيف تشير اليوم."` (`PractiseChooser.tsx:64`) |
-| **Other names** | Nav tab `navPractise` = `"Practise"` / `"تدرّب"` (`AppNav.tsx:36`). **In Arabic the tab and the screen use two different words for the same place:** `تدرّب` on the tab, `تمرّن` on the title. |
+|                   |                                                                                                                                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | `practiseTitle` = `"Practise"` / `"تمرّن"` (`PractiseChooser.tsx:61-63`)                                                                                                                       |
+| **Real subtitle** | `practiseSubtitle` = `"Pick how you want to sign today."` / `"اختر كيف تشير اليوم."` (`PractiseChooser.tsx:64`)                                                                                |
+| **Other names**   | Nav tab `navPractise` = `"Practise"` / `"تدرّب"` (`AppNav.tsx:36`). **In Arabic the tab and the screen use two different words for the same place:** `تدرّب` on the tab, `تمرّن` on the title. |
 
 **What it is actually FOR:** a four-tile hub that routes to the camera on Alif, the Words room,
 Fingerspell, and a review session.
@@ -91,6 +93,7 @@ the live camera on Alif with a permission prompt. Nothing on the tile warns that
 to turn on.
 
 **Entry points**
+
 - `AppNav.tsx:33` Practise tab, `AppNav.tsx:149`
 - `CameraPractice.tsx:122` back arrow (`backOrParent`)
 - `Words.tsx:87` back arrow
@@ -99,6 +102,7 @@ to turn on.
 **What next?** Pick a tile. Stated by the subtitle. Good.
 
 **Unexplained jargon / icon-only**
+
 - The Review tile's chip is a bare `↺` glyph (`PractiseChooser.tsx:128`).
 - `practiseReviewCountSuffix` = `"due"` with no explanation of what "due" means or who decided it.
 - The "More dialects coming soon" panel (`PractiseChooser.tsx:171-184`) is a hardcoded literal, not
@@ -108,11 +112,11 @@ to turn on.
 
 ### 3. CameraPractice · `src/screens/CameraPractice.tsx`
 
-| | |
-|---|---|
-| **Real title** | `camPractice` = `"Practise the alphabet"` / `"تدرّب على الحروف"` (`CameraPractice.tsx:128`) |
-| **Real subtitle** | **None.** |
-| **Other names** | Route announcement is `navPractise` = `"Practise"` (`App.tsx:44`), a third name again. |
+|                   |                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| **Real title**    | `camPractice` = `"Practise the alphabet"` / `"تدرّب على الحروف"` (`CameraPractice.tsx:128`) |
+| **Real subtitle** | **None.**                                                                                   |
+| **Other names**   | Route announcement is `navPractise` = `"Practise"` (`App.tsx:44`), a third name again.      |
 
 **What it is actually FOR:** point the camera at your hand and have an on-device model grade one
 target letter, with a 28-chip strip to change the target.
@@ -124,6 +128,7 @@ reference stage, `camStart` "Start camera" with `camPrivacy` "100% on your devic
 `camMatch`.
 
 What the screen does NOT explain:
+
 - **The letter strip has no instruction** (`CameraPractice.tsx:142-180`). Twenty-eight Arabic glyphs
   plus three dashed non-selectable ones. Nothing says tapping one changes what you are being graded
   on. The dashed chips carry `signRefOnlyNote` only as `title`/`aria-label` (`163-164`), invisible
@@ -132,6 +137,7 @@ What the screen does NOT explain:
   `targetSignId` set to a word sign, and the header still reads "Practise the alphabet".
 
 **Entry points (11 in-app, the most of any screen)**
+
 - `PractiseChooser.tsx:72` Alphabet tile, labelled `"Alphabet"` + `"28 letters"`
 - `Home.tsx:408` card labelled `camPractice` "Practise the alphabet"
 - `Home.tsx:495` family flag card, labelled with the sign gloss
@@ -152,6 +158,7 @@ What the screen does NOT explain:
 (`CameraPractice.tsx:87-99`). Nothing tells the user that will happen. It just moves.
 
 **Unexplained jargon / icon-only**
+
 - Streak pill: a coral dot and a number, no label (`CameraPractice.tsx:129-134`).
 - `camConfidence` = "Camera confidence" over a meter, with no explanation of what a good number is.
 - `camMatchOwn` = "Matched your own recording", meaningless unless you used teach mode.
@@ -163,11 +170,11 @@ What the screen does NOT explain:
 
 ### 4. Words · `src/screens/Words.tsx`
 
-| | |
-|---|---|
-| **Real title** | `wordsTitle` = `"Everyday words"` / `"كلمات يومية"` (`Words.tsx:93`) |
+|                   |                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | `wordsTitle` = `"Everyday words"` / `"كلمات يومية"` (`Words.tsx:93`)                                                                              |
 | **Real subtitle** | `wordsSubtitle` = `"Watch, copy, mark yourself — no letters needed first."` / `"شاهد وقلّد وقيّم نفسك — لا تحتاج الحروف أولًا."` (`Words.tsx:95`) |
-| **Other names** | `practiseWords` = `"Words"` on the Practise tile (`PractiseChooser.tsx:95`). |
+| **Other names**   | `practiseWords` = `"Words"` on the Practise tile (`PractiseChooser.tsx:95`).                                                                      |
 
 **What it is actually FOR:** 16 everyday word signs you watch and then mark yourself on, no camera
 grading.
@@ -178,6 +185,7 @@ tells you the prerequisite is nothing. It is the best subtitle in the app. Secti
 demo, a hint, and one primary button.
 
 **Entry points**
+
 - `PractiseChooser.tsx:90` tile labelled `practiseWords` "Words"
 - `Home.tsx:424` card labelled `wordsTitle` "Everyday words"
 - `Home.tsx:164` milestone route, labelled with the milestone's own dynamic label
@@ -187,6 +195,7 @@ demo, a hint, and one primary button.
 consequence honestly. Good.
 
 **Unexplained jargon / icon-only**
+
 - "review" in `wordsMarked` is never defined, and there is no route from here to the review session.
 - The practised tick on a tile is `aria-hidden` with the state folded into the label
   (`Words.tsx:213-220`); visually it is a bare teal check with no legend.
@@ -196,11 +205,11 @@ consequence honestly. Good.
 
 ### 5. Fingerspell · `src/screens/Fingerspell.tsx`
 
-| | |
-|---|---|
-| **Real title** | `fspTitle` = `"Fingerspell"` / `"التهجئة بالإشارة"` (`Fingerspell.tsx:137`) |
+|                   |                                                                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | `fspTitle` = `"Fingerspell"` / `"التهجئة بالإشارة"` (`Fingerspell.tsx:137`)                                                                                                                                   |
 | **Real subtitle** | `fspSubtitle` = `"Type any word — Arabic or English letters — and watch it spelled letter by letter."` / `"اكتب أي كلمة — بالعربية أو بأحرف إنجليزية — وشاهدها تُتهجّى حرفًا حرفًا."` (`Fingerspell.tsx:140`) |
-| **Other names** | `fspHomeCard` = `"Spell your name"` on Home (`Home.tsx:446`); `practiseFingerspell` = `"Fingerspell"` on the Practise tile (`PractiseChooser.tsx:116`). |
+| **Other names**   | `fspHomeCard` = `"Spell your name"` on Home (`Home.tsx:446`); `practiseFingerspell` = `"Fingerspell"` on the Practise tile (`PractiseChooser.tsx:116`).                                                       |
 
 **What it is actually FOR:** type a word, watch it spelled with real signer photos, optionally
 camera-check each gradable letter.
@@ -212,6 +221,7 @@ disclose every silent transformation, and `fspPractiseAlong` / `fspPractiseAlong
 `"Camera-check each letter of your word"` names the second mode before you enter it.
 
 **Entry points**
+
 - `PractiseChooser.tsx:109` tile labelled "Fingerspell · Spell any word"
 - `Home.tsx:440` card labelled "Spell your name · Fingerspell any word, letter by letter"
 
@@ -219,6 +229,7 @@ disclose every silent transformation, and `fspPractiseAlong` / `fspPractiseAlong
 route after practise-along completes.
 
 **Unexplained jargon / icon-only**
+
 - The backspace key uses the `arrow_back` icon, not a backspace glyph, because backspace is not in
   the subsetted font (`Fingerspell.tsx:179-181`). It is visually identical to the header back arrow
   two inches above it.
@@ -231,22 +242,23 @@ route after practise-along completes.
 
 ### 6. AllSigns · `src/screens/AllSigns.tsx`
 
-| | |
-|---|---|
-| **Real title** | Hardcoded literal `pick(lang, "Sign Dictionary", "القاموس")` (`AllSigns.tsx:237`). **Not in `i18n.ts`.** |
-| **Real subtitle** | Hardcoded literal `pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")` (`AllSigns.tsx:238-240`) |
-| **Other names** | Nav tab `navDictionary` = `"Signs"` / `"القاموس"` (`AppNav.tsx:38`); route announcement `navDictionary` (`App.tsx:45`); Settings row `"Signs dictionary"` (hardcoded, `Settings.tsx:445`); the camera error escape says `stBrowseSigns` = `"Browse the signs →"` (`CameraTrainer.tsx:880`). **Four names in English for one screen.** |
+|                   |                                                                                                                                                                                                                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | Hardcoded literal `pick(lang, "Sign Dictionary", "القاموس")` (`AllSigns.tsx:237`). **Not in `i18n.ts`.**                                                                                                                                                                                                                              |
+| **Real subtitle** | Hardcoded literal `pick(lang, "Qatari Sign Language · خليجي", "لغة الإشارة القطرية · خليجي")` (`AllSigns.tsx:238-240`)                                                                                                                                                                                                                |
+| **Other names**   | Nav tab `navDictionary` = `"Signs"` / `"القاموس"` (`AppNav.tsx:38`); route announcement `navDictionary` (`App.tsx:45`); Settings row `"Signs dictionary"` (hardcoded, `Settings.tsx:445`); the camera error escape says `stBrowseSigns` = `"Browse the signs →"` (`CameraTrainer.tsx:880`). **Four names in English for one screen.** |
 
 **What it is actually FOR:** browse every sign, filter or search, tap one to open a detail panel with
 a demo, a hint, a camera CTA or a self-mark, a flag toggle and a share.
 
-**Does its own copy make that obvious? NO.** The subtitle describes the *content* ("Qatari Sign
-Language"), not the *interaction*. On desktop an empty-panel placeholder does say
+**Does its own copy make that obvious? NO.** The subtitle describes the _content_ ("Qatari Sign
+Language"), not the _interaction_. On desktop an empty-panel placeholder does say
 `"Pick a sign to see how it's made."` (`AllSigns.tsx:407-412`), but that block is inside
 `md:block` and **never renders on a phone**, which is the app's primary form factor. On mobile this
 is a grid of cards with no instruction whatsoever.
 
 **Entry points**
+
 - `AppNav.tsx:38` Signs tab, `AppNav.tsx:149`
 - `Settings.tsx:446` row labelled "Signs dictionary"
 - `Home.tsx:496` flag card for a non-gradable sign
@@ -261,6 +273,7 @@ is a grid of cards with no instruction whatsoever.
 priority stated.
 
 **Unexplained jargon / icon-only**
+
 - `signBadgeGraded` = `"Graded"` and `signBadgeMotion` = `"Watch"` sit on every card
   (`AllSigns.tsx:85-99`, `553`) with no legend. "Graded" is meaningless before you have used the
   camera.
@@ -277,11 +290,11 @@ priority stated.
 
 ### 7. Family · `src/screens/Family.tsx`
 
-| | |
-|---|---|
-| **Real title** | `famHousehold` = `"Your household"` / `"أسرتك"` as the `<h1>` (`Family.tsx:129-131`), under an eyebrow `famTitle` = `"Family"` / `"العائلة"` (`Family.tsx:128`) |
-| **Real subtitle** | Computed line: learner count + `famSignsTogether` = `"signs together"` (`Family.tsx:132-137`) |
-| **Other names** | Nav tab `navFamily` = `"Family"` (`AppNav.tsx:39`); Settings routes here twice under `setProfiles` = `"Manage profiles"` (`Settings.tsx:271`) and again under a hardcoded `"Manage profiles"` (`Settings.tsx:441`). |
+|                   |                                                                                                                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | `famHousehold` = `"Your household"` / `"أسرتك"` as the `<h1>` (`Family.tsx:129-131`), under an eyebrow `famTitle` = `"Family"` / `"العائلة"` (`Family.tsx:128`)                                                     |
+| **Real subtitle** | Computed line: learner count + `famSignsTogether` = `"signs together"` (`Family.tsx:132-137`)                                                                                                                       |
+| **Other names**   | Nav tab `navFamily` = `"Family"` (`AppNav.tsx:39`); Settings routes here twice under `setProfiles` = `"Manage profiles"` (`Settings.tsx:271`) and again under a hardcoded `"Manage profiles"` (`Settings.tsx:441`). |
 
 **What it is actually FOR:** the household surface. Switch active profile, add or remove members,
 see the Deaf member's flagged signs, open the flag picker, see the shared board.
@@ -289,6 +302,7 @@ see the Deaf member's flagged signs, open the flag picker, see the shared board.
 **Does its own copy make that obvious? PARTLY.** Every section has an eyebrow, and
 `famOnlyDeafFlags` = `"flags the signs — the curriculum follows them."` (`Family.tsx:280`) states the
 product's core idea in one line. But three things are silent:
+
 - **The member row is the profile switcher and nothing says so.** Tapping a member card calls
   `app.switchProfile` (`Family.tsx:159-163`). The only signal is `aria-pressed` and a green ring. A
   hearing parent tapping their Deaf child's face to "see them" silently becomes that child.
@@ -297,6 +311,7 @@ product's core idea in one line. But three things are silent:
 - The "Signs we can all do" honeycomb (`Family.tsx:425-458`) is 25 hexagons with no instruction.
 
 **Entry points**
+
 - `AppNav.tsx:39` Family tab, `AppNav.tsx:149`
 - `Home.tsx:474` link labelled `"{n} family requests"` (hardcoded, 477-483)
 - `Home.tsx:163` milestone route
@@ -309,6 +324,7 @@ product's core idea in one line. But three things are silent:
 one dominant action and it is clearly labelled. Good.
 
 **Unexplained jargon / icon-only**
+
 - `famSharedStreak` = `"Household streak"` next to a 🔥 emoji and a number (`Family.tsx:139-141`).
 - The remove control is a bare `close` icon on each member tile (`Family.tsx:184-193`), labelled only
   for screen readers.
@@ -319,9 +335,9 @@ one dominant action and it is clearly labelled. Good.
 
 ### 8. FlagPicker · `src/screens/FlagPicker.tsx`
 
-| | |
-|---|---|
-| **Real title** | `famFlagTitle` = `"Flag signs we need"` / `"حدّد الإشارات التي نحتاجها"` in the takeover header (`FlagPicker.tsx:142`) |
+|                   |                                                                                                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | `famFlagTitle` = `"Flag signs we need"` / `"حدّد الإشارات التي نحتاجها"` in the takeover header (`FlagPicker.tsx:142`)                                                                                                 |
 | **Real subtitle** | Hero `<h2>` hardcoded `"You direct what they learn"` / `"أنت توجّه ما يتعلمونه"` (`FlagPicker.tsx:163-165`) plus hardcoded `"Flag the signs your family needs — everyone's queue follows."` (`FlagPicker.tsx:166-172`) |
 
 **What it is actually FOR:** the Deaf member picks which signs the household must learn.
@@ -331,6 +347,7 @@ one dominant action and it is clearly labelled. Good.
 better than any other, and it is also the app's least-visited screen.
 
 **Entry points (2, both from Family)**
+
 - `Family.tsx:397` coral CTA labelled `famFlagTitle` "Flag signs we need"
 - `Family.tsx:483` milestone teaser card labelled `"25 Combined Signs!"` and `"X% there"`. **Same
   destination, completely unrelated label.**
@@ -339,6 +356,7 @@ better than any other, and it is also the app's least-visited screen.
 (`FlagPicker.tsx:457-474`), plus a "Practise these" CTA. Clearly stated.
 
 **Unexplained jargon / icon-only**
+
 - `"Most Needed"` toggle (`FlagPicker.tsx:203-216`) appears only once something is flagged, and never
   explains that it only reorders flagged items to the front.
 - `"Requestors"` (`FlagPicker.tsx:391-393`) is not plain English.
@@ -350,11 +368,11 @@ better than any other, and it is also the app's least-visited screen.
 
 ### 9. LessonPlayer · `src/screens/LessonPlayer.tsx`
 
-| | |
-|---|---|
-| **Real title** | **None at screen level.** The takeover is rendered with no `title` (`LessonPlayer.tsx:78`, `153`, `176`, `203`), so `ScreenShell` renders no `<h1>` (`ScreenShell.tsx:50`). |
-| **Per-drill titles** | `lsWatchTitle` = `"A new sign"`, `lsRecogniseTitle` = `"What does this sign mean?"`, `lsRecallTitle` = `"Which sign means…"`, `lsReviewTitle` = `"Quick review"`. Step labels `lsWatchStep` = `"Watch the sign"` and `lsSignBack` = `"Sign it back"` (`LessonPlayer.tsx:195-200`). |
-| **Screen-reader name** | `srLesson` = `"Lesson"` (`App.tsx:43`), which no sighted user ever sees. |
+|                        |                                                                                                                                                                                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**         | **None at screen level.** The takeover is rendered with no `title` (`LessonPlayer.tsx:78`, `153`, `176`, `203`), so `ScreenShell` renders no `<h1>` (`ScreenShell.tsx:50`).                                                                                                        |
+| **Per-drill titles**   | `lsWatchTitle` = `"A new sign"`, `lsRecogniseTitle` = `"What does this sign mean?"`, `lsRecallTitle` = `"Which sign means…"`, `lsReviewTitle` = `"Quick review"`. Step labels `lsWatchStep` = `"Watch the sign"` and `lsSignBack` = `"Sign it back"` (`LessonPlayer.tsx:195-200`). |
+| **Screen-reader name** | `srLesson` = `"Lesson"` (`App.tsx:43`), which no sighted user ever sees.                                                                                                                                                                                                           |
 
 **What it is actually FOR:** a mixed drill session, one card at a time, ending in a results screen.
 
@@ -365,6 +383,7 @@ of what lesson this is, how many signs it covers, or what finishing it unlocks. 
 shown only on the **end** cards (`LessonPlayer.tsx:896-900`, `988-992`), after it is over.
 
 **Entry points**
+
 - `Home.tsx:677` node sheet primary, labelled `pathStartCta` = `"Start →"`
 - `Home.tsx:681` done-node replay, labelled `pathReview` = `"Review →"`
 - `Home.tsx:510` card labelled `homeReviewDue` = `"Review due"` → `lessonId: "review"`
@@ -377,6 +396,7 @@ shown only on the **end** cards (`LessonPlayer.tsx:896-900`, `988-992`), after i
 round finishes this lesson."` and `lsWhatsNext` = `"What's next"` with per-sign chips.
 
 **Unexplained jargon / icon-only**
+
 - The streak pill is again a coral dot plus a number, no label (`LessonPlayer.tsx:245-250`).
 - `lsXpEarned` = `"XP earned"` with XP never defined.
 - The results card is rendered with `chrome="takeover"` and **no `onClose`** (`LessonPlayer.tsx:176`),
@@ -387,11 +407,11 @@ round finishes this lesson."` and `lsWhatsNext` = `"What's next"` with per-sign 
 
 ### 10. Progress · `src/screens/Progress.tsx`
 
-| | |
-|---|---|
-| **Real title** | **Changes with the tab.** `title={headerTitle}` where `headerTitle` is the active tab's label (`Progress.tsx:168`, `173`). So the header reads `prTabOasis` = `"Your oasis"` / `"واحتك"` on arrival, then `prTabStats` = `"Stats"`, `prTabAchieve` = `"Achievements"`, `prTabLeague` = `"Family league"`. |
-| **Real subtitle** | Per tab: `prOasisBody` = `"Every sign you learn plants something new."`; Stats and Achievements have none beyond `prAchieveSummary`; `prLeagueBody` = `"Growing together."` |
-| **Other names** | The only door is labelled `navProgress` = `"Progress"` / `"التقدم"` (`AppNav.tsx:96`), and the route announcement is also `navProgress` (`App.tsx:47`). **The word "Progress" never appears anywhere on the screen itself.** |
+|                   |                                                                                                                                                                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**    | **Changes with the tab.** `title={headerTitle}` where `headerTitle` is the active tab's label (`Progress.tsx:168`, `173`). So the header reads `prTabOasis` = `"Your oasis"` / `"واحتك"` on arrival, then `prTabStats` = `"Stats"`, `prTabAchieve` = `"Achievements"`, `prTabLeague` = `"Family league"`. |
+| **Real subtitle** | Per tab: `prOasisBody` = `"Every sign you learn plants something new."`; Stats and Achievements have none beyond `prAchieveSummary`; `prLeagueBody` = `"Growing together."`                                                                                                                               |
+| **Other names**   | The only door is labelled `navProgress` = `"Progress"` / `"التقدم"` (`AppNav.tsx:96`), and the route announcement is also `navProgress` (`App.tsx:47`). **The word "Progress" never appears anywhere on the screen itself.**                                                                              |
 
 **What it is actually FOR:** four read-only views of your own data plus a route into the review
 session.
@@ -403,6 +423,7 @@ invented units, and the palms are drawn one per letter practised (`Progress.tsx:
 key. A learner at zero letters sees bare sand and no explanation of why.
 
 **Entry points (1, and it is hidden)**
+
 - `AppNav.tsx:95-111` inside the profile menu, which opens from a button whose only label is
   `navProfile` = `"Profile"` under an avatar emoji (`AppNav.tsx:116-134`). Nothing anywhere in the
   app tells a user that Progress lives behind their own face.
@@ -412,6 +433,7 @@ or the empty-state camera button, `503-510`). Stats, Achievements and League are
 back arrow.
 
 **Unexplained jargon / icon-only**
+
 - `prMastered` = `"signs mastered"` vs `prPlanted` = `"signs planted"` vs `prStatMastered` =
   `"Signs mastered"`: two names for the same number on adjacent surfaces (`Progress.tsx:416`, `449`,
   `593`).
@@ -431,10 +453,10 @@ back arrow.
 
 ### 11. Settings · `src/screens/Settings.tsx`
 
-| | |
-|---|---|
-| **Real title** | `setTitle` = `"Settings"` / `"الإعدادات"` (`Settings.tsx:264`) |
-| **Real subtitle** | **None.** |
+|                   |                                                                |
+| ----------------- | -------------------------------------------------------------- |
+| **Real title**    | `setTitle` = `"Settings"` / `"الإعدادات"` (`Settings.tsx:264`) |
+| **Real subtitle** | **None.**                                                      |
 
 **What it is actually FOR:** name, language, daily goal, camera permission and training reset,
 household export/import, links to the two info pages.
@@ -444,6 +466,7 @@ household export/import, links to the two info pages.
 is a labelled chevron row. This is the most conventional screen in the app and it reads correctly.
 
 **Entry points**
+
 - `AppNav.tsx:97` profile menu item labelled `setTitle` "Settings"
 - `InfoPages.tsx:105` and `InfoPages.tsx:311` takeover close from the two info pages
 - `DevMetrics.tsx:36`
@@ -451,6 +474,7 @@ is a labelled chevron row. This is the most conventional screen in the app and i
 **What next?** Nothing to finish. Back arrow to Home. Correct for a settings screen.
 
 **Unexplained jargon / icon-only**
+
 - **Duplicate rows.** `Settings.tsx:271` and `Settings.tsx:441` both read "Manage profiles" and both
   route to Family. `Settings.tsx:328` reads `setPrivacy` "Privacy" and `Settings.tsx:451` reads
   "Privacy policy"; both route to `privacy`. Four rows, two destinations.
@@ -467,11 +491,11 @@ is a labelled chevron row. This is the most conventional screen in the app and i
 
 **12a. AiTransparency**
 
-| | |
-|---|---|
-| **Real title** | Hardcoded `"How the AI works"` / `"كيف يعمل الذكاء الاصطناعي"` (`InfoPages.tsx:104`) |
+|                |                                                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title** | Hardcoded `"How the AI works"` / `"كيف يعمل الذكاء الاصطناعي"` (`InfoPages.tsx:104`)                                                                                                                              |
 | **Other name** | The Settings row that opens it says `setAi` = `"What the AI can and can't do"` / `"ما تستطيعه الكاميرا الذكية وما لا تستطيعه"` (`Settings.tsx:327`), and `App.tsx:56` announces `setAi`. **Two different names.** |
-| **Subtitle** | Hardcoded `"Built for your family, designed for trust."` (`InfoPages.tsx:115-119`) |
+| **Subtitle**   | Hardcoded `"Built for your family, designed for trust."` (`InfoPages.tsx:115-119`)                                                                                                                                |
 
 **Purpose:** state plainly what the on-device model does and does not do.
 **Obvious? YES.** It is long-form explanatory prose and it does its job. The four cards each carry a
@@ -486,9 +510,9 @@ award-submission chrome facing a learner.
 
 **12b. Privacy**
 
-| | |
-|---|---|
-| **Real title** | Hardcoded `"Privacy"` / `"الخصوصية"` (`InfoPages.tsx:310`) |
+|                   |                                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------------- |
+| **Real title**    | Hardcoded `"Privacy"` / `"الخصوصية"` (`InfoPages.tsx:310`)                                           |
 | **Real subtitle** | Hero `"Your hands stay home"` + `"Privacy as a feature, not small print."` (`InfoPages.tsx:322-330`) |
 
 **Purpose:** the privacy promise plus the one destructive "erase everything" control.
@@ -504,11 +528,11 @@ says `"Erase everything"` (`401`), and it wipes `localStorage` and reloads (`291
 
 ### 13. FirstSign · `src/screens/FirstSign.tsx`
 
-| | |
-|---|---|
-| **Real title** | Per phase: `fsDemoTitle` = `"Watch it once"` / `"شاهدها مرّة"` (`FirstSign.tsx:246-248`), then `fsLiveTitle` = `"Now make the sign"` / `"الآن أدِّ الإشارة"` (`FirstSign.tsx:264-266`), then a celebration. |
-| **Real subtitle** | `fsIntro` = `"Let's learn the first thing you'll say:"` above the title (`FirstSign.tsx:245`); `fsDemoSub` = `"A real signer's hand (ArSL21L dataset)"`; `fsLiveSub` = `"The camera is grading you live"`. |
-| **Screen-reader name** | `srFirstSign` = `"Your first sign"` (`App.tsx:53`), never shown visually. |
+|                        |                                                                                                                                                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real title**         | Per phase: `fsDemoTitle` = `"Watch it once"` / `"شاهدها مرّة"` (`FirstSign.tsx:246-248`), then `fsLiveTitle` = `"Now make the sign"` / `"الآن أدِّ الإشارة"` (`FirstSign.tsx:264-266`), then a celebration. |
+| **Real subtitle**      | `fsIntro` = `"Let's learn the first thing you'll say:"` above the title (`FirstSign.tsx:245`); `fsDemoSub` = `"A real signer's hand (ArSL21L dataset)"`; `fsLiveSub` = `"The camera is grading you live"`.  |
+| **Screen-reader name** | `srFirstSign` = `"Your first sign"` (`App.tsx:53`), never shown visually.                                                                                                                                   |
 
 **What it is actually FOR:** the onboarding hook. Watch Alif once, sign it back, celebrate.
 
@@ -516,6 +540,7 @@ says `"Erase everything"` (`401`), and it wipes `localStorage` and reloads (`291
 dominant button `fsNowYou` = `"Now you try"` (`FirstSign.tsx:279-286`).
 
 **Entry points (1)**
+
 - `Onboarding.tsx:150`, the default when the learner picked no track. Unreachable afterwards except
   by typing `#/first-sign` (`ui.ts:99`).
 
@@ -523,6 +548,7 @@ dominant button `fsNowYou` = `"Now you try"` (`FirstSign.tsx:279-286`).
 `"Keep going"` → Home (`FirstSign.tsx:204-215`). Stated clearly.
 
 **Unexplained jargon / icon-only**
+
 - **The progress counter starts at 2.** `num = idx + 2` (`FirstSign.tsx:37`), so the first screen a
   brand-new user ever sees reads `2/4`. Nothing explains the missing step 1.
 - `fsDemoSub` names a dataset, "ArSL21L", to a first-time learner.
@@ -533,14 +559,15 @@ dominant button `fsNowYou` = `"Now you try"` (`FirstSign.tsx:279-286`).
 
 ### 14. AppNav · `src/components/AppNav.tsx`
 
-| | |
-|---|---|
+|            |                                                                                                                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Labels** | `navLearn` "Learn", `navPractise` "Practise" / `"تدرّب"`, `navDictionary` "Signs" / `"القاموس"`, `navFamily` "Family", plus `navProfile` "Profile" / `"حسابي"` (`AppNav.tsx:26-40`, `130`) |
 
 **What it is actually FOR:** the single navigation source of truth. Four tabs plus a profile button
 that absorbs Progress and Settings.
 
 **Does its own copy make that obvious? PARTLY.** Four labelled tabs is right. But:
+
 - **Two of the app's ten destinations are hidden behind an avatar.** Progress and Settings exist only
   inside the profile popover (`AppNav.tsx:95-111`). A first-time user has no reason to tap their own
   face to find their stats.
@@ -555,6 +582,7 @@ that absorbs Progress and Settings.
   `aria-label` is `back` but whose destination varies per screen.
 
 **Unexplained jargon / icon-only**
+
 - The badge count on the Family tab (`AppNav.tsx:143`, `159-163`) is a bare number with no legend.
 - Material icon names carry the meaning: `videocam` for Practise, `menu_book` for Signs, `favorite`
   for Family. A heart for "Family" is not a conventional mapping.
@@ -567,29 +595,29 @@ Destinations reached from more than one place under more than one label.
 
 ### The camera (`{ name: "camera" }`) · 17 doors, 9 distinct labels
 
-| Label shown to the user | file:line |
-|---|---|
-| `camPractice` "Practise the alphabet" | `Home.tsx:408` |
-| `homeNewLetter` "Learn a new letter" | `Home.tsx:548` |
-| "All caught up — keep your hands warm" (hardcoded) | `Home.tsx:570`, string at `577` |
-| *no label at all*, the Daily goal card | `Home.tsx:595` |
-| `lsPartDoneCta` "Keep going" via milestone | `Home.tsx:166` |
-| `practiceCamera` "Practise with camera" | `Home.tsx:753` |
-| the sign's own gloss, family flag card | `Home.tsx:495` |
-| `practiseAlphabet` "Alphabet" + "28 letters" | `PractiseChooser.tsx:72` |
-| `practiceCamera` "Practise with camera" | `AllSigns.tsx:220` / `754-757` |
-| "Practise your N flagged signs" (hardcoded) | `AllSigns.tsx:290-303` |
-| the sign's own gloss | `Family.tsx:75`, `FlagPicker.tsx:359` |
-| "Practise these" (hardcoded) | `FlagPicker.tsx:433`, string at `440` |
-| `practiceCamera` "Practise with camera" | `Progress.tsx:227` / `505-510` |
-| a Constellation node, unlabelled | `Progress.tsx:233` |
-| `practiceCamera` "Practise with camera" | `LessonPlayer.tsx:99`, `186` / `1057-1062` |
-| `setNotGranted` **"Not granted yet"** | `Settings.tsx:316` |
-| **"Let's Practice Together"** (hardcoded) | `InfoPages.tsx:197`, string at `198` |
-| onboarding alphabet track, `autoStart` | `Onboarding.tsx:150` |
+| Label shown to the user                            | file:line                                  |
+| -------------------------------------------------- | ------------------------------------------ |
+| `camPractice` "Practise the alphabet"              | `Home.tsx:408`                             |
+| `homeNewLetter` "Learn a new letter"               | `Home.tsx:548`                             |
+| "All caught up — keep your hands warm" (hardcoded) | `Home.tsx:570`, string at `577`            |
+| _no label at all_, the Daily goal card             | `Home.tsx:595`                             |
+| `lsPartDoneCta` "Keep going" via milestone         | `Home.tsx:166`                             |
+| `practiceCamera` "Practise with camera"            | `Home.tsx:753`                             |
+| the sign's own gloss, family flag card             | `Home.tsx:495`                             |
+| `practiseAlphabet` "Alphabet" + "28 letters"       | `PractiseChooser.tsx:72`                   |
+| `practiceCamera` "Practise with camera"            | `AllSigns.tsx:220` / `754-757`             |
+| "Practise your N flagged signs" (hardcoded)        | `AllSigns.tsx:290-303`                     |
+| the sign's own gloss                               | `Family.tsx:75`, `FlagPicker.tsx:359`      |
+| "Practise these" (hardcoded)                       | `FlagPicker.tsx:433`, string at `440`      |
+| `practiceCamera` "Practise with camera"            | `Progress.tsx:227` / `505-510`             |
+| a Constellation node, unlabelled                   | `Progress.tsx:233`                         |
+| `practiceCamera` "Practise with camera"            | `LessonPlayer.tsx:99`, `186` / `1057-1062` |
+| `setNotGranted` **"Not granted yet"**              | `Settings.tsx:316`                         |
+| **"Let's Practice Together"** (hardcoded)          | `InfoPages.tsx:197`, string at `198`       |
+| onboarding alphabet track, `autoStart`             | `Onboarding.tsx:150`                       |
 
-This is the single worst instance in the app. Note especially `Settings.tsx:316`, where a *status
-label* is the button, and `InfoPages.tsx:197`, where an AI-explainer page's hero CTA drops you into
+This is the single worst instance in the app. Note especially `Settings.tsx:316`, where a _status
+label_ is the button, and `InfoPages.tsx:197`, where an AI-explainer page's hero CTA drops you into
 the grader.
 
 ### The dictionary (`allSigns`) · 9 doors, 4 distinct labels
@@ -698,7 +726,7 @@ progress denominators. Asked "where is the alphabet", a user has three correct a
 
 **e. Family's flag list vs FlagPicker's flag summary.** `Family.tsx:285-390` lists active flags with
 gloss, raiser and a tap that opens the sign. `FlagPicker.tsx:349-381` lists the same flags with the
-same gloss and the same tap behaviour. Two screens, one list, and FlagPicker is opened *from* Family.
+same gloss and the same tap behaviour. Two screens, one list, and FlagPicker is opened _from_ Family.
 
 **f. Progress "Family league" tab vs the Family tab.** `Progress.tsx:719-804` shows household members
 ranked by XP with avatars. `Family.tsx:149-215` shows household members with avatars and streaks. The
@@ -719,30 +747,30 @@ the alphabet in order. Same component, same grading, same self-mark, two screens
 
 ## Question 4 · Ranked, most self-explanatory to most opaque
 
-| # | Screen | Why |
-|---|---|---|
-| 1 | **Fingerspell** | Subtitle states the whole mechanic; empty state gives an instruction and an example; every silent transformation is disclosed. |
-| 2 | **Words** | `wordsSubtitle` names the entire loop and the prerequisite in one line. |
-| 3 | **FlagPicker** | Title, hero line, hero body and an explicit "Tap a sign to flag it." |
-| 4 | **Privacy** | Long-form, plainly headed, one clearly-marked destructive control. |
-| 5 | **Settings** | Conventional grouped list, every row labelled. Loses points only for duplicate rows. |
-| 6 | **AiTransparency** | Explanatory by nature and it explains. Loses points for the award badge and the abstract flow strip. |
-| 7 | **FirstSign** | A clear three-beat arc, one dominant button. Loses points for the `2/4` counter and the dataset name. |
-| 8 | **PractiseChooser** | Title plus subtitle plus four described tiles. Loses points for not warning that the Alphabet tile turns on a camera. |
-| 9 | **LessonPlayer** | Each drill is well-titled, but the session itself is never named until the end card. |
-| 10 | **Family** | Every section has an eyebrow, but the profile switcher, the dots and the honeycomb are silent. |
-| 11 | **AllSigns** | *bottom five, see below* |
-| 12 | **CameraPractice** | *bottom five* |
-| 13 | **Home** | *bottom five* |
-| 14 | **AppNav** | *bottom five* |
-| 15 | **Progress** | *bottom five, most opaque* |
+| #   | Screen              | Why                                                                                                                            |
+| --- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Fingerspell**     | Subtitle states the whole mechanic; empty state gives an instruction and an example; every silent transformation is disclosed. |
+| 2   | **Words**           | `wordsSubtitle` names the entire loop and the prerequisite in one line.                                                        |
+| 3   | **FlagPicker**      | Title, hero line, hero body and an explicit "Tap a sign to flag it."                                                           |
+| 4   | **Privacy**         | Long-form, plainly headed, one clearly-marked destructive control.                                                             |
+| 5   | **Settings**        | Conventional grouped list, every row labelled. Loses points only for duplicate rows.                                           |
+| 6   | **AiTransparency**  | Explanatory by nature and it explains. Loses points for the award badge and the abstract flow strip.                           |
+| 7   | **FirstSign**       | A clear three-beat arc, one dominant button. Loses points for the `2/4` counter and the dataset name.                          |
+| 8   | **PractiseChooser** | Title plus subtitle plus four described tiles. Loses points for not warning that the Alphabet tile turns on a camera.          |
+| 9   | **LessonPlayer**    | Each drill is well-titled, but the session itself is never named until the end card.                                           |
+| 10  | **Family**          | Every section has an eyebrow, but the profile switcher, the dots and the honeycomb are silent.                                 |
+| 11  | **AllSigns**        | _bottom five, see below_                                                                                                       |
+| 12  | **CameraPractice**  | _bottom five_                                                                                                                  |
+| 13  | **Home**            | _bottom five_                                                                                                                  |
+| 14  | **AppNav**          | _bottom five_                                                                                                                  |
+| 15  | **Progress**        | _bottom five, most opaque_                                                                                                     |
 
 ### Justification for the bottom five
 
 **11. AllSigns.** The screen has four names and uses none of them consistently: the nav says "Signs"
 (`AppNav.tsx:38`), the header says "Sign Dictionary" (`AllSigns.tsx:237`), Settings says "Signs
 dictionary" (`Settings.tsx:446`) and the camera error says "Browse the signs" (`CameraTrainer.tsx:880`).
-Its subtitle describes the content, not the interaction, and the one line that *does* describe the
+Its subtitle describes the content, not the interaction, and the one line that _does_ describe the
 interaction is desktop-only (`AllSigns.tsx:407-412`) on a phone-first PWA. Every card carries two
 pieces of undefined jargon: a `Graded`/`Watch` badge (`AllSigns.tsx:85-99`) and a status caption from
 a vocabulary that contradicts the filter chips ("Family list" vs "Flagged" vs "Flag",
@@ -795,14 +823,14 @@ unrequested (`Progress.tsx:111-113`, `908-1035`). Three of its four tabs have no
 
 These words appear on multiple screens and are defined on none of them.
 
-| Word | Where it appears |
-|---|---|
-| **XP** | `i18n.ts:161`, `homeGoldStat` `i18n.ts:222`, `Home.tsx:189`, `Progress.tsx:454`, `LessonPlayer.tsx:1009`, `FirstSign.tsx:150-156` |
-| **Mastered** | `prMastered`, `prStatMastered`, `AllSigns.tsx:33`, `Family` board logic |
-| **Due / Review** | `homeReviewDue`, `practiseReviewCountSuffix`, `prUpcoming`, `wordsMarked`, `signMarkedPractised`, `"Add to Daily Review"` (`AllSigns.tsx:794`) |
-| **Graded / camera-graded** | `signBadgeGraded`, `pathNewSign`, `signRefOnlyNote`, `camGradingPaused` |
-| **Unit** | `homeUnit`, `Home.tsx:379-391`, `AllSigns.tsx:40`, `70-73` |
-| **Flag / flagged / family list** | `famFlagTitle`, `famFlagged`, `famFlaggedCount`, `AllSigns.tsx:34`, `207`, `818`, `FlagPicker` throughout |
-| **Streak** | `homeStreak`, `famSharedStreak`, `prBestStreak`, and three unlabelled coral-dot pills (`Home.tsx:180`, `CameraPractice.tsx:129-134`, `LessonPlayer.tsx:245-250`) |
+| Word                             | Where it appears                                                                                                                                                 |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **XP**                           | `i18n.ts:161`, `homeGoldStat` `i18n.ts:222`, `Home.tsx:189`, `Progress.tsx:454`, `LessonPlayer.tsx:1009`, `FirstSign.tsx:150-156`                                |
+| **Mastered**                     | `prMastered`, `prStatMastered`, `AllSigns.tsx:33`, `Family` board logic                                                                                          |
+| **Due / Review**                 | `homeReviewDue`, `practiseReviewCountSuffix`, `prUpcoming`, `wordsMarked`, `signMarkedPractised`, `"Add to Daily Review"` (`AllSigns.tsx:794`)                   |
+| **Graded / camera-graded**       | `signBadgeGraded`, `pathNewSign`, `signRefOnlyNote`, `camGradingPaused`                                                                                          |
+| **Unit**                         | `homeUnit`, `Home.tsx:379-391`, `AllSigns.tsx:40`, `70-73`                                                                                                       |
+| **Flag / flagged / family list** | `famFlagTitle`, `famFlagged`, `famFlaggedCount`, `AllSigns.tsx:34`, `207`, `818`, `FlagPicker` throughout                                                        |
+| **Streak**                       | `homeStreak`, `famSharedStreak`, `prBestStreak`, and three unlabelled coral-dot pills (`Home.tsx:180`, `CameraPractice.tsx:129-134`, `LessonPlayer.tsx:245-250`) |
 
 Fixing the doors without fixing this vocabulary would leave the app consistent and still unreadable.

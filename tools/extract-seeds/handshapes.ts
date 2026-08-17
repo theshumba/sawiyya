@@ -24,8 +24,7 @@ for (const [id, vecs] of Object.entries(raw)) {
   for (let i = 0; i < D; i++) mean[i] /= vecs.length;
   // flat [x0,y0,...,x20,y20] → 21 points, rounded to 3dp for compact storage
   const pts: [number, number][] = [];
-  for (let i = 0; i < D; i += 2)
-    pts.push([Math.round(mean[i] * 1000) / 1000, Math.round(mean[i + 1] * 1000) / 1000]);
+  for (let i = 0; i < D; i += 2) pts.push([Math.round(mean[i] * 1000) / 1000, Math.round(mean[i + 1] * 1000) / 1000]);
   shapes[id] = pts;
 }
 

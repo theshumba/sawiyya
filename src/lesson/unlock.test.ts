@@ -4,19 +4,11 @@
 // shut so a future refactor cannot quietly reopen them.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LESSONS } from "../content/signs";
-import {
-  currentLessonId,
-  lessonFinished,
-  lessonPlayable,
-  lessonState,
-  trailPosition,
-} from "./unlock";
+import { currentLessonId, lessonFinished, lessonPlayable, lessonState, trailPosition } from "./unlock";
 import type { SignProgress } from "../types";
 
 const practised = (ids: string[]): Record<string, SignProgress> =>
-  Object.fromEntries(
-    ids.map((id) => [id, { masteryLevel: 2, lastSeen: "2026-08-01T00:00:00.000Z" }]),
-  );
+  Object.fromEntries(ids.map((id) => [id, { masteryLevel: 2, lastSeen: "2026-08-01T00:00:00.000Z" }]));
 
 /** Progress that finishes every lesson strictly before `lessonId`. */
 const arrivedAt = (lessonId: string): Record<string, SignProgress> => {

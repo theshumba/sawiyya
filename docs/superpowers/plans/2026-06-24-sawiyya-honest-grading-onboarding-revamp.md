@@ -4,7 +4,7 @@
 
 **Goal:** Make Sawiyya's alphabet practice genuinely grade a real hand against real signers (no more "instant yes"), lead the first run with a real graded sign, and clean up onboarding + landing-page messaging — ready for Mada Innovation Award review.
 
-**Architecture:** Extract ground-truth hand-landmark vectors from real Arabic-alphabet photo datasets **in the browser**, through the *exact same* `normalizeLandmarks()` used by the live camera, and ship them as a bundled JSON the KNN recognizer loads as a read-only base layer. The alphabet then grades against real signers; QSL words stay teach-mode but are labelled honestly. Onboarding and landing changes are focused edits, no re-theme.
+**Architecture:** Extract ground-truth hand-landmark vectors from real Arabic-alphabet photo datasets **in the browser**, through the _exact same_ `normalizeLandmarks()` used by the live camera, and ship them as a bundled JSON the KNN recognizer loads as a read-only base layer. The alphabet then grades against real signers; QSL words stay teach-mode but are labelled honestly. Onboarding and landing changes are focused edits, no re-theme.
 
 **Tech Stack:** Vite 5 + React 18 + TypeScript 5, Tailwind 3, Zustand, `@mediapipe/tasks-vision` 0.10.14 (HandLandmarker), Vitest (added in Task 1) for pure-logic tests.
 
@@ -23,22 +23,22 @@
 
 ## File Structure
 
-| File | Responsibility | Tasks |
-|---|---|---|
-| `vitest.config.ts` (new) | Test runner config (jsdom env for localStorage) | 1 |
-| `package.json` | add `vitest`, `jsdom`; add `test` script | 1 |
-| `src/recognizer/seeds/alphabet.json` (new) | Bundled ground-truth vectors `{ [alphaId]: number[][] }` | 2 (fixture) → 3 (real) |
-| `src/recognizer/seeds/SOURCES.md` (new) | Dataset attribution + how seeds were built | 3 |
-| `src/recognizer/knn.ts` | Load seeds as read-only base layer; read paths span seeds+user; stricter gates | 2, 4 |
-| `src/recognizer/knn.test.ts` (new) | Unit tests for seed merge + grading | 2 |
-| `src/recognizer/calibration.ts` (new) | Pure metric: true-accept / false-accept over a labelled split | 4 |
-| `src/recognizer/calibration.test.ts` (new) | Unit test for the metric | 4 |
-| `tools/extract-seeds/index.html` + `extract.ts` (new) | One-time **browser** harness: images → MediaPipe → normalize → JSON + threshold sweep | 3, 4 |
-| `src/screens/FirstSign.tsx` | First graded sign → `alpha-alif` (real-graded) | 5 |
-| `src/components/CameraTrainer.tsx` | Hold time >1s; honest teach-mode copy | 4, 5 |
-| `src/screens/Onboarding.tsx` | Strip AI persona art + emoji → premium brand glyphs; honest badges | 6 |
-| `src/i18n.ts` | New/return relabel strings | 5, 6 |
-| `~/Desktop/Projects/sawiyya-landing/index.html` | "Together, as equals" lead; Deaf-can-use-it block | 7 |
+| File                                                  | Responsibility                                                                        | Tasks                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------- |
+| `vitest.config.ts` (new)                              | Test runner config (jsdom env for localStorage)                                       | 1                      |
+| `package.json`                                        | add `vitest`, `jsdom`; add `test` script                                              | 1                      |
+| `src/recognizer/seeds/alphabet.json` (new)            | Bundled ground-truth vectors `{ [alphaId]: number[][] }`                              | 2 (fixture) → 3 (real) |
+| `src/recognizer/seeds/SOURCES.md` (new)               | Dataset attribution + how seeds were built                                            | 3                      |
+| `src/recognizer/knn.ts`                               | Load seeds as read-only base layer; read paths span seeds+user; stricter gates        | 2, 4                   |
+| `src/recognizer/knn.test.ts` (new)                    | Unit tests for seed merge + grading                                                   | 2                      |
+| `src/recognizer/calibration.ts` (new)                 | Pure metric: true-accept / false-accept over a labelled split                         | 4                      |
+| `src/recognizer/calibration.test.ts` (new)            | Unit test for the metric                                                              | 4                      |
+| `tools/extract-seeds/index.html` + `extract.ts` (new) | One-time **browser** harness: images → MediaPipe → normalize → JSON + threshold sweep | 3, 4                   |
+| `src/screens/FirstSign.tsx`                           | First graded sign → `alpha-alif` (real-graded)                                        | 5                      |
+| `src/components/CameraTrainer.tsx`                    | Hold time >1s; honest teach-mode copy                                                 | 4, 5                   |
+| `src/screens/Onboarding.tsx`                          | Strip AI persona art + emoji → premium brand glyphs; honest badges                    | 6                      |
+| `src/i18n.ts`                                         | New/return relabel strings                                                            | 5, 6                   |
+| `~/Desktop/Projects/sawiyya-landing/index.html`       | "Together, as equals" lead; Deaf-can-use-it block                                     | 7                      |
 
 **Dependency order:** 1 → 2 → 3 → 4 → 5; 6 and 7 are independent (can run any time after 1). Task 5 depends on real seeds (3) and stricter gates (4) for Alif to grade honestly.
 
@@ -47,24 +47,29 @@
 ### Task 1: Add the test runner
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Modify: `package.json`
 - Test: `src/recognizer/smoke.test.ts` (temporary, deleted in step 6)
 
 **Interfaces:**
+
 - Produces: `npm test` runs Vitest in jsdom (so `localStorage` exists for recognizer tests).
 
 - [ ] **Step 1: Install dev deps**
 
 Run:
+
 ```bash
 cd ~/Documents/GitHub/sawiyya && npm i -D vitest@^2 jsdom@^25
 ```
+
 Expected: `vitest` and `jsdom` appear in `devDependencies`.
 
 - [ ] **Step 2: Add the config**
 
 Create `vitest.config.ts`:
+
 ```ts
 import { defineConfig } from "vitest/config";
 
@@ -79,6 +84,7 @@ export default defineConfig({
 - [ ] **Step 3: Add the test script**
 
 In `package.json` `"scripts"`, add:
+
 ```json
 "test": "vitest run"
 ```
@@ -86,6 +92,7 @@ In `package.json` `"scripts"`, add:
 - [ ] **Step 4: Write a smoke test**
 
 Create `src/recognizer/smoke.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 
@@ -117,12 +124,14 @@ git commit -m "test: add vitest runner (jsdom env)"
 Make the KNN read from a bundled read-only seed store **in addition to** the user's `localStorage` samples, so alphabet classes are "trained" from real data with no teach step. Writes still only touch the user store.
 
 **Files:**
+
 - Create: `src/recognizer/seeds/alphabet.json` (synthetic fixture — replaced with real data in Task 3)
 - Modify: `src/recognizer/knn.ts`
 - Modify: `tsconfig` only if `resolveJsonModule` is not already enabled (check first)
 - Test: `src/recognizer/knn.test.ts`
 
 **Interfaces:**
+
 - Consumes: `euclidean` from `./normalize`, `TAU` (existing export).
 - Produces (knn.ts new/changed exports):
   - `__setSeedsForTest(s: Record<string, number[][]>): void` — test-only seed injection.
@@ -132,27 +141,76 @@ Make the KNN read from a bundled read-only seed store **in addition to** the use
 - [ ] **Step 1: Create the fixture seed file**
 
 Create `src/recognizer/seeds/alphabet.json` with two classes of trivially-separable 42-dim vectors (zeros vs ones), enough that each is "trained" (≥8):
+
 ```json
 {
   "alpha-alif": [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.01],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.03],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.04],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.05],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.06],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07]
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.01
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.02
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.03
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.04
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.05
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.06
+    ],
+    [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0.07
+    ]
   ],
   "alpha-ba": [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.01],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.02],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.03],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.04],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.05],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.06],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1.07]
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.01
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.02
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.03
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.04
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.05
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.06
+    ],
+    [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1.07
+    ]
   ]
 }
 ```
@@ -165,15 +223,10 @@ Expected: present. If NOT present, add `"resolveJsonModule": true` to the `compi
 - [ ] **Step 3: Write the failing tests**
 
 Create `src/recognizer/knn.test.ts`:
+
 ```ts
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  __setSeedsForTest,
-  classifyAgainst,
-  isTrained,
-  sampleCount,
-  trainedClassIds,
-} from "./knn";
+import { __setSeedsForTest, classifyAgainst, isTrained, sampleCount, trainedClassIds } from "./knn";
 
 const v0 = (tail = 0) => [...Array(41).fill(0), tail];
 const v1 = (tail = 1) => [...Array(41).fill(1), tail];
@@ -220,10 +273,13 @@ Expected: FAIL — `__setSeedsForTest` is not exported yet.
 - [ ] **Step 5: Implement the seed layer in `knn.ts`**
 
 At the top of `src/recognizer/knn.ts`, after the `euclidean` import, add:
+
 ```ts
 import seedData from "./seeds/alphabet.json";
 ```
+
 Add a seed store + test hook near the `SampleStore` type:
+
 ```ts
 // Bundled, read-only ground-truth vectors (alphabet). Never written to localStorage.
 let seeds: SampleStore = seedData as SampleStore;
@@ -236,7 +292,9 @@ function readStores(): SampleStore[] {
   return [seeds, store()];
 }
 ```
+
 Replace `sampleCount`, `isTrained` is derived from it, and `trainedClassIds`:
+
 ```ts
 export function sampleCount(classId: string): number {
   return readStores().reduce((n, s) => n + (s[classId]?.length ?? 0), 0);
@@ -248,17 +306,22 @@ export function trainedClassIds(): string[] {
   return [...ids].filter((id) => sampleCount(id) >= 4);
 }
 ```
+
 In `classifyAgainst`, change the neighbour-collection loop to span both stores. Replace:
+
 ```ts
   for (const [classId, samples] of Object.entries(s)) {
     for (const sample of samples) {
 ```
+
 with:
+
 ```ts
   for (const layer of readStores()) {
     for (const [classId, samples] of Object.entries(layer)) {
       for (const sample of samples) {
 ```
+
 and add one extra closing brace after that inner block (the bounded-insertion body now sits one level deeper — match braces carefully). Remove the now-unused `const s = store();` at the top of `classifyAgainst` if it becomes unused (the function should rely on `readStores()`).
 
 > Note: `addSample` and `clearClass` are unchanged — they still mutate only the user `store()`, so seeds remain immutable.
@@ -284,11 +347,13 @@ git commit -m "feat(recognizer): read-only seed base layer for alphabet grading"
 A one-time **browser** harness extracts landmarks from real Arabic-alphabet photos through the same `normalizeLandmarks()`, then writes `alphabet.json`. Browser-based because `@mediapipe/tasks-vision` is browser-only — and it guarantees the seed feature space matches the live camera path exactly.
 
 **Files:**
+
 - Create: `tools/extract-seeds/index.html`, `tools/extract-seeds/extract.ts`
 - Create: `src/recognizer/seeds/SOURCES.md`
 - Overwrite: `src/recognizer/seeds/alphabet.json` (real data replaces the fixture)
 
 **Interfaces:**
+
 - Consumes: `normalizeLandmarks` from `src/recognizer/normalize.ts`; HandLandmarker (IMAGE mode).
 - Produces: `alphabet.json` of `{ "alpha-<id>": number[][] }`, ≤40 vectors/class.
 
@@ -299,10 +364,14 @@ Download **AASL** (kaggle.com/datasets/muhammadalbrham/rgb-arabic-alphabets-sign
 - [ ] **Step 2: Write the harness page**
 
 Create `tools/extract-seeds/index.html`:
+
 ```html
 <!doctype html>
 <html>
-  <head><meta charset="utf-8" /><title>Sawiyya seed extractor</title></head>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sawiyya seed extractor</title>
+  </head>
   <body>
     <h1>Seed extractor</h1>
     <p>Pick the <code>dataset/</code> folder (one subfolder per letter).</p>
@@ -315,23 +384,47 @@ Create `tools/extract-seeds/index.html`:
 ```
 
 Create `tools/extract-seeds/extract.ts`:
+
 ```ts
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { normalizeLandmarks, type LM } from "../../src/recognizer/normalize";
 
 // Folder name (lowercased) -> alpha-<id>. Adjust keys to match your dataset's folders.
 const FOLDER_TO_ID: Record<string, string> = {
-  alif: "alpha-alif", ba: "alpha-ba", ta: "alpha-ta", tha: "alpha-tha",
-  jeem: "alpha-jeem", haa: "alpha-haa", kha: "alpha-kha", dal: "alpha-dal",
-  thal: "alpha-thal", ra: "alpha-ra", zay: "alpha-zay", seen: "alpha-seen",
-  sheen: "alpha-sheen", sad: "alpha-sad", dad: "alpha-dad", tah: "alpha-tah",
-  zah: "alpha-zah", ain: "alpha-ain", ghain: "alpha-ghain", fa: "alpha-fa",
-  qaf: "alpha-qaf", kaf: "alpha-kaf", lam: "alpha-lam", meem: "alpha-meem",
-  noon: "alpha-noon", ha: "alpha-ha", waw: "alpha-waw", ya: "alpha-ya",
+  alif: "alpha-alif",
+  ba: "alpha-ba",
+  ta: "alpha-ta",
+  tha: "alpha-tha",
+  jeem: "alpha-jeem",
+  haa: "alpha-haa",
+  kha: "alpha-kha",
+  dal: "alpha-dal",
+  thal: "alpha-thal",
+  ra: "alpha-ra",
+  zay: "alpha-zay",
+  seen: "alpha-seen",
+  sheen: "alpha-sheen",
+  sad: "alpha-sad",
+  dad: "alpha-dad",
+  tah: "alpha-tah",
+  zah: "alpha-zah",
+  ain: "alpha-ain",
+  ghain: "alpha-ghain",
+  fa: "alpha-fa",
+  qaf: "alpha-qaf",
+  kaf: "alpha-kaf",
+  lam: "alpha-lam",
+  meem: "alpha-meem",
+  noon: "alpha-noon",
+  ha: "alpha-ha",
+  waw: "alpha-waw",
+  ya: "alpha-ya",
 };
 const MAX_PER_CLASS = 40;
 
-const log = (m: string) => { (document.getElementById("log") as HTMLPreElement).textContent += m + "\n"; };
+const log = (m: string) => {
+  (document.getElementById("log") as HTMLPreElement).textContent += m + "\n";
+};
 
 async function getLandmarker() {
   const fileset = await FilesetResolver.forVisionTasks(
@@ -348,7 +441,9 @@ async function getLandmarker() {
   });
 }
 
-function bitmapFrom(file: File): Promise<ImageBitmap> { return createImageBitmap(file); }
+function bitmapFrom(file: File): Promise<ImageBitmap> {
+  return createImageBitmap(file);
+}
 
 document.getElementById("run")!.addEventListener("click", async () => {
   const input = document.getElementById("dir") as HTMLInputElement;
@@ -372,7 +467,9 @@ document.getElementById("run")!.addEventListener("click", async () => {
       const hand = (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
       const vec = normalizeLandmarks(res.landmarks[0] as LM[], hand === "Left");
       if (vec.length === 42) (out[id] ??= []).push(vec.map((v) => Math.round(v * 1000) / 1000));
-    } catch { /* skip undecodable image */ }
+    } catch {
+      /* skip undecodable image */
+    }
   }
 
   for (const id of Object.keys(out).sort()) log(`${id}: ${out[id].length}`);
@@ -392,10 +489,12 @@ Expected: the log lists each `alpha-*` id with a sample count; `alphabet.json` d
 - [ ] **Step 4: Verify coverage, then install the file**
 
 Confirm in the log that **every** alphabet class present in the dataset has **≥8** samples (the `isTrained` floor). If a class is thin, pull more images for it (or supplement from the other dataset) and re-run. Then move the downloaded file:
+
 ```bash
 mv ~/Downloads/alphabet.json ~/Documents/GitHub/sawiyya/src/recognizer/seeds/alphabet.json
 cd ~/Documents/GitHub/sawiyya && node -e "const s=require('./src/recognizer/seeds/alphabet.json');const b=Object.entries(s).filter(([,v])=>v.length<8);if(b.length){console.error('THIN CLASSES:',b.map(([k,v])=>k+':'+v.length));process.exit(1)}console.log('classes:',Object.keys(s).length,'all >=8 OK')"
 ```
+
 Expected: `all >=8 OK`.
 
 - [ ] **Step 5: Re-run the recognizer tests against real seeds**
@@ -421,17 +520,20 @@ git commit -m "feat(recognizer): real ground-truth alphabet seeds from real data
 The existing gates (`DISTANCE_GATE=0.55`, `TAU=0.78`, `MARGIN_GATE=0.15`, `HOLD_FRAMES=10`) were tuned for same-person self-taught samples. Re-tune for cross-person data using a held-out split, and lengthen the hold.
 
 **Files:**
+
 - Create: `src/recognizer/calibration.ts`, `src/recognizer/calibration.test.ts`
 - Modify: `tools/extract-seeds/extract.ts` (add a sweep mode)
 - Modify: `src/recognizer/knn.ts` (set tuned `DISTANCE_GATE`, `TAU`, `MARGIN_GATE`)
 - Modify: `src/components/CameraTrainer.tsx` (`HOLD_FRAMES`)
 
 **Interfaces:**
+
 - Produces: `evaluate(opts): { trueAccept: number; falseAccept: number; n: number }` in `calibration.ts`.
 
 - [ ] **Step 1: Write the failing metric test**
 
 Create `src/recognizer/calibration.test.ts`:
+
 ```ts
 import { describe, expect, it } from "vitest";
 import { evaluate } from "./calibration";
@@ -443,7 +545,10 @@ describe("evaluate", () => {
   const train = { "alpha-alif": [z(), z(0.01), z(0.02)], "alpha-ba": [o(), o(1.01), o(1.02)] };
 
   it("accepts correct, rejects wrong with separable data", () => {
-    const correct = [{ id: "alpha-alif", vec: z(0.005) }, { id: "alpha-ba", vec: o(1.005) }];
+    const correct = [
+      { id: "alpha-alif", vec: z(0.005) },
+      { id: "alpha-ba", vec: o(1.005) },
+    ];
     const r = evaluate({ train, test: correct, distanceGate: 0.55, tau: 0.78, margin: 0.15 });
     expect(r.trueAccept).toBe(1); // both correct samples accepted as their own class
 
@@ -462,6 +567,7 @@ Expected: FAIL — `evaluate` not defined.
 - [ ] **Step 3: Implement the metric**
 
 Create `src/recognizer/calibration.ts` — a self-contained re-implementation of the grading decision (so calibration never depends on module-level seeds), reusing `euclidean`:
+
 ```ts
 import { euclidean } from "./normalize";
 
@@ -477,27 +583,46 @@ interface Opts {
 
 function decide(train: Store, vec: number[], target: string, gate: number, tau: number, margin: number, K: number) {
   const top: { c: string; d: number }[] = [];
-  for (const [c, samples] of Object.entries(train))
-    for (const s of samples) top.push({ c, d: euclidean(vec, s) });
+  for (const [c, samples] of Object.entries(train)) for (const s of samples) top.push({ c, d: euclidean(vec, s) });
   top.sort((a, b) => a.d - b.d);
   const near = top.slice(0, K);
   const meanD = near.reduce((s, n) => s + n.d, 0) / near.length;
   const w = new Map<string, number>();
   let total = 0;
-  for (const n of near) { const x = 1 / (n.d + 0.05); w.set(n.c, (w.get(n.c) ?? 0) + x); total += x; }
-  let best = "", bestW = 0, secondW = 0;
-  for (const [c, x] of w) { if (x > bestW) { secondW = bestW; bestW = x; best = c; } else if (x > secondW) secondW = x; }
+  for (const n of near) {
+    const x = 1 / (n.d + 0.05);
+    w.set(n.c, (w.get(n.c) ?? 0) + x);
+    total += x;
+  }
+  let best = "",
+    bestW = 0,
+    secondW = 0;
+  for (const [c, x] of w) {
+    if (x > bestW) {
+      secondW = bestW;
+      bestW = x;
+      best = c;
+    } else if (x > secondW) secondW = x;
+  }
   const share = (w.get(target) ?? 0) / total;
   return meanD <= gate && best === target && share >= tau && (bestW - secondW) / total >= margin;
 }
 
 export function evaluate({ train, test, distanceGate, tau, margin, k = 7 }: Opts) {
-  let accepted = 0, falseAccept = 0, positives = 0, negatives = 0;
+  let accepted = 0,
+    falseAccept = 0,
+    positives = 0,
+    negatives = 0;
   for (const t of test) {
     const isCorrect = !!train[t.id]; // a labelled-correct sample
     const matched = decide(train, t.vec, t.id, distanceGate, tau, margin, k);
-    if (isCorrect) { positives++; if (matched) accepted++; }
-    else { negatives++; if (matched) falseAccept++; }
+    if (isCorrect) {
+      positives++;
+      if (matched) accepted++;
+    } else {
+      negatives++;
+      if (matched) falseAccept++;
+    }
   }
   return {
     trueAccept: positives ? accepted / positives : 0,
@@ -537,28 +662,35 @@ git commit -m "feat(recognizer): calibrate gates on held-out data; hold >1s (no 
 ### Task 5: First graded sign → Alif, and honest teach-mode copy
 
 **Files:**
+
 - Modify: `src/screens/FirstSign.tsx:74` (sign target)
 - Modify: `src/components/CameraTrainer.tsx` (teach copy honesty via i18n)
 - Modify: `src/i18n.ts` (return-relabel `camTeach`/`camTeachSub` to honest wording, both langs)
 
 **Interfaces:**
+
 - Consumes: `signById("alpha-alif")` from `src/content/signs.ts`; real seeds (Task 3) make it grade for real.
 
 - [ ] **Step 1: Point the first sign at Alif**
 
 In `src/screens/FirstSign.tsx`, change:
+
 ```ts
 const sign = signById("iloveyou");
 ```
+
 to:
+
 ```ts
 const sign = signById("alpha-alif");
 ```
+
 Update the comment block above it to say the first graded sign is the real-graded letter Alif (not the teach-mode word). The `referenceChip` in `CameraTrainer` already renders `sign.code` for alphabet signs, so Alif shows its glyph automatically.
 
 - [ ] **Step 2: Make the teach-mode copy honest**
 
 In `src/i18n.ts`, find the `camTeach` and `camTeachSub` strings and change them to honest framing (do not imply pre-grading), both languages:
+
 - `camTeach` EN: `"Teach Sawiyya this sign"` / AR: `"علّم سويّة هذه الإشارة"`
 - `camTeachSub` EN: `"Record it once, then practise it — this sign isn't pre-loaded yet."` / AR: `"سجّلها مرة، ثم تدرّب عليها — هذه الإشارة ليست محمّلة مسبقًا بعد."`
 
@@ -582,11 +714,13 @@ git commit -m "feat(onboarding): first graded sign is real-graded Alif; honest t
 Replace AI-generated persona illustrations and emoji with a polished brand-glyph treatment, and make the "what to learn" badges honest.
 
 **Files:**
+
 - Modify: `src/screens/Onboarding.tsx`
 
 - [ ] **Step 1: Replace persona art with brand glyphs**
 
 In `src/screens/Onboarding.tsx`, change the `PERSONAS` array so each entry carries a Material Symbol `icon` instead of an `img`:
+
 ```ts
 const PERSONAS: {
   value: Persona;
@@ -601,15 +735,19 @@ const PERSONAS: {
   { value: "deaf", icon: "sign_language", key: "obDeaf", ar: "أنا أصم — أهيّئ عائلتي" },
 ];
 ```
+
 Then in the `why` step, replace each `<img ... src={p.img} />` with a glyph in the existing rounded tile, e.g.:
+
 ```tsx
 <Icon name={p.icon} fill className="!text-4xl text-teal" />
 ```
+
 keeping the existing tile wrappers (the `h-24 w-24 ... rounded-2xl bg-sand/60` for standard cards, the gold tile for the deaf card) for a clean, consistent, premium look. Remove the `subKey` field and its usages if they were only feeding the old layout (leave the localized title `t(p.key, lang)` and the Arabic `p.ar`).
 
 - [ ] **Step 2: Replace the 👋 emoji in the "learn" step**
 
 In the `learn` step, the "Everyday signs" card uses a `👋` span. Replace it with a brand glyph tile:
+
 ```tsx
 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gold/15">
   <Icon name="waving_hand" fill className="!text-2xl text-gold" />
@@ -619,6 +757,7 @@ In the `learn` step, the "Everyday signs" card uses a `👋` span. Replace it wi
 - [ ] **Step 3: Make the badges honest**
 
 In the `learn` step:
+
 - Keep the **Arabic Alphabet** card's "Ready" badge and `check_circle` (now true — real seeds).
 - For the **Everyday signs** card, replace the trailing `check_circle` icon with a small neutral pill reading `pick(lang, "Teach & practise", "علّم وتدرّب")` so it doesn't imply pre-grading.
 
@@ -640,11 +779,13 @@ git commit -m "feat(onboarding): premium brand-glyph personas, no AI art/emoji, 
 ### Task 7: Landing page — lead with "together, as equals" + Deaf-can-use-it
 
 **Files:**
+
 - Modify: `~/Desktop/Projects/sawiyya-landing/index.html`
 
 - [ ] **Step 1: Title + headline**
 
 In `~/Desktop/Projects/sawiyya-landing/index.html`:
+
 - Line 6 `<title>`: change `Learn to sign. Close the gap.` → `Learn to sign, together as equals.`
 - Hero `<h1>` (line 351): change inner HTML from `Learn to sign.<br><span class="swap">Close the gap.</span>` to `Learn to sign —<br><span class="swap">together, as equals.</span>`, and its `data-ar` from `تعلّم لغة الإشارة.<br><span class='swap'>لنردم الفجوة.</span>` to `تعلّم لغة الإشارة —<br><span class='swap'>معاً، كأنداد.</span>`
 
@@ -655,6 +796,7 @@ The hero tagline chip (line 352) currently reads `سويّة • Together, as eq
 - [ ] **Step 3: Add the "Deaf people can use it too" block**
 
 Near the two-way-street section (around lines 389–402), add a short bilingual block, matching the surrounding markup/classes, with copy to this effect (refine wording in place before committing):
+
 - EN: "And it works both ways. Deaf users can navigate Sawiyya themselves and set it up for their family — choosing what the household learns. It puts the tools in Deaf hands too."
 - AR (`data-ar`): "ويعمل في الاتجاهين. يمكن للأشخاص الصُمّ استخدام سويّة بأنفسهم وإعداده لعائلاتهم — واختيار ما تتعلّمه الأسرة. فهو يضع الأدوات بين أيدي الصُمّ أيضًا."
 
@@ -675,6 +817,7 @@ git commit -m "copy: lead with 'together, as equals'; add Deaf-can-use-it sectio
 ## Self-Review
 
 **Spec coverage:**
+
 - Part A (landing: tagline lead, de-dupe, Deaf-can-use-it) → **Task 7** ✓
 - Part B.1 (strip AI art/emoji, premium treatment) → **Task 6** ✓ (cleaner-design bar folded in)
 - Part B.2 (first graded sign = Alif) → **Task 5** ✓

@@ -38,6 +38,7 @@ feat/phase-4-say-what-things-are && git push origin main`, watch the run with `g
 verify the LIVE bundle carries "Your road, one lesson at a time" and no longer carries "Your oasis".
 
 **Open questions:**
+
 - **The 19 A1 word signs are `cameraGradable: false`** — watchable, never practisable. Phase 4
   merged them into the dictionary, which tidied the naming and did NOT solve the content. Six
   sessions old. The four-phase plan is finished, so this is now the biggest thing in the way.
@@ -55,6 +56,7 @@ verify the LIVE bundle carries "Your road, one lesson at a time" and no longer c
 ## Reasoning trail
 
 **Decisions made:**
+
 - **Progress lost its tabs entirely rather than keeping three dead ends.** The plan said "cut or fix
   the three tabs that have no action". Fixing them meant inventing actions; one screen that reads top
   to bottom is what a readout is. It also kills the header that renamed itself four times.
@@ -78,6 +80,7 @@ verify the LIVE bundle carries "Your road, one lesson at a time" and no longer c
   card of the stack Phase 1 deleted; the three numbers ARE the summary of Progress, so they open it.
 
 **Tried and rejected:**
+
 - **Deleting all 43 unused i18n keys.** Two were orphaned by this phase and are gone; the other 41
   predate it. Quietly widening a naming phase into a copy purge is not the ask.
 - **A blanket "digits under ten" test.** "one" appears constantly as a pronoun ("One hand", "one at a
@@ -117,7 +120,7 @@ verify the LIVE bundle carries "Your road, one lesson at a time" and no longer c
   `node_modules`, `npx vite build`, `python3 -m http.server`. Every one fails there; every Phase 1, 2
   and 3 step still passes. Worktree removed.
 - Serving a build: `cd dist && python3 -m http.server 4173`, then `SMOKE_URL=http://localhost:4173/
-  node scripts/smoke.mjs`. Start the server as a BACKGROUND task — a `( … &)` subshell gets killed
+node scripts/smoke.mjs`. Start the server as a BACKGROUND task — a `( … &)` subshell gets killed
   with the tool call and the smoke run then hangs against a dead port.
 
 ## Git state snapshot
@@ -125,11 +128,13 @@ verify the LIVE bundle carries "Your road, one lesson at a time" and no longer c
 **Branch:** `feat/phase-4-say-what-things-are`
 
 **Status:**
+
 ```
 (clean)
 ```
 
 **Recent commits:**
+
 ```
 9f72ebf feat(naming): Phase 4 — say what things are
 7196fcd docs: the Phase 3 session handoff
@@ -144,6 +149,7 @@ cc99ce3 test(camera): make the 0% grading failure impossible to ship again
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes)
 ```

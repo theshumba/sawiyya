@@ -33,10 +33,7 @@ type Filter = "all" | "learned" | "flagged" | "alphabet" | "unit2";
 
 type Status = "mastered" | "flagged" | "review" | "letter" | "unit" | "new";
 
-const STATUS_META: Record<
-  Status,
-  { en: string; ar: string; icon: string | null; tone: string }
-> = {
+const STATUS_META: Record<Status, { en: string; ar: string; icon: string | null; tone: string }> = {
   mastered: { en: "Mastered", ar: "متقنة", icon: "check_circle", tone: "text-gold-deep" },
   flagged: { en: "Family list", ar: "قائمة العائلة", icon: "push_pin", tone: "text-coral-deep" },
   review: { en: "Review soon", ar: "للمراجعة", icon: "hourglass_top", tone: "text-gold-deep" },
@@ -96,9 +93,7 @@ function TypeBadge({ gradable, lang }: { gradable: boolean; lang: Lang }) {
       // H15 tuning: #C89A3D on #FBEFE6 measured 2.28:1, so the honesty badge was
       // unreadable. #7F621F holds the same gold hue at ~5.0:1.
       style={
-        gradable
-          ? { backgroundColor: "#E6F0EE", color: "#0F6E6A" }
-          : { backgroundColor: "#FBEFE6", color: "#7F621F" }
+        gradable ? { backgroundColor: "#E6F0EE", color: "#0F6E6A" } : { backgroundColor: "#FBEFE6", color: "#7F621F" }
       }
     >
       {gradable ? t("signBadgeGraded", lang) : t("signBadgeMotion", lang)}
@@ -187,7 +182,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, query, app.progress, app.flags, app.srs, profile?.id]);
 
-  const selected = selectedId ? ALL_SIGNS.find((s) => s.id === selectedId) ?? null : null;
+  const selected = selectedId ? (ALL_SIGNS.find((s) => s.id === selectedId) ?? null) : null;
   // H16: focus the mobile bottom-sheet on open, trap Tab, Escape/backdrop to
   // dismiss, restore focus to the card that opened it. Desktop's docked panel
   // is inline content, not a floating dialog, so it's untouched.
@@ -344,9 +339,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
                 <h2 className="font-display text-2xl font-extrabold leading-tight text-ink">
                   {t("signsAlphaTitle", lang)}
                 </h2>
-                <p className="mt-1 font-sans text-[13px] leading-snug text-muted">
-                  {t("signsAlphaBody", lang)}
-                </p>
+                <p className="mt-1 font-sans text-[13px] leading-snug text-muted">{t("signsAlphaBody", lang)}</p>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-line">
                   <div
                     className="h-full rounded-full"
@@ -356,9 +349,7 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
                 <p className="mt-[7px] font-sans text-[11px] font-semibold text-muted">
                   {toLocaleDigits(alphaLearned, lang)} {t("signsAlphaProgress", lang)}
                 </p>
-                <p className="mt-3 font-sans text-[11px] leading-snug text-muted">
-                  {t("signsAlphaLockedNote", lang)}
-                </p>
+                <p className="mt-3 font-sans text-[11px] leading-snug text-muted">{t("signsAlphaLockedNote", lang)}</p>
                 <ul className="mt-4 grid grid-cols-4 gap-[10px] sm:grid-cols-6 lg:grid-cols-7">
                   {signs.map((sign) => {
                     const mastered = (progress[sign.id]?.masteryLevel ?? 0) > 0;
@@ -467,21 +458,10 @@ export function AllSigns({ initialSignId }: { initialSignId?: string }) {
 }
 
 // ── Search input (resting sand + hairline · focus 2px teal border, §B2/§D) ──────
-function SearchInput({
-  lang,
-  value,
-  onChange,
-}: {
-  lang: Lang;
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function SearchInput({ lang, value, onChange }: { lang: Lang; value: string; onChange: (v: string) => void }) {
   return (
     <div className="relative">
-      <Icon
-        name="search"
-        className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal"
-      />
+      <Icon name="search" className="pointer-events-none absolute inset-y-0 start-4 my-auto h-fit text-teal" />
       <input
         type="search"
         value={value}
@@ -675,9 +655,7 @@ function DetailPanel({
 
   return (
     <div
-      className={
-        isPanel ? "flex flex-col rounded-3xl border border-line bg-paper p-6 shadow-lift" : "flex flex-col"
-      }
+      className={isPanel ? "flex flex-col rounded-3xl border border-line bg-paper p-6 shadow-lift" : "flex flex-col"}
     >
       {/* header row: favourite + close. Shown at EVERY width, because the panel used to
           hand phones and desktops different capabilities from one component. */}
@@ -691,9 +669,7 @@ function DetailPanel({
           aria-label={flagLabel}
           title={flagLabel}
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral ${
-            flagged
-              ? "border-coral/30 bg-coral/10 text-coral-deep"
-              : "border-line text-coral-deep hover:bg-coral/5"
+            flagged ? "border-coral/30 bg-coral/10 text-coral-deep" : "border-line text-coral-deep hover:bg-coral/5"
           }`}
         >
           <Icon name="favorite" fill={flagged} />
@@ -745,7 +721,9 @@ function DetailPanel({
             </span>
           ))}
           {/* mobile carries the live status chip; desktop panel keeps it tag-only */}
-          <span className={`rounded-full bg-ink/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest md:hidden ${STATUS_META[status].tone}`}>
+          <span
+            className={`rounded-full bg-ink/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest md:hidden ${STATUS_META[status].tone}`}
+          >
             {statusLabel(status, sign, lang)}
           </span>
         </div>
@@ -809,7 +787,11 @@ function DetailPanel({
             )}
             <p className="flex items-center justify-center gap-2 text-center font-sans text-xs font-medium text-ink/70">
               <Icon name="info" className="text-base text-teal" />
-              {pick(lang, "This sign moves, so the camera can't grade it yet.", "هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.")}
+              {pick(
+                lang,
+                "This sign moves, so the camera can't grade it yet.",
+                "هذه إشارة متحركة، لا تستطيع الكاميرا تقييمها بعد.",
+              )}
             </p>
           </>
         )}

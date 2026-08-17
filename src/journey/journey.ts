@@ -13,13 +13,7 @@
 // "STEPS.find(...)"); STEPS is the one that does not collide.
 import type { Screen } from "../store/ui";
 
-export type StepId =
-  | "first-sign"
-  | "first-lesson"
-  | "install"
-  | "first-review"
-  | "first-flag"
-  | "first-unit";
+export type StepId = "first-sign" | "first-lesson" | "install" | "first-review" | "first-flag" | "first-unit";
 
 export interface JourneyStep {
   id: StepId;
@@ -147,17 +141,11 @@ export function stepById(id: string): JourneyStep | undefined {
 }
 
 /** The one canonical next action: the first step neither done nor put aside. */
-export function nextStep(
-  done: ReadonlySet<string>,
-  dismissed: ReadonlySet<string> = new Set(),
-): JourneyStep | null {
+export function nextStep(done: ReadonlySet<string>, dismissed: ReadonlySet<string> = new Set()): JourneyStep | null {
   return STEPS.find((s) => !done.has(s.id) && !dismissed.has(s.id)) ?? null;
 }
 
-export function stageOf(
-  done: ReadonlySet<string>,
-  dismissed: ReadonlySet<string> = new Set(),
-): Stage {
+export function stageOf(done: ReadonlySet<string>, dismissed: ReadonlySet<string> = new Set()): Stage {
   if (nextStep(done, dismissed) === null) return "settled";
   if (done.size === 0) return "new";
   return done.has("first-lesson") ? "learning" : "started";

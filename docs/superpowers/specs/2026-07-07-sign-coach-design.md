@@ -1,6 +1,6 @@
 # Sign Coach — per-finger corrective feedback (2026-07-07)
 
-Approved design (Melusi, 2026-07-07): make camera grading feel like it *sees* your
+Approved design (Melusi, 2026-07-07): make camera grading feel like it _sees_ your
 hand. While practising one of the 28 seeded letters, if the hand is visible but not
 matching, the app coaches instead of silently metering: the reference handshape
 highlights the one finger that's most wrong (gold) and one short bilingual line says
@@ -17,7 +17,7 @@ coaching vanishes and the hold-ring takes over. One finger, one hint, never a li
    meter already tells the story. Silence over wrong advice.
 
 **Dropped from the draft design:** "rotate your hand". `normalize.ts` rotation-
-canonicalises every frame, so a rotated-but-correct hand *matches anyway* — rotation
+canonicalises every frame, so a rotated-but-correct hand _matches anyway_ — rotation
 can never be the reason a learner is stuck, and hinting it would be dishonest.
 
 ## How it works
@@ -38,7 +38,7 @@ can never be the reason a learner is stuck, and hinting it would be dishonest.
   `REFERENCE_AT = 3`.
 - **`CameraTrainer`**: calls `coach()` on frames it already normalises (no new
   tracking cost), only when `knowsModel` && not matching. A hint must be stable for
-  ~700 ms before it shows (no flicker); it clears *immediately* on match / hand lost.
+  ~700 ms before it shows (no flicker); it clears _immediately_ on match / hand lost.
   State updates only when the advice actually changes (Q1 pattern).
 - **`HandSkeleton`**: optional `coachFinger` prop tints that finger's core gold
   (#E6B24C) and draws it last (on top). Undefined elsewhere → zero visual change.
@@ -59,8 +59,9 @@ can never be the reason a learner is stuck, and hinting it would be dishonest.
 `coach.test.ts`, data-driven from the real shapes: every letter's own mean shape
 (passed through the real `normalizeLandmarks` pipeline) coaches **null** (the big
 honesty test); programmatically curling a clearly-extended finger yields that finger
-+ "extend" (and vice versa); curling everything yields `reference`; small jitter
-stays silent. Existing suite + tsc + build stay green.
+
+- "extend" (and vice versa); curling everything yields `reference`; small jitter
+  stays silent. Existing suite + tsc + build stay green.
 
 ## Follow-up (separate step, owner-gated)
 

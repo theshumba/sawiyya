@@ -86,20 +86,15 @@ export function Confetti({ burst }: { burst: number }) {
     return () => cancelAnimationFrame(raf.current);
   }, [burst]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-50 h-full w-full"
-      aria-hidden="true"
-    />
-  );
+  return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-50 h-full w-full" aria-hidden="true" />;
 }
 
 /** Light celebration chime + haptic (should-have, PRD §5). */
 export function celebrate() {
   try {
     navigator.vibrate?.([40, 60, 80]);
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const Ctx =
+      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
     const notes = [523.25, 659.25, 783.99]; // C5 E5 G5 — a warm major arpeggio

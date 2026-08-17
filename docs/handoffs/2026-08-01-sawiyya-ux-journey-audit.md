@@ -32,6 +32,7 @@ Headspace and couldn't name why, then asked for a full audit with research agent
 plan. No code touched.
 
 **Candidate next directions:**
+
 - **Phase 1, "One road"** (~1 day, ~80% deletion): strip Home to the trail only, cut camera doors from
   17 to 3, make the padlocks actually enforce. Cheapest, least risky, most immediately felt. This is
   what was offered and what he has not yet said yes to.
@@ -40,6 +41,7 @@ plan. No code touched.
 - **Mascot replacement**, which he raised unprompted and deferred.
 
 **Open threads:**
+
 - **Is Sawiyya a real product or the Mada demo?** Asked twice, not answered. The Mada deadline was
   June 20 2026 and it is now August, so what happened there is unknown. The plan currently assumes
   real product and says so at the top, for him to veto.
@@ -59,6 +61,7 @@ plan. No code touched.
 ## Reasoning trail
 
 **What we learned:**
+
 - **The root cause is that the app has no model of user maturity.** One set-once flag (`onboarded`),
   read in exactly one place, never consulted again. Zero matches repo-wide for
   `hasSeen|firstTime|coachMark|tooltip|walkthrough|firstRun`. Day 1 and day 30 are the identical app.
@@ -75,7 +78,7 @@ plan. No code touched.
   localStorage / sessionStorage / indexedDB. So staging is ~120 lines in the existing Zustand store,
   not a dependency decision. XState rejected on 12.7 kB vs Zustand's 1.3 kB.
 - **Ask questions, then give everyone the same thing.** Headspace / Irrational Labs / Purchasely,
-  April 2026: a short quiz followed by the *identical* course for everyone lifted course starts 31.25%
+  April 2026: a short quiz followed by the _identical_ course for everyone lifted course starts 31.25%
   → 62.97%, and beat the same course with no questions by 7.6 points. Asking is the mechanism, not
   matching. This is why Phase 2 has no recommendation engine.
 - **Front-loaded tutorials test worse than nothing.** NN/g, 70 users, 4 apps: 91% success with
@@ -86,6 +89,7 @@ plan. No code touched.
   requirement and belongs in the milestone ladder worded as "keep your progress".
 
 **Tried and rejected:**
+
 - **Diagnosing this as a home-screen problem only.** First answer was "too many front doors, cut Block
   D". He pushed back that it was more than that, and he was right: the missing thing is sequence, not
   layout. A next session should not re-land on the small version of this diagnosis.
@@ -121,12 +125,14 @@ Read-only references; nothing here was edited.
 **Branch:** `main`
 
 **Status:**
+
 ```
 ?? docs/WHY-IT-FEELS-WRONG.md
 ?? docs/ux-audit-2026-08-01/
 ```
 
 **Recent commits:**
+
 ```
 cc99ce3 test(camera): make the 0% grading failure impossible to ship again
 2e02496 fix(camera): the mirror trigger was inverted — every letter graded 0%, always
@@ -141,6 +147,7 @@ cd9b180 fix(words): desktop sheet hung half off-screen — flex-centred dialog w
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes — the only working-tree entries are the two untracked doc paths above)
 ```

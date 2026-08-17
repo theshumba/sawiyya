@@ -86,9 +86,7 @@ describe("Phase 4 · one name for the dictionary", () => {
   it("is 'Dictionary', and the old four names are gone from the copy", () => {
     expect(t("navDictionary", "en")).toBe("Dictionary");
     const dead = ["Sign Dictionary", "Signs dictionary", "Browse the signs"];
-    const offenders = entries
-      .filter(([, v]) => dead.some((name) => v.en.includes(name)))
-      .map(([key]) => key);
+    const offenders = entries.filter(([, v]) => dead.some((name) => v.en.includes(name))).map(([key]) => key);
     expect(offenders).toEqual([]);
   });
 

@@ -52,22 +52,21 @@ export function HandSkeleton({
 
   // Coached finger renders last (on top) in both passes so its gold core and
   // edge aren't buried under neighbouring fingers.
-  const drawOrder =
-    coachFinger === null
-      ? DRAW_ORDER
-      : [...DRAW_ORDER.filter((fi) => fi !== coachFinger), coachFinger];
+  const drawOrder = coachFinger === null ? DRAW_ORDER : [...DRAW_ORDER.filter((fi) => fi !== coachFinger), coachFinger];
 
   // rotate -90° (fingers up) then fit into a padded 100×100 viewBox.
   const pts = raw.map(([x, y]) => [y, -x] as [number, number]);
   const xs = pts.map((p) => p[0]);
   const ys = pts.map((p) => p[1]);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const minX = Math.min(...xs),
+    maxX = Math.max(...xs);
+  const minY = Math.min(...ys),
+    maxY = Math.max(...ys);
   const span = Math.max(maxX - minX, maxY - minY) || 1;
   const pad = 16;
   const scale = (100 - pad * 2) / span;
-  const offX = pad + ((100 - pad * 2) - (maxX - minX) * scale) / 2;
-  const offY = pad + ((100 - pad * 2) - (maxY - minY) * scale) / 2;
+  const offX = pad + (100 - pad * 2 - (maxX - minX) * scale) / 2;
+  const offY = pad + (100 - pad * 2 - (maxY - minY) * scale) / 2;
   const P = pts.map(([x, y]) => [offX + (x - minX) * scale, offY + (y - minY) * scale]);
   const path = (idx: number[]) => idx.map((i) => `${P[i][0].toFixed(1)},${P[i][1].toFixed(1)}`).join(" ");
 

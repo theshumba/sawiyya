@@ -16,8 +16,8 @@ Supporting reports in this folder:
 **Sawiyya is a collection of features with no journey.** Every feature works. Nothing tells you when
 to use it, why, or what comes next, so the app arrives all at once, on day one, permanently.
 
-The 130-defect coherence pass fixed how the screens *behave*. This is the layer above: whether the
-app ever *teaches itself*. It does not.
+The 130-defect coherence pass fixed how the screens _behave_. This is the layer above: whether the
+app ever _teaches itself_. It does not.
 
 ---
 
@@ -131,7 +131,7 @@ grey shapes you scroll past, and the unlock trigger is simply arriving there. Th
 disclosure with almost no conditional logic.
 
 **Do not build a front-loaded tour.** NN/g tested 70 users across 4 iPhone apps: 91% task success with
-tutorials versus 94% without, no speed gain, and the tutorial group rated the tasks as *harder*. The
+tutorials versus 94% without, no speed gain, and the tutorial group rated the tasks as _harder_. The
 teaching budget belongs in empty states, which both Polaris and Carbon treat as the primary teaching
 surface, and which cost the user nothing because they were already looking at that screen.
 
@@ -141,7 +141,7 @@ frequent hints train people to dismiss on sight regardless of quality.
 
 **Ask three questions, then give everyone the same thing.** The strongest and cheapest finding in the
 whole audit. Headspace, with Irrational Labs and Purchasely (April 2026), found that asking a short
-quiz and then recommending the *identical* Basics course to everyone lifted course starts from 31.25%
+quiz and then recommending the _identical_ Basics course to everyone lifted course starts from 31.25%
 to 62.97%, and beat handing over the same course with no questions by 7.6 points. The condition that
 actually did personalised matching did not win. Asking is the mechanism, not matching.
 
@@ -173,6 +173,7 @@ before a paywall Sawiyya does not have.
 Four phases. Each is shippable alone and each makes the app better on its own.
 
 ### Phase 1 · One road
+
 Cut the duplicate doors. Home becomes the path and nothing else, with the family flag card promoted
 above it and shown only when someone else raised a request. Today's goal moves into the top bar.
 Camera entrances go from 17 to 3: the current node, the Practise tab, and a sign's own detail. Locked
@@ -180,6 +181,7 @@ lessons stay visible and grey, and the lock becomes real, enforced in `LessonPla
 `buildDrillQueue`, not just a `disabled` attribute. Roughly 240 lines deleted from `Home.tsx`.
 
 ### Phase 2 · One first run
+
 Delete the branching onboarding entirely. Everyone gets the same short sequence: why you're learning,
 what you already know, which days you'll practise, a recap screen, then everyone starts at lesson one.
 The camera explainer moves into the flow that everyone sees, and a plain sentence precedes the browser
@@ -187,17 +189,20 @@ permission prompt. Either drop the "Everyday signs" track or give word signs a n
 complete, because it currently cannot reach the aha moment.
 
 ### Phase 3 · Stages
+
 About 120 lines in the store: `milestones`, `seen`, `dismissed`, `firstOpenAt`, plus two ordered
 arrays and two selectors. Stage derived, never stored. One canonical next action. One hint per
 session, never at launch, delivered in empty states rather than a tour. Milestones include installing
 to the home screen, worded as keeping your progress.
 
 ### Phase 4 · Say what things are
+
 Home gets a title. Progress stops being "Your oasis" and gets a door that is not hidden behind an
 avatar. The Signs/Words collision is resolved. Every screen states its purpose in its own first line.
 Apply the tone rules throughout.
 
 ### Still owed by the owner
+
 - **The mascot.** Fanan the fennec fox is rejected. No replacement chosen. He is drawn geometrically
   in `src/components/Fanan.tsx`, so replacing him means new artwork plus a new component, and every
   pose in use has to survive it.

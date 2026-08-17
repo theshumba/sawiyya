@@ -11,10 +11,12 @@ No, it does not hang together, and the reason is structural rather than cosmetic
 ## Fix batches
 
 ### Batch 1 · Dictionary is a dead end (highest impact)
+
 **Files:** `src/screens/AllSigns.tsx`, `src/content/signs.ts`
 **Closes:** `allsigns-watch-is-a-noop`, `ds-dictionary-watch-is-inert`, `as-watch-practise-noop`, `allsigns-watch-buttons-do-nothing`, `dict-watch-button-does-nothing` (all one defect), `allsigns-sheet-overflows-viewport`, `detail-panel-features-split-by-breakpoint`, `dict-add-to-review-desktop-only`, `arabic-gloss-printed-twice`, `typebadge-gold-contrast-fail`, `ds-allsigns-motion-badge-contrast`, `status-meta-caption-contrast`, `dictionary-labels-words-unit-1`, `ds-unit-numbering-contradiction` (AllSigns half), `alphabet-counted-four-different-ways` and `alphabet-count-31-vs-28` (AllSigns half), `ds-white-vs-paper-split`, `ds-off-palette-grey-text` (AllSigns placeholder)
 
 Order:
+
 1. Add `max-h-[88dvh] overflow-y-auto overscroll-contain` to the mobile sheet at `:379` (Words.tsx:115 is the working pattern). Nothing below matters until the panel is reachable.
 2. Replace the medallion block `:620-658` with `<SignDemo sign={sign} lang={lang} />`; delete `watched`/`handleWatch` and both duplicate play controls. Gate the panel's own hint block `:690-711` behind `!demoShowsHint(sign)` and drop the duplicate A1 provenance note, exactly as Words.tsx:135 does.
 3. Replace the inert `signWatchPractise` CTA for non-gradable signs with the Words self-mark: `recordDrillResult(sign.id, "hard", { selfMark: true })`, deriving the "marked" confirmation from the store (`progress[id].lastSeen === today`), not local state, since the sheet reopens freely.
@@ -28,10 +30,12 @@ Must run before Batch 8 (Progress consumes the `SEEDED_ALPHABET` export).
 ---
 
 ### Batch 2 · Navigation spine and the Practise tab
+
 **Files:** `src/store/ui.ts`, `src/App.tsx`, `src/screens/PractiseChooser.tsx`, `src/screens/CameraPractice.tsx`, `src/screens/Fingerspell.tsx`, `src/screens/Words.tsx`
 **Closes:** `nav-no-url-no-history`, `no-browser-history-integration`, `hardcoded-back-destinations`, `nav-back-targets-contradict`, `practise-back-buttons-leave-tab`, `back-target-inconsistency`, `cam-practice-stops-camera-every-letter`, `cp-camera-dies-after-every-match`, `practise-hub-two-identical-tiles`, `ds-practise-gold-tile-unreadable`, `fsp-no-exit-from-practise`, `fsp-empty-state-lies`, `ds-fingerspell-dead-hover`, `ds-hit-target-drift` (34px back buttons), `words-selfmark-repeatable`, `words-hands-badge-icon`, `words-practised-tick-unannounced`, `cam-edge-letters-teach-mode` (strip half), `ungradable-signs-fall-into-teach-mode` (strip half)
 
 Order:
+
 1. Hash routing in `ui.ts`: serialise `Screen` to `#/…`, `pushState` in `go`, module-level `popstate` listener, initialise from `location.hash`. Add a `backOrParent(parent)` helper, because a cold load or PWA `start_url` has no in-app entry to pop.
 2. Point all three in-content back buttons at `backOrParent({name:"practiseChooser"})` and unify them to the 40px `ScreenShell` size. Onboarding keeps its own step machine and is handled in Batch 9.
 3. `CameraPractice`: track "camera has actually run" (flip only on `result === "match"`, not on selfMark/skip, or a first-time permission prompt fires unasked) and pass it as `autoStart`. Filter the letter strip to `cameraGradable`, rendering the three edge forms as non-selectable reference chips so they do not vanish from the app.
@@ -44,10 +48,12 @@ Blocks nothing, but Batch 4 and Batch 6 both become simpler once `backOrParent` 
 ---
 
 ### Batch 3 · Camera tells the truth
+
 **Files:** `src/components/CameraTrainer.tsx`, `src/recognizer/classifier.ts`, `src/recognizer/useHandTracker.ts`, `src/recognizer/knn.ts`, `src/recognizer/seedStore.ts`, `src/recognizer/classifier.test.ts`
 **Closes:** `cam-ood-meter-lies`, `cam-mixed-confidence-scales`, `cam-unsure-never-clears`, `cam-seed-load-failure-silent`, `cam-stream-leak-on-start-throw`, `cam-dead-track-not-detected`, `cam-error-copy-conflates-model-failure`, `cam-edge-letters-teach-mode` (trainer guard), `ungradable-signs-fall-into-teach-mode` (trainer guard), `cam-dead-play-button`, `cameratrainer-fake-play-button`, `cam-reached-label-always-on`, `cam-reteach-destructive-noop`, `build-string-in-privacy-chip`, `cam-own-recording-misattribution`
 
 Order:
+
 1. `gradeWithModel`: `confidence: inDistribution ? targetP : 0`, and add `inDistribution: boolean` to `ModelGrade` (CameraTrainer cannot test the gate today, `OOD_GATE` is unexported). Update `classifier.test.ts:41-56` to assert the zeroed value.
 2. Force the coach's `{kind:"reference"}` advice when `targetP >= MODEL_TAU && !inDistribution`, so the learner is told why the ring will not start.
 3. Only then normalise the mixed MLP/KNN meter. Doing it before step 1 makes the lying 100% worse.
@@ -61,10 +67,12 @@ Order:
 ---
 
 ### Batch 4 · Lesson loop stops lying about completion
+
 **Files:** `src/screens/LessonPlayer.tsx`, `src/lesson/engine.ts`, `src/screens/FirstSign.tsx`
 **Closes:** `ds-lesson-complete-no-path-change`, `ds-duplicate-recall-in-word-lessons`, `ds-accuracy-100-when-everything-skipped`, `ds-lesson-check-button-invisible`, `lesson-disabled-check-invisible`, `lesson-hardcoded-arrows`, `recall-drill-identical-glyphs`, `ds-word-lesson-camera-lands-on-alif` (results-card half), `ds-off-palette-grey-text` (LessonPlayer sites), `softfail-double-counts-camera-metrics` (call sites)
 
 Order:
+
 1. End-card only: when the queue drains and `lesson.signIds.some(id => mastery < 2)`, suppress `celebrate()`, `recordLessonComplete()` and `lsLessonDone`, and render a "part 1, N letters still to practise" continuation card. Restrict the learned-chip list at `:119-121` to the signs actually drilled this pass. Do NOT touch `MAX_DRILLS` or the trim order: two-pass truncation is pinned at `engine.ts:92-96` and asserted by `curriculum.test.ts:105-129`.
 2. Hide the accuracy tile when `scored.current === 0` instead of printing 100%.
 3. `engine.ts`: exclude already-queued ids from the productive recall top-up at `:70-73`.
@@ -78,10 +86,12 @@ Runs after Batch 6 for step 7 only; steps 1 to 6 are independent.
 ---
 
 ### Batch 5 · Home path and milestones
+
 **Files:** `src/screens/Home.tsx`, `src/lesson/milestones.ts`
 **Closes:** `home-done-lesson-opens-alif`, `ds-word-lesson-camera-lands-on-alif` (Home half), `home-treasure-node-always-locked`, `path-sheet-meta-contradicts-node`, `ds-terminal-milestone-unreachable`, `home-milestone-card-generic-camera`, `home-unit-banner-covers-both-units`, `home-unit-banner-mismatches-trail`, `ds-path-restarts-after-completion`, `home-path-resets-to-current-when-complete`, `home-node-aria-label-lies`, `ds-home-start-cta-contrast`, plus the one-line Home half of `fam-solo-flag-noop`
 
 Order:
+
 1. Compute `cameraTarget` once above `onAction` and reuse it; when it is undefined for a `done` node, route to `{name:"lesson", lessonId}` instead of dropping the learner on Alif.
 2. Milestone sheet: render `ms.label` and `ms.progress` instead of the fixed `pathChestMeta`, and give it a live route (lesson or Words for the mastery rungs, `{name:"family"}` for the family rungs). Never a camera CTA for the word-unit rung. Handle `nextMilestone() === null` with a completion card.
 3. Drop `onClick` from the milestone card so Home stops having two copies of the same milestone, one tappable and one dead. Leave `GoalCard`'s onClick, it is deliberate.
@@ -94,10 +104,12 @@ Order:
 ---
 
 ### Batch 6 · Family, flags, and the store
+
 **Files:** `src/store/app.ts`, `src/types.ts`, `src/screens/FlagPicker.tsx`, `src/screens/Family.tsx`, `src/components/AppNav.tsx`
 **Closes:** `fam-solo-flag-noop`, `flagpicker-noop-for-solo-household`, `fp-alphabet-unflaggable`, `fp-camera-promise`, `flagpicker-camera-icon-never-opens-camera`, `fp-self-requestor`, `fp-famflagged-copy`, `fp-most-needed-noop`, `fp-hooks-after-return`, `family-mastery-dots-no-name`, `no-way-to-remove-a-profile`, `profile-badge-points-at-wrong-screen`, `appnav-menu-no-arrow-keys`, `softfail-double-counts-camera-metrics` (store half), `pr-streak-celebration-unreachable` and `pr-achievement-revoked-on-lapse` (store fields), `unlabelled-name-inputs` (Family half)
 
 Order:
+
 1. `toggleFlag`: seed the raiser's own SRS card when `s.profiles.length === 1`. Gate on the solo case only, the broader "not deaf" variant contradicts H4 and `family.test.ts:47-57`.
 2. Add `bestStreak` and `celebratedStreak` to `Profile`, backfilled in `normalizePersisted`; add a `softFail?: boolean` option to `recordDrillResult` that skips the `drillsCompleted` increment; add `removeProfile` (drop progress, srs, own flags, supporter entries, reassign `activeProfileId`).
 3. `FlagPicker`: move the `!profile` guard below the hooks; add a `letters` group backed by `ALPHABET.filter(s => s.cameraGradable)` and widen `groupOf`; change the search branch to `ALL_SIGNS` matching `code` so typing "ب" works.
@@ -111,10 +123,12 @@ Must run before Batch 5 step 8 and Batch 4 step 7 and Batch 8 steps 3 to 4.
 ---
 
 ### Batch 7 · Copy that claims things the app does not do
+
 **Files:** `src/i18n.ts`, `src/screens/Settings.tsx`
 **Closes:** `home-gold-vs-xp-same-number`, `ds-done-node-claims-mastered`, `dominant-hand-control-does-nothing`, `ds-dominant-hand-does-nothing`, `cam-handedness-setting-does-nothing`, `dominant-hand-setting-is-dead` (Settings and copy halves), `settings-goal-minutes-untranslated`, `settings-name-persists-per-keystroke`, `ds-settings-chevron-invisible` (Settings half)
 
 Order:
+
 1. `homeGoldStat` becomes the XP label. `pathDoneMeta` becomes "Practised, tap to review".
 2. Delete the `HandCards` block and its Settings row. Keep the `dominantHand` field. Do not mirror reference photos: they are licensed ArSL21L signer stills and flipping them breaks the provenance rule the app states in three places. Rewrite `obHandSub` and the InfoPages "left or right" line to stop claiming a camera effect (InfoPages copy lands in Batch 10).
 3. Localise the goal minutes by splitting the existing `obCasual`/`obRegular`/`obSerious` strings rather than adding a second source.
@@ -127,10 +141,12 @@ Must run before Batches 5, 6, 8 and the copy steps of 3 and 4, since those consu
 ---
 
 ### Batch 8 · Progress screen
+
 **Files:** `src/screens/Progress.tsx`
 **Closes:** `pr-utc-daykey-vs-local-todaykey`, `ds-progress-weekly-grid-uses-utc`, `ds-alphabet-achievement-counts-31-against-28`, `alphabet-count-31-vs-28` (Progress half), `progress-oasis-is-static-art`, `ds-streak-celebration-never-fires`, `pr-streak-celebration-unreachable` (render half), `streak-celebration-names-the-user`, `streak-celebration-latin-days`, `streak-celebration-no-scroll`, `achievements-locked-text-invisible`, `pr-achievement-revoked-on-lapse` (render half), `progress-hardcoded-gold-numbers-unreadable`, `constellation-forced-ltr`, `ungradable-signs-fall-into-teach-mode` (Progress route), `progress-hooks-after-early-return`, `ds-gold-on-gold-tint` (Progress site), `brand-images-absolute-404` (the `stitch-46` line), `ds-off-palette-grey-text` (Progress sites)
 
 Order:
+
 1. Move the `!profile` guard below every hook.
 2. Delete the local UTC `dayKey`; import `todayKey` from the store and call it with an offset Date.
 3. Fire the celebration from `celebratedStreak` (Batch 6) instead of a per-mount ref; write it back on dismiss.
@@ -147,10 +163,12 @@ Depends on Batches 1 and 6.
 ---
 
 ### Batch 9 · Onboarding
+
 **Files:** `src/screens/Onboarding.tsx`, `src/components/ErrorBoundary.tsx`
 **Closes:** `ob-learn-step-is-inert`, `ob-alphabet-card-ends-onboarding-early`, `onboarding-fastpath-skips-name`, `ds-onboarding-alphabet-card-ends-setup-early`, `ob-skip-discards-answered-steps`, `ob-skip-overwrites-explicit-choices`, `onboarding-min-h-screen`, `unlabelled-name-inputs` (Onboarding half), dominant-hand step removal
 
 Order:
+
 1. Store the learn-step answer as `track` and honour it in `finish()`: alphabet to the camera, words to `{name:"allSigns"}` (Words is one tap from a screen the user has never seen unless Batch 2 has landed). Render the Gulf-dialects card `disabled`/`aria-disabled` or demote it to a note.
 2. Route the alphabet card to the `name` step with the destination stashed, so no profile is ever created called "Me". Do the same for the header Skip. Fix both handlers in one edit, they collide.
 3. Delete the `skipAll` overrides so Skip keeps answers already given, and remove the now-unused flag from `finish`'s signature.
@@ -163,6 +181,7 @@ Depends on Batch 7 for the reworded hand copy only.
 ---
 
 ### Batch 10 · Live-site image 404s and info pages
+
 **Files:** `src/screens/InfoPages.tsx`
 **Closes:** `brand-images-absolute-404`, `brand-images-404-on-pages` (six of seven paths), `infopages-rtl-double-flip`, `ds-gold-on-gold-tint` (InfoPages site), `ds-settings-chevron-invisible` (InfoPages arrow)
 
@@ -171,6 +190,7 @@ Order: strip the leading slash on `:51, :60, :69, :78, :91, :317`, or import the
 ---
 
 ### Batch 11 · Token layer stops lying
+
 **Files:** `tailwind.config.js`, `src/styles.css`, `src/components/Tile.tsx`, `src/components/dc.tsx`, `design/rebuild-source/DESIGN-SYSTEM.md`
 **Closes:** `ds-dead-tokens-and-utilities`, `ds-gold-deep-token-lies` (documentation half only), `ds-unused-canonical-primitives` (deletion half), `ds-font-mono-undefined`
 

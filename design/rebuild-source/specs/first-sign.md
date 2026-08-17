@@ -5,12 +5,12 @@ Source of truth for values/copy: `design/rebuild-source/Sawiyya First Sign.dc.ht
 Existing implementation to preserve: `src/screens/FirstSign.tsx` (component `FirstSign`).
 
 > **CRITICAL PRODUCT NOTE — read before building.**
-> The design tells a *fiction*: it demos the "I love you" 🤟 sign and hard-codes a 96% result.
+> The design tells a _fiction_: it demos the "I love you" 🤟 sign and hard-codes a 96% result.
 > The **real app grades the Arabic letter Alif (ا)** via `signById("alpha-alif")` — the only
 > onboarding sign with real ground-truth seeds. **Do NOT hard-code "I love you", 🤟, or 96%.**
 > Any string that names the sign or the score must stay dynamic: use `sign.glossEn/glossAr`
-> and the real `CameraTrainer` result. Lift the design's *layout, color, motion, and
-> sign-agnostic copy* exactly; keep the sign-specific slots wired to live data.
+> and the real `CameraTrainer` result. Lift the design's _layout, color, motion, and
+> sign-agnostic copy_ exactly; keep the sign-specific slots wired to live data.
 > The existing `.tsx` already runs a 3-step machine (`watch → try → celebrate`) driven by the
 > real `CameraTrainer`. Map the design's 4 visual phases (intro/demo/live/done) onto that machine;
 > the demo's `intro` phase is optional chrome — do not add a fake camera loop that replaces real grading.
@@ -22,17 +22,20 @@ Existing implementation to preserve: `src/screens/FirstSign.tsx` (component `Fir
 Every identifier below is live in `FirstSign.tsx`. The reskin may re-style/re-arrange markup but must keep these calls intact.
 
 **Store / profile hooks**
+
 - `const app = useApp();` — store root.
 - `const { go } = useUi();` — navigation dispatcher.
 - `const profile = activeProfile(app);` — active learner profile; `if (!profile) return <NoProfileFallback />;` guard must remain.
 - `const lang = profile.language;` — `"en" | "ar"`, drives all `pick()/t()` and `dir`.
 
 **Content**
+
 - `const sign = signById("alpha-alif");` — the real graded sign (Alif). `if (!sign) return null;` guard stays.
 - `sign.glossEn` / `sign.glossAr` — rendered in the watch heading; keep dynamic (NOT "I love you").
 - `import { signById } from "../content/signs";`
 
 **Recognizer / camera**
+
 - `<CameraTrainer sign={sign} lang={lang} onResult={handleResult} autoStart />` — the real on-device grader. This replaces the design's faked LIVE-camera phase (skeleton dots, confidence ring, status pills). Keep `CameraTrainer` mounted for the "try" step; do not simulate grading.
 - `const handleResult = (result: TrainerResult) => {…}` — must keep calling, in order:
   - `app.recordDrillResult(sign.id, "good", { camera: result === "match", matched: result === "match", selfMark: result === "selfMark" });`
@@ -43,22 +46,27 @@ Every identifier below is live in `FirstSign.tsx`. The reskin may re-style/re-ar
 - `import { Confetti, celebrate } from "../components/Confetti";` and `<Confetti burst={burst} />`.
 
 **Local state machine**
+
 - `const [step, setStep] = useState<Step>("try");` — `Step = "watch" | "try" | "celebrate"`. Default is `"try"` (onboarding drops users straight into camera). Preserve the three states; `setStep("try")` / `setStep("celebrate")` transitions.
 - `const [burst, setBurst] = useState(0);`
 
 **Navigation calls**
+
 - `onClick={() => go({ name: "home" })}` — used twice: the `ScreenShell` close button (`onClose`) AND the celebrate "Keep going" `Button`. Both must still route to `home`.
 
 **Layout wrappers to keep**
+
 - `<ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>` — chrome-light takeover (NO tab bar / profile button). Keep `chrome="takeover"`.
 - `<SignDemo sign={sign} lang={lang} />` — the real looping demo clip (watch step). Replaces design's faked 🤟 demo circle.
 - `<NoProfileFallback />` early return.
 - `import { Button, Icon } from "../components/ui";` — reuse `Button` (springy variant) + `Icon` (Material Symbols).
 
 **Share (keep, silent-optional)**
+
 - `shareMoment()` → `navigator.share?.(shareData).catch(() => {})`; text via `pick(lang, "I just learned my first sign on Sawiyya!", "تعلّمت أول إشارة لي على سويّة!")`. Keep the try/catch no-op.
 
 **i18n calls currently wired (must keep resolving)**
+
 - `t("fsIntro", lang)` — watch-step eyebrow.
 - `t("fsNowYou", lang)` — try-step heading + coral CTA (also used in `CameraTrainer.tsx:532`; changing its value affects that screen too — leave `fsNowYou` intact and add new keys for design phase titles).
 - `t("fsCelebrate", lang)` — celebrate headline (Arabic value leads with "وصلت!"; the `.replace(/^\s*وصلت!\s*/, "")` strip logic must survive if you keep the split-glyph headline).
@@ -70,6 +78,7 @@ Every identifier below is live in `FirstSign.tsx`. The reskin may re-style/re-ar
 - `pick(lang, s.en, s.ar)` for STEP labels Watch/Try/Celebrate (`شاهد / جرّب / افرح`) via `StepDots`.
 
 **Brand assets referenced (keep or re-map, don't break paths)**
+
 - `brand/stitch-22.png` (celebrate hero starburst), `brand/stitch-54.png` (coral CTA hand glyph).
 
 ---
@@ -81,12 +90,14 @@ The design renders inside a **322×660 phone frame** (device bezel `#16302E`, ra
 Shared chrome present on every phase (top of screen):
 
 ### Block A — Status bar (never mirrors)
+
 - Height `34px`, padding `0 24px`, flex space-between.
 - Left: time `9:41`, font `Rubik 700 13px`, color `#16302E`. **Time never mirrors** (stays left even in RTL).
 - Center: notch pill `74×20px`, bg `#16302E`, radius `99px`, opacity `.5`, absolute `top:9px; left:50%`.
 - Right: battery glyph `16×9px`, border `1.5px solid #16302E`, radius `3px`.
 
 ### Block B — Progress bar + step counter
+
 - Padding `2px 24px 6px`, flex gap `10px`.
 - Track: `flex:1`, height `7px`, radius `99px`, bg `#EDE3D2`, `overflow:hidden`.
 - Fill: height `100%`, bg **`#E6B24C`** (gold/mid), radius `99px`, `transition:width .4s ease`. Width per phase: intro `8%`, demo `34%`, live `72%`, done `100%`.
@@ -95,20 +106,27 @@ Shared chrome present on every phase (top of screen):
 > In the real 3-step app, map: watch→demo visuals (2/4), try→live visuals (3/4), celebrate→done (4/4). The intro (1/4) phase is optional; if omitted, start progress at the watch/demo value.
 
 ---
+
 ### PHASE: INTRO (`isIntro`, progress 8%, 1/4) — optional
+
 Body: `flex:1`, centered column, padding `0 30px`, text-align center.
+
 1. **Fanan** — `pose="wave"`, `scale="1.15"` (~140×138px), wrapped in `animation: float 2.6s ease-in-out infinite`. **Fanan never mirrors.**
 2. Title — `Rubik 800 27px/1.15`, color `#16302E`, `margin-top:24px`, `animation: rise .4s ease both`. Copy `fsIntroTitle`.
 3. Body — `Readex Pro 400 15px/1.5`, color `#5C726F`, `margin-top:10px`, `max-width:250px`. Copy `fsIntroBody`.
 4. Privacy chip — inline-flex, gap `8px`, bg `#FBF7EF`, border `1px solid #EDE3D2`, radius `99px`, padding `8px 14px`, `margin-top:20px`. Icon dot `26×26px` circle bg `#0F6E6A` with 📷 (14px). Label `Readex Pro 600 12px/1.3` color `#16302E`. Copy `fsIntroChip`.
 
 ---
+
 ### PHASE: DEMO / "watch" step (`isDemo`, progress 34%, 2/4)
+
 Header (`flex:none`, padding `2px 26px 0`, center):
+
 - Title — `Rubik 800 22px/1.1`, `#16302E`. Copy `fsDemoTitle` ("Watch it once").
 - Sub — `Readex Pro 400 13px/1.4`, `#5C726F`, `margin-top:4px`. Copy `fsDemoSub` ("A Deaf signer demonstrates").
 
 Media card (`flex:1`, padding `16px 26px 22px`):
+
 - Stage: radius `24px`, bg `radial-gradient(120% 90% at 50% 30%, #14827c, #0d5a56)`, `overflow:hidden`.
 - Top-start tag pill: bg `rgba(0,0,0,.3)`, radius `99px`, padding `5px 10px`, `inset-inline-start:12px`; dot `7px` bg `#F0C879` + label `ui-monospace 700 10px` color `#FBF7EF` letter-spacing `.06em`. Copy `fsSignerTag` ("DEAF SIGNER"). **Mirrors** (anchored inline-start).
 - Top-end timer pill: bg `rgba(0,0,0,.3)`, radius `99px`, padding `5px 9px`, `inset-inline-end:12px`, `ui-monospace 700 10px` `#FBF7EF`. Literal `0:03 ↺` (loop badge — keep LTR digits, it is a timecode; **never mirrors as a glyph pair**, anchored inline-end).
@@ -119,10 +137,13 @@ Media card (`flex:1`, padding `16px 26px 22px`):
 Footer of watch step (real app): coral springy `Button full size="lg"` with `t("fsNowYou")` + `brand/stitch-54.png` hand chip, in the fixed bottom bar (`bg-paper/80 backdrop-blur`).
 
 ---
+
 ### PHASE: LIVE / "try" step (`isLive`, progress 72%, 3/4)
+
 Header: title `Rubik 800 21px/1.1` `#16302E` (`fsLiveTitle` "Now make the sign" — or reuse `t("fsNowYou")` heading already present); sub `Readex Pro 400 12.5px/1.4` `#5C726F` (`fsLiveSub`).
 
 **In the real app the camera stage = `<CameraTrainer …>`.** The elements below are the design's visual target for that stage; wire the real ones, don't fake them:
+
 - Stage: `flex:1`, radius `26px`, bg `repeating-linear-gradient(135deg,#16302E,#16302E 16px,#1d3d3a 16px,#1d3d3a 32px)`, `overflow:hidden`.
 - **LIVE badge** (top inline-start `12px`): bg `rgba(210,60,44,.92)`, radius `99px`, padding `5px 10px`; dot `7px` bg `#FBF7EF` `animation: livedot 1s ease-in-out infinite`; label `ui-monospace 800 10px` `#FBF7EF` letter-spacing `.1em`. Copy `fsLiveTag` ("LIVE"). **Mirrors** (inline-start).
 - **PIP reference "copy this"** (top inline-end `12px`, width `62px`, center): tile `62×62px` radius `14px` bg `#0F6E6A` border `2px solid rgba(251,247,239,.85)`, 🤟 34px (**real app: the Alif ا glyph reference chip from CameraTrainer**); below it label `ui-monospace 700 8px/1.2` color `#F0C879` letter-spacing `.08em`, `margin-top:4px`. Copy `fsCopyThis` ("COPY"). Handshape **never mirrors**.
@@ -136,8 +157,11 @@ Header: title `Rubik 800 21px/1.1` `#16302E` (`fsLiveTitle` "Now make the sign" 
 - **Privacy badge** (bottom inline-start `12px`): bg `rgba(0,0,0,.4)`, radius `99px`, padding `5px 9px`; dot `6px` bg `#7BE0A0` + label `Readex Pro 600 9px/1` `#FBF7EF`. Copy `fsOnDevice` ("On-device"). **Always visible — product promise. Mirrors** (inline-start).
 
 ---
+
 ### PHASE: DONE / "celebrate" step (`isDone`, progress 100%, 4/4)
+
 Full-viewport takeover (real app uses `radial-gradient(circle at center,#148580 0%,#0F6E6A 70%)` teal bg + `<Confetti burst={burst} />`; design shows the confetti on paper — follow the existing `.tsx` teal celebration, it is already on-brand). Ordered content:
+
 1. **Confetti** — 16 pieces, colors `['#0F6E6A','#E8654C','#E6B24C','#F0C879','#1F8A5B']`, `animation: conf …forwards` (fall + spin). Real app: `Confetti` component (keep).
 2. **Fanan** — `pose="celebrate"`, `scale="1.2"` (~150×148px). **Never mirrors.** (Real app hero = `brand/stitch-22.png` starburst — keep.)
 3. **Checkmark badge** — `66×66px` circle bg `#1F8A5B`, `margin-top:16px`, `animation: pop .5s ease both`, shadow `0 6px 18px rgba(31,138,91,.35)`; glyph ✓ `Rubik 800 34px` `#FBF7EF`. **Checkmark never mirrors.**
@@ -152,37 +176,37 @@ Full-viewport takeover (real app uses `radial-gradient(circle at center,#148580 
 
 ## 3 · COPY — every visible string
 
-| i18n key | English | Arabic (verbatim from RTL panel) |
-|---|---|---|
-| `fsIntroTitle` *(new)* | Your first sign is a real one | إشارتك الأولى حقيقية |
-| `fsIntroBody` *(new)* | No typing, no quizzes — your camera turns on and grades the sign as you make it. | لا كتابة ولا اختبارات — تعمل الكاميرا وتقيّم إشارتك أثناء أدائها. |
-| `fsIntroChip` *(new)* | Camera stays on-device. Nothing is uploaded. | الكاميرا تعمل على الجهاز. لا يُرفع شيء. |
-| `fsDemoTitle` *(new)* | Watch it once | شاهدها مرّة |
-| `fsDemoSub` *(new)* | A Deaf signer demonstrates | يعرضها شخص أصمّ |
-| `fsSignerTag` *(new)* | DEAF SIGNER | مُشيرٌ أصمّ |
-| `fsDemoMeans` *(new; make dynamic)* | This sign means "I love you" ❤️ | هذه الإشارة تعني «أحبّك» ❤️ |
-| `fsLiveTitle` *(new)* | Now make the sign | الآن أدِّ الإشارة |
-| `fsLiveSub` *(new)* | The camera is grading you live | الكاميرا تقيّمك مباشرةً |
-| `fsLiveTag` *(new)* | LIVE | مباشر |
-| `fsCopyThis` *(new)* | COPY | قلّد |
-| `fsMatchLabel` *(new)* | match | تطابق |
-| `fsOnDevice` *(new)* | On-device | على الجهاز |
-| `fsStatusFind` *(new)* | Finding your hand… | نبحث عن يدك… |
-| `fsStatusHold` *(new)* | Hold the sign steady… | اثبت على الإشارة… |
-| `fsStatusMatch` *(new)* | Matching your shape… | نطابق شكل يدك… |
-| `fsStatusAlmost` *(new)* | Almost — hold it… | اقتربت — اثبت… |
-| `fsStatusMatched` *(new)* | Matched! ✓ | تطابق! ✓ |
-| `fsDoneBadgeMatch` *(new)* | live match | تطابق مباشر |
-| `fsDoneMeans` *(new)* | That's every Sawiyya lesson: watch once, sign it, get graded live. Ready for the rest? | هذا هو كل درس في سويّة: شاهِد مرّة، أشِر، واحصل على تقييم مباشر. جاهز للبقيّة؟ |
-| `fsStartLearning` *(new)* | Start learning → | ابدأ التعلّم ← |
-| `fsIntro` *(existing — reuse)* | Let's learn the first thing you'll say: | لنتعلم أول ما ستقوله: |
-| `fsNowYou` *(existing — reuse)* | Now you try | الآن جرّب أنت |
-| `fsCelebrate` *(existing — reuse, sign-agnostic done title)* | Connection made! | وصلت! 🎉 |
-| `fsDone` *(existing — reuse, done body)* | That's one. Your family will feel this. | هذه أول إشارة. عائلتك ستشعر بها. |
-| `fsKeepGoing` *(existing — reuse, done CTA)* | Keep going | أكمل |
-| `xp` *(existing — reuse)* | XP | نقطة |
-| — *(existing `pick()` literals, keep)* | Day 1 / Share this moment / Watch / Try / Celebrate | اليوم ١ / شارك هذه اللحظة / شاهد / جرّب / افرح |
-| Timecode *(literal, not i18n)* | 0:03 ↺ | 0:03 ↺ |
+| i18n key                                                     | English                                                                                | Arabic (verbatim from RTL panel)                                               |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `fsIntroTitle` _(new)_                                       | Your first sign is a real one                                                          | إشارتك الأولى حقيقية                                                           |
+| `fsIntroBody` _(new)_                                        | No typing, no quizzes — your camera turns on and grades the sign as you make it.       | لا كتابة ولا اختبارات — تعمل الكاميرا وتقيّم إشارتك أثناء أدائها.              |
+| `fsIntroChip` _(new)_                                        | Camera stays on-device. Nothing is uploaded.                                           | الكاميرا تعمل على الجهاز. لا يُرفع شيء.                                        |
+| `fsDemoTitle` _(new)_                                        | Watch it once                                                                          | شاهدها مرّة                                                                    |
+| `fsDemoSub` _(new)_                                          | A Deaf signer demonstrates                                                             | يعرضها شخص أصمّ                                                                |
+| `fsSignerTag` _(new)_                                        | DEAF SIGNER                                                                            | مُشيرٌ أصمّ                                                                    |
+| `fsDemoMeans` _(new; make dynamic)_                          | This sign means "I love you" ❤️                                                        | هذه الإشارة تعني «أحبّك» ❤️                                                    |
+| `fsLiveTitle` _(new)_                                        | Now make the sign                                                                      | الآن أدِّ الإشارة                                                              |
+| `fsLiveSub` _(new)_                                          | The camera is grading you live                                                         | الكاميرا تقيّمك مباشرةً                                                        |
+| `fsLiveTag` _(new)_                                          | LIVE                                                                                   | مباشر                                                                          |
+| `fsCopyThis` _(new)_                                         | COPY                                                                                   | قلّد                                                                           |
+| `fsMatchLabel` _(new)_                                       | match                                                                                  | تطابق                                                                          |
+| `fsOnDevice` _(new)_                                         | On-device                                                                              | على الجهاز                                                                     |
+| `fsStatusFind` _(new)_                                       | Finding your hand…                                                                     | نبحث عن يدك…                                                                   |
+| `fsStatusHold` _(new)_                                       | Hold the sign steady…                                                                  | اثبت على الإشارة…                                                              |
+| `fsStatusMatch` _(new)_                                      | Matching your shape…                                                                   | نطابق شكل يدك…                                                                 |
+| `fsStatusAlmost` _(new)_                                     | Almost — hold it…                                                                      | اقتربت — اثبت…                                                                 |
+| `fsStatusMatched` _(new)_                                    | Matched! ✓                                                                             | تطابق! ✓                                                                       |
+| `fsDoneBadgeMatch` _(new)_                                   | live match                                                                             | تطابق مباشر                                                                    |
+| `fsDoneMeans` _(new)_                                        | That's every Sawiyya lesson: watch once, sign it, get graded live. Ready for the rest? | هذا هو كل درس في سويّة: شاهِد مرّة، أشِر، واحصل على تقييم مباشر. جاهز للبقيّة؟ |
+| `fsStartLearning` _(new)_                                    | Start learning →                                                                       | ابدأ التعلّم ←                                                                 |
+| `fsIntro` _(existing — reuse)_                               | Let's learn the first thing you'll say:                                                | لنتعلم أول ما ستقوله:                                                          |
+| `fsNowYou` _(existing — reuse)_                              | Now you try                                                                            | الآن جرّب أنت                                                                  |
+| `fsCelebrate` _(existing — reuse, sign-agnostic done title)_ | Connection made!                                                                       | وصلت! 🎉                                                                       |
+| `fsDone` _(existing — reuse, done body)_                     | That's one. Your family will feel this.                                                | هذه أول إشارة. عائلتك ستشعر بها.                                               |
+| `fsKeepGoing` _(existing — reuse, done CTA)_                 | Keep going                                                                             | أكمل                                                                           |
+| `xp` _(existing — reuse)_                                    | XP                                                                                     | نقطة                                                                           |
+| — _(existing `pick()` literals, keep)_                       | Day 1 / Share this moment / Watch / Try / Celebrate                                    | اليوم ١ / شارك هذه اللحظة / شاهد / جرّب / افرح                                 |
+| Timecode _(literal, not i18n)_                               | 0:03 ↺                                                                                 | 0:03 ↺                                                                         |
 
 > Copy conflict note: the numbered screenshots (`02/03-fs.png`) show slightly older strings ("Watch closely" / "A Deaf signer shows you how" / "Now your turn" / "Make the same sign to the camera"). The **`.dc.html` is authoritative** — use its values above. If the team prefers the screenshot phrasing, it is a copy swap only, same keys.
 > `fsDemoMeans`, the done title, and the accuracy % are **sign-/score-specific** — interpolate `sign.glossEn/glossAr` and the real `TrainerResult`, don't ship the "I love you"/96% literals.
@@ -222,6 +246,7 @@ Full-viewport takeover (real app uses `radial-gradient(circle at center,#148580 
 ## 5 · MOTION / STATES
 
 **Keyframes (lift literally):**
+
 - `float` — `translateY(0)↔-7px`, `2.4–2.6s ease-in-out infinite` (Fanan intro, demo circle).
 - `rise` — `translateY(16px);opacity:0 → 0;1`, `.4s ease both` (titles enter; done title delay `.1s`).
 - `pop` — `scale(.4)→1.14→1` + fade, `.5s ease both` (checkmark badge).
@@ -235,7 +260,8 @@ Full-viewport takeover (real app uses `radial-gradient(circle at center,#148580 
 - Button springy: press `translateY(3–4px)` + shadow collapse to `0 1px 0`.
 
 **States (from the live machine):**
-- **Loading / finding** (`conf=0`, `code='find'`, first ~650ms): status `fsStatusFind`, ring at 0%, color `#F0C879`. *(Real app: CameraTrainer's own hand-search state.)*
+
+- **Loading / finding** (`conf=0`, `code='find'`, first ~650ms): status `fsStatusFind`, ring at 0%, color `#F0C879`. _(Real app: CameraTrainer's own hand-search state.)_
 - **Detecting** (conf ramps 0→96 over ~2.35s): status cycles `hold` (<50%) → `match` (<86%) → `almost` (<86–96); ring color flips to `#E6B24C` at ≥86%.
 - **Matched / success** (conf=96, `code='matched'`): green lock ring appears, ring color `#1F8A5B`, status `fsStatusMatched`, then auto-advance to done after ~950ms → in real app this is `handleResult('match')` → `celebrate()` + `setStep('celebrate')`.
 - **Below threshold / "almost"** (design fiction always succeeds; real app): gentle retry — never a hard fail (HANDOFF §3.4). CameraTrainer surfaces the almost state; keep it.
@@ -249,6 +275,7 @@ Full-viewport takeover (real app uses `radial-gradient(circle at center,#148580 
 Design the Arabic panel first; anchor with `dir="rtl"` + logical props.
 
 **Mirrors (flip in AR):**
+
 - Reading flow / column text alignment.
 - Progress bar fill direction (fills from the start/right edge).
 - Step counter position, and the "start edge" anchoring of the LIVE badge, DEAF-SIGNER tag, and On-device privacy badge (all `inset-inline-start`).
@@ -257,6 +284,7 @@ Design the Arabic panel first; anchor with `dir="rtl"` + logical props.
 - Numerals: percentages, `conf` number, and step counter use Eastern-Arabic glyphs `٠١٢٣٤٥٦٧٨٩` with trailing `٪` in AR (e.g. `٩٦٪`, `٣/٤`).
 
 **Never mirrors (physical / fixed):**
+
 - **Fanan** (both poses) — same character, never flipped.
 - **Checkmark** ✓.
 - **Sign-language handshapes** — the 🤟/Alif reference glyph, the PIP tile, and the gold hand skeleton are physical; they must render identically in EN and AR.
@@ -267,5 +295,6 @@ Design the Arabic panel first; anchor with `dir="rtl"` + logical props.
 ---
 
 ## Summary
+
 Blocks: 2 shared (status bar, progress) + 4 phase panels (intro, demo/watch, live/try, done/celebrate) = **6 layout blocks**.
 New i18n keys: **21** (`fsIntroTitle, fsIntroBody, fsIntroChip, fsDemoTitle, fsDemoSub, fsSignerTag, fsDemoMeans, fsLiveTitle, fsLiveSub, fsLiveTag, fsCopyThis, fsMatchLabel, fsOnDevice, fsStatusFind, fsStatusHold, fsStatusMatch, fsStatusAlmost, fsStatusMatched, fsDoneBadgeMatch, fsDoneMeans, fsStartLearning`); existing keys reused: `fsIntro, fsNowYou, fsCelebrate, fsDone, fsKeepGoing, xp`.

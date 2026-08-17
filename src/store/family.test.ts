@@ -123,9 +123,7 @@ describe("deaf-role exclusions (H6)", () => {
     const S = await fresh();
     const today = S.todayKey();
     S.useApp.setState((s) => ({
-      profiles: s.profiles.map((p) =>
-        p.role === "deaf" ? p : { ...p, activeDays: [today], lastActiveDay: today },
-      ),
+      profiles: s.profiles.map((p) => (p.role === "deaf" ? p : { ...p, activeDays: [today], lastActiveDay: today })),
     }));
     expect(S.householdStreak(S.useApp.getState())).toBe(1);
   });
@@ -214,9 +212,7 @@ describe("household export/import (H8)", () => {
     const S = await fresh();
     expect(S.parseHouseholdImport("not json").ok).toBe(false);
     expect(S.parseHouseholdImport(JSON.stringify({ schema: "other", state: {} })).ok).toBe(false);
-    expect(
-      S.parseHouseholdImport(JSON.stringify({ schema: "sawiyya.household.v1", state: [] })).ok,
-    ).toBe(false);
+    expect(S.parseHouseholdImport(JSON.stringify({ schema: "sawiyya.household.v1", state: [] })).ok).toBe(false);
   });
 });
 

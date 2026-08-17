@@ -37,13 +37,13 @@ signers and are genuinely camera-graded.
 Every route below is real and every one is currently closed. None of this content may be
 copied into the app without written permission.
 
-| Source | Qatari? | Form | Licence | Blocker |
-|---|---|---|---|---|
-| [Jumla Dictionary](https://jumla.mada.org.qa/dictionary/?lang=en), Mada Center | Yes | Live 3D avatar (BuHamad), streamed | CC BY-**NC** 4.0 | Non-commercial; nothing downloadable; no video or stills |
-| [Sokoon app](https://sokoon.msdf.gov.qa/ar.php), Ministry of Social Development and Family | No — unified Arab | Per-word **video clips**, 2,637 words | All rights reserved | App-only, no reuse grant |
-| [JUMLA-QSL-22](https://ieee-dataport.org/open-access/jumla-qsl-22-dataset-qatari-sign-language-sentences) | Yes | 6,300 depth-camera records, 3TB+ | Unstated (paper is CC BY-NC-ND) | Continuous **sentences**, healthcare domain — no isolated words |
-| [Arab sign dictionary scan](https://archive.org/details/20210823_20210823_0847) | No — pan-Arab | Scanned print, photographs | None stated | Unlicensed scan of a copyrighted book — do not use |
-| [Qatari sign grammar PDF](https://selaa.org/files/%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D9%84%D8%BA%D8%A9%20%D8%A7%D9%84%D8%A5%D8%B4%D8%A7%D8%B1%D8%A9.pdf), Supreme Council for Family Affairs 2009 | Qatari-published | 180pp linguistics textbook | Unstated | Grammar, not a word lexicon |
+| Source                                                                                                                                                                                           | Qatari?           | Form                                  | Licence                         | Blocker                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | ------------------------------------- | ------------------------------- | --------------------------------------------------------------- |
+| [Jumla Dictionary](https://jumla.mada.org.qa/dictionary/?lang=en), Mada Center                                                                                                                   | Yes               | Live 3D avatar (BuHamad), streamed    | CC BY-**NC** 4.0                | Non-commercial; nothing downloadable; no video or stills        |
+| [Sokoon app](https://sokoon.msdf.gov.qa/ar.php), Ministry of Social Development and Family                                                                                                       | No — unified Arab | Per-word **video clips**, 2,637 words | All rights reserved             | App-only, no reuse grant                                        |
+| [JUMLA-QSL-22](https://ieee-dataport.org/open-access/jumla-qsl-22-dataset-qatari-sign-language-sentences)                                                                                        | Yes               | 6,300 depth-camera records, 3TB+      | Unstated (paper is CC BY-NC-ND) | Continuous **sentences**, healthcare domain — no isolated words |
+| [Arab sign dictionary scan](https://archive.org/details/20210823_20210823_0847)                                                                                                                  | No — pan-Arab     | Scanned print, photographs            | None stated                     | Unlicensed scan of a copyrighted book — do not use              |
+| [Qatari sign grammar PDF](https://selaa.org/files/%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D9%84%D8%BA%D8%A9%20%D8%A7%D9%84%D8%A5%D8%B4%D8%A7%D8%B1%D8%A9.pdf), Supreme Council for Family Affairs 2009 | Qatari-published  | 180pp linguistics textbook            | Unstated                        | Grammar, not a word lexicon                                     |
 
 **Coverage of our 19 in the one usable Qatari dictionary (Jumla, 217 public entries):**
 present — hello, name, more, sleep, help, hungry. Absent — I love you, yes, no, stop,
@@ -52,7 +52,7 @@ no public Qatari source of any kind.**
 
 **The finding that changes the framing:** Qatar officially adopted the Unified Arab
 lexicon in 2001 and calls it Qatari. The government's own 2009 book
-*قواعد لغة الإشارة القطرية العربية الموحدة* defines the language as the one "agreed by Arab
+_قواعد لغة الإشارة القطرية العربية الموحدة_ defines the language as the one "agreed by Arab
 deaf people... which has become the language of the deaf in Qatar". So a pan-Arab source
 is not automatically wrong for this app, provided we say which we used. An American one
 still is.
@@ -63,6 +63,7 @@ Qatari Center of Social Cultural for the Deaf — the body that would have to bl
 sign as genuinely Qatari. Draft letter: `~/Desktop/mada-qsl-licence-request.md`.
 
 Contacts, all verified on the organisations' own pages:
+
 - Mada Center — info@mada.org.qa · +974 4459 4050 · https://mada.org.qa/contact/
 - Mada research (JUMLA author, Achraf Othman) — aothman@mada.org.qa
 - Mada Innovation Program developer request — https://mip.mada.org.qa/contact-us/
@@ -89,7 +90,7 @@ media: { type: "video", src: "signs/<id>.webm", signer: "deaf" }
 the in-app label follows that field. `hasVisual()` in `src/lesson/engine.ts` then upgrades
 those words into real recognise drills automatically.
 
-Camera *grading* is a separate problem and footage does not solve it: 16 of the 19 are
+Camera _grading_ is a separate problem and footage does not solve it: 16 of the 19 are
 movement signs, and the recogniser is a still-frame classifier trained only on the 28
 letters. Motion capability exists in `src/recognizer/pointHistory.ts` but has no ground
 truth behind it.
@@ -119,69 +120,188 @@ const S = (
 // correct reference for a sign you don't know). Watch + self-mark until a
 // native signer records real reference data (Phase 2, real-sign-content-plan).
 export const A1_SIGNS: Sign[] = [
-  S("iloveyou", "I love you", "أحبك", "🤟", "static", false,
+  S(
+    "iloveyou",
+    "I love you",
+    "أحبك",
+    "🤟",
+    "static",
+    false,
     "Thumb, index and little finger up — middle and ring folded. Hold it steady, palm out.",
-    "الإبهام والسبابة والخنصر مرفوعة — الوسطى والبنصر مطويتان. ثبّت يدك وراحتها للأمام."),
-  S("hello", "Hello", "مرحبا", "👋", "dynamic", false,
+    "الإبهام والسبابة والخنصر مرفوعة — الوسطى والبنصر مطويتان. ثبّت يدك وراحتها للأمام.",
+  ),
+  S(
+    "hello",
+    "Hello",
+    "مرحبا",
+    "👋",
+    "dynamic",
+    false,
     "Open hand by your temple, small wave outward.",
-    "يد مفتوحة قرب الصدغ، تلويحة صغيرة للخارج."),
+    "يد مفتوحة قرب الصدغ، تلويحة صغيرة للخارج.",
+  ),
   // M7: both hints describe MOTION (nodding / tapping), so a static camera
   // grade would pass a frozen wrong sign — dynamic + watch-only is the honest
   // typing until real signer footage lands.
-  S("yes", "Yes", "نعم", "✊", "dynamic", false,
+  S(
+    "yes",
+    "Yes",
+    "نعم",
+    "✊",
+    "dynamic",
+    false,
     "Make a fist and nod it gently — like a head saying yes.",
-    "اقبض يدك وحرّكها كأنها رأس يقول نعم."),
-  S("no", "No", "لا", "🤞", "dynamic", false,
+    "اقبض يدك وحرّكها كأنها رأس يقول نعم.",
+  ),
+  S(
+    "no",
+    "No",
+    "لا",
+    "🤞",
+    "dynamic",
+    false,
     "Index and middle finger tap against the thumb.",
-    "السبابة والوسطى تنقران على الإبهام."),
-  S("stop", "Stop", "قف", "✋", "static", false,
+    "السبابة والوسطى تنقران على الإبهام.",
+  ),
+  S(
+    "stop",
+    "Stop",
+    "قف",
+    "✋",
+    "static",
+    false,
     "Flat open hand, palm facing forward — hold it firm.",
-    "يد مفتوحة مسطّحة، الراحة للأمام — ثبّتها."),
-  S("more", "More", "زيادة", "🤏", "dynamic", false,
+    "يد مفتوحة مسطّحة، الراحة للأمام — ثبّتها.",
+  ),
+  S(
+    "more",
+    "More",
+    "زيادة",
+    "🤏",
+    "dynamic",
+    false,
     "Fingertips of both hands pinched, tapping together.",
-    "أطراف أصابع اليدين مضمومة تتلامس معًا.", 2),
-  S("finished", "All done", "خلاص", "🙌", "dynamic", false,
+    "أطراف أصابع اليدين مضمومة تتلامس معًا.",
+    2,
+  ),
+  S(
+    "finished",
+    "All done",
+    "خلاص",
+    "🙌",
+    "dynamic",
+    false,
     "Both open hands flip outward — all done!",
-    "اليدان المفتوحتان تنقلبان للخارج — خلاص!", 2),
-  S("hungry", "Hungry", "جوعان", "🍽️", "dynamic", false,
+    "اليدان المفتوحتان تنقلبان للخارج — خلاص!",
+    2,
+  ),
+  S(
+    "hungry",
+    "Hungry",
+    "جوعان",
+    "🍽️",
+    "dynamic",
+    false,
     "Cupped hand moves down the chest from throat.",
-    "يد مقعّرة تنزل على الصدر من الحلق."),
-  S("milk", "Milk", "حليب", "🥛", "dynamic", false,
+    "يد مقعّرة تنزل على الصدر من الحلق.",
+  ),
+  S(
+    "milk",
+    "Milk",
+    "حليب",
+    "🥛",
+    "dynamic",
+    false,
     "Squeeze a fist — like milking. Repeat softly.",
-    "اقبض اليد وافتحها — كأنك تحلب. كرّرها بلطف."),
-  S("sleep", "Bedtime", "نوم", "😴", "dynamic", false,
+    "اقبض اليد وافتحها — كأنك تحلب. كرّرها بلطف.",
+  ),
+  S(
+    "sleep",
+    "Bedtime",
+    "نوم",
+    "😴",
+    "dynamic",
+    false,
     "Open hand draws down over your face, eyes closing.",
-    "اليد المفتوحة تنزل على وجهك، والعينان تغمضان."),
-  S("mum", "Mum", "ماما", "👩", "dynamic", false,
-    "Open hand, thumb to chin.",
-    "يد مفتوحة، الإبهام على الذقن."),
-  S("dad", "Dad", "بابا", "👨", "dynamic", false,
-    "Open hand, thumb to forehead.",
-    "يد مفتوحة، الإبهام على الجبين."),
-  S("thankyou", "Thank you", "شكرًا", "🙏", "dynamic", false,
+    "اليد المفتوحة تنزل على وجهك، والعينان تغمضان.",
+  ),
+  S("mum", "Mum", "ماما", "👩", "dynamic", false, "Open hand, thumb to chin.", "يد مفتوحة، الإبهام على الذقن."),
+  S("dad", "Dad", "بابا", "👨", "dynamic", false, "Open hand, thumb to forehead.", "يد مفتوحة، الإبهام على الجبين."),
+  S(
+    "thankyou",
+    "Thank you",
+    "شكرًا",
+    "🙏",
+    "dynamic",
+    false,
     "Flat hand from chin moving forward — giving thanks.",
-    "يد مسطّحة من الذقن تتحرك للأمام — تقديم الشكر."),
-  S("help", "Help", "ساعدني", "🤲", "dynamic", false,
+    "يد مسطّحة من الذقن تتحرك للأمام — تقديم الشكر.",
+  ),
+  S(
+    "help",
+    "Help",
+    "ساعدني",
+    "🤲",
+    "dynamic",
+    false,
     "Fist on open palm, both rise together.",
-    "قبضة على راحة مفتوحة، ترتفعان معًا.", 2),
-  S("careful", "Careful", "انتبه", "👀", "dynamic", false,
+    "قبضة على راحة مفتوحة، ترتفعان معًا.",
+    2,
+  ),
+  S(
+    "careful",
+    "Careful",
+    "انتبه",
+    "👀",
+    "dynamic",
+    false,
     "Two fingers from your eyes outward — watch out.",
-    "إصبعان من عينيك إلى الخارج — انتبه."),
-  S("name", "Name", "اسم", "🔤", "dynamic", false,
+    "إصبعان من عينيك إلى الخارج — انتبه.",
+  ),
+  S(
+    "name",
+    "Name",
+    "اسم",
+    "🔤",
+    "dynamic",
+    false,
     "Two fingers of each hand tap crossed.",
-    "إصبعان من كل يد ينقران متقاطعين.", 2),
+    "إصبعان من كل يد ينقران متقاطعين.",
+    2,
+  ),
   // "People" trio (2026-07-31, owner ask): simple one-handed words available
   // from day one in the Words hub. Same provenance rule as the rest of A1 —
   // ASL-adapted descriptions, disclosed via a1AslProvenance, watch-only.
-  S("me", "Me", "أنا", "🙋", "static", false,
+  S(
+    "me",
+    "Me",
+    "أنا",
+    "🙋",
+    "static",
+    false,
     "Point to the middle of your chest with your index finger.",
-    "أشِر إلى منتصف صدرك بسبابتك."),
-  S("man", "Man", "رجل", "🧔", "dynamic", false,
+    "أشِر إلى منتصف صدرك بسبابتك.",
+  ),
+  S(
+    "man",
+    "Man",
+    "رجل",
+    "🧔",
+    "dynamic",
+    false,
     "Open hand, thumb taps your forehead, then moves down to your chest.",
-    "يد مفتوحة، الإبهام يلمس الجبين ثم ينزل إلى الصدر."),
-  S("woman", "Woman", "امرأة", "🧕", "dynamic", false,
+    "يد مفتوحة، الإبهام يلمس الجبين ثم ينزل إلى الصدر.",
+  ),
+  S(
+    "woman",
+    "Woman",
+    "امرأة",
+    "🧕",
+    "dynamic",
+    false,
     "Open hand, thumb taps your chin, then moves down to your chest.",
-    "يد مفتوحة، الإبهام يلمس الذقن ثم ينزل إلى الصدر."),
+    "يد مفتوحة، الإبهام يلمس الذقن ثم ينزل إلى الصدر.",
+  ),
 ];
 ```
 

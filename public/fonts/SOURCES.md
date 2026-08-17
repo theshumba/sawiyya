@@ -5,6 +5,7 @@ app works fully offline from install. Loaded via `src/fonts.css` (imported by
 `src/main.tsx`).
 
 ## `readex-pro-*.woff2` — UI/body text (dual Latin+Arabic)
+
 - Source: `https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap`
 - Fetched 2026-07-03 with a desktop-Chrome UA (to get woff2). Google serves ONE
   variable-weight file per script subset for this family, so 5 requested
@@ -12,11 +13,13 @@ app works fully offline from install. Loaded via `src/fonts.css` (imported by
   bytes as before, just vendored instead of fetched from fonts.gstatic.com.
 
 ## `rubik-*.woff2` — display + numerals
+
 - Source: `https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800&display=swap`
 - Same fetch method; 6 files (per-script variable-weight, incl. cyrillic-ext
   which the font ships as its own subset).
 
 ## `material-symbols-outlined.woff2` — icon glyphs
+
 - Source: the full variable Material Symbols Outlined font
   (`fonts.gstatic.com/s/materialsymbolsoutlined/v355/...woff2`, 2.33MB, axes
   FILL/opsz/wght).

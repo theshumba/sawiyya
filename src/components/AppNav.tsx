@@ -66,54 +66,57 @@ export function AppNav({ lang }: { lang: Lang }) {
   const isActive = (tab: Tab) => tab.active.includes(screen.name);
 
   // shared profile menu (Progress + Settings live here, not in the tab bar)
-  const profileMenu = (menuRef: RefObject<HTMLDivElement>) => menuOpen && (
-    <>
-      <button
-        type="button"
-        aria-label={t("close", lang)}
-        className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-[2px]"
-        onClick={() => setMenuOpen(false)}
-      />
-      {/* role="dialog", not role="menu": a menu promises arrow-key navigation
+  const profileMenu = (menuRef: RefObject<HTMLDivElement>) =>
+    menuOpen && (
+      <>
+        <button
+          type="button"
+          aria-label={t("close", lang)}
+          className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-[2px]"
+          onClick={() => setMenuOpen(false)}
+        />
+        {/* role="dialog", not role="menu": a menu promises arrow-key navigation
           between items and useDialog only handles Tab and Escape. This is the
           same L11 call the codebase already made in AllSigns and Progress —
           announce the pattern the keyboard actually implements. */}
-      <div
-        ref={menuRef}
-        role="dialog"
-        aria-label={t("navProfile", lang)}
-        tabIndex={-1}
-        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
-      >
-        {profile && (
-          <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-            <Avatar emoji={profile.emoji} />
-            <span className="min-w-0">
-              <span className="block truncate font-display text-[15px] font-extrabold text-ink"><bdi>{profile.displayName}</bdi></span>
-              <span className="block text-xs font-medium text-muted">{t("navProfile", lang)}</span>
-            </span>
-          </div>
-        )}
-        {[
-          { name: "progress" as const, icon: "monitoring", label: t("navProgress", lang) },
-          { name: "settings" as const, icon: "settings", label: t("setTitle", lang) },
-        ].map((it) => (
-          <button
-            key={it.name}
-            type="button"
-            onClick={() => {
-              go({ name: it.name });
-              setMenuOpen(false);
-            }}
-            className="flex w-full items-center gap-3 px-4 py-3 text-start font-display text-[15px] font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
-          >
-            <Icon name={it.icon} className="text-xl text-teal" />
-            {it.label}
-          </button>
-        ))}
-      </div>
-    </>
-  );
+        <div
+          ref={menuRef}
+          role="dialog"
+          aria-label={t("navProfile", lang)}
+          tabIndex={-1}
+          className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
+        >
+          {profile && (
+            <div className="flex items-center gap-3 border-b border-line px-4 py-3">
+              <Avatar emoji={profile.emoji} />
+              <span className="min-w-0">
+                <span className="block truncate font-display text-[15px] font-extrabold text-ink">
+                  <bdi>{profile.displayName}</bdi>
+                </span>
+                <span className="block text-xs font-medium text-muted">{t("navProfile", lang)}</span>
+              </span>
+            </div>
+          )}
+          {[
+            { name: "progress" as const, icon: "monitoring", label: t("navProgress", lang) },
+            { name: "settings" as const, icon: "settings", label: t("setTitle", lang) },
+          ].map((it) => (
+            <button
+              key={it.name}
+              type="button"
+              onClick={() => {
+                go({ name: it.name });
+                setMenuOpen(false);
+              }}
+              className="flex w-full items-center gap-3 px-4 py-3 text-start font-display text-[15px] font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
+            >
+              <Icon name={it.icon} className="text-xl text-teal" />
+              {it.label}
+            </button>
+          ))}
+        </div>
+      </>
+    );
 
   const profileButton = (menuRef: RefObject<HTMLDivElement>) => (
     <div className="relative flex flex-col items-center justify-center">
@@ -125,11 +128,19 @@ export function AppNav({ lang }: { lang: Lang }) {
         onClick={() => setMenuOpen((v) => !v)}
         className="relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-[5px] rounded-2xl px-2 py-1 transition duration-200 ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
       >
-        {profile ? <Avatar emoji={profile.emoji} size="sm" /> : <Icon name="account_circle" className="text-2xl text-teal" />}
+        {profile ? (
+          <Avatar emoji={profile.emoji} size="sm" />
+        ) : (
+          <Icon name="account_circle" className="text-2xl text-teal" />
+        )}
         {/* the request badge lives on the Family tab now: this menu holds only
             Progress and Settings, neither of which shows a flag, so the count
             here pointed at a screen that could not resolve it. */}
-        <span className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}>{t("navProfile", lang)}</span>
+        <span
+          className={`font-display text-[10px] leading-none ${menuOpen ? "font-bold text-teal" : "font-medium text-muted"}`}
+        >
+          {t("navProfile", lang)}
+        </span>
       </button>
       {profileMenu(menuRef)}
     </div>

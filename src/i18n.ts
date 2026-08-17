@@ -37,7 +37,10 @@ const dict = {
   // Honest copy: nothing reads dominantHand. The recognizer canonicalises both
   // hands per frame from MediaPipe's own handedness label, so this line must not
   // promise a camera effect the app does not have.
-  obHandSub: { en: "Either hand works: the camera reads both the same way.", ar: "أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها." },
+  obHandSub: {
+    en: "Either hand works: the camera reads both the same way.",
+    ar: "أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها.",
+  },
   obRight: { en: "Right hand", ar: "اليد اليمنى" },
   obLeft: { en: "Left hand", ar: "اليد اليسرى" },
   // obGoalTitle / obGoalSub / obGoalCta are gone with the standalone daily-goal
@@ -119,7 +122,10 @@ const dict = {
   // M2: honest disclosure when the confirming hold was carried only by the
   // learner's OWN taught samples (KNN), not the dataset model.
   camMatchOwn: { en: "Matched your own recording", ar: "طابَق تسجيلك الخاص" },
-  camUnsure: { en: "Almost — the camera isn't sure, but your hands might be right. Try once more?", ar: "قريب — الكاميرا غير متأكدة، لكن ربما يداك صحيحتان. جرّب مرة أخرى؟" },
+  camUnsure: {
+    en: "Almost — the camera isn't sure, but your hands might be right. Try once more?",
+    ar: "قريب — الكاميرا غير متأكدة، لكن ربما يداك صحيحتان. جرّب مرة أخرى؟",
+  },
   camSelfMark: { en: "I signed it right", ar: "أدّيتها صح" },
   // No punctuation inside a button, and this line renders inside one.
   camSelfMarkSub: { en: "Mark it yourself — you know your hands", ar: "قيّم نفسك — أنت أدرى بيديك" },
@@ -140,11 +146,20 @@ const dict = {
   coachExtendPinky: { en: "Extend your little finger", ar: "مُدَّ خنصرك" },
   coachCurlPinky: { en: "Curl your little finger in", ar: "اثنِ خنصرك" },
   coachReference: { en: "Compare your hand with the reference shape", ar: "قارن يدك بالشكل المرجعي" },
-  reviewCapDone: { en: "30 done today — the rest will wait for tomorrow", ar: "أنجزت ٣٠ مراجعة اليوم — والبقية تنتظر حتى الغد" },
+  reviewCapDone: {
+    en: "30 done today — the rest will wait for tomorrow",
+    ar: "أنجزت ٣٠ مراجعة اليوم — والبقية تنتظر حتى الغد",
+  },
   homeNewLetter: { en: "Learn a new letter", ar: "تعلّم حرفًا جديدًا" },
-  homeNewLetterSub: { en: "Nothing due right now — start the next letter", ar: "لا شيء مستحق الآن — ابدأ الحرف التالي" },
+  homeNewLetterSub: {
+    en: "Nothing due right now — start the next letter",
+    ar: "لا شيء مستحق الآن — ابدأ الحرف التالي",
+  },
   camTeach: { en: "Teach Sawiyya this sign", ar: "علّم سويّة هذه الإشارة" },
-  camTeachSub: { en: "Record it once, then practise it — this sign isn't pre-loaded yet.", ar: "سجّلها مرة، ثم تدرّب عليها — هذه الإشارة ليست محمّلة مسبقًا بعد." },
+  camTeachSub: {
+    en: "Record it once, then practise it — this sign isn't pre-loaded yet.",
+    ar: "سجّلها مرة، ثم تدرّب عليها — هذه الإشارة ليست محمّلة مسبقًا بعد.",
+  },
   camTeachHold: { en: "Hold the handshape in view…", ar: "ثبّت شكل اليد أمام الكاميرا…" },
   camTeachDone: { en: "Learned! The camera knows this one now.", ar: "تعلّمتها! الكاميرا تعرف هذه الآن." },
   camSamples: { en: "samples", ar: "عيّنات" },
@@ -152,7 +167,10 @@ const dict = {
   camPractice: { en: "Practise the alphabet", ar: "تدرّب على الحروف" },
   practiceCamera: { en: "Practise with camera", ar: "تدرّب بالكاميرا" },
   accuracy: { en: "Accuracy", ar: "الدقة" },
-  camPrivacy: { en: "100% on your device — no video ever leaves your phone.", ar: "١٠٠٪ على جهازك — لا يغادر أي فيديو هاتفك أبدًا." },
+  camPrivacy: {
+    en: "100% on your device — no video ever leaves your phone.",
+    ar: "١٠٠٪ على جهازك — لا يغادر أي فيديو هاتفك أبدًا.",
+  },
   camConfidence: { en: "Camera confidence", ar: "ثقة الكاميرا" },
   camResetClass: { en: "Re-teach", ar: "إعادة التعليم" },
 
@@ -164,12 +182,18 @@ const dict = {
   lsRecallTitle: { en: "Which sign means…", ar: "أي إشارة تعني…" },
   lsReviewTitle: { en: "Quick review", ar: "مراجعة سريعة" },
   lsCorrect: { en: "Beautiful — that's it!", ar: "ممتاز — هذه هي!" },
-  lsSoftMiss: { en: "Not quite — here it is. You'll get it next time.", ar: "ليست هذه — ها هي الإجابة. ستصيبها المرة القادمة." },
+  lsSoftMiss: {
+    en: "Not quite — here it is. You'll get it next time.",
+    ar: "ليست هذه — ها هي الإجابة. ستصيبها المرة القادمة.",
+  },
   lsLessonDone: { en: "Lesson complete!", ar: "اكتمل الدرس!" },
   lsXpEarned: { en: "XP earned", ar: "نقاط الخبرة" },
   lsWhatsNext: { en: "What's next", ar: "ما التالي" },
   lsBackHome: { en: "Back home", ar: "العودة للرئيسية" },
-  lsDemoPlaceholder: { en: "Demo placeholder — a Deaf Qatari signer records the real demonstrations in Phase 2.", ar: "عرض مؤقت — سيسجّل العروض الحقيقية شخص أصم قطري في المرحلة الثانية." },
+  lsDemoPlaceholder: {
+    en: "Demo placeholder — a Deaf Qatari signer records the real demonstrations in Phase 2.",
+    ar: "عرض مؤقت — سيسجّل العروض الحقيقية شخص أصم قطري في المرحلة الثانية.",
+  },
 
   // home
   // homeToday is gone: it was the trail section's screen-reader-only label, and
@@ -199,7 +223,10 @@ const dict = {
   famFlagTitle: { en: "Flag signs we need", ar: "حدّد الإشارات التي نحتاجها" },
   famFlagged: { en: "needs this", ar: "يحتاج هذه" },
   famBoard: { en: "Signs we can all do", ar: "إشارات نتقنها جميعًا" },
-  famBoardEmpty: { en: "When every member masters a sign, it appears here — your shared language, growing.", ar: "عندما يتقن كل أفراد الأسرة إشارة، تظهر هنا — لغتكم المشتركة تنمو." },
+  famBoardEmpty: {
+    en: "When every member masters a sign, it appears here — your shared language, growing.",
+    ar: "عندما يتقن كل أفراد الأسرة إشارة، تظهر هنا — لغتكم المشتركة تنمو.",
+  },
   famSharedStreak: { en: "Household streak", ar: "مواظبة الأسرة" },
   famSignedToday: { en: "signed today", ar: "تمرّنوا اليوم" },
   famOnlyDeafFlags: { en: "flags the signs — the curriculum follows them.", ar: "يحدد الإشارات — والمنهج يتبعهم." },
@@ -241,13 +268,19 @@ const dict = {
 
   // ── reskin: celebrations
   celStreakTitle: { en: "{n}-day streak!", ar: "تتابع {n} أيام!" },
-  celStreakBody: { en: "You've signed every day this week. You're on fire.", ar: "أشرت كل يوم هذا الأسبوع. أنت في أوجك." },
+  celStreakBody: {
+    en: "You've signed every day this week. You're on fire.",
+    ar: "أشرت كل يوم هذا الأسبوع. أنت في أوجك.",
+  },
   // Phase 4 tone pass: no trailing arrows or ornaments in button labels.
   celStreakCta: { en: "Keep it going", ar: "واصل التقدّم" },
   celGoalTitle: { en: "Daily goal met!", ar: "تحقّق هدف اليوم!" },
   celGoalBody: { en: "{xp} / {goal} XP today. Fanan is proud of you.", ar: "{xp} / {goal} نقاط اليوم. فَنَن فخور بك." },
   celBadgeEyebrow: { en: "Achievement unlocked", ar: "إنجاز مفتوح" },
-  celBadgeBodySample: { en: "You mastered your first 5 signs. A whole conversation starts here.", ar: "أتقنت أول ٥ إشارات. محادثة كاملة تبدأ من هنا." },
+  celBadgeBodySample: {
+    en: "You mastered your first 5 signs. A whole conversation starts here.",
+    ar: "أتقنت أول ٥ إشارات. محادثة كاملة تبدأ من هنا.",
+  },
   celBadgeCta: { en: "Collect", ar: "استلم" },
   celLevelEyebrow: { en: "Unit {n} complete", ar: "اكتملت الوحدة {n}" },
   celLevelTitle: { en: "Level up!", ar: "ترقية!" },
@@ -255,7 +288,10 @@ const dict = {
   celLevelCta: { en: "Start Unit {n}", ar: "ابدأ الوحدة {n}" },
   celConnectEyebrow: { en: "Connection made", ar: "تمّ التواصل" },
   celConnectTitle: { en: 'You signed "{sign}" with {name}', ar: "أشرت «{sign}» مع {name}" },
-  celConnectBody: { en: "Not a lesson — a moment. This is why Sawiyya exists.", ar: "ليست حصّة — بل لحظة. لهذا وُجدت سويّة." },
+  celConnectBody: {
+    en: "Not a lesson — a moment. This is why Sawiyya exists.",
+    ar: "ليست حصّة — بل لحظة. لهذا وُجدت سويّة.",
+  },
   celConnectCta: { en: "Share this moment", ar: "شارك هذه اللحظة" },
   celCertEyebrow: { en: "Certificate of achievement", ar: "شهادة إنجاز" },
   celCertTitle: { en: "You learned the whole Arabic alphabet", ar: "تعلّمت الحروف العربية كاملة" },
@@ -270,7 +306,10 @@ const dict = {
   famSignsTogether: { en: "signs together", ar: "إشارة معًا" },
   famLearningTogether: { en: "Learning together", ar: "نتعلّم معًا" },
   famLeagueNote: { en: "We celebrate everyone — no rankings, no losers.", ar: "نحتفي بالجميع — لا ترتيب ولا خاسرين." },
-  famDataLocal: { en: "Your family's data lives on this device — export it from Settings to move or back it up.", ar: "بيانات عائلتك محفوظة على هذا الجهاز — صدّرها من الإعدادات لنقلها أو نسخها احتياطيًا." },
+  famDataLocal: {
+    en: "Your family's data lives on this device — export it from Settings to move or back it up.",
+    ar: "بيانات عائلتك محفوظة على هذا الجهاز — صدّرها من الإعدادات لنقلها أو نسخها احتياطيًا.",
+  },
   famClearMine: { en: "Clear my flags", ar: "مسح إشاراتي" },
   famCoRequested: { en: "You asked for this too", ar: "طلبتها أنت أيضًا" },
   famAskToo: { en: "Ask for this too", ar: "اطلبها أنت أيضًا" },
@@ -279,10 +318,16 @@ const dict = {
   setExportDone: { en: "Saved — keep the file somewhere safe.", ar: "تم الحفظ — احتفظ بالملف في مكان آمن." },
   setImport: { en: "Import household", ar: "استيراد بيانات الأسرة" },
   setImportConfirmTitle: { en: "Replace everything on this device?", ar: "استبدال كل شيء على هذا الجهاز؟" },
-  setImportConfirmBody: { en: "Importing replaces every profile, flag and progress record on this device with the file's contents. This cannot be undone.", ar: "الاستيراد يستبدل جميع الملفات الشخصية والإشارات المحددة وسجل التقدم على هذا الجهاز بمحتوى الملف. لا يمكن التراجع عن هذا." },
+  setImportConfirmBody: {
+    en: "Importing replaces every profile, flag and progress record on this device with the file's contents. This cannot be undone.",
+    ar: "الاستيراد يستبدل جميع الملفات الشخصية والإشارات المحددة وسجل التقدم على هذا الجهاز بمحتوى الملف. لا يمكن التراجع عن هذا.",
+  },
   setImportReplace: { en: "Replace & restart", ar: "استبدل وأعد التشغيل" },
   setImportInvalid: { en: "That file isn't a Sawiyya household export.", ar: "هذا الملف ليس ملف تصدير أسرة من سويّة." },
-  setImportFailed: { en: "Couldn't save the import on this device — nothing was replaced.", ar: "تعذّر حفظ الملف المستورد على هذا الجهاز — لم يُستبدل أي شيء." },
+  setImportFailed: {
+    en: "Couldn't save the import on this device — nothing was replaced.",
+    ar: "تعذّر حفظ الملف المستورد على هذا الجهاز — لم يُستبدل أي شيء.",
+  },
   famFlagFrom: { en: "flagged this for you", ar: "رفع لك هذه" },
 
   // ── reskin: first sign
@@ -328,12 +373,18 @@ const dict = {
 
   // ── reskin: onboarding
   obWelcomeTitle: { en: "Teach the world to sign", ar: "علّم العالم الإشارة" },
-  obWelcomeBody: { en: "Learn to sign and connect with someone who can’t hear you — as equals.", ar: "تعلّم الإشارة وتواصل مع من لا يسمعك — كأنداد." },
+  obWelcomeBody: {
+    en: "Learn to sign and connect with someone who can’t hear you — as equals.",
+    ar: "تعلّم الإشارة وتواصل مع من لا يسمعك — كأنداد.",
+  },
   obWelcomeCta: { en: "Get started", ar: "لنبدأ" },
   obFananEyebrow: { en: "Meet your guide", ar: "تعرّف على مرشدك" },
   // Exclamation marks are for success, not for greetings (Phase 4 tone pass).
   obFananTitle: { en: "Hi, I’m Fanan", ar: "مرحبًا، أنا فَنَن" },
-  obFananBody: { en: "I’ll cheer you on, catch your signs, and never let you learn alone.", ar: "سأشجّعك، وألتقط إشاراتك، ولن أدعك تتعلّم وحدك أبدًا." },
+  obFananBody: {
+    en: "I’ll cheer you on, catch your signs, and never let you learn alone.",
+    ar: "سأشجّعك، وألتقط إشاراتك، ولن أدعك تتعلّم وحدك أبدًا.",
+  },
   obFananCta: { en: "Nice to meet you", ar: "تشرّفنا" },
   obLangTitle: { en: "Choose your language", ar: "اختر لغتك" },
   obLangBody: { en: "You can switch anytime in settings.", ar: "يمكنك التبديل في أي وقت من الإعدادات." },
@@ -343,9 +394,15 @@ const dict = {
   obLangArSub: { en: "من اليمين لليسار", ar: "من اليمين لليسار" },
   obCamEyebrow: { en: "How it works", ar: "كيف يعمل" },
   obCamTitle: { en: "Sign it to the camera", ar: "أشِر أمام الكاميرا" },
-  obCamBody: { en: "Watch the handshape demo, then sign it back. Fanan checks your handshape live.", ar: "شاهد عرض شكل اليد ثم أعِد الإشارة. يتحقّق فَنَن من إشارتك مباشرة." },
+  obCamBody: {
+    en: "Watch the handshape demo, then sign it back. Fanan checks your handshape live.",
+    ar: "شاهد عرض شكل اليد ثم أعِد الإشارة. يتحقّق فَنَن من إشارتك مباشرة.",
+  },
   obCamCta: { en: "Got it", ar: "فهمت" },
-  obPrivacyBody: { en: "Your camera never leaves your phone. No video is uploaded, ever.", ar: "كاميرتك لا تغادر هاتفك. لا يُرفع أي فيديو، إطلاقًا." },
+  obPrivacyBody: {
+    en: "Your camera never leaves your phone. No video is uploaded, ever.",
+    ar: "كاميرتك لا تغادر هاتفك. لا يُرفع أي فيديو، إطلاقًا.",
+  },
   obPrivacyBadge: { en: "Nothing leaves this device", ar: "لا شيء يغادر هذا الجهاز" },
   obGoalCasualSub: { en: "A sign a day", ar: "إشارة كل يوم" },
   obGoalRegularSub: { en: "Build a habit", ar: "ابنِ عادة" },
@@ -464,9 +521,15 @@ const dict = {
   aiBulletOffline: { en: "Works fully offline", ar: "يعمل دون اتصال تمامًا" },
   aiBulletDelete: { en: "Delete your data anytime", ar: "احذف بياناتك متى شئت" },
   aboutTitle: { en: "Built to meet the Deaf community as equals", ar: "بُني للقاء مجتمع الصمّ كأنداد" },
-  aboutBody: { en: "Sawiyya teaches the hearing world to sign — so we can all meet as equals.", ar: "تعلّم سويّة العالمَ السامعَ الإشارة — لنلتقي جميعًا كأنداد." },
+  aboutBody: {
+    en: "Sawiyya teaches the hearing world to sign — so we can all meet as equals.",
+    ar: "تعلّم سويّة العالمَ السامعَ الإشارة — لنلتقي جميعًا كأنداد.",
+  },
   aboutCreditsLbl: { en: "With gratitude to", ar: "بامتنان إلى" },
-  aboutCredits: { en: "The 28-letter alphabet is graded from real signers' hands in the open Zenodo ArSL dataset (CC-BY-4.0) — thank you to everyone who contributed to it. Recordings by Deaf Qatari signers arrive in Phase 2.", ar: "تُقيَّم الحروف الـ٢٨ من أيدي مُشيرين حقيقيين في مجموعة بيانات Zenodo ArSL المفتوحة (CC-BY-4.0) — شكرًا لكل من ساهم فيها. تسجيلات مُشيرين قطريين صُمّ قادمة في المرحلة الثانية." },
+  aboutCredits: {
+    en: "The 28-letter alphabet is graded from real signers' hands in the open Zenodo ArSL dataset (CC-BY-4.0) — thank you to everyone who contributed to it. Recordings by Deaf Qatari signers arrive in Phase 2.",
+    ar: "تُقيَّم الحروف الـ٢٨ من أيدي مُشيرين حقيقيين في مجموعة بيانات Zenodo ArSL المفتوحة (CC-BY-4.0) — شكرًا لكل من ساهم فيها. تسجيلات مُشيرين قطريين صُمّ قادمة في المرحلة الثانية.",
+  },
   aboutVersion: { en: "Sawiyya v1.0 · Made in Qatar", ar: "سويّة الإصدار ١٫٠ · صُنع في قطر" },
 
   // ── the dictionary ────────────────────────────────────────────────────────
@@ -502,7 +565,10 @@ const dict = {
 
   // ── reskin: states (permission / empty / error / offline / grader edge cases)
   stNoCamTitle: { en: "No camera? No problem", ar: "لا كاميرا؟ لا مشكلة" },
-  stNoCamBody: { en: "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available.", ar: "يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا." },
+  stNoCamBody: {
+    en: "You can still watch every sign demo and learn the shapes. Grading unlocks when a camera's available.",
+    ar: "يمكنك مشاهدة كل العروض وتعلّم الأشكال. يُفتح التقييم عند توفّر كاميرا.",
+  },
   // Names the destination the way the destination names itself.
   stBrowseSigns: { en: "Open the dictionary", ar: "افتح القاموس" },
   stNoProfileTitle: { en: "No profile yet", ar: "لا يوجد ملف بعد" },
@@ -515,15 +581,24 @@ const dict = {
 
   // ── Batch 6: fingerspelling (M6)
   fspTitle: { en: "Fingerspell", ar: "التهجئة بالإشارة" },
-  fspSubtitle: { en: "Type any word — Arabic or English letters — and watch it spelled letter by letter.", ar: "اكتب أي كلمة — بالعربية أو بأحرف إنجليزية — وشاهدها تُتهجّى حرفًا حرفًا." },
+  fspSubtitle: {
+    en: "Type any word — Arabic or English letters — and watch it spelled letter by letter.",
+    ar: "اكتب أي كلمة — بالعربية أو بأحرف إنجليزية — وشاهدها تُتهجّى حرفًا حرفًا.",
+  },
   fspInputLabel: { en: "Arabic word", ar: "كلمة عربية" },
   fspPlaceholder: { en: "مثال: سلام", ar: "مثال: سلام" },
   fspEmpty: { en: "Type a word to begin — try your name.", ar: "اكتب كلمة للبدء — جرّب اسمك." },
   fspPlay: { en: "Play", ar: "تشغيل" },
   fspPause: { en: "Pause", ar: "إيقاف" },
   fspSpeed: { en: "Speed", ar: "السرعة" },
-  fspSkippedNote: { en: "We can't fingerspell these characters yet, so they were skipped:", ar: "لا يمكننا تهجئة هذه الرموز بعد، لذا تجاوزناها:" },
-  fspRefOnly: { en: "Reference only — ة has no camera grading until a signer records it.", ar: "للاطلاع فقط — لا تقييم بالكاميرا لحرف التاء المربوطة حتى يسجّلها مُشير." },
+  fspSkippedNote: {
+    en: "We can't fingerspell these characters yet, so they were skipped:",
+    ar: "لا يمكننا تهجئة هذه الرموز بعد، لذا تجاوزناها:",
+  },
+  fspRefOnly: {
+    en: "Reference only — ة has no camera grading until a signer records it.",
+    ar: "للاطلاع فقط — لا تقييم بالكاميرا لحرف التاء المربوطة حتى يسجّلها مُشير.",
+  },
   fspPractiseAlong: { en: "Practise along", ar: "تدرّب معها" },
   fspPractiseAlongSub: { en: "Camera-check each letter of your word", ar: "تحقّق بالكاميرا من كل حرف في كلمتك" },
   fspLetterOf: { en: "Letter {i} of {n}", ar: "الحرف {i} من {n}" },
@@ -583,7 +658,10 @@ const dict = {
     en: "Your browser is blocking the camera for Sawiyya. Allow it in this site's settings, then come back.",
     ar: "متصفحك يحجب الكاميرا عن سويّة. اسمح بها من إعدادات هذا الموقع، ثم عُد.",
   },
-  camErrDeniedHint: { en: "Look for the padlock or camera icon in the address bar.", ar: "ابحث عن أيقونة القفل أو الكاميرا في شريط العنوان." },
+  camErrDeniedHint: {
+    en: "Look for the padlock or camera icon in the address bar.",
+    ar: "ابحث عن أيقونة القفل أو الكاميرا في شريط العنوان.",
+  },
   camErrNotFoundTitle: { en: "No camera found", ar: "لم نعثر على كاميرا" },
   camErrNotFoundBody: {
     en: "There is no camera we can use on this device. You can still watch every sign and mark yourself.",
@@ -669,7 +747,10 @@ const dict = {
     ar: "على أندرويد: افتح قائمة المتصفح واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».",
   },
   signMarkPractised: { en: "I practised this", ar: "تمرّنت على هذه" },
-  signMarkedPractised: { en: "Marked as practised. It will come back in review.", ar: "سجّلناها كتمرين. ستعود في المراجعة." },
+  signMarkedPractised: {
+    en: "Marked as practised. It will come back in review.",
+    ar: "سجّلناها كتمرين. ستعود في المراجعة.",
+  },
 } satisfies Record<string, Entry>;
 
 export type TKey = keyof typeof dict;

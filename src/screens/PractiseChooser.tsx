@@ -6,13 +6,7 @@
 //   • Everyday QSL signs — teach-mode (gradable subset)
 //   • More dialects — coming soon (no fabricated data, decision #6)
 import { pick, t, num } from "../i18n";
-import {
-  REVIEW_DAILY_CAP,
-  activeProfile,
-  dueSignIds,
-  reviewsTodayFor,
-  useApp,
-} from "../store/app";
+import { REVIEW_DAILY_CAP, activeProfile, dueSignIds, reviewsTodayFor, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { ALPHABET } from "../content/signs";
 import { ScreenShell } from "../components/ScreenShell";
@@ -38,8 +32,7 @@ const CHIP = (fg: TileFg = "paper") =>
   `flex h-11 w-11 items-center justify-center rounded-[13px] font-display text-2xl font-black ${FG[fg].chip}`;
 const TILE_TITLE = (fg: TileFg = "paper") =>
   `mt-[11px] font-display text-[15px] font-bold leading-[1.1] text-start ${FG[fg].title}`;
-const TILE_SUB = (fg: TileFg = "paper") =>
-  `mt-[3px] text-[11px] font-medium leading-[1.3] text-start ${FG[fg].sub}`;
+const TILE_SUB = (fg: TileFg = "paper") => `mt-[3px] text-[11px] font-medium leading-[1.3] text-start ${FG[fg].sub}`;
 
 export function PractiseChooser() {
   const app = useApp();
@@ -50,17 +43,13 @@ export function PractiseChooser() {
   const due = dueSignIds(app, profile.id);
   const reviewCapReached = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
   const progress = app.progress[profile.id] ?? {};
-  const lettersPractised = ALPHABET.filter(
-    (s) => s.cameraGradable && (progress[s.id]?.masteryLevel ?? 0) >= 1,
-  ).length;
+  const lettersPractised = ALPHABET.filter((s) => s.cameraGradable && (progress[s.id]?.masteryLevel ?? 0) >= 1).length;
 
   return (
     <ScreenShell lang={lang}>
       <div className="mx-auto max-w-md px-[22px] pb-6 pt-6 md:max-w-2xl md:px-8">
         {/* B1 · Header */}
-        <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">
-          {t("practiseTitle", lang)}
-        </h1>
+        <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">{t("practiseTitle", lang)}</h1>
         <p className="mt-[3px] text-[13px] leading-[1.35] text-muted">{t("practiseSubtitle", lang)}</p>
 
         {/* B2 · Hub card grid */}
@@ -73,7 +62,9 @@ export function PractiseChooser() {
             className={`${TILE_BASE} bg-teal`}
           >
             {/* أ — Arabic glyph, never mirrors (renders natively RTL) */}
-            <div className={CHIP()} aria-hidden>أ</div>
+            <div className={CHIP()} aria-hidden>
+              أ
+            </div>
             <div className={TILE_TITLE()}>{t("practiseAlphabet", lang)}</div>
             <div className={TILE_SUB()}>
               {lettersPractised > 0
@@ -96,11 +87,7 @@ export function PractiseChooser() {
               move was three real destinations instead of four with a duplicate. */}
 
           {/* 3 · Fingerspell (M6) — spell any word letter by letter */}
-          <button
-            type="button"
-            onClick={() => go({ name: "fingerspell" })}
-            className={`${TILE_BASE} bg-teal-deep`}
-          >
+          <button type="button" onClick={() => go({ name: "fingerspell" })} className={`${TILE_BASE} bg-teal-deep`}>
             {/* spellcheck glyph — never mirrors */}
             <div className={CHIP()} aria-hidden>
               <Icon name="spellcheck" className="text-2xl leading-none" />
@@ -117,7 +104,9 @@ export function PractiseChooser() {
               onClick={() => go({ name: "lesson", lessonId: "review" })}
               className={`${TILE_BASE} bg-teal-deep`}
             >
-              <div className={CHIP()} aria-hidden>↺</div>
+              <div className={CHIP()} aria-hidden>
+                ↺
+              </div>
               <div className={TILE_TITLE()}>{t("practiseReview", lang)}</div>
               <div className={TILE_SUB()}>
                 {num(due.length, lang)} {t("practiseReviewCountSuffix", lang)}

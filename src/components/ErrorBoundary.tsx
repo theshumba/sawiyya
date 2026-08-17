@@ -44,9 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
   private reload = () => window.location.reload();
 
   private resetData = () => {
-    const confirmed = window.confirm(
-      `${t("ebResetConfirm", "en")}\n\n${t("ebResetConfirm", "ar")}`,
-    );
+    const confirmed = window.confirm(`${t("ebResetConfirm", "en")}\n\n${t("ebResetConfirm", "ar")}`);
     if (!confirmed) return;
     try {
       localStorage.clear();

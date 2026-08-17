@@ -14,15 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { num, pick, t, weekdayName, WEEKDAY_COUNT } from "../i18n";
 import { signById, LESSONS, UNITS } from "../content/signs";
-import {
-  GOAL_XP,
-  activeProfile,
-  dueSignIds,
-  pinnedFlagSigns,
-  streakFor,
-  useApp,
-  xpTodayFor,
-} from "../store/app";
+import { GOAL_XP, activeProfile, dueSignIds, pinnedFlagSigns, streakFor, useApp, xpTodayFor } from "../store/app";
 import { useUi } from "../store/ui";
 import { Icon, Eyebrow } from "../components/ui";
 import { ScreenShell } from "../components/ScreenShell";
@@ -98,9 +90,7 @@ export function Home() {
   // anywhere. Households of two or more still hide them, otherwise a Deaf member
   // would see their own requests come back as incoming ones.
   const solo = app.profiles.length === 1;
-  const flags = pinnedFlagSigns(app, profile.id).filter(
-    (f) => solo || f.raisedByProfileId !== profile.id,
-  );
+  const flags = pinnedFlagSigns(app, profile.id).filter((f) => solo || f.raisedByProfileId !== profile.id);
 
   // Node status comes from the shared trail rule, not from each lesson's own
   // signs: four Words self-marks reach mastery 2 on the whole of "First
@@ -135,9 +125,7 @@ export function Home() {
     : null;
 
   const openNode =
-    (milestoneNode?.id === openId ? milestoneNode : null) ??
-    pathNodes.find((n) => n.id === openId) ??
-    null;
+    (milestoneNode?.id === openId ? milestoneNode : null) ?? pathNodes.find((n) => n.id === openId) ?? null;
 
   // The milestone's own numbers, so the chest sheet describes the rung it
   // actually represents instead of a fixed "Clear Unit 1" line.
@@ -166,12 +154,10 @@ export function Home() {
     const today = new Date().getDay();
     if (picked.includes(today)) return t("homePractiseToday", lang);
     // The next picked day at or after tomorrow, wrapping through the week.
-    const next = Array.from({ length: WEEKDAY_COUNT }, (_, i) => (today + 1 + i) % WEEKDAY_COUNT).find(
-      (d) => picked.includes(d),
+    const next = Array.from({ length: WEEKDAY_COUNT }, (_, i) => (today + 1 + i) % WEEKDAY_COUNT).find((d) =>
+      picked.includes(d),
     );
-    return next === undefined
-      ? null
-      : t("homePractiseNext", lang).replace("{day}", weekdayName(next, lang));
+    return next === undefined ? null : t("homePractiseNext", lang).replace("{day}", weekdayName(next, lang));
   })();
 
   // App-bar stat chips (streak / today's goal / family). The gold chip used to
@@ -180,16 +166,12 @@ export function Home() {
   // card below the trail is gone.
   const stats: { marker: JSX.Element; value: string; label: string }[] = [
     {
-      marker: (
-        <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#E8654C", flex: "none" }} />
-      ),
+      marker: <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#E8654C", flex: "none" }} />,
       value: num(streakFor(profile), lang), // read-time: lapsed streaks show 0, not stale (M26)
       label: t("homeStreak", lang),
     },
     {
-      marker: (
-        <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#F0C879", flex: "none" }} />
-      ),
+      marker: <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#F0C879", flex: "none" }} />,
       value:
         goalProgress >= 1
           ? `${num(goalXp, lang)} / ${num(goalXp, lang)}`
@@ -197,9 +179,7 @@ export function Home() {
       label: t("homeGoalStat", lang),
     },
     {
-      marker: (
-        <span style={{ width: 18, height: 18, borderRadius: 6, background: "#F08A75", flex: "none" }} />
-      ),
+      marker: <span style={{ width: 18, height: 18, borderRadius: 6, background: "#F08A75", flex: "none" }} />,
       value: num(app.profiles.length, lang),
       label: t("homeFamilyStat", lang),
     },
@@ -219,7 +199,14 @@ export function Home() {
     };
     switch (status) {
       case "done":
-        return { ...base, width: 62, height: 62, borderRadius: "50%", background: "#0F6E6A", boxShadow: "0 5px 0 #0A4F4C" };
+        return {
+          ...base,
+          width: 62,
+          height: 62,
+          borderRadius: "50%",
+          background: "#0F6E6A",
+          boxShadow: "0 5px 0 #0A4F4C",
+        };
       case "current":
         return {
           ...base,
@@ -231,9 +218,23 @@ export function Home() {
           animation: "sw-pulse 1.8s ease-out infinite",
         };
       case "milestone":
-        return { ...base, width: 62, height: 62, borderRadius: 20, background: "#F6EFE3", boxShadow: "0 4px 0 #D9CBB2" };
+        return {
+          ...base,
+          width: 62,
+          height: 62,
+          borderRadius: 20,
+          background: "#F6EFE3",
+          boxShadow: "0 4px 0 #D9CBB2",
+        };
       default: // locked
-        return { ...base, width: 62, height: 62, borderRadius: "50%", background: "#EDE3D2", boxShadow: "0 4px 0 #D9CBB2" };
+        return {
+          ...base,
+          width: 62,
+          height: 62,
+          borderRadius: "50%",
+          background: "#EDE3D2",
+          boxShadow: "0 4px 0 #D9CBB2",
+        };
     }
   };
 
@@ -257,14 +258,56 @@ export function Home() {
         return <Icon name="sign_language" className="!text-4xl text-white" />;
       case "milestone": // treasure chest
         return (
-          <span style={{ position: "relative", display: "block", width: 26, height: 19, background: "#F0C879", borderRadius: 5, boxShadow: "inset 0 4px 0 #E6B24C" }}>
-            <span style={{ position: "absolute", top: 7, left: "50%", transform: "translateX(-50%)", width: 6, height: 8, borderRadius: 2, background: "#C89A3D" }} />
+          <span
+            style={{
+              position: "relative",
+              display: "block",
+              width: 26,
+              height: 19,
+              background: "#F0C879",
+              borderRadius: 5,
+              boxShadow: "inset 0 4px 0 #E6B24C",
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: 7,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 6,
+                height: 8,
+                borderRadius: 2,
+                background: "#C89A3D",
+              }}
+            />
           </span>
         );
       default: // padlock
         return (
-          <span style={{ position: "relative", display: "block", width: 15, height: 12, borderRadius: 3, background: "#B8C4C1" }}>
-            <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 11, height: 11, border: "2.5px solid #B8C4C1", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />
+          <span
+            style={{
+              position: "relative",
+              display: "block",
+              width: 15,
+              height: 12,
+              borderRadius: 3,
+              background: "#B8C4C1",
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: -7,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 11,
+                height: 11,
+                border: "2.5px solid #B8C4C1",
+                borderBottom: "none",
+                borderRadius: "6px 6px 0 0",
+              }}
+            />
           </span>
         );
     }
@@ -304,7 +347,23 @@ export function Home() {
       >
         <div style={{ position: "relative", transform: `translateX(${off}px)` }}>
           {isCurrent && (
-            <div style={{ position: "absolute", top: -24, left: "50%", transform: "translateX(-50%)", background: "#B54834", color: "#FBF7EF", font: "800 10px/1 Rubik,sans-serif", letterSpacing: ".08em", padding: "6px 11px", borderRadius: 99, boxShadow: "0 4px 0 #9C3D2C", whiteSpace: "nowrap", zIndex: 3 }}>
+            <div
+              style={{
+                position: "absolute",
+                top: -24,
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "#B54834",
+                color: "#FBF7EF",
+                font: "800 10px/1 Rubik,sans-serif",
+                letterSpacing: ".08em",
+                padding: "6px 11px",
+                borderRadius: 99,
+                boxShadow: "0 4px 0 #9C3D2C",
+                whiteSpace: "nowrap",
+                zIndex: 3,
+              }}
+            >
               {t("homeStartBadge", lang)}
             </div>
           )}
@@ -321,7 +380,15 @@ export function Home() {
           {isCurrent && (
             // Fanan cheers beside the current node; artwork never mirrors (§6),
             // only its anchor swaps sides via the logical inset.
-            <div style={{ position: "absolute", top: 6, insetInlineStart: "100%", marginInlineStart: 2, animation: "sw-bob 2.4s ease-in-out infinite" }}>
+            <div
+              style={{
+                position: "absolute",
+                top: 6,
+                insetInlineStart: "100%",
+                marginInlineStart: 2,
+                animation: "sw-bob 2.4s ease-in-out infinite",
+              }}
+            >
               <Fanan pose="cheer" scale={0.42} />
             </div>
           )}
@@ -344,20 +411,35 @@ export function Home() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div style={{ minWidth: 0 }}>
               {/* M17: Home had zero headings — this greeting is the natural h1. */}
-              <h1 className="font-display" style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF", margin: 0 }}>
+              <h1
+                className="font-display"
+                style={{ fontWeight: 800, fontSize: 21, lineHeight: 1.1, color: "#FBF7EF", margin: 0 }}
+              >
                 {pick(lang, "Marhaba, ", "مرحبًا يا ")}
                 <bdi>{profile.displayName}</bdi>
               </h1>
               {/* Phase 2 item 4: the practise-days answer written back here, so
                   the question visibly mattered. Silent when they never picked
                   any — an unanswered question must not become a claim. */}
-              <div style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.9)", marginTop: 3 }}>
+              <div
+                style={{ font: "500 12px/1.2 'Readex Pro',sans-serif", color: "rgba(251,247,239,.9)", marginTop: 3 }}
+              >
                 {practiseLine ?? t("homeGreetSub", lang)}
               </div>
             </div>
             <div
               className="font-display"
-              style={{ width: 44, height: 44, borderRadius: "50%", background: "#F0C879", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", boxShadow: "0 4px 0 #C89A3D" }}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: "#F0C879",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: "none",
+                boxShadow: "0 4px 0 #C89A3D",
+              }}
             >
               <bdi style={{ fontWeight: 800, fontSize: 18, color: "#16302E" }}>{initial}</bdi>
             </div>
@@ -372,16 +454,47 @@ export function Home() {
             onClick={() => go({ name: "progress" })}
             aria-label={t("homeSeeProgress", lang)}
             className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-teal active:scale-[.99]"
-            style={{ display: "flex", gap: 8, marginTop: 14, alignItems: "stretch", border: "none", background: "none", padding: 0, cursor: "pointer", textAlign: "start" }}
+            style={{
+              display: "flex",
+              gap: 8,
+              marginTop: 14,
+              alignItems: "stretch",
+              border: "none",
+              background: "none",
+              padding: 0,
+              cursor: "pointer",
+              textAlign: "start",
+            }}
           >
             {stats.map((s, i) => (
-              <span key={i} style={{ flex: 1, background: "rgba(255,255,255,.08)", borderRadius: 13, padding: "8px 10px", display: "flex", alignItems: "center", gap: 7 }}>
+              <span
+                key={i}
+                style={{
+                  flex: 1,
+                  background: "rgba(255,255,255,.08)",
+                  borderRadius: 13,
+                  padding: "8px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                }}
+              >
                 {s.marker}
                 <span>
-                  <span className="font-display" style={{ display: "block", fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}>
+                  <span
+                    className="font-display"
+                    style={{ display: "block", fontWeight: 800, fontSize: 15, lineHeight: 1, color: "#FBF7EF" }}
+                  >
                     {s.value}
                   </span>
-                  <span style={{ display: "block", font: "500 9px/1 'Readex Pro',sans-serif", color: "#FBF7EF", marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: "block",
+                      font: "500 9px/1 'Readex Pro',sans-serif",
+                      color: "#FBF7EF",
+                      marginTop: 2,
+                    }}
+                  >
                     {s.label}
                   </span>
                 </span>
@@ -462,17 +575,58 @@ export function Home() {
           {/* B1 · One teal unit banner per unit, each followed by its own nodes. */}
           {unitGroups.map((g) => (
             <div key={g.unit.id}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "#0F6E6A", borderRadius: 18, padding: "13px 16px", margin: "14px 0 6px", boxShadow: "0 4px 0 #0A4F4C" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  background: "#0F6E6A",
+                  borderRadius: 18,
+                  padding: "13px 16px",
+                  margin: "14px 0 6px",
+                  boxShadow: "0 4px 0 #0A4F4C",
+                }}
+              >
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ font: "700 10px/1 ui-monospace,Menlo,monospace", letterSpacing: ".12em", color: "#F6E3BC", textTransform: "uppercase" }}>
+                  <div
+                    style={{
+                      font: "700 10px/1 ui-monospace,Menlo,monospace",
+                      letterSpacing: ".12em",
+                      color: "#F6E3BC",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     {`${t("homeUnit", lang)} ${num(g.number, lang)}`}
                   </div>
-                  <div className="font-display" style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}>
+                  <div
+                    className="font-display"
+                    style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1, color: "#FBF7EF", marginTop: 4 }}
+                  >
                     {pick(lang, g.unit.titleEn, g.unit.titleAr)}
                   </div>
                 </div>
-                <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-                  <div style={{ width: 16, height: 13, border: "2.5px solid #FBF7EF", borderRadius: 2, borderInlineStartWidth: 5 }} />
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 12,
+                    background: "rgba(255,255,255,.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 16,
+                      height: 13,
+                      border: "2.5px solid #FBF7EF",
+                      borderRadius: 2,
+                      borderInlineStartWidth: 5,
+                    }}
+                  />
                 </div>
               </div>
 
@@ -530,7 +684,14 @@ export function Home() {
           return (
             <div
               onClick={() => setOpenId(null)}
-              style={{ position: "fixed", inset: 0, background: "rgba(22,48,46,.5)", zIndex: 40, display: "flex", alignItems: "flex-end" }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(22,48,46,.5)",
+                zIndex: 40,
+                display: "flex",
+                alignItems: "flex-end",
+              }}
             >
               <div
                 ref={sheetRef}
@@ -540,16 +701,53 @@ export function Home() {
                 aria-label={openNode.title}
                 tabIndex={-1}
                 className="mx-auto w-full max-w-xl animate-rise focus:outline-none"
-                style={{ background: "#FBF7EF", borderRadius: "26px 26px 0 0", padding: "22px 22px 26px", boxShadow: "0 -10px 40px rgba(0,0,0,.2)" }}
+                style={{
+                  background: "#FBF7EF",
+                  borderRadius: "26px 26px 0 0",
+                  padding: "22px 22px 26px",
+                  boxShadow: "0 -10px 40px rgba(0,0,0,.2)",
+                }}
               >
                 <div style={{ width: 42, height: 5, borderRadius: 99, background: "#EDE3D2", margin: "0 auto 16px" }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-                  <div style={{ width: 56, height: 56, flex: "none", borderRadius: isMilestone ? 16 : "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      flex: "none",
+                      borderRadius: isMilestone ? 16 : "50%",
+                      background: iconBg,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     {isMilestone ? (
                       <Icon name="card_giftcard" fill className="!text-2xl text-white" />
                     ) : locked ? (
-                      <span style={{ position: "relative", display: "block", width: 16, height: 13, borderRadius: 3, background: "#FBF7EF" }}>
-                        <span style={{ position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)", width: 12, height: 11, border: "2.5px solid #FBF7EF", borderBottom: "none", borderRadius: "6px 6px 0 0" }} />
+                      <span
+                        style={{
+                          position: "relative",
+                          display: "block",
+                          width: 16,
+                          height: 13,
+                          borderRadius: 3,
+                          background: "#FBF7EF",
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: -7,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: 12,
+                            height: 11,
+                            border: "2.5px solid #FBF7EF",
+                            borderBottom: "none",
+                            borderRadius: "6px 6px 0 0",
+                          }}
+                        />
                       </span>
                     ) : st === "done" ? (
                       <span style={{ fontSize: 26, lineHeight: 1, color: "#FBF7EF" }}>✓</span>
@@ -558,10 +756,15 @@ export function Home() {
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="font-display" style={{ fontWeight: 800, fontSize: 20, lineHeight: 1.1, color: "#16302E" }}>
+                    <div
+                      className="font-display"
+                      style={{ fontWeight: 800, fontSize: 20, lineHeight: 1.1, color: "#16302E" }}
+                    >
                       {openNode.title}
                     </div>
-                    <div style={{ font: "500 12px/1.3 'Readex Pro',sans-serif", color: "#5C726F", marginTop: 3 }}>{meta}</div>
+                    <div style={{ font: "500 12px/1.3 'Readex Pro',sans-serif", color: "#5C726F", marginTop: 3 }}>
+                      {meta}
+                    </div>
                   </div>
                 </div>
                 {/* The chest shows how far along its own rung is, so it stops
@@ -579,7 +782,21 @@ export function Home() {
                   disabled={locked}
                   onClick={locked ? undefined : onAction}
                   className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                  style={{ display: "block", width: "100%", marginTop: 18, textAlign: "center", font: "700 16px/1 Rubik,sans-serif", padding: 15, borderRadius: 16, border: "none", background: btnBg, boxShadow: btnSh, color: locked ? "#566B68" : "#FBF7EF", cursor: locked ? "default" : "pointer", opacity: locked ? 0.85 : 1 }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    marginTop: 18,
+                    textAlign: "center",
+                    font: "700 16px/1 Rubik,sans-serif",
+                    padding: 15,
+                    borderRadius: 16,
+                    border: "none",
+                    background: btnBg,
+                    boxShadow: btnSh,
+                    color: locked ? "#566B68" : "#FBF7EF",
+                    cursor: locked ? "default" : "pointer",
+                    opacity: locked ? 0.85 : 1,
+                  }}
                 >
                   {btnLabel}
                 </button>

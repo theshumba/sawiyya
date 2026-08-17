@@ -24,13 +24,7 @@ const REFERENCE_ONLY = ALPHABET.filter((s) => !s.cameraGradable);
 
 // autoStart: the onboarding alphabet fast-path opens the camera immediately
 // (no extra "Start camera" tap — L20); the browser permission prompt still gates.
-export function CameraPractice({
-  initialSignId,
-  autoStart = false,
-}: {
-  initialSignId?: string;
-  autoStart?: boolean;
-}) {
+export function CameraPractice({ initialSignId, autoStart = false }: { initialSignId?: string; autoStart?: boolean }) {
   const app = useApp();
   const { backOrParent } = useUi();
   const profile = activeProfile(app);
@@ -56,10 +50,7 @@ export function CameraPractice({
   const progress = app.progress[profile.id] ?? {};
   const practised = (id: string) => (progress[id]?.masteryLevel ?? 0) >= 1;
 
-  const handleResult = (
-    result: "match" | "selfMark" | "skip",
-    meta?: { ownRecording?: boolean },
-  ) => {
+  const handleResult = (result: "match" | "selfMark" | "skip", meta?: { ownRecording?: boolean }) => {
     if (result === "skip") {
       // Skip records NOTHING (L5) — consistent with the lesson drills.
       setRound((r) => r + 1);
@@ -93,16 +84,18 @@ export function CameraPractice({
             ? SEEDED_ALPHABET[(idx + 1) % SEEDED_ALPHABET.length].id
             : undefined
         : undefined;
-    setTimeout(() => {
-      if (next) setSignId(next);
-      setRound((r) => r + 1);
-    }, result === "match" ? 600 : 0);
+    setTimeout(
+      () => {
+        if (next) setSignId(next);
+        setRound((r) => r + 1);
+      },
+      result === "match" ? 600 : 0,
+    );
   };
 
   // Soft fail (H2): the trainer fires this once per round (it remounts per round),
   // so a struggling 20s attempt rates 'again' and reschedules sooner with help.
-  const handleSoftFail = () =>
-    app.recordDrillResult(signId, "again", { camera: true, matched: false });
+  const handleSoftFail = () => app.recordDrillResult(signId, "again", { camera: true, matched: false });
 
   // pick a new target → remount the trainer
   const choose = (id: string) => {

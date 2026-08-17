@@ -24,14 +24,14 @@ not recollections.
 
 ## 1.1 What is on the home screen, and what is deliberately not
 
-**PRIMARY, 4 February 2026.** Duolingo's design blog post *"Elevating craft: How we refreshed our core tabs"*
+**PRIMARY, 4 February 2026.** Duolingo's design blog post _"Elevating craft: How we refreshed our core tabs"_
 (<https://blog.duolingo.com/core-tabs-redesign/>) ships a full-resolution image of the refreshed app. I read the
 image directly. The home screen, top to bottom, contains exactly this:
 
 1. **A status strip of four items, no labels, no buttons:** the course flag with a number next to it (the
    Duolingo Score), a flame with a number (streak), a gem with a number (gems), and a fourth coloured icon.
-   The flag-plus-number pairing is confirmed by Duolingo's own alt text elsewhere: *"the user's French score of
-   5 is displayed next to an icon of the French flag"* (<https://blog.duolingo.com/product-highlights/>,
+   The flag-plus-number pairing is confirmed by Duolingo's own alt text elsewhere: _"the user's French score of
+   5 is displayed next to an icon of the French flag"_ (<https://blog.duolingo.com/product-highlights/>,
    10 December 2025).
 2. **One green unit banner** reading `SECTION 2, UNIT 6` on the small line and `Introduce yourself` on the large
    line, with a single guidebook icon at its right edge.
@@ -47,14 +47,14 @@ canvas is a live, coloured, tappable next step. That is the entire mechanic.
 
 - **No search field.** Duolingo's home screen has no way to look content up.
 - **No content catalogue or lesson list.** There is no browsable index of what the course contains.
-- **No separate Stories entry point.** PRIMARY, 6 May 2022: *"Our popular short stories are now built into the
-  path, rather than appearing in a separate tab"* (<https://blog.duolingo.com/new-duolingo-home-screen-design/>).
-- **No per-lesson Tips.** Same source: *"Tips are now in a 'guidebook' for each unit"*, reachable from the one
+- **No separate Stories entry point.** PRIMARY, 6 May 2022: _"Our popular short stories are now built into the
+  path, rather than appearing in a separate tab"_ (<https://blog.duolingo.com/new-duolingo-home-screen-design/>).
+- **No per-lesson Tips.** Same source: _"Tips are now in a 'guidebook' for each unit"_, reachable from the one
   icon in the unit banner.
 - **No free-choice skill tree.** The same post replaced the old tree, in which learners picked any skill, with
-  a linear path. Duolingo's stated reason: *"We often hear from learners that they're not sure whether they're
-  using Duolingo the 'correct' or 'best' way"*, so the redesign *"gives you a clear path to follow, so you can
-  be confident that each step you take in Duolingo is truly the best step for reaching your language goals."*
+  a linear path. Duolingo's stated reason: _"We often hear from learners that they're not sure whether they're
+  using Duolingo the 'correct' or 'best' way"_, so the redesign _"gives you a clear path to follow, so you can
+  be confident that each step you take in Duolingo is truly the best step for reaching your language goals."_
   (The original uses an em dash where I have written a comma.)
 - **No settings.** Settings live behind the profile tab.
 
@@ -71,7 +71,7 @@ built because giving people a menu made them anxious that they were choosing wro
 
 Verbatim:
 
-> "We found that by allowing users to experience Duolingo *without* signing up, do a lesson, see the set of
+> "We found that by allowing users to experience Duolingo _without_ signing up, do a lesson, see the set of
 > skills that you can run through, we could increase those sign-up metrics significantly. Simply moving the
 > sign-up screen back a few steps led to about a 20% increase in DAUs."
 
@@ -98,22 +98,22 @@ quote "three" as current.
 
 This is where sources genuinely disagree, and I am not going to paper over it.
 
-| Source | Date | Claim |
-|---|---|---|
-| UserGuiding (SECONDARY) | updated 28 Feb 2024 | A **7-step** mobile signup flow, a 6-step web flow, then a separate 4-step account signup afterwards |
-| Reteno onboarding gallery (SECONDARY) | captured 21 Jul 2025 | Labelled "Short flow (30- steps)", 17 captured app screens |
-| Tasu.ai (SECONDARY) | June 2026 | **38 screens** total, grouped as personalisation, emotional-attachment beats, first lesson, soft paywall, re-timed permission asks |
-| App Fuel (SECONDARY, STALE RISK) | 14 Oct 2020 | Customisation, then placement test, then rewards intro, then signup, then ads and subscription messaging |
+| Source                                | Date                 | Claim                                                                                                                              |
+| ------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| UserGuiding (SECONDARY)               | updated 28 Feb 2024  | A **7-step** mobile signup flow, a 6-step web flow, then a separate 4-step account signup afterwards                               |
+| Reteno onboarding gallery (SECONDARY) | captured 21 Jul 2025 | Labelled "Short flow (30- steps)", 17 captured app screens                                                                         |
+| Tasu.ai (SECONDARY)                   | June 2026            | **38 screens** total, grouped as personalisation, emotional-attachment beats, first lesson, soft paywall, re-timed permission asks |
+| App Fuel (SECONDARY, STALE RISK)      | 14 Oct 2020          | Customisation, then placement test, then rewards intro, then signup, then ads and subscription messaging                           |
 
 The topics asked are consistent across all four: **which language, how you heard about Duolingo, why you are
-learning, your current level (or a placement test), and a daily time or XP goal.** The *number* of screens has
+learning, your current level (or a placement test), and a daily time or XP goal.** The _number_ of screens has
 clearly grown a great deal between 2020 and 2026, and no source is authoritative on the current count. Treat
 "between roughly 7 and 38, and rising" as the honest answer.
 
 **Daily goal options: CONTESTED.** Multiple secondary sources give the labels Casual, Regular, Serious, Intense
 mapped to 5, 10, 15 and 20 minutes a day, and another set gives Basic 1 XP, Casual 10 XP, Regular 20 XP,
 Serious 30 XP, Intense 50 XP. One source claims Duolingo has recently removed the ability to change the goal.
-I could not verify any of these against an official Duolingo page. Use the *shape* of the mechanic (a
+I could not verify any of these against an official Duolingo page. Use the _shape_ of the mechanic (a
 four-or-five-option commitment picker with named tiers, not a number field), not the specific numbers.
 
 ### What the first lesson looks like
@@ -131,9 +131,9 @@ That is the whole screen. One instruction, one task, one button. No navigation, 
 progress dashboard. The exit is a small grey `X`, deliberately the least prominent thing on the screen.
 
 **PRIMARY, 3 July 2025:** the pink battery is Energy, which replaces Hearts.
-<https://blog.duolingo.com/duolingo-energy/> Verbatim: *"With our old system, Hearts, each mistake cost 1 heart
+<https://blog.duolingo.com/duolingo-energy/> Verbatim: _"With our old system, Hearts, each mistake cost 1 heart
 for free learners. This was not the most effective way to support learning. It could be especially frustrating
-for beginners, who were still figuring things out and 2X more likely to run out of hearts mid-lesson."*
+for beginners, who were still figuring things out and 2X more likely to run out of hearts mid-lesson."_
 Mechanics given officially: you start with full energy, each lesson uses some, you earn energy back by getting
 several answers right in a row, reviewing your mistakes at the end of a lesson costs no energy, and it fully
 recharges in about a day. Note that as of that post Energy was in limited rollout and Hearts still existed for
@@ -141,25 +141,25 @@ many users, so both systems are live.
 
 ## 1.3 What is hidden at first, and what actually unlocks it
 
-| Feature | Hidden at first? | Unlock trigger | Confidence |
-|---|---|---|---|
-| The path itself | No | Visible from lesson 1 | PRIMARY (Feb 2026 screenshot) |
-| Streak | No | Starts when you meet the daily goal on day 1 | PRIMARY, <https://blog.duolingo.com/how-duolingo-streak-builds-habit/>, 31 Jan 2022 |
-| Gems | No | Earned from the first lesson | PRIMARY (visible in top bar, Feb 2026) |
-| Hearts / Energy | No | Present from lesson 1, mobile only, free users only | PRIMARY, 3 Jul 2025 |
-| Stories | Yes, positionally | They sit as greyed book nodes further along the path and light up when you reach them | PRIMARY, 6 May 2022 |
-| Reward chests | Yes, positionally | Greyed chest nodes on the path, opened by reaching them | PRIMARY (Feb 2026 screenshot) |
-| Leaderboards / Leagues | Yes | **CONTESTED.** The Duolingo Wiki and many secondary blogs state "complete at least 10 lessons". Duoplanet (28 Aug 2023) says "To join a weekly leaderboard, all you need to do is complete a lesson." Duolingo's own help page on leaderboards mentions **no lesson threshold at all**, only that a private profile or being under 13 blocks access. | CONTESTED |
-| League structure | n/a | 10 leagues, lowest to highest: Bronze, Silver, Gold, Sapphire, Ruby, Emerald, Amethyst, Pearl, Obsidian, Diamond. Weekly, resets Sunday by device timezone. | PRIMARY, <https://www.duolingo.com/help/leaderboards-and-league> |
-| Leaderboard size | n/a | 30 learners per board | SECONDARY (Duoplanet, 28 Aug 2023) |
-| Quests | Yes | Own tab, chest icon, holding daily quests, monthly challenges and Friends Quests | PRIMARY, 6 May 2022 |
-| Friends Quest | Yes | Requires at least one friend added | SECONDARY |
-| Streak Society | Yes | Originally 365-day streak; Duoplanet (26 May 2023) reports tiers around 50 to 60 days, 150 to 200 days, and 365 days | SECONDARY, STALE RISK |
-| Practice Hub | Yes | Was a Super-subscriber tab (dumbbell icon). PRIMARY, 16 Dec 2025: *"Super subscribers can use their Practice Hub (the dumbbell at the bottom of the screen)"*. SECONDARY, 18 Feb 2026: Duolingo removed the paywall on the Practice tab for iOS, freeing Mistakes, Words, Speak and Listen, with Android pending. | Mixed |
-| Video Call with Lily | Yes | Duolingo Max subscription only | PRIMARY, 16 Dec 2025 |
-| Side Quests | Yes | Three star icons appear beneath each character along the path | PRIMARY, 16 Dec 2025 |
-| Match Madness | Yes | Appears intermittently on the Leaderboards screen | PRIMARY, 16 Dec 2025 |
-| Legendary levels | Yes | Only offered on nodes you have already completed | PRIMARY, 16 Dec 2025 |
+| Feature                | Hidden at first?  | Unlock trigger                                                                                                                                                                                                                                                                                                                                       | Confidence                                                                          |
+| ---------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| The path itself        | No                | Visible from lesson 1                                                                                                                                                                                                                                                                                                                                | PRIMARY (Feb 2026 screenshot)                                                       |
+| Streak                 | No                | Starts when you meet the daily goal on day 1                                                                                                                                                                                                                                                                                                         | PRIMARY, <https://blog.duolingo.com/how-duolingo-streak-builds-habit/>, 31 Jan 2022 |
+| Gems                   | No                | Earned from the first lesson                                                                                                                                                                                                                                                                                                                         | PRIMARY (visible in top bar, Feb 2026)                                              |
+| Hearts / Energy        | No                | Present from lesson 1, mobile only, free users only                                                                                                                                                                                                                                                                                                  | PRIMARY, 3 Jul 2025                                                                 |
+| Stories                | Yes, positionally | They sit as greyed book nodes further along the path and light up when you reach them                                                                                                                                                                                                                                                                | PRIMARY, 6 May 2022                                                                 |
+| Reward chests          | Yes, positionally | Greyed chest nodes on the path, opened by reaching them                                                                                                                                                                                                                                                                                              | PRIMARY (Feb 2026 screenshot)                                                       |
+| Leaderboards / Leagues | Yes               | **CONTESTED.** The Duolingo Wiki and many secondary blogs state "complete at least 10 lessons". Duoplanet (28 Aug 2023) says "To join a weekly leaderboard, all you need to do is complete a lesson." Duolingo's own help page on leaderboards mentions **no lesson threshold at all**, only that a private profile or being under 13 blocks access. | CONTESTED                                                                           |
+| League structure       | n/a               | 10 leagues, lowest to highest: Bronze, Silver, Gold, Sapphire, Ruby, Emerald, Amethyst, Pearl, Obsidian, Diamond. Weekly, resets Sunday by device timezone.                                                                                                                                                                                          | PRIMARY, <https://www.duolingo.com/help/leaderboards-and-league>                    |
+| Leaderboard size       | n/a               | 30 learners per board                                                                                                                                                                                                                                                                                                                                | SECONDARY (Duoplanet, 28 Aug 2023)                                                  |
+| Quests                 | Yes               | Own tab, chest icon, holding daily quests, monthly challenges and Friends Quests                                                                                                                                                                                                                                                                     | PRIMARY, 6 May 2022                                                                 |
+| Friends Quest          | Yes               | Requires at least one friend added                                                                                                                                                                                                                                                                                                                   | SECONDARY                                                                           |
+| Streak Society         | Yes               | Originally 365-day streak; Duoplanet (26 May 2023) reports tiers around 50 to 60 days, 150 to 200 days, and 365 days                                                                                                                                                                                                                                 | SECONDARY, STALE RISK                                                               |
+| Practice Hub           | Yes               | Was a Super-subscriber tab (dumbbell icon). PRIMARY, 16 Dec 2025: _"Super subscribers can use their Practice Hub (the dumbbell at the bottom of the screen)"_. SECONDARY, 18 Feb 2026: Duolingo removed the paywall on the Practice tab for iOS, freeing Mistakes, Words, Speak and Listen, with Android pending.                                    | Mixed                                                                               |
+| Video Call with Lily   | Yes               | Duolingo Max subscription only                                                                                                                                                                                                                                                                                                                       | PRIMARY, 16 Dec 2025                                                                |
+| Side Quests            | Yes               | Three star icons appear beneath each character along the path                                                                                                                                                                                                                                                                                        | PRIMARY, 16 Dec 2025                                                                |
+| Match Madness          | Yes               | Appears intermittently on the Leaderboards screen                                                                                                                                                                                                                                                                                                    | PRIMARY, 16 Dec 2025                                                                |
+| Legendary levels       | Yes               | Only offered on nodes you have already completed                                                                                                                                                                                                                                                                                                     | PRIMARY, 16 Dec 2025                                                                |
 
 The pattern that matters: **almost nothing is unlocked by a hidden rule. It is unlocked by physically reaching it
 on the path.** Stories, chests, side quests and legendary levels are all visible as greyed shapes ahead of you.
@@ -172,9 +172,9 @@ Concrete mechanics, all from primary artefacts:
 
 - **On the home screen** there is one green node with a START bubble and everything after it is grey. Reaching
   the next node is not a choice, it is the only lit affordance. (PRIMARY, Feb 2026 image.)
-- **Tapping a node opens a one-button bubble.** Duolingo's own alt text, 16 December 2025: *"a node in the path
-  has been clicked on and there is a bubble that says 'Start +35XP'"*. Tapping an **already-completed** node
-  opens a bubble with exactly **two** options: *"review to earn 5XP or do a Legendary lesson to earn 40XP"*.
+- **Tapping a node opens a one-button bubble.** Duolingo's own alt text, 16 December 2025: _"a node in the path
+  has been clicked on and there is a bubble that says 'Start +35XP'"_. Tapping an **already-completed** node
+  opens a bubble with exactly **two** options: _"review to earn 5XP or do a Legendary lesson to earn 40XP"_.
   So: one option forward, two options backward, never a menu.
   (<https://blog.duolingo.com/ways-to-practice-in-duolingo/>)
 - **Inside a lesson** there is one instruction, one prompt, one input area and one full-width button.
@@ -184,28 +184,28 @@ Concrete mechanics, all from primary artefacts:
 
 **Honest gap.** Duolingo has **not** published a design principle that says "one dominant action per screen".
 I looked through their entire public brand guidelines site and their design blog and found no such statement.
-What they have published is the *reason*, which is the "correct or best way" quote in 1.1, plus the Feb 2026
-line: *"Simplicity is good but not at the expense of clarity. Good design means knowing what to remove and what
-to keep."* Everything else in this section is observed from dated screenshots, and I am labelling it as
+What they have published is the _reason_, which is the "correct or best way" quote in 1.1, plus the Feb 2026
+line: _"Simplicity is good but not at the expense of clarity. Good design means knowing what to remove and what
+to keep."_ Everything else in this section is observed from dated screenshots, and I am labelling it as
 observation rather than doctrine.
 
 ## 1.5 How the tab bar has changed
 
 Dated evidence only. I have deliberately not filled the gaps with recollection.
 
-| Date | Tab bar state | Source |
-|---|---|---|
-| Before Nov 2022 | Included a separate **Stories** tab; Tips lived per-skill inside the tree | PRIMARY, blog, 6 May 2022 |
-| 22 March 2022 | Duolingo shut down its **discussion forums** entirely, keeping only Sentence Discussions | SECONDARY, widely reported |
-| 1 Nov 2022 | Path launches for all learners. Stories tab **removed** and folded into the path. Tips **removed** and folded into a per-unit guidebook. **Quests** tab added (chest icon). **Practice Hub** tab added (barbell icon), Super only. | PRIMARY, blog, 6 May 2022 |
-| 16 Dec 2025 | Practice Hub still described as "the dumbbell at the bottom of the screen" for Super subscribers | PRIMARY, blog |
-| 18 Feb 2026 | Practice tab paywall removed on iOS | SECONDARY |
-| 4 Feb 2026 | **Six tabs**, read directly from Duolingo's own image: house (Learn), chest (Quests), trophy (Leaderboards), video camera (Video Call), person (Profile), heart-in-speech-bubble (Feed) | PRIMARY, blog image |
+| Date            | Tab bar state                                                                                                                                                                                                                      | Source                     |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Before Nov 2022 | Included a separate **Stories** tab; Tips lived per-skill inside the tree                                                                                                                                                          | PRIMARY, blog, 6 May 2022  |
+| 22 March 2022   | Duolingo shut down its **discussion forums** entirely, keeping only Sentence Discussions                                                                                                                                           | SECONDARY, widely reported |
+| 1 Nov 2022      | Path launches for all learners. Stories tab **removed** and folded into the path. Tips **removed** and folded into a per-unit guidebook. **Quests** tab added (chest icon). **Practice Hub** tab added (barbell icon), Super only. | PRIMARY, blog, 6 May 2022  |
+| 16 Dec 2025     | Practice Hub still described as "the dumbbell at the bottom of the screen" for Super subscribers                                                                                                                                   | PRIMARY, blog              |
+| 18 Feb 2026     | Practice tab paywall removed on iOS                                                                                                                                                                                                | SECONDARY                  |
+| 4 Feb 2026      | **Six tabs**, read directly from Duolingo's own image: house (Learn), chest (Quests), trophy (Leaderboards), video camera (Video Call), person (Profile), heart-in-speech-bubble (Feed)                                            | PRIMARY, blog image        |
 
 Note the direction of travel. Between 2022 and 2026 Duolingo **removed two tabs from the top level** (Stories,
-Tips) by pushing that content *into* the single path, and then **added four social and paid tabs** around it
+Tips) by pushing that content _into_ the single path, and then **added four social and paid tabs** around it
 (Quests, Leaderboards, Video Call, Feed). The learning surface got simpler. The retention surface got bigger.
-Do not read Duolingo as an app that keeps getting simpler overall. It keeps the *learning* screen ruthlessly
+Do not read Duolingo as an app that keeps getting simpler overall. It keeps the _learning_ screen ruthlessly
 simple and lets complexity accumulate in the tabs beside it.
 
 **Unverified:** the tab bar composition for 2018 to 2021. Search results gave conflicting sets (one claiming
@@ -230,20 +230,20 @@ have found "the Duolingo design system" has found a third-party reconstruction, 
 
 **The UX writing guidelines are real and they are good.** From `design.duolingo.com/writing/style`, verbatim:
 
-- **Buttons:** *"Never use punctuation in a button."* Their example of correct button copy is `NO THANKS`,
+- **Buttons:** _"Never use punctuation in a button."_ Their example of correct button copy is `NO THANKS`,
   the incorrect version is `NO, THANKS`.
-- **Headlines:** *"Don't punctuate headlines, except with an exclamation point."* Correct: `Freeze your streak`
+- **Headlines:** _"Don't punctuate headlines, except with an exclamation point."_ Correct: `Freeze your streak`
   and `Keep the flame lit!`. Incorrect: the same lines with full stops.
-- **Subheads:** *"Don't punctuate subheads, unless with an exclamation point. If it's a multi-sentence subhead,
-  punctuate each sentence."* Correct: `You're on day 1 of 7` and `You're on day 1 of 7. Keep going!`.
-- **Numerals:** *"Write all numbers numerically, even numbers under 10. But if a number starts a sentence,
-  spell it out."* And: *"If the number is over 999, include a comma. But don't include a comma for XP or other
-  currency totals in the product."* So `4 day streak` and `2567 XP`, not `four day streak` or `2,567 XP`.
-- **Compound adjectives:** *"Don't hyphenate 'x day streak'."* Correct: `Keep your 10 day streak going!`.
-- **Em dashes:** *"Avoid em dashes. It's more Duolingo style to have two sentences than one long sentence
-  broken up with a dash."*
-- **Semicolons:** *"Instead of a semicolon, use an em dash. Even better: Break long, two-part sentences into
-  two simple sentences."*
+- **Subheads:** _"Don't punctuate subheads, unless with an exclamation point. If it's a multi-sentence subhead,
+  punctuate each sentence."_ Correct: `You're on day 1 of 7` and `You're on day 1 of 7. Keep going!`.
+- **Numerals:** _"Write all numbers numerically, even numbers under 10. But if a number starts a sentence,
+  spell it out."_ And: _"If the number is over 999, include a comma. But don't include a comma for XP or other
+  currency totals in the product."_ So `4 day streak` and `2567 XP`, not `four day streak` or `2,567 XP`.
+- **Compound adjectives:** _"Don't hyphenate 'x day streak'."_ Correct: `Keep your 10 day streak going!`.
+- **Em dashes:** _"Avoid em dashes. It's more Duolingo style to have two sentences than one long sentence
+  broken up with a dash."_
+- **Semicolons:** _"Instead of a semicolon, use an em dash. Even better: Break long, two-part sentences into
+  two simple sentences."_
 
 From `design.duolingo.com/writing/tone`, verbatim, and this is the most directly copyable thing on the entire
 site:
@@ -256,7 +256,7 @@ site:
 > overdo it. We want them to keep going!
 > Like this: `Not quite correct. Try again!` `Oh no! You're out of health. Want to ask a friend for a refill?`
 > Not this: `Incorrect.` `We're very sorry, but you don't have any health left. Hopefully, a friend will
-> share some health with you, do you want to ask them?`
+share some health with you, do you want to ask them?`
 
 **STALE RISK on the brand narrative page only.** `/writing/brand-narrative` names Trevor Noah as the current
 host of The Daily Show, which dates that particular page to roughly 2016 to 2022. The style and tone pages
@@ -282,7 +282,7 @@ directly. The Today tab contains:
 
 Three tabs. That is the whole navigation. Compare Duolingo's six.
 
-**PRIMARY, Apple Developer, 5 June 2023.** *"Behind the Design: Headspace"*
+**PRIMARY, Apple Developer, 5 June 2023.** _"Behind the Design: Headspace"_
 (<https://developer.apple.com/news/?id=fkfnhq8u>), Jeff Birkeland, Headspace SVP and GM for member products:
 
 > "In previous versions of Headspace, the core navigation included tabs for meditation, focus, movement, and
@@ -303,18 +303,18 @@ The framing quote, worth keeping:
 > right content faster?"
 
 **The before state, for contrast. SECONDARY, Android Authority, 4 September 2021, STALE RISK by design since
-it documents the old app:** five sections, *"a user profile, the Today tab for tracking your daily practice,
-and four main topical tabs: Meditate, Sleep, Move, and Focus."* So the redesign took **five tabs down to
+it documents the old app:** five sections, _"a user profile, the Today tab for tracking your daily practice,
+and four main topical tabs: Meditate, Sleep, Move, and Focus."_ So the redesign took **five tabs down to
 three**, and pushed the four topical tabs behind a search field and four coloured buttons inside Explore
 (confirmed in the current App Store screenshots: a `Search Headspace` field, then buttons for `Meditate`,
 `Sleep`, `Move`, `Music`).
 
 **How many actions does the Today screen offer?** Not one. It offers a small ordered stack of typically three
-to five cards, one of which is visually first in a timeline. It is a *shortest ranked list*, not a single
+to five cards, one of which is visually first in a timeline. It is a _shortest ranked list_, not a single
 button. That distinction matters for what you copy.
 
-**SECONDARY, ScreensDesign (undated capture):** a fair criticism worth recording. *"The home screen, while
-personalized, is quite long and requires significant scrolling to see all sections."* The same source counts
+**SECONDARY, ScreensDesign (undated capture):** a fair criticism worth recording. _"The home screen, while
+personalized, is quite long and requires significant scrolling to see all sections."_ The same source counts
 **10 onboarding steps** and classifies the paywall as a free-trial soft paywall shown during onboarding.
 
 ## 2.2 How the onboarding questions shape what appears afterwards
@@ -337,7 +337,7 @@ Five onboarding variants were tested on new free-trial users:
 Results, verbatim figures:
 
 - Course starts rose from **31.25%** in control to **62.97%** in the Perceived Fit condition.
-- Perceived Fit beat Default to Basics by **7.6 percentage points**, and the *only* difference between those
+- Perceived Fit beat Default to Basics by **7.6 percentage points**, and the _only_ difference between those
   two conditions was whether questions were asked. Everyone got the same course either way.
 - Precommitment raised app opens by **7.5%** and unique app-open days by **4%**.
 - **No statistically significant increase in active meditation days in any condition.**
@@ -345,42 +345,42 @@ Results, verbatim figures:
 Their explanation, verbatim:
 
 > "Asking users to answer a number of questions about their experience with meditation and plans for using
-> Headspace, creates a *perception* that the recommended course will be tailored to them even if everyone will
+> Headspace, creates a _perception_ that the recommended course will be tailored to them even if everyone will
 > be assigned to the basics course anyway."
 
 The question topics used, quoted from the same case study: experience with meditation, plans for using
-Headspace, *"what do you want help with"*, *"how will you use Headspace?"*, which days they would meditate, and
-which trigger they wanted to associate with the app (their examples: *"In the morning, to start my day"* and
-*"Throughout the day instead of scrolling social media"*).
+Headspace, _"what do you want help with"_, _"how will you use Headspace?"_, which days they would meditate, and
+which trigger they wanted to associate with the app (their examples: _"In the morning, to start my day"_ and
+_"Throughout the day instead of scrolling social media"_).
 
 **Older question wording. SECONDARY, Appcues GoodUX, screenshots dated 23 November 2018, STALE RISK.** The
-sequence then was: *"What's your experience with meditation?"*, *"What brings you to Headspace?"*,
-*"When do you meditate?"*, then a recap screen summarising the selections with a call to action to begin.
+sequence then was: _"What's your experience with meditation?"_, _"What brings you to Headspace?"_,
+_"When do you meditate?"_, then a recap screen summarising the selections with a call to action to begin.
 The recap screen is the interesting survivor: it plays the answers back before starting.
 
 **Three failure modes Headspace and Irrational Labs documented honestly, all directly relevant to you:**
 
-1. *"At the time of our experiment, when users re-opened the app, they would land on the today page which would
+1. _"At the time of our experiment, when users re-opened the app, they would land on the today page which would
    contain not just their course but a range of other meditation options. People may not have been able to
-   identify which option was their course and so abandon before they start a meditation."* They had designed a
+   identify which option was their course and so abandon before they start a meditation."_ They had designed a
    one-click return modal to fix this and **it was cut during implementation**.
-2. *"New users in the control condition complete a breathing course as the first exercise they complete in
-   Headspace."* Users who instead got a longer guided course found it violated their expectation of what
-   meditation is. Their own summary: *"When you expect short breathing exercises, a longer guided session might
-   feel like too much."*
+2. _"New users in the control condition complete a breathing course as the first exercise they complete in
+   Headspace."_ Users who instead got a longer guided course found it violated their expectation of what
+   meditation is. Their own summary: _"When you expect short breathing exercises, a longer guided session might
+   feel like too much."_
 3. Their matching logic over-weighted sleep. Stress and anxiety were the most commonly selected needs, but the
    logic tree recommended a sleep course whenever sleep appeared anywhere in the answers.
 
-**The blunt lesson, verbatim:** *"Behavioral design at onboarding can drive early action and engagement, but
-real habit formation requires behavioral design across the full experience, not just at the front door."*
+**The blunt lesson, verbatim:** _"Behavioral design at onboarding can drive early action and engagement, but
+real habit formation requires behavioral design across the full experience, not just at the front door."_
 
 ## 2.3 How they introduce features beyond the first meditation
 
 **PRIMARY, current App Store screenshots, 30 July 2026.** The Basics course detail screen shows:
 
 - One hero image, the title `Basics`, and a metadata line reading `Course · 3-10 min`.
-- One sentence of description: *"Live happier and healthier by learning the fundamentals of meditation and
-  mindfulness."*
+- One sentence of description: _"Live happier and healthier by learning the fundamentals of meditation and
+  mindfulness."_
 - A `Choose your teacher` selector with named human faces (Andy, Eve).
 - **One primary blue button: `Begin Course`.**
 
@@ -401,9 +401,9 @@ The current App Store screenshots confirm the same naming style is still in use:
 "Vipassana" or "Body Scan Level 2".
 
 The Sleep section, read from the current screenshots, uses the same pattern: each card is a title plus one
-plain sentence of what it is for. `Sleepcasts` / *"Ever-changing storytelling in range of soothing voices."*
-`Wind Downs` / *"Meditation and breathing to prepare the mind for sleep."* `Sleep Music` / *"Drift off to sleep
-with these calming tracks."* `Kids and Parents` / *"Your toolkit for better bedtimes."*
+plain sentence of what it is for. `Sleepcasts` / _"Ever-changing storytelling in range of soothing voices."_
+`Wind Downs` / _"Meditation and breathing to prepare the mind for sleep."_ `Sleep Music` / _"Drift off to sleep
+with these calming tracks."_ `Kids and Parents` / _"Your toolkit for better bedtimes."_
 
 ## 2.4 How they use a single "today" card
 
@@ -411,8 +411,8 @@ Precisely stated, so you copy the right thing:
 
 - The Today tab does **not** show one card. It shows a **short ordered timeline** of three to five cards under
   a time-of-day heading such as `Start your day`.
-- The ordering is by **time of day, not by category.** Apple's phrasing: *"activities of varying lengths for
-  morning, afternoon, and night. Importantly, it does so without bringing up specific categories."*
+- The ordering is by **time of day, not by category.** Apple's phrasing: _"activities of varying lengths for
+  morning, afternoon, and night. Importantly, it does so without bringing up specific categories."_
 - The **first card in the timeline is visually privileged**: it sits at the filled dot, the later ones sit at
   hollow dots. That is the "today card". It is a default, not a lock.
 - Every card carries **duration**. `3-7 min`, `1 min`, `5 min`. This is doing enormous work: it converts an
@@ -420,7 +420,7 @@ Precisely stated, so you copy the right thing:
 - The greeting is personal and time-aware: `Good Morning, Katie`.
 
 And the documented flaw, again from Irrational Labs: because Today shows a range of options rather than one, a
-returning user could not tell which one was *their* course. Headspace's own researchers identified the fix as a
+returning user could not tell which one was _their_ course. Headspace's own researchers identified the fix as a
 one-click return modal, and it was cut. That is the strongest argument in this entire document for a returning
 user landing on **one** resume affordance rather than a personalised feed.
 
@@ -433,65 +433,65 @@ on a single-page app plus `localStorage`. I have marked each item with the effor
 
 ### 3.1 Copy directly, cheap, high value
 
-**A. The linear path with one lit node.** *(Low effort, highest value.)*
+**A. The linear path with one lit node.** _(Low effort, highest value.)_
 Render every lesson in the course as a node in one vertical column. Completed nodes are solid and ticked. The
 current node is the only coloured one and it is the only thing with a label. Everything after it is grey.
 Tapping the current node opens a one-button bubble reading `START`. This needs no backend: an index into an
 array in `localStorage`. It removes the entire "am I doing this right" anxiety that Duolingo explicitly named
 as its reason for the redesign.
 
-**B. Show locked content in position, greyed out.** *(Low effort.)*
+**B. Show locked content in position, greyed out.** _(Low effort.)_
 Do not hide your later features behind rules. Put the fingerspelling drill, the story, the reward moment on the
 path as grey shapes the learner scrolls past. The unlock trigger is arriving there. This gives you the entire
 psychological benefit of progressive disclosure without a single conditional-unlock rule to write, debug or
 explain.
 
-**C. Play before signup, and there is no signup.** *(Zero effort, it is a decision.)*
+**C. Play before signup, and there is no signup.** _(Zero effort, it is a decision.)_
 Duolingo's 20% DAU lift came from letting people do a lesson first. You have no accounts at all, so you get the
 full benefit for free. Do not add a name-entry screen, an email capture, or a "create your profile" step at the
 front. Land the user directly in the first exercise. If you ever want a name for greeting purposes, ask for it
-*after* the first completed lesson, in a dismissible card with a quiet `Later`.
+_after_ the first completed lesson, in a dismissible card with a quiet `Later`.
 
-**D. One instruction, one prompt, one input, one button.** *(Low effort.)*
+**D. One instruction, one prompt, one input, one button.** _(Low effort.)_
 Copy the Duolingo lesson chrome exactly: an `X` in the top-left as small grey text, one progress bar, and if
 you have a resource meter, one pill at the top-right. Then one bold instruction line, the sign or video, the
 answer area, and a single full-width primary button. Nothing else on the screen. Never a tab bar during a
 lesson.
 
-**E. Make the exit quiet, never absent.** *(Zero effort.)*
+**E. Make the exit quiet, never absent.** _(Zero effort.)_
 Duolingo's documented experiment: a prominent red "Discard my progress" cost them users; a quiet "Later"
 recovered them. Every dismissal, skip and quit in your app should be small grey text, and the forward action
 should be the large coloured button. Do not remove the exit. Shrink it.
 
-**F. Duration on every card.** *(Low effort.)*
+**F. Duration on every card.** _(Low effort.)_
 Headspace puts `3-7 min` or `1 min` on every single item. Your lessons should carry an honest time estimate or
 a card count. This is the single cheapest way to reduce the perceived cost of starting.
 
-**G. The tone rules, verbatim.** *(Zero effort, it is a find-and-replace on your copy.)*
+**G. The tone rules, verbatim.** _(Zero effort, it is a find-and-replace on your copy.)_
 Take Duolingo's published rules straight: no punctuation in buttons, no full stops in headlines, exclamation
 points only on success, numerals written as digits even under 10. And their success-versus-stumble split:
 `Correct!` not `You are correct`; `Not quite correct. Try again!` not `Incorrect.` Their published avoidance of
 em dashes happens to match your own house style exactly.
 
-**H. Name your content by situation, not by technique.** *(Zero effort at authoring time, impossible to retrofit.)*
+**H. Name your content by situation, not by technique.** _(Zero effort at authoring time, impossible to retrofit.)_
 Headspace ships `Mindful eating` and `Weathering the storm`, not `Vipassana Module 2`. Your units should be
 `Introduce yourself`, `Ordering food`, `Meeting your neighbour`, not `Handshape set 3` or `Non-manual markers`.
 Duolingo's own unit banner in the February 2026 screenshot reads exactly this way: `SECTION 2, UNIT 6` on the
 small line, `Introduce yourself` on the large line. Two lines: machine label small, human label large.
 
-**I. Streak on the first completed session, with an over-designed celebration.** *(Medium effort, animation cost.)*
+**I. Streak on the first completed session, with an over-designed celebration.** _(Medium effort, animation cost.)_
 Duolingo's measured result: adding a better streak-extension animation increased the chance a brand new learner
 was still there seven days later by **1.7%**. The streak number itself is one integer plus one date string in
 `localStorage`. The value is not in the counter, it is in the two seconds of animation after lesson one.
 
-**J. A recap screen after the questions.** *(Low effort.)*
+**J. A recap screen after the questions.** _(Low effort.)_
 Headspace's 2018 flow ended its questions with a recap of the answers before starting. This is the visible
-half of the "perceived fit" effect: people need to *see* that you listened.
+half of the "perceived fit" effect: people need to _see_ that you listened.
 
 ### 3.2 Copy the shape, not the implementation
 
 **K. Ask three questions, then recommend one thing, and it can be the same thing for everyone.**
-*(Low effort. This is the most valuable single finding in the report.)*
+_(Low effort. This is the most valuable single finding in the report.)_
 Headspace's Perceived Fit condition asked a quiz and then gave **everyone the identical Basics course**, and it
 beat giving people that same course with no questions by 7.6 percentage points, and doubled course starts
 against control. Their Personalised Fit condition, which actually did the matching work, did **not** beat it.
@@ -502,11 +502,11 @@ hardcoded route and no recommendation engine. If you later build genuine branchi
 pedagogically better, not because you expect a conversion gain, because Headspace's data says there was not one.
 
 **L. Ask for a precommitment, then use it as your only notification.**
-*(Low effort if you use a local notification or none at all.)*
-Their precommitment condition lifted app opens 7.5% and unique open days 4%. Copy the *question*, not the
+_(Low effort if you use a local notification or none at all.)_
+Their precommitment condition lifted app opens 7.5% and unique open days 4%. Copy the _question_, not the
 infrastructure: "Which days will you practise?" and "When?" with options phrased as triggers, in the style of
-their examples *"In the morning, to start my day"* and *"Throughout the day instead of scrolling social
-media"*. Even with no push notifications at all, writing that answer back on the home screen ("You said
+their examples _"In the morning, to start my day"_ and _"Throughout the day instead of scrolling social
+media"_. Even with no push notifications at all, writing that answer back on the home screen ("You said
 mornings. Ready?") is a real behavioural intervention and costs nothing.
 
 **M. Three tabs maximum, and none of them during a lesson.**
@@ -542,8 +542,8 @@ retention, and instrument the two separately.
 
 - **Leagues, leaderboards, friend quests, feed.** These need a social graph and a server. They are also the
   four newest tabs Duolingo added, which tells you they are a scale play, not a comprehension play.
-- **Hearts or Energy.** Duolingo's own words: hearts made beginners *"2X more likely to run out of hearts
-  mid-lesson"* and that this *"was not the most effective way to support learning"*. They only replaced it with
+- **Hearts or Energy.** Duolingo's own words: hearts made beginners _"2X more likely to run out of hearts
+  mid-lesson"_ and that this _"was not the most effective way to support learning"_. They only replaced it with
   a softer meter because they need a monetisation surface. You do not. Ship no failure currency.
 - **A 30-plus screen onboarding.** Duolingo's screen count grew from roughly 7 to reportedly 38 because each
   screen increases sunk cost before a paywall. You have no paywall. Every screen you add is pure loss.
@@ -556,35 +556,35 @@ retention, and instrument the two separately.
 
 # PART 4 · SOURCE LIST WITH DATES
 
-| # | Source | Date | Type | Staleness |
-|---|---|---|---|---|
-| 1 | <https://blog.duolingo.com/new-duolingo-home-screen-design/> | 6 May 2022 (launch 1 Nov 2022) | PRIMARY | Pre-2023. Path still exists, so core claims hold, but tab details superseded |
-| 2 | <https://blog.duolingo.com/core-tabs-redesign/> | 4 Feb 2026 | PRIMARY | Current |
-| 3 | <https://blog.duolingo.com/ways-to-practice-in-duolingo/> | 16 Dec 2025 | PRIMARY | Current |
-| 4 | <https://blog.duolingo.com/product-highlights/> | 10 Dec 2025 | PRIMARY | Current |
-| 5 | <https://blog.duolingo.com/duolingo-energy/> | 3 Jul 2025 | PRIMARY | Current, feature still in rollout |
-| 6 | <https://blog.duolingo.com/how-duolingo-streak-builds-habit/> | 31 Jan 2022 | PRIMARY | Pre-2023, mechanic unchanged |
-| 7 | <https://www.duolingo.com/help/leaderboards-and-league> | Undated | PRIMARY | Current, but silent on the lesson threshold |
-| 8 | <https://design.duolingo.com/writing/style> and `/writing/tone` | Tone page server timestamp 9 Apr 2026 | PRIMARY | Current |
-| 9 | <https://design.duolingo.com/writing/brand-narrative> | Undated | PRIMARY | STALE, internal evidence dates it 2016 to 2022 |
-| 10 | <https://review.firstround.com/the-tenets-of-a-b-testing-from-duolingos-master-growth-hacker/> | 17 Jul 2017, updated 23 Nov 2024 | PRIMARY interview | STALE on specifics, sound on principle |
-| 11 | Google Play listing, `com.duolingo`, v7.133.0 | 27 Jul 2026 | PRIMARY artefact | Current |
-| 12 | <https://developer.apple.com/news/?id=fkfnhq8u> | 5 Jun 2023 | PRIMARY interview | Just inside the freshness window |
-| 13 | App Store listing, Headspace, v8.25.2 | 30 Jul 2026 | PRIMARY artefact | Current |
-| 14 | <https://irrationallabs.com/case-studies/headspace-doubled-course-starts/> | ~Apr to May 2026 | PRIMARY-adjacent, run with Headspace | Current |
-| 15 | <https://kristenberman.substack.com/p/lessons-on-habit-formation-from-an> | 1 May 2026 | Same authors | Current |
-| 16 | <https://www.purchasely.com/blog/headspace-behavioral-science-onboarding-experiment> | 7 May 2026 | SECONDARY, partner | Current |
-| 17 | <https://growth.design/case-studies/duolingo-user-retention> | Undated | SECONDARY | Unknown, treat cautiously |
-| 18 | <https://duoplanet.com/duolingo-leagues-the-essential-guide-everything-you-need-to-know/> | 28 Aug 2023 | SECONDARY | Borderline |
-| 19 | <https://duoplanet.com/duolingo-streak-society/> | 26 May 2023 | SECONDARY | Borderline |
-| 20 | <https://userguiding.com/blog/duolingo-onboarding-ux> | updated 28 Feb 2024 | SECONDARY | Ageing |
-| 21 | <https://tasu.ai/library/duolingo> | Jun 2026 | SECONDARY | Current but unsourced |
-| 22 | <https://gallery.reteno.com/flows/app-screens-duolingo> | captured 21 Jul 2025 | SECONDARY artefact | Current, screens gated |
-| 23 | <https://screensdesign.com/showcase/headspace-meditation-sleep> | Undated | SECONDARY | Unknown |
-| 24 | <https://www.androidauthority.com/headspace-app-2746501/> | 4 Sep 2021 | SECONDARY | STALE, cited only for the pre-redesign state |
-| 25 | <https://goodux.appcues.com/blog/headspaces-mindful-onboarding-sequence> | screenshots 23 Nov 2018 | SECONDARY | STALE, cited only for question wording |
-| 26 | <https://thelearningstandard.org/news/duolingo-unlocks-premium-practice-tools-for-free-accounts> | 18 Feb 2026 | SECONDARY | Current, single-source |
-| 27 | <https://theappfuel.com/casestudies/three-learnings-from-duolingos-onboarding> | 14 Oct 2020 | SECONDARY | STALE |
+| #   | Source                                                                                           | Date                                  | Type                                 | Staleness                                                                    |
+| --- | ------------------------------------------------------------------------------------------------ | ------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
+| 1   | <https://blog.duolingo.com/new-duolingo-home-screen-design/>                                     | 6 May 2022 (launch 1 Nov 2022)        | PRIMARY                              | Pre-2023. Path still exists, so core claims hold, but tab details superseded |
+| 2   | <https://blog.duolingo.com/core-tabs-redesign/>                                                  | 4 Feb 2026                            | PRIMARY                              | Current                                                                      |
+| 3   | <https://blog.duolingo.com/ways-to-practice-in-duolingo/>                                        | 16 Dec 2025                           | PRIMARY                              | Current                                                                      |
+| 4   | <https://blog.duolingo.com/product-highlights/>                                                  | 10 Dec 2025                           | PRIMARY                              | Current                                                                      |
+| 5   | <https://blog.duolingo.com/duolingo-energy/>                                                     | 3 Jul 2025                            | PRIMARY                              | Current, feature still in rollout                                            |
+| 6   | <https://blog.duolingo.com/how-duolingo-streak-builds-habit/>                                    | 31 Jan 2022                           | PRIMARY                              | Pre-2023, mechanic unchanged                                                 |
+| 7   | <https://www.duolingo.com/help/leaderboards-and-league>                                          | Undated                               | PRIMARY                              | Current, but silent on the lesson threshold                                  |
+| 8   | <https://design.duolingo.com/writing/style> and `/writing/tone`                                  | Tone page server timestamp 9 Apr 2026 | PRIMARY                              | Current                                                                      |
+| 9   | <https://design.duolingo.com/writing/brand-narrative>                                            | Undated                               | PRIMARY                              | STALE, internal evidence dates it 2016 to 2022                               |
+| 10  | <https://review.firstround.com/the-tenets-of-a-b-testing-from-duolingos-master-growth-hacker/>   | 17 Jul 2017, updated 23 Nov 2024      | PRIMARY interview                    | STALE on specifics, sound on principle                                       |
+| 11  | Google Play listing, `com.duolingo`, v7.133.0                                                    | 27 Jul 2026                           | PRIMARY artefact                     | Current                                                                      |
+| 12  | <https://developer.apple.com/news/?id=fkfnhq8u>                                                  | 5 Jun 2023                            | PRIMARY interview                    | Just inside the freshness window                                             |
+| 13  | App Store listing, Headspace, v8.25.2                                                            | 30 Jul 2026                           | PRIMARY artefact                     | Current                                                                      |
+| 14  | <https://irrationallabs.com/case-studies/headspace-doubled-course-starts/>                       | ~Apr to May 2026                      | PRIMARY-adjacent, run with Headspace | Current                                                                      |
+| 15  | <https://kristenberman.substack.com/p/lessons-on-habit-formation-from-an>                        | 1 May 2026                            | Same authors                         | Current                                                                      |
+| 16  | <https://www.purchasely.com/blog/headspace-behavioral-science-onboarding-experiment>             | 7 May 2026                            | SECONDARY, partner                   | Current                                                                      |
+| 17  | <https://growth.design/case-studies/duolingo-user-retention>                                     | Undated                               | SECONDARY                            | Unknown, treat cautiously                                                    |
+| 18  | <https://duoplanet.com/duolingo-leagues-the-essential-guide-everything-you-need-to-know/>        | 28 Aug 2023                           | SECONDARY                            | Borderline                                                                   |
+| 19  | <https://duoplanet.com/duolingo-streak-society/>                                                 | 26 May 2023                           | SECONDARY                            | Borderline                                                                   |
+| 20  | <https://userguiding.com/blog/duolingo-onboarding-ux>                                            | updated 28 Feb 2024                   | SECONDARY                            | Ageing                                                                       |
+| 21  | <https://tasu.ai/library/duolingo>                                                               | Jun 2026                              | SECONDARY                            | Current but unsourced                                                        |
+| 22  | <https://gallery.reteno.com/flows/app-screens-duolingo>                                          | captured 21 Jul 2025                  | SECONDARY artefact                   | Current, screens gated                                                       |
+| 23  | <https://screensdesign.com/showcase/headspace-meditation-sleep>                                  | Undated                               | SECONDARY                            | Unknown                                                                      |
+| 24  | <https://www.androidauthority.com/headspace-app-2746501/>                                        | 4 Sep 2021                            | SECONDARY                            | STALE, cited only for the pre-redesign state                                 |
+| 25  | <https://goodux.appcues.com/blog/headspaces-mindful-onboarding-sequence>                         | screenshots 23 Nov 2018               | SECONDARY                            | STALE, cited only for question wording                                       |
+| 26  | <https://thelearningstandard.org/news/duolingo-unlocks-premium-practice-tools-for-free-accounts> | 18 Feb 2026                           | SECONDARY                            | Current, single-source                                                       |
+| 27  | <https://theappfuel.com/casestudies/three-learnings-from-duolingos-onboarding>                   | 14 Oct 2020                           | SECONDARY                            | STALE                                                                        |
 
 ---
 
@@ -596,8 +596,7 @@ State these as open, not as fact.
    Duoplanet says one lesson. Duolingo's own help page gives no threshold at all. Unresolved.
 2. **The current Duolingo daily-goal options.** No official page found. The tier names and their XP or minute
    values come only from secondary blogs and they disagree with each other.
-3. **The current Duolingo onboarding screen count.** Estimates range from 7 to 38 across sources dated 2020 to
-   2026. No official statement exists.
+3. **The current Duolingo onboarding screen count.** Estimates range from 7 to 38 across sources dated 2020 to 2026. No official statement exists.
 4. **The Duolingo tab bar between 2018 and 2021.** Conflicting third-party accounts, and the App Store
    screenshot archives that would settle it are paywalled.
 5. **Headspace's own help centre documentation of the Today tab.** `help.headspace.com` requires a sign-in and

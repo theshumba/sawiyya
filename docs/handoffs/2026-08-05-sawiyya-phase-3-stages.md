@@ -38,6 +38,7 @@ changed in each phase, pointing at specific files in `~/Desktop/sawiyya-phase-1-
 stack order and verify the live app actually changed, not just that the push succeeded.
 
 **Open questions:**
+
 - **The 19 A1 word signs are `cameraGradable: false`** — watchable, never practisable, no
   real-signer footage. Oldest open question in the project, now five sessions old. Phase 4 touches
   the Words screen directly (it merges Words into Signs), so this starts blocking real work.
@@ -52,6 +53,7 @@ stack order and verify the live app actually changed, not just that the push suc
 ## Reasoning trail
 
 **Decisions made:**
+
 - **The plan's positional backfill was replaced with per-step `entails`.** Point 5 of the plan says
   completing a later milestone marks the earlier ones done. Taken literally, tapping "ask for a sign"
   in minute one ticks first-sign, first-lesson, install and first-review for someone who did none of
@@ -77,6 +79,7 @@ stack order and verify the live app actually changed, not just that the push suc
   The event fires early; a listener added on open has already missed it.
 
 **Tried and rejected:**
+
 - **Putting the whole ladder on Home.** Direct conflict with Phase 1's one-road rule. Progress got
   the readout instead — but note Progress is nearly unreachable today (Phase 4 point 2 exists to
   give it a door), which is exactly why Home keeps the single non-trail row.
@@ -119,18 +122,20 @@ stack order and verify the live app actually changed, not just that the push suc
   `node_modules`, `npx vite build`, `python3 -m http.server`. Every one fails there; every Phase 1
   and Phase 2 step still passes. Worktree removed.
 - Serving a build: `cd dist && python3 -m http.server 4173`, then `SMOKE_URL=http://localhost:4173/
-  node scripts/smoke.mjs`. `vite preview` still serves nothing from an outside-root outDir.
+node scripts/smoke.mjs`. `vite preview` still serves nothing from an outside-root outDir.
 
 ## Git state snapshot
 
 **Branch:** `feat/phase-3-stages`
 
 **Status:**
+
 ```
 (clean)
 ```
 
 **Recent commits:**
+
 ```
 68b85d2 feat(journey): Phase 3 — stages
 bed9703 docs: the Phase 2 session handoff, left untracked last session
@@ -145,6 +150,7 @@ cc99ce3 test(camera): make the 0% grading failure impossible to ship again
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes)
 ```

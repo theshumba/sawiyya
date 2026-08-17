@@ -76,7 +76,7 @@ trainer, or to find a Deaf QSL signer and record the words properly.
   It was rebuilt because it had rotted: it was driving the app by wording that three redesigns ago
   stopped existing, so every step was failing on `main` and nobody could tell, because a broken
   check looks exactly like one nobody runs.
-- That walkthrough was then run against the app as it was *before* this phase, to prove it actually
+- That walkthrough was then run against the app as it was _before_ this phase, to prove it actually
   detects the difference. Every Phase 1 check failed there, as it should.
 - 49 screenshots at phone width, English and Arabic, no console errors on any screen.
 

@@ -8,12 +8,7 @@ import type { Lesson, Sign, Unit } from "../types";
 // ── Arabic alphabet — 28 letters camera-graded from real signers (Zenodo ArSL,
 // CC-BY-4.0), plus 3 edge forms (taMarbuta/laa/al) that have NO ground-truth seeds
 // and are reference-only (cameraGradable=false) until a signer records them. ─────
-const L = (
-  id: string,
-  code: string,
-  glossEn: string,
-  edge = false,
-): Sign => ({
+const L = (id: string, code: string, glossEn: string, edge = false): Sign => ({
   id: `alpha-${id}`,
   tier: "alphabet",
   code,
@@ -83,8 +78,7 @@ export const ALPHABET: Sign[] = [
 
 export const ALL_SIGNS: Sign[] = [...ALPHABET];
 
-export const signById = (id: string): Sign | undefined =>
-  ALL_SIGNS.find((s) => s.id === id);
+export const signById = (id: string): Sign | undefined => ALL_SIGNS.find((s) => s.id === id);
 
 // ── Alphabet curriculum (H22) — the sourced content leads the path. 4 lessons
 // of 7 letters in standard Arabic order (pinned decision — no invented
@@ -110,8 +104,7 @@ export const UNIT_ALPHA: Unit = {
  *  Unit number shown in the UI = index here + 1. */
 export const UNITS: Unit[] = [UNIT_ALPHA];
 
-export const unitById = (id: string): Unit | undefined =>
-  UNITS.find((u) => u.id === id);
+export const unitById = (id: string): Unit | undefined => UNITS.find((u) => u.id === id);
 
 const alphaLesson = (n: number, titleEn: string, titleAr: string): Lesson => ({
   id: `alpha-u1-l${n}`,
@@ -129,8 +122,7 @@ export const LESSONS: Lesson[] = [
   alphaLesson(4, "Kaf to Ya", "من الكاف إلى الياء"),
 ];
 
-export const lessonById = (id: string): Lesson | undefined =>
-  LESSONS.find((l) => l.id === id);
+export const lessonById = (id: string): Lesson | undefined => LESSONS.find((l) => l.id === id);
 
 // ── Fingerspelling (M6) — char → alphabet sign. ──────────────────────────────
 // Base map: every single-char letter code in ALPHABET (the multi-char edge
@@ -142,9 +134,13 @@ const CHAR_TO_SIGN: Record<string, string> = Object.fromEntries(
 // the base letter whose handshape they share. ة keeps its own reference-only
 // sign (never folded to ه/ت — that would be a linguistic claim we can't back).
 const FOLDS: Record<string, string> = {
-  "أ": "alpha-alif", "إ": "alpha-alif", "آ": "alpha-alif", "ٱ": "alpha-alif",
-  "ؤ": "alpha-waw",
-  "ئ": "alpha-ya", "ى": "alpha-ya",
+  أ: "alpha-alif",
+  إ: "alpha-alif",
+  آ: "alpha-alif",
+  ٱ: "alpha-alif",
+  ؤ: "alpha-waw",
+  ئ: "alpha-ya",
+  ى: "alpha-ya",
 };
 // Dropped silently (not "skipped" — they're not signable units at all):
 // whitespace, tatweel (U+0640), harakat (U+064B–065F) and dagger alif (U+0670).
@@ -152,9 +148,7 @@ const FOLDS: Record<string, string> = {
 // are deliberately NOT here — digits surface as honest `skipped` steps.
 const SILENT = /[\s\u0640\u064B-\u065F\u0670]/;
 
-export type FingerspellStep =
-  | { kind: "letter"; char: string; signId: string }
-  | { kind: "skipped"; char: string };
+export type FingerspellStep = { kind: "letter"; char: string; signId: string } | { kind: "skipped"; char: string };
 
 /** Map an Arabic string to its fingerspelling sequence. Unmappable characters
  *  (digits, Latin, ء, punctuation) come back as honest `skipped` steps. */
@@ -178,13 +172,43 @@ export function fingerspellSequence(text: string): FingerspellStep[] {
 // س+ه), then single letters; anything unmapped passes through and surfaces as an
 // honest skipped step like before.
 const LATIN_DIGRAPHS: [string, string][] = [
-  ["sh", "ش"], ["th", "ث"], ["dh", "ذ"], ["kh", "خ"], ["gh", "غ"],
-  ["aa", "ا"], ["ee", "ي"], ["oo", "و"], ["ou", "و"],
+  ["sh", "ش"],
+  ["th", "ث"],
+  ["dh", "ذ"],
+  ["kh", "خ"],
+  ["gh", "غ"],
+  ["aa", "ا"],
+  ["ee", "ي"],
+  ["oo", "و"],
+  ["ou", "و"],
 ];
 const LATIN_SINGLES: Record<string, string> = {
-  a: "ا", b: "ب", c: "ك", d: "د", e: "ي", f: "ف", g: "ج", h: "ه", i: "ي",
-  j: "ج", k: "ك", l: "ل", m: "م", n: "ن", o: "و", p: "ب", q: "ق", r: "ر",
-  s: "س", t: "ت", u: "و", v: "ف", w: "و", x: "كس", y: "ي", z: "ز",
+  a: "ا",
+  b: "ب",
+  c: "ك",
+  d: "د",
+  e: "ي",
+  f: "ف",
+  g: "ج",
+  h: "ه",
+  i: "ي",
+  j: "ج",
+  k: "ك",
+  l: "ل",
+  m: "م",
+  n: "ن",
+  o: "و",
+  p: "ب",
+  q: "ق",
+  r: "ر",
+  s: "س",
+  t: "ت",
+  u: "و",
+  v: "ف",
+  w: "و",
+  x: "كس",
+  y: "ي",
+  z: "ز",
 };
 
 export const hasLatin = (text: string): boolean => /[a-z]/i.test(text);

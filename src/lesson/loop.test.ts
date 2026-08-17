@@ -41,8 +41,7 @@ async function fresh() {
 }
 type Sim = Awaited<ReturnType<typeof fresh>>;
 
-const atDay = (n: number, hour = 10) =>
-  vi.setSystemTime(new Date(T0.getTime() + n * DAY + (hour - 10) * 3_600_000));
+const atDay = (n: number, hour = 10) => vi.setSystemTime(new Date(T0.getTime() + n * DAY + (hour - 10) * 3_600_000));
 
 /** Complete one drill the way the real screens record it (always-correct learner). */
 function doDrill(S: Sim, d: DrillSpec) {
@@ -64,8 +63,7 @@ afterEach(() => {
 describe("rating semantics (M3, H2, M4)", () => {
   it("watch drills never rate the card and never pass mastery 1 (M3)", async () => {
     const S = await fresh();
-    for (let i = 0; i < 5; i++)
-      S.useApp.getState().recordDrillResult("hello", "good", { watch: true });
+    for (let i = 0; i < 5; i++) S.useApp.getState().recordDrillResult("hello", "good", { watch: true });
     const s = S.useApp.getState();
     expect(s.srs[S.pid]?.hello).toBeUndefined(); // no SRS card from watching
     expect(s.progress[S.pid]?.hello?.masteryLevel).toBe(1); // seen, never more
@@ -76,18 +74,14 @@ describe("rating semantics (M3, H2, M4)", () => {
     S.useApp.getState().recordDrillResult("alpha-ba", "again", { camera: true, matched: false });
     S.useApp.getState().recordDrillResult("alpha-ta", "good", { camera: true, matched: true });
     const srs = S.useApp.getState().srs[S.pid];
-    expect(new Date(srs["alpha-ba"].due).getTime()).toBeLessThan(
-      new Date(srs["alpha-ta"].due).getTime(),
-    );
+    expect(new Date(srs["alpha-ba"].due).getTime()).toBeLessThan(new Date(srs["alpha-ta"].due).getTime());
   });
 
   it("self-marks alone never reach mastery 3, even over many days (M4)", async () => {
     const S = await fresh();
     for (let d = 0; d < 10; d++) {
       atDay(d);
-      S.useApp
-        .getState()
-        .recordDrillResult("alpha-alif", "hard", { camera: true, matched: false, selfMark: true });
+      S.useApp.getState().recordDrillResult("alpha-alif", "hard", { camera: true, matched: false, selfMark: true });
     }
     expect(S.useApp.getState().progress[S.pid]["alpha-alif"].masteryLevel).toBeLessThanOrEqual(2);
   });
@@ -116,8 +110,7 @@ describe("rating semantics (M3, H2, M4)", () => {
     const S = await fresh();
     // Master 16 alphabet letters — the whole-alphabet row is what gates next.
     const prog: Record<string, { masteryLevel: number; lastSeen: string }> = {};
-    for (const l of SEEDED_LETTERS.slice(0, 16))
-      prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
+    for (const l of SEEDED_LETTERS.slice(0, 16)) prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
     S.useApp.setState((s) => ({ progress: { ...s.progress, [S.pid]: prog } }));
     let ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
     expect(ms).not.toBeNull();
@@ -127,8 +120,7 @@ describe("rating semantics (M3, H2, M4)", () => {
     // Master all 28 and the ladder is finished. The word-unit rung was removed
     // with the A1 words on 2026-08-05: keyed to an empty set it would have read
     // 0/0 and fired instantly (docs/RECORD-WORD-SIGNS.md).
-    for (const l of SEEDED_LETTERS)
-      prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
+    for (const l of SEEDED_LETTERS) prog[l.id] = { masteryLevel: 3, lastSeen: T0.toISOString() };
     S.useApp.setState((s) => ({ progress: { ...s.progress, [S.pid]: { ...prog } } }));
     ms = S.nextMilestone(S.useApp.getState(), S.pid, "en");
     expect(ms).toBeNull();
@@ -139,15 +131,7 @@ describe("review sessions (H3)", () => {
   it("sessions are capped at 10 cards, oldest-due first, mixed drill types", async () => {
     const S = await fresh();
     // Stagger card creation so due times are distinct and ordered.
-    const ids = [
-      ...SEEDED_LETTERS.slice(0, 6).map((l) => l.id),
-      "hello",
-      "mum",
-      "dad",
-      "sleep",
-      "careful",
-      "name",
-    ];
+    const ids = [...SEEDED_LETTERS.slice(0, 6).map((l) => l.id), "hello", "mum", "dad", "sleep", "careful", "name"];
     ids.forEach((id, i) => {
       vi.setSystemTime(new Date(T0.getTime() + i * 60_000));
       S.useApp.getState().addToReview(id);
@@ -170,11 +154,9 @@ describe("review sessions (H3)", () => {
     const S = await fresh();
     const get = () => S.useApp.getState();
     // Learn all 28 letters (day 0), review them once (day 1) so they graduate.
-    for (const l of SEEDED_LETTERS)
-      get().recordDrillResult(l.id, "good", { camera: true, matched: true });
+    for (const l of SEEDED_LETTERS) get().recordDrillResult(l.id, "good", { camera: true, matched: true });
     atDay(1);
-    for (const l of SEEDED_LETTERS)
-      get().recordDrillResult(l.id, "good", { camera: true, matched: true });
+    for (const l of SEEDED_LETTERS) get().recordDrillResult(l.id, "good", { camera: true, matched: true });
 
     atDay(8); // the 7-day break
     expect(S.dueSignIds(get(), S.pid).length).toBe(28); // full flood
@@ -221,8 +203,7 @@ describe("lesson path (H1) + starvation (M5)", () => {
     const S = await fresh();
     const get = () => S.useApp.getState();
     for (const lesson of LESSONS) {
-      const complete = () =>
-        lesson.signIds.every((id) => (get().progress[S.pid]?.[id]?.masteryLevel ?? 0) >= 2);
+      const complete = () => lesson.signIds.every((id) => (get().progress[S.pid]?.[id]?.masteryLevel ?? 0) >= 2);
       let rounds = 0;
       while (!complete() && rounds < 6) {
         const q = S.buildDrillQueue(lesson.id, get(), S.pid);
@@ -285,18 +266,14 @@ describe("the 14-day simulation gate", () => {
       // Starvation check: while letters remain unmet, the day always offers work.
       const carded = SEEDED_LETTERS.filter((l) => get().srs[S.pid]?.[l.id]).length;
       if (carded < SEEDED_LETTERS.length) {
-        expect(
-          S.dueSignIds(get(), S.pid).length > 0 || S.nextNewLetterId(get(), S.pid) !== null,
-        ).toBe(true);
+        expect(S.dueSignIds(get(), S.pid).length > 0 || S.nextNewLetterId(get(), S.pid) !== null).toBe(true);
       }
     }
 
     const st = get();
     const carded = SEEDED_LETTERS.filter((l) => st.srs[S.pid]?.[l.id]).length;
     expect(carded).toBe(SEEDED_LETTERS.length); // met every seeded letter
-    const mastered = SEEDED_LETTERS.filter(
-      (l) => (st.progress[S.pid]?.[l.id]?.masteryLevel ?? 0) >= 3,
-    ).length;
+    const mastered = SEEDED_LETTERS.filter((l) => (st.progress[S.pid]?.[l.id]?.masteryLevel ?? 0) >= 3).length;
     expect(mastered).toBeGreaterThanOrEqual(20); // converged, not just met
   });
 });

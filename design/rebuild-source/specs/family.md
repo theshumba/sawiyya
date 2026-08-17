@@ -8,12 +8,12 @@ Screenshots: `01-fam2.png` (switcher, EN+AR), `02-fam2.png` (hub), `03-fam2.png`
 
 The design mock renders **4 tab states** of one Family surface: `switch` (Profile switcher), `hub` (Family hub), `flag` (A flag for you), `feed` (Family feed). Map them onto existing code as follows:
 
-| Design state | Existing home |
-|---|---|
-| `switch` (dark "Who's signing?") | `Family.tsx` → `profileSwitcher` section (`app.switchProfile`) + `NoProfileFallback` styling |
-| `hub` (household name, member row, Learning-together, Invite) | `Family.tsx` → `header` + `streakHearth` + `profileSwitcher` + `focusSection` |
-| `flag` (single flagged-sign detail) | `FlagPicker.tsx` hero/detail visual language (single-flag emphasis) |
-| `feed` (activity list) | **NET-NEW** — no existing component. Build only if adding the feature; keys provided but not required for the reskin. |
+| Design state                                                  | Existing home                                                                                                         |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `switch` (dark "Who's signing?")                              | `Family.tsx` → `profileSwitcher` section (`app.switchProfile`) + `NoProfileFallback` styling                          |
+| `hub` (household name, member row, Learning-together, Invite) | `Family.tsx` → `header` + `streakHearth` + `profileSwitcher` + `focusSection`                                         |
+| `flag` (single flagged-sign detail)                           | `FlagPicker.tsx` hero/detail visual language (single-flag emphasis)                                                   |
+| `feed` (activity list)                                        | **NET-NEW** — no existing component. Build only if adding the feature; keys provided but not required for the reskin. |
 
 Notes on divergence: the design's `hub` **replaces** the existing honeycomb "board" and streak-hearth illustration with a compact member row + a "Learning together" flag list + a warm league note. Preserve the honeycomb `boardSection` logic (`signsAllCanDo`) if kept, but the primary reskin target is the design's warmer, list-driven hub. The design's `flag` detail is a single-sign takeover, NOT the multi-sign `FlagPicker` grid; apply its badge/glyph/CTA tokens to FlagPicker's hero + flagged-sign rows, keep FlagPicker's grid + toggle logic intact.
 
@@ -22,6 +22,7 @@ Notes on divergence: the design's `hub` **replaces** the existing honeycomb "boa
 ## 1 · PRESERVE (functional contract — must stay wired)
 
 ### `src/screens/Family.tsx`
+
 - `const app = useApp();` — store root; all reads/writes flow through it.
 - `const { go } = useUi();` — navigation. Every route call below must survive.
 - `const profile = activeProfile(app);` and `if (!profile) return <NoProfileFallback />;` — no-profile guard.
@@ -37,6 +38,7 @@ Notes on divergence: the design's `hub` **replaces** the existing honeycomb "boa
 - `<ScreenShell lang={lang} chrome="tabs">` — chrome ownership; do not reintroduce an in-file rail/top-bar/FAB.
 
 ### `src/screens/FlagPicker.tsx`
+
 - `useApp()`, `useUi().go`, `activeProfile`, `NoProfileFallback` guard, `lang = profile.language`.
 - State: `query`/`setQuery`, `group`/`setGroup` (`GroupId`), `mostNeeded`/`setMostNeeded`. Keep `SIGN_GROUP`, `groupOf`, `groups` array, the `useMemo` filter/sort over `A1_SIGNS`.
 - `activeFlags(app)` → `flags`; `flaggedIds` Set; `requestorIds`/`requestors`; `flaggedSigns` via `signById`; `firstFlaggedGradable`.
@@ -52,6 +54,7 @@ Notes on divergence: the design's `hub` **replaces** the existing honeycomb "boa
 **Global tokens** (lift exactly): app bg `#F6EFE3` (hub/flag/feed); switcher bg `linear-gradient(165deg,#0F6E6A,#0A4F4C)`; card `#FBF7EF`; line `#EDE3D2`; ink `#16302E`; sub `#5C726F`; mute `#94A5A2`; teal `#0F6E6A`; teal-deep `#0A4F4C`; gold `#E6B24C`; coral `#E8654C`; coral-deep `#C54F3A`; success `#1F8A5B`; flag-item bg `#FBF3EF`, flag-item border `#F5C9BE`. Latin = Rubik, Arabic = Readex Pro. Content padding inside shell: `6px 22px 20px` (scroll states), `12px 26px 0` (centered states). The 322×660 `#16302E` device frame in the mock is the ScreenShell/phone chrome — do NOT rebuild it; map content only.
 
 ### STATE A — Profile switcher (`switch`) — DARK
+
 Background `linear-gradient(165deg,#0F6E6A,#0A4F4C)`, status text `#FBF7EF`. Centered column, `padding:12px 26px 0`, `text-align:center`.
 
 - **B1 · Fanan hero** — `Fanan pose="wave" scale≈0.72` (~88×88px). Wrapper `animation:float 3s ease-in-out infinite` (`@keyframes float{0%,100%{translateY(0)}50%{translateY(-6px)}}`). Fanan NEVER mirrors.
@@ -60,6 +63,7 @@ Background `linear-gradient(165deg,#0F6E6A,#0A4F4C)`, status text `#FBF7EF`. Cen
 - **B4 · Add-learner button** — `margin-top:16px; background:rgba(255,255,255,.14); color:#FBF7EF; font:700 13px Rubik; padding:12px 18px; border-radius:13px; border:none`. Active: `transform:translateY(2px)`. Copy "+ Add a learner" / "+ أضف متعلّمًا".
 
 ### STATE B — Family hub (`hub`) — LIGHT
+
 Background `#F6EFE3`, status `#16302E`. Scroll column `padding:6px 22px 20px`.
 
 - **B5 · Header** — household name `font:800 25px/1.1 Rubik; #16302E; margin-top:4px` (data-driven, e.g. "The Al-Mansoori family" / "عائلة المنصوري"); subtitle `font:400 13px/1.35 'Readex Pro'; #5C726F; margin-top:3px` = `${learnerCount} learners · ${signCount} signs together` / `${count} متعلّمين · ${count} إشارة معًا` (numerals localized via `num`).
@@ -70,6 +74,7 @@ Background `#F6EFE3`, status `#16302E`. Scroll column `padding:6px 22px 20px`.
 - **B10 · League note** — centered `font:400 11px/1.4 'Readex Pro'; #94A5A2; margin-top:12px`. Copy "We celebrate everyone — no rankings, no losers. Turn on friendly league in settings." / "نحتفي بالجميع — لا ترتيب ولا خاسرين. فعّل الدوري الودّي من الإعدادات.".
 
 ### STATE C — A flag for you (`flag`) — LIGHT (single-sign detail)
+
 Background `#F6EFE3`. Centered column `padding:12px 26px 0` then a pinned footer. Apply these tokens to `FlagPicker`'s hero + primary CTA.
 
 - **B11 · Pulse badge** — flex row center `gap:8px; background:#FBF7EF; border:1px solid #EDE3D2; border-radius:99px; padding:7px 8px 7px 14px; animation:pulseRing 2s ease-out infinite` (`@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(232,101,76,.4)}70%{box-shadow:0 0 0 14px rgba(232,101,76,0)}100%{box-shadow:0 0 0 0 rgba(232,101,76,0)}}`). Label `font:700 12px 'Readex Pro'; #16302E` ("Baba flagged this for you" / "بابا رفع لك هذه"). From-avatar `30×30; border-radius:50%; background:#E8654C; color:#FBF7EF; font:700 13px Rubik`.
@@ -79,6 +84,7 @@ Background `#F6EFE3`. Centered column `padding:12px 26px 0` then a pinned footer
 - **B15 · Footer actions** — `flex:none; padding:12px 26px 20px; display:flex; flex-direction:column; gap:9px`. Primary: full `background:#E8654C; color:#FBF7EF; font:700 16px Rubik; height:54px; border-radius:17px; box-shadow:0 5px 0 #C54F3A; border:none`; active `transform:translateY(4px); box-shadow:0 1px 0 #C54F3A`. Copy "Learn it together →" / "لنتعلّمها معًا ←" (arrow mirrors) → wire to `go({name:"camera", targetSignId: firstFlaggedGradable})`. Secondary: full `background:none; color:#5C726F; font:600 14px 'Readex Pro'; padding:8px; border:none`. Copy "Maybe later" / "ربما لاحقًا" → `go({name:"family"})`.
 
 ### STATE D — Family feed (`feed`) — LIGHT · NET-NEW (optional)
+
 Background `#F6EFE3`. Scroll column `padding:6px 22px 20px`. No existing component — only build if adding the activity feed.
 
 - **B16 · Header** — title `font:800 25px/1.1 Rubik; #16302E; margin-top:4px` "Family feed" / "أخبار العائلة"; body `font:400 13px/1.35 'Readex Pro'; #5C726F; margin-top:3px` "What everyone's been up to." / "ماذا فعل الجميع مؤخرًا.".
@@ -90,45 +96,45 @@ Background `#F6EFE3`. Scroll column `padding:6px 22px 20px`. No existing compone
 
 Reuse existing keys where the .tsx already wires one; new keys prefixed with proposals below.
 
-| Key (existing/new) | English | Arabic |
-|---|---|---|
-| `famSwitchTitle` *(new)* | Who's signing? | من سيتعلّم الآن؟ |
-| `famSwitchBody` *(new)* | One app, the whole family. | تطبيق واحد، والعائلة كلها. |
-| `famAddLearner` *(new; `famAdd` exists but reads "Add a family member")* | Add a learner | أضف متعلّمًا |
-| household name | *(data-driven, e.g.)* The Al-Mansoori family | عائلة المنصوري |
-| `famLearners` *(new)* | learners | متعلّمين |
-| `famSignsTogether` *(new)* | signs together | إشارة معًا |
-| `famLearningTogether` *(new)* | Learning together | نتعلّم معًا |
-| flag by-line | *(data-driven)* Flagged by Baba — for you | رفعها بابا — لك |
-| flag by-line 2 | *(data-driven)* You flagged it — for Sara | رفعتها — لسارة |
-| `famInvite` *(new)* | Invite family | ادعُ العائلة |
-| `famLeagueNote` *(new)* | We celebrate everyone — no rankings, no losers. Turn on friendly league in settings. | نحتفي بالجميع — لا ترتيب ولا خاسرين. فعّل الدوري الودّي من الإعدادات. |
-| `famFlagFrom` *(new; `${name}` + phrase)* | flagged this for you | رفع لك هذه |
-| flag detail title | *(data-driven)* "Learn 'I love you' with me." | «تعلّم 'أحبّك' معي.» |
-| `famFlagDetailBody` *(new; `{name}` interpolated)* | {name} wants to learn this sign together. Practise it, then surprise each other. | يريد {name} تعلّم هذه الإشارة معًا. تمرّن عليها ثم فاجئا بعضكما. |
-| `famLearnTogetherCta` *(new)* | Learn it together → | لنتعلّمها معًا ← |
-| `famMaybeLater` *(new)* | Maybe later | ربما لاحقًا |
-| `famFeedTitle` *(new; optional)* | Family feed | أخبار العائلة |
-| `famFeedBody` *(new; optional)* | What everyone's been up to. | ماذا فعل الجميع مؤخرًا. |
-| feed: mastered | *(data)* Mama mastered "Thank you" | أتقنت ماما «شكرًا» |
-| feed: wants-to-learn | *(data)* Baba wants to learn "I love you" with you | يريد بابا تعلّم «أحبّك» معك |
-| feed: streak | *(data)* Sara reached a 5-day streak | بلغت سارة تتابع ٥ أيام |
-| feed: you-flagged | *(data)* You flagged "Hello" for Sara | رفعتِ «مرحبًا» لسارة |
-| feed: both-signed | *(data)* You & Mama both signed "Yes" | أشرت أنت وماما «نعم» |
-| **Already in i18n — keep:** | | |
-| `famTitle` | Family | العائلة |
-| `famHousehold` | Your household | أسرتك |
-| `famAdd` | Add a family member | أضف فردًا من العائلة |
-| `famFlagTitle` | Flag signs we need | حدّد الإشارات التي نحتاجها |
-| `famFlagged` | needs this | يحتاج هذه |
-| `famBoard` | Signs we can all do | إشارات نتقنها جميعًا |
-| `famBoardEmpty` | When every member masters a sign… | عندما يتقن كل أفراد الأسرة إشارة… |
-| `famSharedStreak` | Household streak | مواظبة الأسرة |
-| `famSignedToday` | signed today | تمرّنوا اليوم |
-| `famOnlyDeafFlags` | flags the signs — the curriculum follows them. | يحدد الإشارات — والمنهج يتبعهم. |
-| `homeFlagged` | Flagged for your family | مطلوبة من عائلتك |
-| `practiceCamera` | Practise with camera | تدرّب بالكاميرا |
-| `save` / `cancel` | Save / Cancel | حفظ / إلغاء |
+| Key (existing/new)                                                       | English                                                                              | Arabic                                                                |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `famSwitchTitle` _(new)_                                                 | Who's signing?                                                                       | من سيتعلّم الآن؟                                                      |
+| `famSwitchBody` _(new)_                                                  | One app, the whole family.                                                           | تطبيق واحد، والعائلة كلها.                                            |
+| `famAddLearner` _(new; `famAdd` exists but reads "Add a family member")_ | Add a learner                                                                        | أضف متعلّمًا                                                          |
+| household name                                                           | _(data-driven, e.g.)_ The Al-Mansoori family                                         | عائلة المنصوري                                                        |
+| `famLearners` _(new)_                                                    | learners                                                                             | متعلّمين                                                              |
+| `famSignsTogether` _(new)_                                               | signs together                                                                       | إشارة معًا                                                            |
+| `famLearningTogether` _(new)_                                            | Learning together                                                                    | نتعلّم معًا                                                           |
+| flag by-line                                                             | _(data-driven)_ Flagged by Baba — for you                                            | رفعها بابا — لك                                                       |
+| flag by-line 2                                                           | _(data-driven)_ You flagged it — for Sara                                            | رفعتها — لسارة                                                        |
+| `famInvite` _(new)_                                                      | Invite family                                                                        | ادعُ العائلة                                                          |
+| `famLeagueNote` _(new)_                                                  | We celebrate everyone — no rankings, no losers. Turn on friendly league in settings. | نحتفي بالجميع — لا ترتيب ولا خاسرين. فعّل الدوري الودّي من الإعدادات. |
+| `famFlagFrom` _(new; `${name}` + phrase)_                                | flagged this for you                                                                 | رفع لك هذه                                                            |
+| flag detail title                                                        | _(data-driven)_ "Learn 'I love you' with me."                                        | «تعلّم 'أحبّك' معي.»                                                  |
+| `famFlagDetailBody` _(new; `{name}` interpolated)_                       | {name} wants to learn this sign together. Practise it, then surprise each other.     | يريد {name} تعلّم هذه الإشارة معًا. تمرّن عليها ثم فاجئا بعضكما.      |
+| `famLearnTogetherCta` _(new)_                                            | Learn it together →                                                                  | لنتعلّمها معًا ←                                                      |
+| `famMaybeLater` _(new)_                                                  | Maybe later                                                                          | ربما لاحقًا                                                           |
+| `famFeedTitle` _(new; optional)_                                         | Family feed                                                                          | أخبار العائلة                                                         |
+| `famFeedBody` _(new; optional)_                                          | What everyone's been up to.                                                          | ماذا فعل الجميع مؤخرًا.                                               |
+| feed: mastered                                                           | _(data)_ Mama mastered "Thank you"                                                   | أتقنت ماما «شكرًا»                                                    |
+| feed: wants-to-learn                                                     | _(data)_ Baba wants to learn "I love you" with you                                   | يريد بابا تعلّم «أحبّك» معك                                           |
+| feed: streak                                                             | _(data)_ Sara reached a 5-day streak                                                 | بلغت سارة تتابع ٥ أيام                                                |
+| feed: you-flagged                                                        | _(data)_ You flagged "Hello" for Sara                                                | رفعتِ «مرحبًا» لسارة                                                  |
+| feed: both-signed                                                        | _(data)_ You & Mama both signed "Yes"                                                | أشرت أنت وماما «نعم»                                                  |
+| **Already in i18n — keep:**                                              |                                                                                      |                                                                       |
+| `famTitle`                                                               | Family                                                                               | العائلة                                                               |
+| `famHousehold`                                                           | Your household                                                                       | أسرتك                                                                 |
+| `famAdd`                                                                 | Add a family member                                                                  | أضف فردًا من العائلة                                                  |
+| `famFlagTitle`                                                           | Flag signs we need                                                                   | حدّد الإشارات التي نحتاجها                                            |
+| `famFlagged`                                                             | needs this                                                                           | يحتاج هذه                                                             |
+| `famBoard`                                                               | Signs we can all do                                                                  | إشارات نتقنها جميعًا                                                  |
+| `famBoardEmpty`                                                          | When every member masters a sign…                                                    | عندما يتقن كل أفراد الأسرة إشارة…                                     |
+| `famSharedStreak`                                                        | Household streak                                                                     | مواظبة الأسرة                                                         |
+| `famSignedToday`                                                         | signed today                                                                         | تمرّنوا اليوم                                                         |
+| `famOnlyDeafFlags`                                                       | flags the signs — the curriculum follows them.                                       | يحدد الإشارات — والمنهج يتبعهم.                                       |
+| `homeFlagged`                                                            | Flagged for your family                                                              | مطلوبة من عائلتك                                                      |
+| `practiceCamera`                                                         | Practise with camera                                                                 | تدرّب بالكاميرا                                                       |
+| `save` / `cancel`                                                        | Save / Cancel                                                                        | حفظ / إلغاء                                                           |
 
 ---
 
@@ -172,7 +178,7 @@ Reuse existing keys where the .tsx already wires one; new keys prefixed with pro
 - **`pulseRing`** — `@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(232,101,76,.4)}70%{box-shadow:0 0 0 14px rgba(232,101,76,0)}100%{box-shadow:0 0 0 0 rgba(232,101,76,0)}}`; `2s ease-out infinite` on the flag-detail incoming badge (B11) — the "warm tap on the shoulder".
 - **Button press** — springy hard-shadow affordance: primary CTAs drop their bottom shadow and `translateY` on active (teal B9: `translateY(3px)` shadow→`0 1px 0`; coral B15: `translateY(4px)` shadow→`0 1px 0`; add-learner B4: `translateY(2px)`). HANDOFF Motion: spring-out `cubic-bezier(.34,1.56,.64,1)` 260ms on release.
 - **Selected profile** — chosen learner gains the green `box-shadow:0 0 0 3px #1F8A5B` ring + success check badge (B3). Existing `aria-pressed` + teal ring in code → adopt the design's green success ring for the switcher.
-- **States:** *no profile* → `NoProfileFallback` (guard stays). *Empty flags* (hub) → hide B8 list, keep coral flag CTA; existing shows only-Deaf-flags note. *Empty board* → `famBoardEmpty` copy. *Adding member* → inline elevated card with name input + role chips (existing). *FlagPicker empty search* → "No signs match your search." card. No loading/error states in this surface (data is local store).
+- **States:** _no profile_ → `NoProfileFallback` (guard stays). _Empty flags_ (hub) → hide B8 list, keep coral flag CTA; existing shows only-Deaf-flags note. _Empty board_ → `famBoardEmpty` copy. _Adding member_ → inline elevated card with name input + role chips (existing). _FlagPicker empty search_ → "No signs match your search." card. No loading/error states in this surface (data is local store).
 - **Reduce-motion:** freeze `float`, `pulseRing`, and the shadow-pulse; keep instant state changes (HANDOFF §Motion). Guard all with `motion-safe:`.
 
 ---

@@ -24,7 +24,9 @@ describe("MLP keypoint classifier", () => {
 
   it("gradeWithModel matches the right letter and rejects the wrong target", () => {
     const entries = Object.entries(data);
-    let matchedRight = 0, total = 0, falseAccept = 0;
+    let matchedRight = 0,
+      total = 0,
+      falseAccept = 0;
     for (const [id, vecs] of entries) {
       const wrong = entries.find(([oid]) => oid !== id)![0];
       for (const v of vecs) {
@@ -35,7 +37,7 @@ describe("MLP keypoint classifier", () => {
       }
     }
     expect(matchedRight / total).toBeGreaterThan(0.9); // correct signs confirm
-    expect(falseAccept / total).toBeLessThan(0.02);    // wrong target is rejected
+    expect(falseAccept / total).toBeLessThan(0.02); // wrong target is rejected
   });
 
   it("gradeWithModel is a no-op on an empty frame", () => {
@@ -75,7 +77,8 @@ describe("MLP keypoint classifier", () => {
   });
 
   it("classifies real signer vectors with high top-1 accuracy", () => {
-    let total = 0, correct = 0;
+    let total = 0,
+      correct = 0;
     for (const [id, vecs] of Object.entries(data)) {
       for (const v of vecs) {
         total++;

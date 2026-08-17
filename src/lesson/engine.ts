@@ -2,12 +2,7 @@
 // Rules: mix receptive + productive; camera drills only for static gradable
 // signs; never hard-fail; SRS review items surface inside lessons.
 import type { AppState } from "../store/app";
-import {
-  dueSignIds,
-  reviewsTodayFor,
-  REVIEW_DAILY_CAP,
-  REVIEW_SESSION_SIZE,
-} from "../store/app";
+import { dueSignIds, reviewsTodayFor, REVIEW_DAILY_CAP, REVIEW_SESSION_SIZE } from "../store/app";
 import { isTrained } from "../recognizer/knn";
 import { lessonPlayable } from "./unlock";
 import { ALPHABET, lessonById, signById } from "../content/signs";
@@ -39,11 +34,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /** Build the drill queue for a lesson (or the pseudo-lesson "review"). */
-export function buildDrillQueue(
-  lessonId: string,
-  state: AppState,
-  profileId: string,
-): DrillSpec[] {
+export function buildDrillQueue(lessonId: string, state: AppState, profileId: string): DrillSpec[] {
   if (lessonId === "review") return buildReviewQueue(state, profileId);
 
   const lesson = lessonById(lessonId);
@@ -76,9 +67,7 @@ export function buildDrillQueue(
   // sitting. Only signs not already queued top up; when there are none, the
   // lesson simply ends shorter rather than repeating itself.
   const alreadyQueued = new Set(queue.map((d) => d.signId));
-  const nonGradable = lesson.signIds.filter(
-    (id) => !signById(id)?.cameraGradable && !alreadyQueued.has(id),
-  );
+  const nonGradable = lesson.signIds.filter((id) => !signById(id)?.cameraGradable && !alreadyQueued.has(id));
   for (const signId of shuffle(nonGradable).slice(0, MAX_RECALL)) {
     queue.push({ type: "recall", signId });
   }
@@ -105,11 +94,7 @@ export function buildDrillQueue(
  *  with recognise checkpoints whose choices come ONLY from letters the learner
  *  has met. Over the 12-drill cap the non-watch tail is dropped, so a fresh
  *  7-letter lesson completes across two passes rather than one marathon. */
-function buildAlphabetQueue(
-  lesson: Lesson,
-  state: AppState,
-  profileId: string,
-): DrillSpec[] {
+function buildAlphabetQueue(lesson: Lesson, state: AppState, profileId: string): DrillSpec[] {
   const prog = state.progress[profileId] ?? {};
   const mastery = (id: string) => prog[id]?.masteryLevel ?? 0;
 
@@ -121,9 +106,7 @@ function buildAlphabetQueue(
 
   // Checkpoint pool = this lesson's letters (all watched above, in-session) +
   // every seeded letter already met — never a stranger as stimulus or choice.
-  const met = ALPHABET.filter((l) => l.cameraGradable && mastery(l.id) >= 1).map(
-    (l) => l.id,
-  );
+  const met = ALPHABET.filter((l) => l.cameraGradable && mastery(l.id) >= 1).map((l) => l.id);
   const pool = [...new Set([...lesson.signIds, ...met])];
   for (const signId of shuffle([...lesson.signIds]).slice(0, CHECKPOINTS)) {
     queue.push({ type: "recognise", signId, pool });
@@ -142,9 +125,7 @@ function buildAlphabetQueue(
  *  empty and the UI shows "30 done today — the rest will wait for tomorrow". */
 function buildReviewQueue(state: AppState, profileId: string): DrillSpec[] {
   const profile = state.profiles.find((p) => p.id === profileId);
-  const remaining = profile
-    ? Math.max(0, REVIEW_DAILY_CAP - reviewsTodayFor(profile))
-    : REVIEW_DAILY_CAP;
+  const remaining = profile ? Math.max(0, REVIEW_DAILY_CAP - reviewsTodayFor(profile)) : REVIEW_DAILY_CAP;
   return dueSignIds(state, profileId)
     .slice(0, Math.min(REVIEW_SESSION_SIZE, remaining))
     .map((signId, i) => {

@@ -46,20 +46,20 @@ Not a redesign. The look he approved stays exactly as it is. This deletes doors.
 
 Everything deleted stays reachable:
 
-| Deleted from Home | Still lives at |
-|---|---|
-| Practise the alphabet | Practise tab → Alphabet tile |
-| Everyday words | Practise tab → Words tile |
-| Spell your name | Practise tab → Fingerspell tile |
-| Review due | Practise tab → Review tile (already shows the due count) |
-| Next new letter / All caught up | the current node on the trail |
-| Milestone readout | the treasure chest node on the trail, which is already tappable |
+| Deleted from Home               | Still lives at                                                  |
+| ------------------------------- | --------------------------------------------------------------- |
+| Practise the alphabet           | Practise tab → Alphabet tile                                    |
+| Everyday words                  | Practise tab → Words tile                                       |
+| Spell your name                 | Practise tab → Fingerspell tile                                 |
+| Review due                      | Practise tab → Review tile (already shows the due count)        |
+| Next new letter / All caught up | the current node on the trail                                   |
+| Milestone readout               | the treasure chest node on the trail, which is already tappable |
 
 **Two things need moving, not deleting:**
 
-- *Daily goal.* The chips show lifetime XP, not today's goal progress, so a plain delete loses it.
+- _Daily goal._ The chips show lifetime XP, not today's goal progress, so a plain delete loses it.
   Turn the gold chip into today's progress (`xpToday / goalXp`), or ring the avatar with it.
-- *Family flags.* This is the differentiator, so it should not vanish. Promote it **above** the path,
+- _Family flags._ This is the differentiator, so it should not vanish. Promote it **above** the path,
   and only when someone else has raised a request. When there is nothing flagged, Home is purely the
   trail. The Family tab already carries the count badge (`AppNav.tsx` 143).
 
@@ -68,7 +68,7 @@ dictionary tab to "Look up" separates them. Owner's call.
 
 ## Why this is the right size of fix
 
-The coherence audit on 2026-08-01 fixed 130 defects *inside and between* the screens. That was real
+The coherence audit on 2026-08-01 fixed 130 defects _inside and between_ the screens. That was real
 and it shipped. But it fixed how the screens behave, not how many of them are shouting at once. This
 is the layer above: not "is each screen correct" but "does the app ask the learner to choose too
 often". Duolingo's discipline is subtraction, and Sawiyya has never had a subtraction pass.

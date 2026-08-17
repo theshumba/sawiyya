@@ -11,8 +11,8 @@ One real signer photo per Arabic letter (28 seeded letters + the 3 edge forms
   (cropped square to the labelled hand bounding box, resized to 384px, WebP).
 - **Selection:** for each letter, candidates were scored by (a) distance of
   their MediaPipe landmarks — normalised exactly like `src/recognizer/
-  normalize.ts` — to that letter's mean shape in `src/recognizer/seeds/
-  alphabet-shapes.json`, so the photo agrees with what the camera grader
+normalize.ts` — to that letter's mean shape in `src/recognizer/seeds/
+alphabet-shapes.json`, so the photo agrees with what the camera grader
   expects, and (b) sharpness / brightness / hand-size gates, then approved
   visually. Per-file provenance in `manifest.json` (source dataset filename +
   distance + sharpness).

@@ -68,11 +68,7 @@ export function screenToHash(screen: Screen): string {
 export function hashToScreen(hash: string): Screen {
   let parts: string[];
   try {
-    parts = hash
-      .replace(/^#\/?/, "")
-      .split("/")
-      .filter(Boolean)
-      .map(decodeURIComponent);
+    parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
   } catch {
     return { name: "home" }; // malformed percent-escape
   }

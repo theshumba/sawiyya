@@ -38,11 +38,13 @@ and the `Done` button in FlagPicker). Serve a build with
 `cd dist && python3 -m http.server 4173`, then `SMOKE_URL=http://localhost:4173/ node scripts/smoke.mjs`.
 
 **Then, still owed before Phase 1 is done:**
+
 - 390px screenshots in English and Arabic (`npm run shots` — untested this session).
 - A plain-language `WHAT-CHANGED` note for Melusi to read before any merge. The plan requires one
   per phase; it was never written.
 
 **Open questions:**
+
 - **The dictionary padlock is arguably theatre.** Phase 1 removed the tap from locked alphabet
   cells per the plan, but free camera practice on any letter is deliberately kept (the Practise
   tab's Alphabet tile reaches all 28). So a padlocked letter in the dictionary is still reachable
@@ -62,6 +64,7 @@ and the `Done` button in FlagPicker). Serve a build with
 ## Reasoning trail
 
 **Decisions made:**
+
 - **One shared lock rule in `src/lesson/unlock.ts`, derived not stored.** `LESSONS` is an ordered
   path; position = index of the first unfinished lesson; before it is done, at it is current,
   after it is locked. Home, `buildDrillQueue`, `LessonPlayer` and the dictionary all read the same
@@ -87,6 +90,7 @@ and the `Done` button in FlagPicker). Serve a build with
   so a copy pass (Phase 2 rewrites onboarding entirely) does not silently disarm it again.
 
 **Tried and rejected:**
+
 - **Blocking on the resume protocol's question** ("Start Phase 1, or answer the content question
   first?"). His standing instruction is to pick a sensible default and state it for veto. Phase 1
   is the plan's own first step and is unblocked by every open question.
@@ -95,7 +99,7 @@ and the `Done` button in FlagPicker). Serve a build with
   it is scope creep and makes a dictionary substantially less useful. Flagged the inconsistency
   instead.
 - **`vite preview --outDir <absolute path outside root>`** serves nothing. Use `python3 -m
-  http.server` from inside the dist dir; the app is hash-routed with `base: "./"` so a plain static
+http.server` from inside the dist dir; the app is hash-routed with `base: "./"` so a plain static
   server is enough.
 
 ## Code anchors
@@ -132,11 +136,13 @@ and the `Done` button in FlagPicker). Serve a build with
 **Branch:** `fix/phase-1-one-road`
 
 **Status:**
+
 ```
 (clean)
 ```
 
 **Recent commits:**
+
 ```
 62c8e5a fix(home): Phase 1 — one road
 72abafe docs: the UX journey audit and the four-phase plan
@@ -151,6 +157,7 @@ fbf8afa feat: coach re-derivation for the blended corpus + practice-flow polish
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes)
 ```
