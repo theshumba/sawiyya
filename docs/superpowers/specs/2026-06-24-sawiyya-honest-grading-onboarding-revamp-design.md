@@ -11,9 +11,9 @@
 
 Three issues undermine Sawiyya's credibility right now:
 
-1. **The grading is self-referential ("instant yes").** The recognizer is *teach-mode only* (`src/recognizer/knn.ts`, `src/components/CameraTrainer.tsx`): the app records ~24 samples of the **user's own hand**, then "grades" by checking whether the live hand matches *those same samples*. It has no built-in notion of a *correct* sign, so it confirms a match in ~0.5s regardless of whether the user signed the right thing. A tester signed something wrong and it said "correct" instantly. The Arabic alphabet is even labelled **"Ready · camera-graded"** in onboarding despite nothing being pre-trained (`isTrained()` only checks whether the *user* has recorded ≥8 local samples).
+1. **The grading is self-referential ("instant yes").** The recognizer is _teach-mode only_ (`src/recognizer/knn.ts`, `src/components/CameraTrainer.tsx`): the app records ~24 samples of the **user's own hand**, then "grades" by checking whether the live hand matches _those same samples_. It has no built-in notion of a _correct_ sign, so it confirms a match in ~0.5s regardless of whether the user signed the right thing. A tester signed something wrong and it said "correct" instantly. The Arabic alphabet is even labelled **"Ready · camera-graded"** in onboarding despite nothing being pre-trained (`isTrained()` only checks whether the _user_ has recorded ≥8 local samples).
 
-2. **The onboarding/first-run feels cheap.** The persona step uses AI-generated illustrations (`brand/stitch-35/37/33/05/41.png`), there's emoji clutter (👋, ✋), and the very first graded moment is the *word* "I love you" (`src/screens/FirstSign.tsx` hard-codes `signById("iloveyou")`) — a teach-mode sign with no dataset, so it insta-passes. The hero of the product (practise a real sign with your real hand and get told if it's right) is buried.
+2. **The onboarding/first-run feels cheap.** The persona step uses AI-generated illustrations (`brand/stitch-35/37/33/05/41.png`), there's emoji clutter (👋, ✋), and the very first graded moment is the _word_ "I love you" (`src/screens/FirstSign.tsx` hard-codes `signById("iloveyou")`) — a teach-mode sign with no dataset, so it insta-passes. The hero of the product (practise a real sign with your real hand and get told if it's right) is buried.
 
 3. **Landing-page messaging.** The headline leads with "Close the gap." Melusi wants the **"together, as equals"** idea to lead. The Deaf-centred philosophy is already strong in the copy, but the page never says **Deaf people can use the app themselves** (to navigate it and set it up for / guide their hearing family).
 
@@ -23,7 +23,7 @@ Make Sawiyya **honestly AAA**: the alphabet genuinely grades against real signer
 
 ## Non-goals (out of scope)
 
-- Building a QSL *word/sign* dataset (none exists publicly; requires a native signer — tracked separately).
+- Building a QSL _word/sign_ dataset (none exists publicly; requires a native signer — tracked separately).
 - Replacing MediaPipe or the KNN approach. We keep the existing on-device, privacy-preserving stack.
 - A full visual redesign of the app. We strip/replace specific assets, not re-theme.
 - Commercial-license clearance of datasets (research-use is fine for the award; flagged for later).
@@ -42,7 +42,7 @@ Small, self-contained copy edits. No layout changes.
    - Hero tagline chip (line 352) currently reads `سويّة • Together, as equals` — now redundant with the H1. Change the chip's English/Arabic to a supporting line (e.g. `Qatari Sign Language · لغة الإشارة القطرية`) so "together, as equals" is not duplicated twice in the hero.
    - The `<meta name="description">` (line 7) already ends "Together, as equals." — keep.
 
-2. **Add: Deaf people can use Sawiyya too.** New short copy block (placed near the existing "meet halfway" / two-way-street section around lines 389–402). Content: Sawiyya isn't only for hearing learners — Deaf users can navigate it and set it up for their family, choosing what their household learns. Frame as *enabling*, bilingual EN/AR with `data-ar`, matching the surrounding voice. Exact wording drafted during implementation, reviewed before commit.
+2. **Add: Deaf people can use Sawiyya too.** New short copy block (placed near the existing "meet halfway" / two-way-street section around lines 389–402). Content: Sawiyya isn't only for hearing learners — Deaf users can navigate it and set it up for their family, choosing what their household learns. Frame as _enabling_, bilingual EN/AR with `data-ar`, matching the surrounding voice. Exact wording drafted during implementation, reviewed before commit.
 
 3. **Keep** the existing Deaf-centred copy (lines 353, 389, 394, 608) — it already embodies the philosophy.
 
@@ -55,9 +55,9 @@ Flow stays **setup → straight into camera** (Melusi's choice), but the camera 
 1. **Strip AI-generated persona art + emoji.** In `src/screens/Onboarding.tsx`:
    - Replace the five `PERSONAS[].img` AI illustrations (`brand/stitch-35/37/33/05/41.png`) with clean brand treatment — `Icon` glyphs (Material Symbols already in use, e.g. `family_restroom`, `diversity_3`, `school`, `group`, `sign_language`) on the existing card style. No raster persona images.
    - Replace the 👋 emoji in the "Everyday signs" card (line ~236) with an `Icon`.
-2. **First graded sign = a real-graded alphabet letter, not the teach-mode word.** In `src/screens/FirstSign.tsx`, change the target from `signById("iloveyou")` to a real-graded alphabet letter — **`alpha-alif`** (the first letter; simple static handshape). The flow still does its warm "now you try → celebrate" beat, but the grade is genuine (backed by Part C). The emotional "I love you" sign remains available later in normal lessons; it is no longer the *first graded* impression.
+2. **First graded sign = a real-graded alphabet letter, not the teach-mode word.** In `src/screens/FirstSign.tsx`, change the target from `signById("iloveyou")` to a real-graded alphabet letter — **`alpha-alif`** (the first letter; simple static handshape). The flow still does its warm "now you try → celebrate" beat, but the grade is genuine (backed by Part C). The emotional "I love you" sign remains available later in normal lessons; it is no longer the _first graded_ impression.
 3. **Honest badges in the "what do you want to learn" step** (`Onboarding.tsx` `step === "learn"`):
-   - **Arabic Alphabet** → keep the **"Ready"** badge — it is now *true* (real-graded via Part C).
+   - **Arabic Alphabet** → keep the **"Ready"** badge — it is now _true_ (real-graded via Part C).
    - **Everyday signs** → relabel from an implied-graded check to **"Teach & practise"** (teach-mode), so it never pretends to be pre-graded.
    - **Other Gulf dialects** → unchanged "coming soon".
 
@@ -75,7 +75,7 @@ Give the alphabet ground-truth so "correct" means correct; keep words as honestl
 - **Output:** a bundled `src/recognizer/seeds/alphabet.json` of `{ [classId]: number[][] }`, **capped at ~30–40 vectors per class** (subsample for per-frame performance; ~32×35 ≈ 1,100 vectors total).
 - License attribution recorded in the script header and a `seeds/SOURCES.md`.
 
-> The CC-BY-4.0 Zenodo landmark CSV is kept as the **commercially-clean fallback** for a future launch, but the primary path extracts with *our own* normalize so the feature space provably matches. (89-feature CSV would need reconciliation; deferred.)
+> The CC-BY-4.0 Zenodo landmark CSV is kept as the **commercially-clean fallback** for a future launch, but the primary path extracts with _our own_ normalize so the feature space provably matches. (89-feature CSV would need reconciliation; deferred.)
 
 #### C2. Load seeds as a base layer in the recognizer
 
@@ -85,7 +85,7 @@ Give the alphabet ground-truth so "correct" means correct; keep words as honestl
 #### C3. Make it un-cheatable
 
 - Increase `HOLD_FRAMES` (currently `10` ≈ 0.5s) so confirmation takes **>1s** of sustained correct signing.
-- **Re-tune the gates for cross-person data.** `DISTANCE_GATE` (0.55), `TAU` (0.78), `MARGIN_GATE` (0.15) were tuned for same-person self-taught samples; intra-class distance is larger across different signers. Re-calibrate using a **held-out split** of the dataset (train on a subset, validate on unseen images) so that genuinely-correct signs from a *new* hand pass while wrong signs fail. Record chosen thresholds + the validation numbers (true-accept / false-accept rate) in the spec's follow-up notes.
+- **Re-tune the gates for cross-person data.** `DISTANCE_GATE` (0.55), `TAU` (0.78), `MARGIN_GATE` (0.15) were tuned for same-person self-taught samples; intra-class distance is larger across different signers. Re-calibrate using a **held-out split** of the dataset (train on a subset, validate on unseen images) so that genuinely-correct signs from a _new_ hand pass while wrong signs fail. Record chosen thresholds + the validation numbers (true-accept / false-accept rate) in the spec's follow-up notes.
 
 #### C4. Keep words honest
 
@@ -140,31 +140,32 @@ RUNTIME:
 **Dataset:** Zenodo ArSL landmark CSV (`tools/extract-seeds/dataset/ArSL_dataset.csv`, 7,010 rows)
 **Method:** Held-out split — shipped seeds (`src/recognizer/seeds/alphabet.json`, ≤40 vectors/class) as train; all CSV rows whose rounded vector is NOT in the seed set as test pool. Up to 15 positives + 15 negatives per class (420+420=840 items total). Negatives = correct-class samples graded as the next class (rotated). k=7 (matches production knn.ts).
 
-| DISTANCE_GATE | TAU  | trueAccept | falseAccept | n   |
-|--------------|------|-----------|-------------|-----|
-| 0.45         | 0.70 | 98.8%     | 0.2%        | 840 |
-| 0.45         | 0.78 | 98.8%     | 0.2%        | 840 |
-| 0.45         | 0.85 | 98.8%     | 0.2%        | 840 |
-| 0.50         | 0.70 | 98.8%     | 0.2%        | 840 |
-| 0.50         | 0.78 | 98.8%     | 0.2%        | 840 |
-| 0.50         | 0.85 | 98.8%     | 0.2%        | 840 |
-| 0.55         | 0.70 | 98.8%     | 0.2%        | 840 |
-| 0.55         | 0.78 | 98.8%     | 0.2%        | 840 |
-| 0.55         | 0.85 | 98.8%     | 0.2%        | 840 |
-| 0.60         | 0.70 | 98.8%     | 0.2%        | 840 |
-| 0.60         | 0.78 | 98.8%     | 0.2%        | 840 |
-| 0.60         | 0.85 | 98.8%     | 0.2%        | 840 |
-| **0.65**     | **0.70** | **99.5%** | **0.2%** | **840** |
-| **0.65**     | **0.78** | **99.5%** | **0.2%** | **840** |
-| **0.65**     | **0.85** | **99.5%** | **0.2%** | **840** |
+| DISTANCE_GATE | TAU      | trueAccept | falseAccept | n       |
+| ------------- | -------- | ---------- | ----------- | ------- |
+| 0.45          | 0.70     | 98.8%      | 0.2%        | 840     |
+| 0.45          | 0.78     | 98.8%      | 0.2%        | 840     |
+| 0.45          | 0.85     | 98.8%      | 0.2%        | 840     |
+| 0.50          | 0.70     | 98.8%      | 0.2%        | 840     |
+| 0.50          | 0.78     | 98.8%      | 0.2%        | 840     |
+| 0.50          | 0.85     | 98.8%      | 0.2%        | 840     |
+| 0.55          | 0.70     | 98.8%      | 0.2%        | 840     |
+| 0.55          | 0.78     | 98.8%      | 0.2%        | 840     |
+| 0.55          | 0.85     | 98.8%      | 0.2%        | 840     |
+| 0.60          | 0.70     | 98.8%      | 0.2%        | 840     |
+| 0.60          | 0.78     | 98.8%      | 0.2%        | 840     |
+| 0.60          | 0.85     | 98.8%      | 0.2%        | 840     |
+| **0.65**      | **0.70** | **99.5%**  | **0.2%**    | **840** |
+| **0.65**      | **0.78** | **99.5%**  | **0.2%**    | **840** |
+| **0.65**      | **0.85** | **99.5%**  | **0.2%**    | **840** |
 
 **Chosen:** `DISTANCE_GATE=0.65`, `TAU=0.85`, `MARGIN_GATE=0.15`, `HOLD_FRAMES=24`
 
 **Evidence:**
+
 - trueAccept = **99.5%** (unseen hands signing the correct letter pass)
 - falseAccept = **0.2%** (well under the 2% hard cap — wrong signs are rejected)
 - "Instant yes" is gone: HOLD_FRAMES raised from 10→24 (>1s at ~20fps)
 - TAU raised from 0.78→0.85 (harder to hit; stricter vote-share required)
 - DISTANCE_GATE widened from 0.55→0.65 to accommodate cross-person intra-class spread
 
-**Limitation (disclosed):** All 15 gate×tau combos returned the same 0.2% false-accept — the held-out negatives are drawn from the *same* dataset (and likely overlapping subjects/sessions) as the seeds, so their distance distribution is tight. This validates that the recognizer separates these classes cleanly, but real-world false-accepts on genuinely novel hands/lighting may be higher than 0.2%. The chosen thresholds favour strictness (TAU=0.85, hold >1s) precisely to keep real-world false-accepts low; on-device per-letter teach-mode remains available as a fallback if a real hand is consistently rejected.
+**Limitation (disclosed):** All 15 gate×tau combos returned the same 0.2% false-accept — the held-out negatives are drawn from the _same_ dataset (and likely overlapping subjects/sessions) as the seeds, so their distance distribution is tight. This validates that the recognizer separates these classes cleanly, but real-world false-accepts on genuinely novel hands/lighting may be higher than 0.2%. The chosen thresholds favour strictness (TAU=0.85, hold >1s) precisely to keep real-world false-accepts low; on-device per-letter teach-mode remains available as a fallback if a real hand is consistently rejected.

@@ -16,7 +16,7 @@ There is **no** session counter, **no** day counter, **no** days-since-install, 
 seeing X", **no** tooltip/coach-mark/dismissed-hint state, **no** activation checklist, **no**
 feature unlock, **no** staged reveal, and **no** "locked until level N" anywhere in the codebase.
 
-Everything that *looks* like progression — streak, XP, mastery, milestones, SRS, achievement badges,
+Everything that _looks_ like progression — streak, XP, mastery, milestones, SRS, achievement badges,
 trail-node locks — is either a **readout of numbers** or a **cosmetic state on a control that is
 still fully operable**. The single genuine hard gate in the entire app is one `disabled` attribute
 on one button (`src/screens/Home.tsx:740`), and the content behind it is reachable in two taps from
@@ -28,14 +28,14 @@ another tab.
 
 ### 1.1 `onboarded: boolean` — the ONLY true set-once flag
 
-| | |
-|---|---|
-| **Declared** | `src/store/app.ts:53` |
-| **Initial** | `src/store/app.ts:330` (`onboarded: false`) |
-| **Written by** | `completeOnboarding()` — `src/store/app.ts:401` (`set({ onboarded: true })`) |
-| **Called from** | `src/screens/Onboarding.tsx:146`, inside `finish()` |
-| **Persisted** | Yes — restored at `src/store/app.ts:271` (`onboarded: p.onboarded === true`) |
-| **Read by** | `src/App.tsx:101`, gate at `src/App.tsx:128` |
+|                 |                                                                              |
+| --------------- | ---------------------------------------------------------------------------- |
+| **Declared**    | `src/store/app.ts:53`                                                        |
+| **Initial**     | `src/store/app.ts:330` (`onboarded: false`)                                  |
+| **Written by**  | `completeOnboarding()` — `src/store/app.ts:401` (`set({ onboarded: true })`) |
+| **Called from** | `src/screens/Onboarding.tsx:146`, inside `finish()`                          |
+| **Persisted**   | Yes — restored at `src/store/app.ts:271` (`onboarded: p.onboarded === true`) |
+| **Read by**     | `src/App.tsx:101`, gate at `src/App.tsx:128`                                 |
 
 ```
 // src/App.tsx:128
@@ -51,12 +51,12 @@ to set it back to `false` except a full storage wipe.
 
 ### 1.2 `track: "alphabet" | "words" | null` — a one-shot destination, thrown away
 
-| | |
-|---|---|
-| **Declared** | `src/screens/Onboarding.tsx:125` — `useState<Track>(null)` |
-| **Written by** | `src/screens/Onboarding.tsx:357` (alphabet card), `:387` (words card) |
-| **Persisted** | **No.** Component-local React state. Never enters the Zustand store, never touches localStorage. |
-| **Read by** | `src/screens/Onboarding.tsx:150-156` only |
+|                |                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| **Declared**   | `src/screens/Onboarding.tsx:125` — `useState<Track>(null)`                                       |
+| **Written by** | `src/screens/Onboarding.tsx:357` (alphabet card), `:387` (words card)                            |
+| **Persisted**  | **No.** Component-local React state. Never enters the Zustand store, never touches localStorage. |
+| **Read by**    | `src/screens/Onboarding.tsx:150-156` only                                                        |
 
 ```
 // src/screens/Onboarding.tsx:150
@@ -76,11 +76,11 @@ and it evaporates on the next route change.
 
 ### 1.3 `firstSign` screen — the only content that appears once, and only by accident
 
-| | |
-|---|---|
-| **Route** | `{ name: "firstSign" }` — `src/store/ui.ts:24`, hash `#/first-sign` (`src/store/ui.ts:54, :99`) |
-| **Rendered** | `src/App.tsx:161` |
-| **Reached from** | `src/screens/Onboarding.tsx:155` only (the `track === null` branch) |
+|                  |                                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| **Route**        | `{ name: "firstSign" }` — `src/store/ui.ts:24`, hash `#/first-sign` (`src/store/ui.ts:54, :99`) |
+| **Rendered**     | `src/App.tsx:161`                                                                               |
+| **Reached from** | `src/screens/Onboarding.tsx:155` only (the `track === null` branch)                             |
 
 The 3-step Watch → Try → Celebrate arc (`src/screens/FirstSign.tsx:23`) is the app's one
 "welcome moment". But it is **not gated** — it is simply never linked to again. Any user, on any
@@ -90,10 +90,10 @@ its "Day 1" badge (`src/screens/FirstSign.tsx:158-164`) is a **hard-coded string
 
 ### 1.4 `progress[profileId][signId].masteryLevel: 0 | 1 | 2 | 3`
 
-| | |
-|---|---|
-| **Declared** | `src/types.ts` (`SignProgress`), store slice `src/store/app.ts:57` |
-| **Written by** | `recordDrillResult` — `src/store/app.ts:433-443` |
+|                  |                                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------- |
+| **Declared**     | `src/types.ts` (`SignProgress`), store slice `src/store/app.ts:57`                                      |
+| **Written by**   | `recordDrillResult` — `src/store/app.ts:433-443`                                                        |
 | **Level-3 rule** | `src/store/app.ts:428-432` — FSRS state Review **AND** stability ≥ 2d **AND** ≥ 2 camera-confirmed hits |
 
 **What it genuinely changes:**
@@ -103,7 +103,7 @@ its "Day 1" badge (`src/screens/FirstSign.tsx:158-164`) is a **hard-coded string
    `"locked"`. See §4 for what "locked" actually does.
 2. **Whether a `watch` drill is queued** — `src/lesson/engine.ts:58` and `:114`. A sign at mastery ≥ 2
    loses its teaching step inside a lesson. This is real behavioural adaptation, but it is
-   *per-sign*, not per-user, and it only shortens a lesson.
+   _per-sign_, not per-user, and it only shortens a lesson.
 3. **Alphabet checkpoint distractor pool** — `src/lesson/engine.ts:120-123`. Multiple-choice options
    are drawn only from letters at mastery ≥ 1, so a beginner is never asked to discriminate against
    a letter they have not met. Again per-sign.
@@ -121,12 +121,12 @@ from the Practise and Dictionary tabs on second one.
 
 ### 1.5 `srs[profileId][signId]` (FSRS cards) — the only genuine time model, and it gates almost nothing
 
-| | |
-|---|---|
-| **Declared** | `src/store/app.ts:59` |
+|                |                                                                                                                                         |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Declared**   | `src/store/app.ts:59`                                                                                                                   |
 | **Written by** | `recordDrillResult` (`src/store/app.ts:416-419`), `addToReview` (`src/store/app.ts:531-543`), flag seeding (`src/store/app.ts:617-623`) |
-| **Scheduler** | `src/store/srs.ts:60-63` (`ts-fsrs`), due test `src/store/srs.ts:71-77` |
-| **Selector** | `dueSignIds` — `src/store/app.ts:754-766` |
+| **Scheduler**  | `src/store/srs.ts:60-63` (`ts-fsrs`), due test `src/store/srs.ts:71-77`                                                                 |
+| **Selector**   | `dueSignIds` — `src/store/app.ts:754-766`                                                                                               |
 
 **What it changes in the UI:**
 
@@ -149,10 +149,10 @@ review work. Nothing was withheld; there was simply nothing to review.
 
 ### 1.6 `REVIEW_DAILY_CAP = 30` / `reviewsToday`
 
-| | |
-|---|---|
-| **Declared** | `src/store/app.ts:20-21` |
-| **Written** | `src/store/app.ts:463` |
+|                         |                                                |
+| ----------------------- | ---------------------------------------------- |
+| **Declared**            | `src/store/app.ts:20-21`                       |
+| **Written**             | `src/store/app.ts:463`                         |
 | **Read at time of use** | `reviewsTodayFor` — `src/store/app.ts:733-735` |
 
 Gates the review-session size (`src/lesson/engine.ts:140-144`) and swaps the review CTA for a
@@ -162,13 +162,13 @@ ever fire for a user who has ≥ 30 due cards, and it removes work rather than r
 
 ### 1.7 `streak`, `bestStreak`, `celebratedStreak`, `activeDays`, `lastActiveDay`
 
-| Field | Declared | Written | What it actually changes |
-|---|---|---|---|
-| `streak` | `src/types.ts:22` | `src/store/app.ts:449-454`; deaf-flag path `src/store/app.ts:636-638` | **Displayed only.** Home stat chip `src/screens/Home.tsx:184`, camera header pill `src/screens/CameraPractice.tsx:132`, Progress `src/screens/Progress.tsx:105`. Read-time derived so a lapse shows 0 (`src/store/app.ts:722-726`). Gates nothing. |
-| `bestStreak` | `src/types.ts:27` | `src/store/app.ts:467` | Flips the 🔥 7-day achievement tile from dashed-grey to gold-bordered: `src/screens/Progress.tsx:649`, rendered `:683-694`. A tile that is always visible either way. |
-| `celebratedStreak` | `src/types.ts:32` | `src/screens/Progress.tsx:151` | **The only "shown once" state in the app.** `src/screens/Progress.tsx:111-113`: `if (streak > celebratedStreak && streak > 1) setCelebrating(true)`. Fires a full-screen `StreakCelebration` overlay the first time Progress is opened after extending a streak past 1. Dismissing banks the value so it never repeats for the same streak. Impossible before day 2. |
-| `activeDays` | `src/types.ts:34` | `src/store/app.ts:456-458`, `:639` (capped 90) | **Displayed only.** Progress week strip and 35-day heatmap: `src/screens/Progress.tsx:81, :97-102, :443`. Feeds `householdStreak` (`src/store/app.ts:802-816`) which is also display-only. |
-| `lastActiveDay` | `src/types.ts:33` | `src/store/app.ts:468` | Internal bookkeeping for the lazy daily resets of `xpToday` / `reviewsToday` / `streak` (`src/store/app.ts:711-735`), plus `profilesActiveToday` (`:818-821`) which is a Family-screen count. |
+| Field              | Declared          | Written                                                               | What it actually changes                                                                                                                                                                                                                                                                                                                                             |
+| ------------------ | ----------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `streak`           | `src/types.ts:22` | `src/store/app.ts:449-454`; deaf-flag path `src/store/app.ts:636-638` | **Displayed only.** Home stat chip `src/screens/Home.tsx:184`, camera header pill `src/screens/CameraPractice.tsx:132`, Progress `src/screens/Progress.tsx:105`. Read-time derived so a lapse shows 0 (`src/store/app.ts:722-726`). Gates nothing.                                                                                                                   |
+| `bestStreak`       | `src/types.ts:27` | `src/store/app.ts:467`                                                | Flips the 🔥 7-day achievement tile from dashed-grey to gold-bordered: `src/screens/Progress.tsx:649`, rendered `:683-694`. A tile that is always visible either way.                                                                                                                                                                                                |
+| `celebratedStreak` | `src/types.ts:32` | `src/screens/Progress.tsx:151`                                        | **The only "shown once" state in the app.** `src/screens/Progress.tsx:111-113`: `if (streak > celebratedStreak && streak > 1) setCelebrating(true)`. Fires a full-screen `StreakCelebration` overlay the first time Progress is opened after extending a streak past 1. Dismissing banks the value so it never repeats for the same streak. Impossible before day 2. |
+| `activeDays`       | `src/types.ts:34` | `src/store/app.ts:456-458`, `:639` (capped 90)                        | **Displayed only.** Progress week strip and 35-day heatmap: `src/screens/Progress.tsx:81, :97-102, :443`. Feeds `householdStreak` (`src/store/app.ts:802-816`) which is also display-only.                                                                                                                                                                           |
+| `lastActiveDay`    | `src/types.ts:33` | `src/store/app.ts:468`                                                | Internal bookkeeping for the lazy daily resets of `xpToday` / `reviewsToday` / `streak` (`src/store/app.ts:711-735`), plus `profilesActiveToday` (`:818-821`) which is a Family-screen count.                                                                                                                                                                        |
 
 `celebratedStreak` is the single field in the whole codebase that satisfies "set once and changes
 what the UI shows later". Its effect is one congratulatory overlay. It does not unlock, reveal, or
@@ -176,11 +176,11 @@ change access to anything.
 
 ### 1.8 `xp` / `xpToday` / `dailyGoal`
 
-| | |
-|---|---|
-| **Declared** | `src/types.ts:16-17, :35`; goal table `src/store/app.ts:25-29` |
-| **Written** | `src/store/app.ts:460-462` (10 XP on a pass, 4 on a miss, 5 on a watch — never zero, never punitive) |
-| **Read at time of use** | `xpTodayFor` — `src/store/app.ts:711-713` |
+|                         |                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Declared**            | `src/types.ts:16-17, :35`; goal table `src/store/app.ts:25-29`                                       |
+| **Written**             | `src/store/app.ts:460-462` (10 XP on a pass, 4 on a miss, 5 on a watch — never zero, never punitive) |
+| **Read at time of use** | `xpTodayFor` — `src/store/app.ts:711-713`                                                            |
 
 **What it changes:** the Home gold stat chip (`src/screens/Home.tsx:189`), the `GoalCard` fill and
 label (`src/screens/Home.tsx:169-172, :590-596`), and which of two secondary Home cards renders —
@@ -197,6 +197,7 @@ whole family can do — only when a hearing member exists, `:50-57`], whole alph
 unit (`A1_SIGNS.length`).
 
 **What it changes:**
+
 - The treasure-chest node's label and progress bar at the end of the Home trail
   (`src/screens/Home.tsx:127, :146-148, :399`).
 - Where the chest's CTA routes: `family` → Family tab, `words` → Words screen, otherwise the next
@@ -252,7 +253,7 @@ Each of the following was searched for by name, by common synonyms, and by behav
   nowhere.
 - **Activation checklist / "getting started" / onboarding tasks** — does not exist in the codebase.
 - **Feature flags, A/B buckets, remote config** — do not exist in the codebase.
-- **Levels, tiers, ranks, XP thresholds** — do not exist in the codebase. (`Sign.tier` is a *content*
+- **Levels, tiers, ranks, XP thresholds** — do not exist in the codebase. (`Sign.tier` is a _content_
   label, `"alphabet"` or `"A1"`, not a user level.)
 - **Any `disabled` attribute driven by progression, other than one** — the exhaustive list of
   `disabled` in the app is: `src/screens/LessonPlayer.tsx:573, :587, :632, :673, :753` (all
@@ -337,12 +338,12 @@ desktop rail `:202`). `tabButton` (`:136-176`) never receives a disabled prop an
 
 Practice modes, `src/screens/PractiseChooser.tsx`:
 
-| Tile | Line | Condition |
-|---|---|---|
-| Alphabet camera (`camera`, target `alpha-alif`) | `:70-85` | none |
-| Words room | `:88-97` | none |
-| Fingerspell | `:108-118` | none |
-| Review | `:122-134` | `due.length > 0 && !reviewCapReached` |
+| Tile                                            | Line       | Condition                             |
+| ----------------------------------------------- | ---------- | ------------------------------------- |
+| Alphabet camera (`camera`, target `alpha-alif`) | `:70-85`   | none                                  |
+| Words room                                      | `:88-97`   | none                                  |
+| Fingerspell                                     | `:108-118` | none                                  |
+| Review                                          | `:122-134` | `due.length > 0 && !reviewCapReached` |
 
 Only the Review tile is conditional, and its condition is "there is review work", not "you have
 earned this". Additionally, `CameraPractice` renders a chip for **all 28 seeded letters** on first
@@ -368,7 +369,7 @@ open — `src/screens/CameraPractice.tsx:144-155` maps `SEEDED_ALPHABET` with no
    choice.
 3. **The "30 done today" capped note** — `src/screens/Home.tsx:524`,
    `src/screens/PractiseChooser.tsx:162`, `src/screens/LessonPlayer.tsx:85-93`. Requires 30 reviews in
-   one day. This *removes* a CTA, it does not introduce a feature.
+   one day. This _removes_ a CTA, it does not introduce a feature.
 4. **The Family flag section on Home** — `src/screens/Home.tsx:453`. Gated on the user (or a family
    member) having raised a flag. User-triggered, available second one.
 5. **The Family "signs we can all do" honeycomb** — `src/screens/Family.tsx:419-423` swaps an empty-state
@@ -437,7 +438,7 @@ opens its sheet normally; only the sheet's action is dead.
 `src/screens/PractiseChooser.tsx:72` routes to `{ name: "camera", targetSignId: "alpha-alif" }`, and
 `CameraPractice` then renders a selectable chip for all 28 letters
 (`src/screens/CameraPractice.tsx:144-155`). A day-1 user can practise ك through ي — the contents of
-alpha-u1-l4, the *last* alphabet node — before touching lesson 1. A camera match calls
+alpha-u1-l4, the _last_ alphabet node — before touching lesson 1. A camera match calls
 `recordDrillResult(signId, "good", { camera: true, matched: true })`
 (`src/screens/CameraPractice.tsx:71-76`), which writes `masteryLevel: Math.max(prev, 2)`
 (`src/store/app.ts:433-438`) — the **same** field `Home.tsx:118` reads. Seven such matches flip
@@ -466,7 +467,7 @@ check. The lesson plays in full.
 
 **The knock-on:** the locked-node copy at `src/i18n.ts:233`, "Finish the sign before this to unlock",
 is a **promise the app does not keep in either direction**. It cannot be enforced (bypasses 1–4), and
-it is not even accurate as a description — a node's status is derived from *its own* signs' mastery,
+it is not even accurate as a description — a node's status is derived from _its own_ signs' mastery,
 not from the preceding node, so a user who works out of order sees "done" nodes sitting above a
 "current" one.
 
@@ -478,25 +479,25 @@ Dictionary, or a hand-typed URL, on day 1, in under five taps.
 
 ## Part 3 — Summary table
 
-| State | File:line (declared) | Written by | Persisted | Genuinely changes what is offered? |
-|---|---|---|---|---|
-| `onboarded` | `store/app.ts:53` | `store/app.ts:401` | yes | **Yes** — Onboarding vs. app. Once, forever. |
-| `track` | `screens/Onboarding.tsx:125` | `Onboarding.tsx:357, :387` | **no** | One-shot landing route only |
-| `masteryLevel` | `store/app.ts:57` | `store/app.ts:433-443` | yes | Partly — drops `watch` drills (`lesson/engine.ts:58`), narrows distractors (`engine.ts:120-123`), sets trail node status (which gates one button) |
-| `srs` cards | `store/app.ts:59` | `store/app.ts:416-419, :531-543, :617-623` | yes | Partly — shows/hides Review CTAs; composes review queue |
-| `reviewsToday` | `types.ts:21` | `store/app.ts:463` | yes | Caps review session at 30/day |
-| `streak` | `types.ts:22` | `store/app.ts:449-454` | yes | **No** — display only |
-| `bestStreak` | `types.ts:27` | `store/app.ts:467` | yes | **No** — one badge border |
-| `celebratedStreak` | `types.ts:32` | `screens/Progress.tsx:151` | yes | **Yes, cosmetically** — the one "fires once" overlay |
-| `activeDays` | `types.ts:34` | `store/app.ts:456-458, :639` | yes | **No** — heatmap + household streak readout |
-| `lastActiveDay` | `types.ts:33` | `store/app.ts:468` | yes | **No** — internal daily-reset bookkeeping |
-| `xp` / `xpToday` | `types.ts:16-17` | `store/app.ts:460-462` | yes | **No** — goal ring + which of two secondary Home cards |
-| `flags` | `store/app.ts:60` | `store/app.ts:552-645` | yes | **No** (user content) — surfaces sections, jumps the queue |
-| `metrics.*` | `types.ts:127-136` | `store/app.ts:478-491` | yes | **No** — Stats tab + hidden dev screen |
-| `metrics.appFirstOpenAt` | `types.ts:127` | `store/app.ts:336` | yes | **No** — only ever used for seconds-to-first-sign |
-| Milestone rung | derived, `lesson/milestones.ts:32` | n/a | derived | **No** — a label and a shortcut |
-| Achievement `earned` | derived, `screens/Progress.tsx:648-663` | n/a | derived | **No** — border and greyscale |
-| Trail node `locked` | derived, `screens/Home.tsx:117-125` | n/a | derived | **Marginally** — one `disabled` at `Home.tsx:740`, bypassable four ways |
+| State                    | File:line (declared)                    | Written by                                 | Persisted | Genuinely changes what is offered?                                                                                                                |
+| ------------------------ | --------------------------------------- | ------------------------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onboarded`              | `store/app.ts:53`                       | `store/app.ts:401`                         | yes       | **Yes** — Onboarding vs. app. Once, forever.                                                                                                      |
+| `track`                  | `screens/Onboarding.tsx:125`            | `Onboarding.tsx:357, :387`                 | **no**    | One-shot landing route only                                                                                                                       |
+| `masteryLevel`           | `store/app.ts:57`                       | `store/app.ts:433-443`                     | yes       | Partly — drops `watch` drills (`lesson/engine.ts:58`), narrows distractors (`engine.ts:120-123`), sets trail node status (which gates one button) |
+| `srs` cards              | `store/app.ts:59`                       | `store/app.ts:416-419, :531-543, :617-623` | yes       | Partly — shows/hides Review CTAs; composes review queue                                                                                           |
+| `reviewsToday`           | `types.ts:21`                           | `store/app.ts:463`                         | yes       | Caps review session at 30/day                                                                                                                     |
+| `streak`                 | `types.ts:22`                           | `store/app.ts:449-454`                     | yes       | **No** — display only                                                                                                                             |
+| `bestStreak`             | `types.ts:27`                           | `store/app.ts:467`                         | yes       | **No** — one badge border                                                                                                                         |
+| `celebratedStreak`       | `types.ts:32`                           | `screens/Progress.tsx:151`                 | yes       | **Yes, cosmetically** — the one "fires once" overlay                                                                                              |
+| `activeDays`             | `types.ts:34`                           | `store/app.ts:456-458, :639`               | yes       | **No** — heatmap + household streak readout                                                                                                       |
+| `lastActiveDay`          | `types.ts:33`                           | `store/app.ts:468`                         | yes       | **No** — internal daily-reset bookkeeping                                                                                                         |
+| `xp` / `xpToday`         | `types.ts:16-17`                        | `store/app.ts:460-462`                     | yes       | **No** — goal ring + which of two secondary Home cards                                                                                            |
+| `flags`                  | `store/app.ts:60`                       | `store/app.ts:552-645`                     | yes       | **No** (user content) — surfaces sections, jumps the queue                                                                                        |
+| `metrics.*`              | `types.ts:127-136`                      | `store/app.ts:478-491`                     | yes       | **No** — Stats tab + hidden dev screen                                                                                                            |
+| `metrics.appFirstOpenAt` | `types.ts:127`                          | `store/app.ts:336`                         | yes       | **No** — only ever used for seconds-to-first-sign                                                                                                 |
+| Milestone rung           | derived, `lesson/milestones.ts:32`      | n/a                                        | derived   | **No** — a label and a shortcut                                                                                                                   |
+| Achievement `earned`     | derived, `screens/Progress.tsx:648-663` | n/a                                        | derived   | **No** — border and greyscale                                                                                                                     |
+| Trail node `locked`      | derived, `screens/Home.tsx:117-125`     | n/a                                        | derived   | **Marginally** — one `disabled` at `Home.tsx:740`, bypassable four ways                                                                           |
 
 ---
 

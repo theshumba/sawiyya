@@ -7,17 +7,12 @@
 // everything after onboarding is a goto, not a chain of taps that can drift.
 //
 // Usage:  BASE=http://localhost:4173/ node scripts/shots.mjs
-import { chromium } from "playwright-core";
-import { homedir } from "os";
-import { readdirSync, mkdirSync } from "fs";
+import { chromium, executablePath } from "./browser.mjs";
+import { mkdirSync } from "fs";
 import { join } from "path";
 
 const BASE = (process.env.BASE || "http://localhost:5173/").replace(/\/$/, "") + "/";
 const OUT = process.env.OUT || "/tmp/sawiyya-shots";
-
-const cacheDir = join(homedir(), "Library/Caches/ms-playwright");
-const shell = readdirSync(cacheDir).filter((d) => d.startsWith("chromium_headless_shell-")).sort().at(-1);
-const executablePath = join(cacheDir, shell, "chrome-headless-shell-mac-arm64/chrome-headless-shell");
 
 mkdirSync(OUT, { recursive: true });
 
@@ -53,15 +48,25 @@ async function newPage() {
 // from i18n so a copy change that breaks the drive shows up as a loud failure.
 const COPY = {
   en: {
-    start: "Get started", meet: "Nice to meet you", lang: "English", cont: "Continue",
-    cam: "Got it", recap: "Looks right", name: "Noora",
+    start: "Get started",
+    meet: "Nice to meet you",
+    lang: "English",
+    cont: "Continue",
+    cam: "Got it",
+    recap: "Looks right",
+    name: "Noora",
     // Picked before the plan screen is shot: an all-unselected day row is an
     // empty state, and a design review should see the screen in real use.
     days: ["Mon", "Thu"],
   },
   ar: {
-    start: "لنبدأ", meet: "تشرّفنا", lang: "العربية", cont: "متابعة",
-    cam: "فهمت", recap: "يبدو صحيحًا", name: "نورة",
+    start: "لنبدأ",
+    meet: "تشرّفنا",
+    lang: "العربية",
+    cont: "متابعة",
+    cam: "فهمت",
+    recap: "يبدو صحيحًا",
+    name: "نورة",
     days: ["الاثنين", "الخميس"],
   },
 };
@@ -77,7 +82,12 @@ const mk = (page) => {
           Promise.all(
             [...document.querySelectorAll("img")]
               .filter((i) => !i.complete && i.loading !== "lazy")
-              .map((i) => new Promise((r) => { i.onload = i.onerror = r; })),
+              .map(
+                (i) =>
+                  new Promise((r) => {
+                    i.onload = i.onerror = r;
+                  }),
+              ),
           ),
           new Promise((r) => setTimeout(r, 3000)),
         ]),
@@ -100,8 +110,7 @@ const mk = (page) => {
     const hit = await page.evaluate((needle) => {
       const els = [...document.querySelectorAll("button,a,[role=button]")];
       const el = els.find(
-        (e) =>
-          (e.textContent || "").includes(needle) || (e.getAttribute("aria-label") || "").includes(needle),
+        (e) => (e.textContent || "").includes(needle) || (e.getAttribute("aria-label") || "").includes(needle),
       );
       if (el) el.click();
       return !!el;
@@ -112,7 +121,9 @@ const mk = (page) => {
 
   // Screen addresses (the hash router) — no tap chains to drift.
   const goto = async (hash) => {
-    await page.evaluate((h) => { window.location.hash = h; }, hash);
+    await page.evaluate((h) => {
+      window.location.hash = h;
+    }, hash);
     await page.waitForTimeout(500);
   };
 

@@ -21,9 +21,7 @@ describe("real signer photos (ArSL21L)", () => {
     // import.meta.glob (vite/client) instead of node:fs — the app tsconfig has
     // no node types, and CI's fresh tsc rejects node imports in test files.
     const onDisk = new Set(
-      Object.keys(import.meta.glob("../../public/handshapes/*.webp")).map(
-        (p) => p.split("/").pop() as string,
-      ),
+      Object.keys(import.meta.glob("../../public/handshapes/*.webp")).map((p) => p.split("/").pop() as string),
     );
     for (const s of ALPHABET) {
       expect(onDisk.has((s.photo as string).split("/").pop() as string), `${s.id} → ${s.photo}`).toBe(true);
@@ -43,9 +41,25 @@ describe("no sign ships without a real source (2026-08-05)", () => {
 
   it("the 19 removed word ids resolve to nothing", () => {
     const removed = [
-      "iloveyou", "hello", "yes", "no", "stop", "more", "finished", "hungry",
-      "milk", "sleep", "mum", "dad", "thankyou", "help", "careful", "name",
-      "me", "man", "woman",
+      "iloveyou",
+      "hello",
+      "yes",
+      "no",
+      "stop",
+      "more",
+      "finished",
+      "hungry",
+      "milk",
+      "sleep",
+      "mum",
+      "dad",
+      "thankyou",
+      "help",
+      "careful",
+      "name",
+      "me",
+      "man",
+      "woman",
     ];
     const ids = new Set(ALL_SIGNS.map((s) => s.id));
     for (const id of removed) expect(ids.has(id), id).toBe(false);

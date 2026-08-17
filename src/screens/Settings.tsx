@@ -10,11 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import { pick, t } from "../i18n";
 import { activeProfile, todayKey, useApp } from "../store/app";
-import {
-  applyHouseholdImport,
-  buildHouseholdExport,
-  parseHouseholdImport,
-} from "../store/household";
+import { applyHouseholdImport, buildHouseholdExport, parseHouseholdImport } from "../store/household";
 import { useUi } from "../store/ui";
 import { clearAll } from "../recognizer/knn";
 import type { DailyGoal, Lang } from "../types";
@@ -28,7 +24,9 @@ import { NoProfileFallback } from "../components/NoProfileFallback";
 function Group({ title, lang, children }: { title: string; lang: Lang; children: React.ReactNode }) {
   return (
     <section>
-      <MonoLabel lang={lang} className="mb-2 block px-1 text-muted">{title}</MonoLabel>
+      <MonoLabel lang={lang} className="mb-2 block px-1 text-muted">
+        {title}
+      </MonoLabel>
       <Card className="overflow-hidden rounded-2xl">{children}</Card>
     </section>
   );
@@ -50,8 +48,7 @@ export function Settings() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [importErr, setImportErr] = useState<string | null>(null);
-  const [pendingImport, setPendingImport] =
-    useState<{ state: unknown; persistVersion: number } | null>(null);
+  const [pendingImport, setPendingImport] = useState<{ state: unknown; persistVersion: number } | null>(null);
   // Name lives here while it is being typed, so a half-typed or cleared field is
   // never written to the store. Declared above the !profile guard: hooks first.
   const [nameDraft, setNameDraft] = useState(profile?.displayName ?? "");
@@ -191,10 +188,10 @@ export function Settings() {
 
   const LanguageToggle = (
     <div className="flex gap-1.5 rounded-xl bg-paper2 p-1.5">
-      {([
+      {[
         { v: "en" as Lang, label: "English" },
         { v: "ar" as Lang, label: "العربية" },
-      ]).map((o) => {
+      ].map((o) => {
         const on = lang === o.v;
         return (
           <button
@@ -246,7 +243,9 @@ export function Settings() {
               {on && <Icon name="stars" fill className="text-gold-deep" />}
               {o.name}
             </span>
-            <span className={`rounded-lg px-2.5 py-1 text-xs font-bold ${on ? "bg-gold text-ink" : "bg-paper2 text-muted"}`}>
+            <span
+              className={`rounded-lg px-2.5 py-1 text-xs font-bold ${on ? "bg-gold text-ink" : "bg-paper2 text-muted"}`}
+            >
               {o.min}
             </span>
           </button>
@@ -316,9 +315,7 @@ export function Settings() {
                 )}
               </div>
               {camState !== "granted" && (
-                <p className="mt-1.5 text-xs leading-snug text-muted">
-                  {t("setGrantWhere", lang)}
-                </p>
+                <p className="mt-1.5 text-xs leading-snug text-muted">{t("setGrantWhere", lang)}</p>
               )}
             </Block>
 
@@ -373,9 +370,7 @@ export function Settings() {
               <p className="mt-2 h-5 text-center text-xs font-semibold text-teal-deep" role="status" aria-live="polite">
                 {exportMsg}
               </p>
-              <p className="text-center text-[12px] leading-[1.4] text-muted">
-                {t("famDataLocal", lang)}
-              </p>
+              <p className="text-center text-[12px] leading-[1.4] text-muted">{t("famDataLocal", lang)}</p>
             </Block>
             <Block last>
               <input
@@ -403,12 +398,8 @@ export function Settings() {
               )}
               {pendingImport !== null && (
                 <div className="mt-3 rounded-xl border border-coral/30 bg-coral/5 p-3.5">
-                  <p className="font-display text-sm font-bold text-coral-deep">
-                    {t("setImportConfirmTitle", lang)}
-                  </p>
-                  <p className="mt-1 text-[12.5px] leading-[1.4] text-ink">
-                    {t("setImportConfirmBody", lang)}
-                  </p>
+                  <p className="font-display text-sm font-bold text-coral-deep">{t("setImportConfirmTitle", lang)}</p>
+                  <p className="mt-1 text-[12.5px] leading-[1.4] text-ink">{t("setImportConfirmBody", lang)}</p>
                   <div className="mt-3 flex gap-2">
                     <button
                       type="button"
@@ -440,12 +431,7 @@ export function Settings() {
           <Group lang={lang} title={pick(lang, "About", "حول")}>
             {/* Phase 4 · this row said "Signs dictionary" while the tab said
                 "Signs" and the screen said "Sign Dictionary". One key now. */}
-            <ChipRow
-              chip="bg-teal"
-              label={t("navDictionary", lang)}
-              onClick={() => go({ name: "allSigns" })}
-              last
-            />
+            <ChipRow chip="bg-teal" label={t("navDictionary", lang)} onClick={() => go({ name: "allSigns" })} last />
           </Group>
 
           {/* About & credits — floating Fanan, gratitude card, version egg */}
@@ -460,7 +446,9 @@ export function Settings() {
           </div>
 
           <div className="mt-5 rounded-[18px] border border-line bg-paper p-[18px] text-start shadow-[0_2px_0_#EDE3D2]">
-            <MonoLabel lang={lang} className="text-coral">{t("aboutCreditsLbl", lang)}</MonoLabel>
+            <MonoLabel lang={lang} className="text-coral">
+              {t("aboutCreditsLbl", lang)}
+            </MonoLabel>
             <p className="mt-2 text-sm font-medium leading-relaxed text-ink">{t("aboutCredits", lang)}</p>
           </div>
 
@@ -480,9 +468,7 @@ export function Settings() {
               </span>
             </button>
             <span className="text-[11px] font-medium text-muted">{t("aboutVersion", lang)}</span>
-            <span className="text-[11px] font-medium text-muted">
-              {pick(lang, "© 2026 Sawiyya", "© ٢٠٢٦ سويّة")}
-            </span>
+            <span className="text-[11px] font-medium text-muted">{pick(lang, "© 2026 Sawiyya", "© ٢٠٢٦ سويّة")}</span>
           </div>
         </div>
       </div>

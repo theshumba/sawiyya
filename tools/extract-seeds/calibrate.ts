@@ -7,78 +7,78 @@
  * Run with: npx tsx tools/extract-seeds/calibrate.ts
  */
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import { normalizeLandmarks, type LM } from '../../src/recognizer/normalize.js';
-import { evaluate, type TestItem } from '../../src/recognizer/calibration.js';
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+import { normalizeLandmarks, type LM } from "../../src/recognizer/normalize.js";
+import { evaluate, type TestItem } from "../../src/recognizer/calibration.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const ROOT = resolve(__dirname, '../../');
+const ROOT = resolve(__dirname, "../../");
 
 // ---------------------------------------------------------------------------
 // Label → class-id mapping (verbatim from extract.ts)
 // ---------------------------------------------------------------------------
 const LABEL_MAP: Record<string, string | null> = {
-  '3ayn':   'alpha-ain',
-  '7a2':    'alpha-haa',
-  '9af':    'alpha-qaf',
-  'Alef':   'alpha-alif',
-  'Ba2':    'alpha-ba',
-  'Chin':   'alpha-sheen',
-  'Dal':    'alpha-dal',
-  'DDad':   'alpha-dad',
-  'Delete': null,
-  'Fa2':    'alpha-fa',
-  'Finish': null,
-  'Ghayn':  'alpha-ghain',
-  'Ha2':    'alpha-ha',
-  'Jim':    'alpha-jeem',
-  'Kaf':    'alpha-kaf',
-  'Kha2':   'alpha-kha',
-  'Lam':    'alpha-lam',
-  'Mim':    'alpha-meem',
-  'Noon':   'alpha-noon',
-  'Ra2':    'alpha-ra',
-  'Sin':    'alpha-seen',
-  'Space':  null,
-  'SSad':   'alpha-sad',
-  'Ta2':    'alpha-ta',
-  'Tha2':   'alpha-tha',
-  'Thal':   'alpha-thal',
-  'TTa2':   'alpha-tah',
-  'TTha2':  'alpha-zah',
-  'Waw':    'alpha-waw',
-  'Ya2':    'alpha-ya',
-  'Zayn':   'alpha-zay',
+  "3ayn": "alpha-ain",
+  "7a2": "alpha-haa",
+  "9af": "alpha-qaf",
+  Alef: "alpha-alif",
+  Ba2: "alpha-ba",
+  Chin: "alpha-sheen",
+  Dal: "alpha-dal",
+  DDad: "alpha-dad",
+  Delete: null,
+  Fa2: "alpha-fa",
+  Finish: null,
+  Ghayn: "alpha-ghain",
+  Ha2: "alpha-ha",
+  Jim: "alpha-jeem",
+  Kaf: "alpha-kaf",
+  Kha2: "alpha-kha",
+  Lam: "alpha-lam",
+  Mim: "alpha-meem",
+  Noon: "alpha-noon",
+  Ra2: "alpha-ra",
+  Sin: "alpha-seen",
+  Space: null,
+  SSad: "alpha-sad",
+  Ta2: "alpha-ta",
+  Tha2: "alpha-tha",
+  Thal: "alpha-thal",
+  TTa2: "alpha-tah",
+  TTha2: "alpha-zah",
+  Waw: "alpha-waw",
+  Ya2: "alpha-ya",
+  Zayn: "alpha-zay",
 };
 
 // ---------------------------------------------------------------------------
 // Load shipped seeds (train store)
 // ---------------------------------------------------------------------------
-const seedsPath = resolve(ROOT, 'src/recognizer/seeds/alphabet.json');
-const train = JSON.parse(readFileSync(seedsPath, 'utf-8')) as Record<string, number[][]>;
+const seedsPath = resolve(ROOT, "src/recognizer/seeds/alphabet.json");
+const train = JSON.parse(readFileSync(seedsPath, "utf-8")) as Record<string, number[][]>;
 const classIds = Object.keys(train).sort();
 
 // Build seed fingerprints per class for held-out filtering
 const seedSets = new Map<string, Set<string>>();
 for (const [cls, vecs] of Object.entries(train)) {
-  seedSets.set(cls, new Set(vecs.map(v => JSON.stringify(v))));
+  seedSets.set(cls, new Set(vecs.map((v) => JSON.stringify(v))));
 }
 
 // ---------------------------------------------------------------------------
 // Parse CSV and collect per-class held-out samples
 // ---------------------------------------------------------------------------
-const csvPath = resolve(__dirname, 'dataset/ArSL_dataset.csv');
-const lines = readFileSync(csvPath, 'utf-8').split('\n');
+const csvPath = resolve(__dirname, "dataset/ArSL_dataset.csv");
+const lines = readFileSync(csvPath, "utf-8").split("\n");
 
 const heldOut = new Map<string, number[][]>();
 
 for (let li = 1; li < lines.length; li++) {
   const line = lines[li].trim();
   if (!line) continue;
-  const cols = line.split(';');
+  const cols = line.split(";");
   const label = cols[0];
   if (!(label in LABEL_MAP)) continue;
   const classId = LABEL_MAP[label];
@@ -90,14 +90,17 @@ for (let li = 1; li < lines.length; li++) {
   for (let i = 0; i <= 20; i++) {
     const xi = parseFloat(cols[1 + i * 2]);
     const yi = parseFloat(cols[2 + i * 2]);
-    if (isNaN(xi) || isNaN(yi)) { ok = false; break; }
+    if (isNaN(xi) || isNaN(yi)) {
+      ok = false;
+      break;
+    }
     lms.push({ x: xi, y: yi, z: 0 });
   }
   if (!ok || lms.length !== 21) continue;
 
   const vec = normalizeLandmarks(lms, false);
   if (vec.length !== 42) continue;
-  const rounded = vec.map(v => Math.round(v * 1000) / 1000);
+  const rounded = vec.map((v) => Math.round(v * 1000) / 1000);
 
   // Keep ONLY rows NOT present in the shipped seed set for this class
   const key = JSON.stringify(rounded);
@@ -144,16 +147,22 @@ console.log(`Classes: ${classIds.length}, max ${MAX_PER_CLASS} items per class p
 // ---------------------------------------------------------------------------
 // Sweep
 // ---------------------------------------------------------------------------
-const GATES = [0.45, 0.50, 0.55, 0.60, 0.65];
-const TAUS  = [0.70, 0.78, 0.85];
+const GATES = [0.45, 0.5, 0.55, 0.6, 0.65];
+const TAUS = [0.7, 0.78, 0.85];
 const MARGIN = 0.15;
 const K = 7; // production k
 
-interface Result { gate: number; tau: number; trueAccept: number; falseAccept: number; n: number }
+interface Result {
+  gate: number;
+  tau: number;
+  trueAccept: number;
+  falseAccept: number;
+  n: number;
+}
 const results: Result[] = [];
 
-console.log('gate  tau  → trueAccept  falseAccept  (n)');
-console.log('─────────────────────────────────────────');
+console.log("gate  tau  → trueAccept  falseAccept  (n)");
+console.log("─────────────────────────────────────────");
 
 for (const gate of GATES) {
   for (const tau of TAUS) {
@@ -163,22 +172,26 @@ for (const gate of GATES) {
     const fa = (r.falseAccept * 100).toFixed(1).padStart(5);
     console.log(`${gate.toFixed(2)}  ${tau.toFixed(2)} → ${ta}%        ${fa}%       (${r.n})`);
   }
-  console.log('');
+  console.log("");
 }
 
 // ---------------------------------------------------------------------------
 // Recommendation: highest trueAccept subject to falseAccept ≤ 0.02
 // ---------------------------------------------------------------------------
 const FA_HARD_CAP = 0.02;
-const eligible = results.filter(r => r.falseAccept <= FA_HARD_CAP);
+const eligible = results.filter((r) => r.falseAccept <= FA_HARD_CAP);
 
 if (eligible.length === 0) {
-  console.log('⚠  No combo achieved falseAccept ≤ 2% — reporting lowest-FA combo instead:');
-  const best = results.reduce((a, b) => a.falseAccept < b.falseAccept ? a : b);
-  console.log(`  gate=${best.gate}  tau=${best.tau}  → trueAccept=${(best.trueAccept*100).toFixed(1)}%  falseAccept=${(best.falseAccept*100).toFixed(1)}%  (n=${best.n})`);
-  console.log('DONE_WITH_CONCERNS: falseAccept target not met. Review sweep table and choose manually.');
+  console.log("⚠  No combo achieved falseAccept ≤ 2% — reporting lowest-FA combo instead:");
+  const best = results.reduce((a, b) => (a.falseAccept < b.falseAccept ? a : b));
+  console.log(
+    `  gate=${best.gate}  tau=${best.tau}  → trueAccept=${(best.trueAccept * 100).toFixed(1)}%  falseAccept=${(best.falseAccept * 100).toFixed(1)}%  (n=${best.n})`,
+  );
+  console.log("DONE_WITH_CONCERNS: falseAccept target not met. Review sweep table and choose manually.");
 } else {
-  const best = eligible.reduce((a, b) => a.trueAccept > b.trueAccept ? a : b);
-  console.log('─────────────────────────────────────────');
-  console.log(`RECOMMENDED: gate=${best.gate}  tau=${best.tau}  margin=${MARGIN}  → trueAccept=${(best.trueAccept*100).toFixed(1)}%  falseAccept=${(best.falseAccept*100).toFixed(1)}%  (n=${best.n})`);
+  const best = eligible.reduce((a, b) => (a.trueAccept > b.trueAccept ? a : b));
+  console.log("─────────────────────────────────────────");
+  console.log(
+    `RECOMMENDED: gate=${best.gate}  tau=${best.tau}  margin=${MARGIN}  → trueAccept=${(best.trueAccept * 100).toFixed(1)}%  falseAccept=${(best.falseAccept * 100).toFixed(1)}%  (n=${best.n})`,
+  );
 }

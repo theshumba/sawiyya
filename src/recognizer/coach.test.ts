@@ -62,10 +62,7 @@ describe("coach honesty — a correct hand is NEVER coached", () => {
 
   it("small landmark jitter stays silent (deterministic noise)", () => {
     for (const id of IDS.slice(0, 8)) {
-      const noisy = SHAPES[id].map(([x, y], i) => [
-        x + 0.02 * Math.sin(i * 7.3),
-        y + 0.02 * Math.cos(i * 3.1),
-      ]);
+      const noisy = SHAPES[id].map(([x, y], i) => [x + 0.02 * Math.sin(i * 7.3), y + 0.02 * Math.cos(i * 3.1)]);
       expect(coach(vecOf(noisy), id), id).toBeNull();
     }
   });

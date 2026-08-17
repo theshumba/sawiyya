@@ -34,35 +34,37 @@
   .extruded-coral {
     /* H15: face darkened to coral-deep #B54834, so the edge goes one step
        darker again (coral-edge) and the extrusion stays visible. */
-    box-shadow: 0 6px 0 0 theme('colors.coral.edge');
+    box-shadow: 0 6px 0 0 theme("colors.coral.edge");
   }
   .extruded-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 theme('colors.coral.edge');
+    box-shadow: 0 2px 0 0 theme("colors.coral.edge");
   }
   .extruded-teal {
-    box-shadow: 0 6px 0 0 theme('colors.teal.deep');
+    box-shadow: 0 6px 0 0 theme("colors.teal.deep");
   }
   .extruded-teal:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 theme('colors.teal.deep');
+    box-shadow: 0 2px 0 0 theme("colors.teal.deep");
   }
   .extruded-gold {
-    box-shadow: 0 6px 0 0 theme('colors.gold.edge');
+    box-shadow: 0 6px 0 0 theme("colors.gold.edge");
   }
   .extruded-gold:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 0 theme('colors.gold.edge');
+    box-shadow: 0 2px 0 0 theme("colors.gold.edge");
   }
   /* ── Design-rebuild spring buttons (HANDOFF §Shape) ───────────────────────
      Solid fill + HARD 5px bottom shadow (no blur). On :active the button
      drops 4px and the shadow shrinks to 1px — the springy affordance.
      prefers-reduced-motion (global @layer base rule) zeroes the transition. */
   .spring {
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.1s ease;
   }
   .spring-teal {
-    box-shadow: 0 5px 0 theme('colors.teal.deep');
+    box-shadow: 0 5px 0 theme("colors.teal.deep");
   }
   /* M20 (global backstop): CSS letter-spacing severs Arabic cursive joins.
      applyDir() stamps <html lang>, so in Arabic every tracking utility in the
@@ -78,22 +80,22 @@
   .spring-coral {
     /* H15: the face is now coral-deep (#B54834), so coral-edge is one shade
        darker again and the extruded edge stays visible instead of matching it. */
-    box-shadow: 0 5px 0 theme('colors.coral.edge');
+    box-shadow: 0 5px 0 theme("colors.coral.edge");
   }
   .spring-gold {
-    box-shadow: 0 5px 0 theme('colors.gold.edge');
+    box-shadow: 0 5px 0 theme("colors.gold.edge");
   }
   .spring-teal:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 theme('colors.teal.deep');
+    box-shadow: 0 1px 0 theme("colors.teal.deep");
   }
   .spring-coral:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 theme('colors.coral.edge');
+    box-shadow: 0 1px 0 theme("colors.coral.edge");
   }
   .spring-gold:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow: 0 1px 0 theme('colors.gold.edge');
+    box-shadow: 0 1px 0 theme("colors.gold.edge");
   }
   .spring-teal:disabled,
   .spring-coral:disabled,

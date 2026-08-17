@@ -7,13 +7,7 @@
 // through the word's gradable letters (recording real drill results).
 import { useEffect, useMemo, useState } from "react";
 import { pick, t } from "../i18n";
-import {
-  ALPHABET,
-  fingerspellSequence,
-  hasLatin,
-  signById,
-  transliterateLatin,
-} from "../content/signs";
+import { ALPHABET, fingerspellSequence, hasLatin, signById, transliterateLatin } from "../content/signs";
 import { activeProfile, useApp } from "../store/app";
 import { useUi } from "../store/ui";
 import { CameraTrainer, type TrainerResult } from "../components/CameraTrainer";
@@ -48,10 +42,7 @@ export function Fingerspell() {
   const steps = useMemo(() => fingerspellSequence(arabic), [arabic]);
   const letters = useMemo(() => steps.filter((s) => s.kind === "letter"), [steps]);
   const skipped = useMemo(() => steps.filter((s) => s.kind === "skipped"), [steps]);
-  const gradable = useMemo(
-    () => letters.filter((s) => signById(s.signId)?.cameraGradable),
-    [letters],
-  );
+  const gradable = useMemo(() => letters.filter((s) => signById(s.signId)?.cameraGradable), [letters]);
 
   // playback clock — dwell per letter scales with speed; stops on the last one
   useEffect(() => {
@@ -290,7 +281,10 @@ export function Fingerspell() {
                       >
                         {current.char}
                       </span>
-                      <span className="absolute start-3 top-3 rounded-lg bg-black/25 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85" dir="ltr">
+                      <span
+                        className="absolute start-3 top-3 rounded-lg bg-black/25 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85"
+                        dir="ltr"
+                      >
                         ● {t("fsSignerTag", lang)}
                       </span>
                     </div>
@@ -319,7 +313,10 @@ export function Fingerspell() {
                     >
                       {current.char}
                     </span>
-                    <span className="absolute start-3 top-3 rounded-lg bg-black/25 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85" dir="ltr">
+                    <span
+                      className="absolute start-3 top-3 rounded-lg bg-black/25 px-2.5 py-1 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85"
+                      dir="ltr"
+                    >
                       ● {t("fsSignerTag", lang)}
                     </span>
                   </div>
@@ -327,12 +324,14 @@ export function Fingerspell() {
                   // ة (and any future reference-only letter): the glyph + an honest note —
                   // never a fake handshape.
                   <ScreenCard className="flex flex-col items-center gap-3 p-8 text-center">
-                    <span className="font-display text-7xl font-bold text-teal" role="img" aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}>
+                    <span
+                      className="font-display text-7xl font-bold text-teal"
+                      role="img"
+                      aria-label={pick(lang, currentSign.glossEn, currentSign.glossAr)}
+                    >
                       {current.char}
                     </span>
-                    <p className="max-w-[280px] text-xs italic leading-snug text-ink/70">
-                      {t("fspRefOnly", lang)}
-                    </p>
+                    <p className="max-w-[280px] text-xs italic leading-snug text-ink/70">{t("fspRefOnly", lang)}</p>
                   </ScreenCard>
                 )
               ) : steps.length > 0 ? (
@@ -418,7 +417,11 @@ export function Fingerspell() {
                   <p className="font-display font-bold text-ink">{t("fspPractiseAlong", lang)}</p>
                   <p className="text-sm text-muted">
                     {t("fspPractiseAlongSub", lang)} ·{" "}
-                    {pick(lang, `${toLocaleDigits(gradable.length, lang)} letters`, `${toLocaleDigits(gradable.length, lang)} حروف`)}
+                    {pick(
+                      lang,
+                      `${toLocaleDigits(gradable.length, lang)} letters`,
+                      `${toLocaleDigits(gradable.length, lang)} حروف`,
+                    )}
                   </p>
                 </div>
                 <Icon name="arrow_forward" className="text-2xl text-teal rtl:rotate-180" />

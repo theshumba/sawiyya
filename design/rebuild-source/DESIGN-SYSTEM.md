@@ -19,28 +19,28 @@ code does not honour.
 
 ### Colours
 
-| Class stem | Hex | Use |
-|---|---|---|
-| `teal` | `#0F6E6A` | Primary brand fill |
-| `teal-deep` | `#0A4F4C` | Deep teal surface, and the hard bottom edge of every teal spring/extruded button |
-| `teal-ink` | `#16302E` | Darkest teal text. Same value as `ink` |
-| `teal-ink900` | `#0A1F1D` | Declared, currently unused. Button edges use `teal-deep` |
-| `coral` | `#E8654C` | Coral fill on dark or large surfaces only, fails AA as small text |
-| `coral-soft` | `#F08A75` | Tint |
-| `coral-deep` | `#B54834` | H15: the AA-safe coral. Button faces and coral foregrounds. The spec originally said `#C54F3A` |
-| `coral-edge` | `#9C3D2C` | Bottom edge under a `coral-deep` face. Shadow only, never text |
-| `gold` | `#E6B24C` | Reward fill, arcs, medallions |
-| `gold-soft` | `#F0C879` | Tint |
-| `gold-mid` | `#E6B24C` | Progress fill / reward accent. Same value as `gold` |
-| `gold-deep` | `#7F621F` | H15: gold that is legible as TEXT, 5.01:1 on sand and 5.36:1 on paper. The spec originally said `#C89A3D`, which measured 2.26:1 and failed AA |
-| `gold-edge` | `#C89A3D` | The pre-H15 `gold-deep`, kept only as the gold button's bottom edge. Shadow only, never text |
-| `success` | `#1F8A5B` | Correct states, completed nodes |
-| `sand` | `#F6EFE3` | App background |
-| `paper` | `#FBF7EF` | Card surface |
-| `paper2` | `#F1E7D6` | Canvas / behind-app background |
-| `ink` | `#16302E` | Body text |
-| `muted` | `#566B68` | H15: secondary text. Was `#5C726F`, which measured 4.49:1, a hair under AA |
-| `line` | `#EDE3D2` | Hairlines, dividers |
+| Class stem    | Hex       | Use                                                                                                                                            |
+| ------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `teal`        | `#0F6E6A` | Primary brand fill                                                                                                                             |
+| `teal-deep`   | `#0A4F4C` | Deep teal surface, and the hard bottom edge of every teal spring/extruded button                                                               |
+| `teal-ink`    | `#16302E` | Darkest teal text. Same value as `ink`                                                                                                         |
+| `teal-ink900` | `#0A1F1D` | Declared, currently unused. Button edges use `teal-deep`                                                                                       |
+| `coral`       | `#E8654C` | Coral fill on dark or large surfaces only, fails AA as small text                                                                              |
+| `coral-soft`  | `#F08A75` | Tint                                                                                                                                           |
+| `coral-deep`  | `#B54834` | H15: the AA-safe coral. Button faces and coral foregrounds. The spec originally said `#C54F3A`                                                 |
+| `coral-edge`  | `#9C3D2C` | Bottom edge under a `coral-deep` face. Shadow only, never text                                                                                 |
+| `gold`        | `#E6B24C` | Reward fill, arcs, medallions                                                                                                                  |
+| `gold-soft`   | `#F0C879` | Tint                                                                                                                                           |
+| `gold-mid`    | `#E6B24C` | Progress fill / reward accent. Same value as `gold`                                                                                            |
+| `gold-deep`   | `#7F621F` | H15: gold that is legible as TEXT, 5.01:1 on sand and 5.36:1 on paper. The spec originally said `#C89A3D`, which measured 2.26:1 and failed AA |
+| `gold-edge`   | `#C89A3D` | The pre-H15 `gold-deep`, kept only as the gold button's bottom edge. Shadow only, never text                                                   |
+| `success`     | `#1F8A5B` | Correct states, completed nodes                                                                                                                |
+| `sand`        | `#F6EFE3` | App background                                                                                                                                 |
+| `paper`       | `#FBF7EF` | Card surface                                                                                                                                   |
+| `paper2`      | `#F1E7D6` | Canvas / behind-app background                                                                                                                 |
+| `ink`         | `#16302E` | Body text                                                                                                                                      |
+| `muted`       | `#566B68` | H15: secondary text. Was `#5C726F`, which measured 4.49:1, a hair under AA                                                                     |
+| `line`        | `#EDE3D2` | Hairlines, dividers                                                                                                                            |
 
 Use as `bg-success`, `text-gold-deep`, `bg-paper2`, `bg-gold-mid`, and so on.
 
@@ -54,11 +54,11 @@ been deleted. Use `coral-deep` for error foregrounds.
 
 ### Type faces
 
-| Class | Stack | Use |
-|---|---|---|
-| `font-sans` | Readex Pro | Dual-script UI and body. Default on `body` |
-| `font-display` | Rubik | Headings, numbers, buttons, labels |
-| `font-mono` | Rubik | Small uppercase eyebrow and badge labels |
+| Class          | Stack      | Use                                        |
+| -------------- | ---------- | ------------------------------------------ |
+| `font-sans`    | Readex Pro | Dual-script UI and body. Default on `body` |
+| `font-display` | Rubik      | Headings, numbers, buttons, labels         |
+| `font-mono`    | Rubik      | Small uppercase eyebrow and badge labels   |
 
 `font-mono` is a legacy utility name from the `.dc.html` references. **The brand
 vendors no monospace face** (`src/fonts.css` self-hosts Readex Pro, Rubik and
@@ -69,23 +69,23 @@ code; the ~20 remaining `font-mono` call sites are a follow-up sweep.
 
 ### Motion easings (`transitionTimingFunction`)
 
-| Class | cubic-bezier | Use |
-|---|---|---|
-| `ease-spring` | `.34,1.56,.64,1` | Button release, pop-in, Fanan |
-| `ease-standard` | `.4,0,.2,1` | Most transitions |
+| Class           | cubic-bezier     | Use                           |
+| --------------- | ---------------- | ----------------------------- |
+| `ease-spring`   | `.34,1.56,.64,1` | Button release, pop-in, Fanan |
+| `ease-standard` | `.4,0,.2,1`      | Most transitions              |
 
 `ease-enter` and `ease-exit` were declared for a screen push/pop transition that
 was never built. Both are deleted.
 
 ### Keyframes + animations
 
-| Class | Definition | Use |
-|---|---|---|
-| `animate-pop-in` | `pop-in .45s` scale .8→1.05→1 + fade | Card / sheet entry |
-| `animate-rise` | `rise .5s` translateY 12px→0 + fade | Content entry |
-| `animate-pulse-ring` | `pulse-ring 1.4s infinite` gold halo | Attention ring |
-| `animate-float` | `float 2.6s ease-in-out infinite`, ±7px bob | Idle / mascot bob |
-| `animate-pop` | `pop .4s cubic-bezier(.34,1.56,.64,1) both`, scale 0→1.1→1 | Checks, badges, scale-in |
+| Class                | Definition                                                 | Use                      |
+| -------------------- | ---------------------------------------------------------- | ------------------------ |
+| `animate-pop-in`     | `pop-in .45s` scale .8→1.05→1 + fade                       | Card / sheet entry       |
+| `animate-rise`       | `rise .5s` translateY 12px→0 + fade                        | Content entry            |
+| `animate-pulse-ring` | `pulse-ring 1.4s infinite` gold halo                       | Attention ring           |
+| `animate-float`      | `float 2.6s ease-in-out infinite`, ±7px bob                | Idle / mascot bob        |
+| `animate-pop`        | `pop .4s cubic-bezier(.34,1.56,.64,1) both`, scale 0→1.1→1 | Checks, badges, scale-in |
 
 `animate-shimmer` (skeleton loading) and `animate-confetti` were both declared
 and never used: the real celebration is a canvas, in
@@ -284,4 +284,7 @@ Use for any number/percent shown in the UI so Arabic never mixes scripts
 - All UI numerals go through `toLocaleDigits` / `formatPercent`.
 - Do not touch `src/screens`, `src/store`, `src/recognizer`, `src/lesson`, or
   `src/i18n.ts` content when only styling.
+
+```
+
 ```

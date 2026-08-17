@@ -178,11 +178,7 @@ export interface MonoLabelProps {
  */
 export function MonoLabel({ children, className = "", lang }: MonoLabelProps) {
   const latin = lang !== "ar" ? "uppercase tracking-[0.12em]" : "";
-  return (
-    <span className={`font-display text-[11px] font-bold leading-none ${latin} ${className}`}>
-      {children}
-    </span>
-  );
+  return <span className={`font-display text-[11px] font-bold leading-none ${latin} ${className}`}>{children}</span>;
 }
 
 // ── Removed primitives ───────────────────────────────────────────────────────

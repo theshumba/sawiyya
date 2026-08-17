@@ -69,7 +69,7 @@ export default {
           "60%": { transform: "scale(1.05)" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
-        "rise": {
+        rise: {
           "0%": { transform: "translateY(12px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
@@ -78,12 +78,12 @@ export default {
           "100%": { boxShadow: "0 0 0 18px rgba(230,178,76,0)" },
         },
         // Mascot / idle gentle bob.
-        "float": {
+        float: {
           "0%,100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-7px)" },
         },
         // Overshoot scale-in for checks, badges, sparkles.
-        "pop": {
+        pop: {
           "0%": { transform: "scale(0)", opacity: "0" },
           "60%": { transform: "scale(1.1)" },
           "100%": { transform: "scale(1)", opacity: "1" },
@@ -91,10 +91,10 @@ export default {
       },
       animation: {
         "pop-in": "pop-in .45s cubic-bezier(.2,.9,.3,1.4) both",
-        "rise": "rise .5s ease both",
+        rise: "rise .5s ease both",
         "pulse-ring": "pulse-ring 1.4s ease-out infinite",
-        "float": "float 2.6s ease-in-out infinite",
-        "pop": "pop .4s cubic-bezier(.34,1.56,.64,1) both",
+        float: "float 2.6s ease-in-out infinite",
+        pop: "pop .4s cubic-bezier(.34,1.56,.64,1) both",
       },
     },
   },

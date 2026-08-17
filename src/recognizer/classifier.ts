@@ -21,8 +21,13 @@ import { nearestSeedDistance } from "./seedStore";
 const OOD_GATE = 0.65;
 
 const { classes, D, H, W1, b1, W2, b2, tau } = model as {
-  classes: string[]; D: number; H: number;
-  W1: number[][]; b1: number[]; W2: number[][]; b2: number[];
+  classes: string[];
+  D: number;
+  H: number;
+  W1: number[][];
+  b1: number[];
+  W2: number[][];
+  b2: number[];
   tau?: number;
 };
 const K = classes.length;

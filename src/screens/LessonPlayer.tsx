@@ -26,18 +26,14 @@ import { toLocaleDigits, formatPercent } from "../components/dc";
 type DrillOutcome = { xp: number; scored: boolean; correct: boolean };
 
 // diagonal teal "signer texture" used behind demo medallions (Practice Loop.dc.html)
-const SIGNER_TEXTURE =
-  "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)";
+const SIGNER_TEXTURE = "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)";
 
 /** Lesson signs still under mastery 2 (practised). The 12-drill cap deliberately
  *  splits a fresh 7-letter lesson across two passes (engine.ts §buildAlphabetQueue),
  *  so a drained queue does NOT mean the lesson is finished: the path node only
  *  moves once every sign reaches 2. Empty for the "review" pseudo-lesson, which
  *  has no manifest to finish. */
-function unfinishedSignIds(
-  lesson: ReturnType<typeof lessonById>,
-  prog: Record<string, SignProgress>,
-): string[] {
+function unfinishedSignIds(lesson: ReturnType<typeof lessonById>, prog: Record<string, SignProgress>): string[] {
   if (!lesson) return [];
   return lesson.signIds.filter((id) => (prog[id]?.masteryLevel ?? 0) < 2);
 }
@@ -51,10 +47,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // queue is computed once per pass — drills mutate state as they complete, and
   // "Keep going" on the part-1 card bumps `pass` to rebuild it from the new state
   const [pass, setPass] = useState(0);
-  const queue = useMemo(
-    () => buildDrillQueue(lessonId, useApp.getState(), profileId),
-    [lessonId, profileId, pass],
-  );
+  const queue = useMemo(() => buildDrillQueue(lessonId, useApp.getState(), profileId), [lessonId, profileId, pass]);
   const [index, setIndex] = useState(0);
   const xpEarned = useRef(0);
   const scored = useRef(0);
@@ -107,8 +100,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   // A review session emptied by the DAILY CAP (cards still due) says so honestly
   // instead of pretending the queue is clear (H3).
   if (empty) {
-    const capped =
-      lessonId === "review" && dueSignIds(useApp.getState(), profileId).length > 0;
+    const capped = lessonId === "review" && dueSignIds(useApp.getState(), profileId).length > 0;
     return (
       <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
         <div className="mx-auto flex min-h-[calc(100dvh-57px)] w-full max-w-md flex-col items-center justify-center gap-5 px-6 pb-10 text-center">
@@ -117,14 +109,20 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           </span>
           <div className="space-y-1.5">
             <h1 className="font-display text-2xl font-bold text-teal">
-              {capped
-                ? t("reviewCapDone", lang)
-                : pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
+              {capped ? t("reviewCapDone", lang) : pick(lang, "Nothing due right now", "لا شيء مستحق الآن")}
             </h1>
             <p className="text-muted">
               {capped
-                ? pick(lang, "Spacing the load out is how it sticks, see you tomorrow.", "توزيع المراجعة هو سرّ ثباتها، نراك غدًا.")
-                : pick(lang, "You're ahead, keep your hands warm with some camera practice.", "أنت متقدّم، أبقِ يديك جاهزتين بتدريب على الكاميرا.")}
+                ? pick(
+                    lang,
+                    "Spacing the load out is how it sticks, see you tomorrow.",
+                    "توزيع المراجعة هو سرّ ثباتها، نراك غدًا.",
+                  )
+                : pick(
+                    lang,
+                    "You're ahead, keep your hands warm with some camera practice.",
+                    "أنت متقدّم، أبقِ يديك جاهزتين بتدريب على الكاميرا.",
+                  )}
             </p>
           </div>
           {/* The Practise tab, not the raw camera. One door per surface: the
@@ -163,10 +161,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       // Only a genuinely finished lesson celebrates. Read the store directly:
       // the drill just recorded its result, so the hook value can be a render
       // behind.
-      const stillToDo = unfinishedSignIds(
-        lesson,
-        useApp.getState().progress[profileId] ?? {},
-      );
+      const stillToDo = unfinishedSignIds(lesson, useApp.getState().progress[profileId] ?? {});
       if (stillToDo.length === 0) {
         app.recordLessonComplete();
         celebrate();
@@ -180,9 +175,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     // Signs actually drilled THIS pass — the manifest would list letters the
     // capped queue never reached and claim they were learned.
     const drilled = new Set(queue.map((d) => d.signId));
-    const signIds = lesson
-      ? lesson.signIds.filter((id) => drilled.has(id))
-      : [...drilled];
+    const signIds = lesson ? lesson.signIds.filter((id) => drilled.has(id)) : [...drilled];
     const stillToDo = unfinishedSignIds(lesson, app.progress[profileId] ?? {});
     // The queue drained but the lesson is not finished: say so, and offer the
     // second pass instead of a completion the path node will contradict.
@@ -206,10 +199,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
     }
     // Nothing was scored (every camera drill skipped) — there is no accuracy to
     // report, so the tile is dropped rather than printing a fabricated 100%.
-    const accuracy =
-      scored.current === 0
-        ? null
-        : Math.round((correctCount.current / scored.current) * 100);
+    const accuracy = scored.current === 0 ? null : Math.round((correctCount.current / scored.current) * 100);
     return (
       <ScreenShell lang={lang} chrome="takeover">
         <ResultsCard
@@ -229,11 +219,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
   }
 
   const stepLabel =
-    drill!.type === "watch"
-      ? t("lsWatchStep", lang)
-      : drill!.type === "camera"
-        ? t("lsSignBack", lang)
-        : undefined;
+    drill!.type === "watch" ? t("lsWatchStep", lang) : drill!.type === "camera" ? t("lsSignBack", lang) : undefined;
 
   return (
     <ScreenShell lang={lang} chrome="takeover" onClose={() => go({ name: "home" })}>
@@ -246,12 +232,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
           stepLabel={stepLabel}
         />
 
-        <Drill
-          key={`${drill!.type}-${drill!.signId}-${index}`}
-          drill={drill!}
-          lang={lang}
-          onDone={advance}
-        />
+        <Drill key={`${drill!.type}-${drill!.signId}-${index}`} drill={drill!} lang={lang} onDone={advance} />
       </div>
     </ScreenShell>
   );
@@ -280,9 +261,7 @@ function LessonProgress({
         <span className="text-xs font-semibold text-muted">{stepLabel ?? ""}</span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-sand px-2.5 py-1">
           <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-coral" aria-hidden="true" />
-          <span className="font-display text-[13px] font-bold text-ink">
-            {toLocaleDigits(streak, lang)}
-          </span>
+          <span className="font-display text-[13px] font-bold text-ink">{toLocaleDigits(streak, lang)}</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -346,15 +325,7 @@ function BilingualGloss({
 
 // ── individual drills ───────────────────────────────────────────────────────
 
-function Drill({
-  drill,
-  lang,
-  onDone,
-}: {
-  drill: DrillSpec;
-  lang: Lang;
-  onDone: (o: DrillOutcome) => void;
-}) {
+function Drill({ drill, lang, onDone }: { drill: DrillSpec; lang: Lang; onDone: (o: DrillOutcome) => void }) {
   const sign = signById(drill.signId);
   if (!sign) return null; // unreachable with valid content data
   switch (drill.type) {
@@ -381,38 +352,18 @@ function Drill({
 
 /** Bilingual sign-kind sub-line (inline copy — no dedicated i18n key). */
 function kindLabel(sign: Sign, lang: Lang): string {
-  const en =
-    sign.type === "alphabet"
-      ? "Arabic letter"
-      : sign.type === "dynamic"
-        ? "Moving sign"
-        : "Static handshape";
-  const ar =
-    sign.type === "alphabet"
-      ? "حرف عربي"
-      : sign.type === "dynamic"
-        ? "إشارة متحركة"
-        : "شكل يد ثابت";
+  const en = sign.type === "alphabet" ? "Arabic letter" : sign.type === "dynamic" ? "Moving sign" : "Static handshape";
+  const ar = sign.type === "alphabet" ? "حرف عربي" : sign.type === "dynamic" ? "إشارة متحركة" : "شكل يد ثابت";
   return pick(lang, en, ar);
 }
 
-function WatchDrill({
-  sign,
-  lang,
-  onDone,
-}: {
-  sign: Sign;
-  lang: Lang;
-  onDone: (o: DrillOutcome) => void;
-}) {
+function WatchDrill({ sign, lang, onDone }: { sign: Sign; lang: Lang; onDone: (o: DrillOutcome) => void }) {
   const { recordDrillResult } = useApp();
   return (
     <div className="flex flex-1 flex-col">
       {/* heading — small eyebrow, big sign name, kind sub-line */}
       <div className="animate-rise mb-5 text-center">
-        <span className="text-[11px] font-bold tracking-[0.12em] text-teal">
-          {t("lsWatchTitle", lang)} ✨
-        </span>
+        <span className="text-[11px] font-bold tracking-[0.12em] text-teal">{t("lsWatchTitle", lang)} ✨</span>
         <h2 className="mt-2 font-display text-[26px] font-extrabold leading-[1.05] tracking-[-0.01em] text-ink">
           {pick(lang, sign.glossEn, sign.glossAr)}
         </h2>
@@ -441,9 +392,7 @@ function WatchDrill({
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-gold-deep">
               {t("lsHint", lang)}
             </span>
-            <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">
-              {pick(lang, sign.hintEn, sign.hintAr)}
-            </p>
+            <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink">{pick(lang, sign.hintEn, sign.hintAr)}</p>
           </div>
         </div>
       )}
@@ -465,15 +414,7 @@ function WatchDrill({
   );
 }
 
-function CameraDrill({
-  sign,
-  lang,
-  onDone,
-}: {
-  sign: Sign;
-  lang: Lang;
-  onDone: (o: DrillOutcome) => void;
-}) {
+function CameraDrill({ sign, lang, onDone }: { sign: Sign; lang: Lang; onDone: (o: DrillOutcome) => void }) {
   const { recordDrillResult } = useApp();
   const softFailed = useRef(false);
   // Soft fail (H2): 20s hand-visible with no match → rate 'again' so FSRS
@@ -510,14 +451,7 @@ function CameraDrill({
   };
   // CameraTrainer owns the full-screen camera-practice chrome (its own design ref).
   return (
-    <CameraTrainer
-      sign={sign}
-      lang={lang}
-      onResult={handleResult}
-      onSoftFail={handleSoftFail}
-      allowSkip
-      autoStart
-    />
+    <CameraTrainer sign={sign} lang={lang} onResult={handleResult} onSoftFail={handleSoftFail} allowSkip autoStart />
   );
 }
 
@@ -585,14 +519,7 @@ function ChoiceDrill({
         {choices.map((id, i) => {
           const choice = signById(id);
           if (!choice) return null;
-          const state =
-            picked === null
-              ? "idle"
-              : id === sign.id
-                ? "correct"
-                : id === picked
-                  ? "wrong"
-                  : "dim";
+          const state = picked === null ? "idle" : id === sign.id ? "correct" : id === picked ? "wrong" : "dim";
           return mode === "recognise" ? (
             <ChoiceRow
               key={id}
@@ -657,9 +584,7 @@ function ChoiceDrill({
           className={`h-[54px] rounded-[17px] ${picked === null ? "!bg-line !text-ink/70 disabled:opacity-100" : ""}`}
           onClick={() => onDone({ xp: correct ? 10 : 4, scored: true, correct })}
         >
-          {picked === null
-            ? t("lsCheck", lang)
-            : `${t("lsContinue", lang)} ${lang === "ar" ? "←" : "→"}`}
+          {picked === null ? t("lsCheck", lang) : `${t("lsContinue", lang)} ${lang === "ar" ? "←" : "→"}`}
         </Button>
       </DrillFooter>
     </div>
@@ -766,11 +691,7 @@ function ChoiceTile({
   // emoji here: H14 purged emoji from the lesson surfaces on purpose.
   const hintIsFace = hint !== undefined && demoShowsHint(sign);
   const faceTone =
-    state === "correct" || state === "wrong"
-      ? "text-white"
-      : state === "dim"
-        ? "text-muted"
-        : "text-ink";
+    state === "correct" || state === "wrong" ? "text-white" : state === "dim" ? "text-muted" : "text-ink";
   return (
     <button
       type="button"
@@ -779,14 +700,14 @@ function ChoiceTile({
       onClick={onClick}
       className={`relative flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-[15px] px-4 py-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${shell}`}
     >
-      <span className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}>
+      <span
+        className={`absolute start-3 top-3 flex h-6 w-6 items-center justify-center rounded-md text-xs font-bold ${badge}`}
+      >
         {toLocaleDigits(n, lang)}
       </span>
       {hintIsFace ? (
         // px-6 keeps the wrapped lines clear of the numbered corner badge.
-        <span
-          className={`px-6 text-center text-[13px] font-semibold leading-snug ${faceTone}`}
-        >
+        <span className={`px-6 text-center text-[13px] font-semibold leading-snug ${faceTone}`}>
           {hint.length > 64 ? `${hint.slice(0, 64)}…` : hint}
         </span>
       ) : (
@@ -836,11 +757,7 @@ function DemoFace({ sign, lang, compact }: { sign: Sign; lang: Lang; compact?: b
         ) : sign.photo ? (
           // The real signer PHOTO is the question (H22) — the letter glyph here
           // would print the answer on the stimulus.
-          <img
-            src={sign.photo}
-            alt={t("lsRecogniseTitle", lang)}
-            className="h-full w-full object-cover"
-          />
+          <img src={sign.photo} alt={t("lsRecogniseTitle", lang)} className="h-full w-full object-cover" />
         ) : sign.type === "alphabet" && hasHandShape(sign.id) ? (
           // Skeleton fallback (letter without a photo) — never the glyph.
           <span
@@ -910,11 +827,7 @@ function PartDoneCard({
         <h1 className="animate-pop-in mt-4 font-display text-[27px] font-extrabold leading-[1.1] text-ink">
           {t("lsPartDoneTitle", lang)}
         </h1>
-        {lesson && (
-          <p className="mt-1.5 text-sm text-muted">
-            {pick(lang, lesson.titleEn, lesson.titleAr)}
-          </p>
-        )}
+        {lesson && <p className="mt-1.5 text-sm text-muted">{pick(lang, lesson.titleEn, lesson.titleAr)}</p>}
         <p className="mt-3 text-[15px] leading-relaxed text-ink">
           {t("lsPartDoneBody", lang).replace("{n}", toLocaleDigits(remaining, lang))}
         </p>
@@ -922,33 +835,15 @@ function PartDoneCard({
 
       {/* XP and streak are real and were really earned — only completion is not */}
       <section className="mt-8 grid w-full grid-cols-2 gap-2.5">
-        <StatCard
-          value={`+${toLocaleDigits(xp, lang)}`}
-          valueClass="text-coral"
-          label={t("lsXpEarned", lang)}
-        />
-        <StatCard
-          value={toLocaleDigits(streak, lang)}
-          valueClass="text-gold-deep"
-          label={t("homeStreak", lang)}
-        />
+        <StatCard value={`+${toLocaleDigits(xp, lang)}`} valueClass="text-coral" label={t("lsXpEarned", lang)} />
+        <StatCard value={toLocaleDigits(streak, lang)} valueClass="text-gold-deep" label={t("homeStreak", lang)} />
       </section>
 
       <section className="mt-auto flex w-full flex-col gap-3 pt-8">
-        <Button
-          full
-          variant="primary"
-          className="h-[54px] rounded-[17px]"
-          onClick={onKeepGoing}
-        >
+        <Button full variant="primary" className="h-[54px] rounded-[17px]" onClick={onKeepGoing}>
           {t("lsPartDoneCta", lang)} {lang === "ar" ? "←" : "→"}
         </Button>
-        <Button
-          full
-          variant="secondary"
-          className="h-[54px] rounded-[17px]"
-          onClick={onHome}
-        >
+        <Button full variant="secondary" className="h-[54px] rounded-[17px]" onClick={onHome}>
           {t("lsBackHome", lang)}
         </Button>
       </section>
@@ -1002,34 +897,16 @@ function ResultsCard({
         <h1 className="animate-pop-in mt-1 font-display text-[27px] font-extrabold leading-[1.1] text-ink">
           {t("lsSessionTitle", lang)}
         </h1>
-        {lesson && (
-          <p className="mt-1.5 text-sm text-muted">
-            {pick(lang, lesson.titleEn, lesson.titleAr)}
-          </p>
-        )}
+        {lesson && <p className="mt-1.5 text-sm text-muted">{pick(lang, lesson.titleEn, lesson.titleAr)}</p>}
       </div>
 
       {/* stats — accuracy (only when something was scored) · XP · streak */}
-      <section
-        className={`mt-8 grid w-full gap-2.5 ${accuracy === null ? "grid-cols-2" : "grid-cols-3"}`}
-      >
+      <section className={`mt-8 grid w-full gap-2.5 ${accuracy === null ? "grid-cols-2" : "grid-cols-3"}`}>
         {accuracy !== null && (
-          <StatCard
-            value={formatPercent(accuracy, lang)}
-            valueClass="text-teal"
-            label={t("accuracy", lang)}
-          />
+          <StatCard value={formatPercent(accuracy, lang)} valueClass="text-teal" label={t("accuracy", lang)} />
         )}
-        <StatCard
-          value={`+${toLocaleDigits(xp, lang)}`}
-          valueClass="text-coral"
-          label={t("lsXpEarned", lang)}
-        />
-        <StatCard
-          value={toLocaleDigits(streak, lang)}
-          valueClass="text-gold-deep"
-          label={t("homeStreak", lang)}
-        />
+        <StatCard value={`+${toLocaleDigits(xp, lang)}`} valueClass="text-coral" label={t("lsXpEarned", lang)} />
+        <StatCard value={toLocaleDigits(streak, lang)} valueClass="text-gold-deep" label={t("homeStreak", lang)} />
       </section>
 
       {/* review-next band — one chip per sign drilled this pass. A gradable sign
@@ -1079,24 +956,14 @@ function ResultsCard({
             </span>
           </Button>
         ) : (
-          <Button
-            full
-            variant="primary"
-            className="h-[54px] rounded-[17px]"
-            onClick={() => onOpenSign()}
-          >
+          <Button full variant="primary" className="h-[54px] rounded-[17px]" onClick={() => onOpenSign()}>
             <span className="flex items-center justify-center gap-2">
               <Icon name="sign_language" className="text-xl" />
               {t("navDictionary", lang)}
             </span>
           </Button>
         )}
-        <Button
-          full
-          variant="secondary"
-          className="h-[54px] rounded-[17px]"
-          onClick={onContinue}
-        >
+        <Button full variant="secondary" className="h-[54px] rounded-[17px]" onClick={onContinue}>
           {t("lsContinue", lang)} {lang === "ar" ? "←" : "→"}
         </Button>
       </section>
@@ -1105,20 +972,10 @@ function ResultsCard({
 }
 
 /** Results stat cell — colored value over a muted label, paper surface. */
-function StatCard({
-  value,
-  valueClass,
-  label,
-}: {
-  value: string;
-  valueClass: string;
-  label: string;
-}) {
+function StatCard({ value, valueClass, label }: { value: string; valueClass: string; label: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-[15px] border border-line bg-paper px-1.5 py-3 text-center">
-      <span className={`font-display text-[22px] font-extrabold leading-none ${valueClass}`}>
-        {value}
-      </span>
+      <span className={`font-display text-[22px] font-extrabold leading-none ${valueClass}`}>{value}</span>
       <span className="mt-1.5 text-[10px] font-semibold text-muted">{label}</span>
     </div>
   );

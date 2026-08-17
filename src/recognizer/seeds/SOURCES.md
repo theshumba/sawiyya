@@ -25,5 +25,6 @@ KNN gate re-validated on the blended store: gate=0.65 tau=0.70 → TA 97.1%,
 FA 0.2%. All data-driven tests (coach honesty, classifier, KNN) pass unchanged.
 
 **Citation:**
+
 > Arabic Sign Language (ArSL) Dataset. Zenodo. <https://zenodo.org/record/18363162>. CC-BY-4.0.
 > Gochoo, Munkhjargal (2022). ArSL21L: Arabic Sign Language Letter Dataset. Mendeley Data, v1. <https://doi.org/10.17632/8hrn3bvdvk.1>. CC BY 4.0.

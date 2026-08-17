@@ -22,18 +22,10 @@ import { useInstallDetection } from "./components/Journey";
 // boot. Lazy-load them so they land in their own chunk (with the dynamic-imported
 // seeds), fetched the first time a learner opens a camera. autoStart still fires
 // once the chunk resolves; the Suspense fallback only flashes on that first open.
-const CameraPractice = lazy(() =>
-  import("./screens/CameraPractice").then((m) => ({ default: m.CameraPractice })),
-);
-const FirstSign = lazy(() =>
-  import("./screens/FirstSign").then((m) => ({ default: m.FirstSign })),
-);
-const LessonPlayer = lazy(() =>
-  import("./screens/LessonPlayer").then((m) => ({ default: m.LessonPlayer })),
-);
-const Fingerspell = lazy(() =>
-  import("./screens/Fingerspell").then((m) => ({ default: m.Fingerspell })),
-);
+const CameraPractice = lazy(() => import("./screens/CameraPractice").then((m) => ({ default: m.CameraPractice })));
+const FirstSign = lazy(() => import("./screens/FirstSign").then((m) => ({ default: m.FirstSign })));
+const LessonPlayer = lazy(() => import("./screens/LessonPlayer").then((m) => ({ default: m.LessonPlayer })));
+const Fingerspell = lazy(() => import("./screens/Fingerspell").then((m) => ({ default: m.Fingerspell })));
 
 // M16: SPA screen transitions were silent for screen readers — no focus move,
 // no announcement. A titled live region covers every route without requiring
@@ -60,10 +52,7 @@ const SCREEN_TITLE_KEY: Partial<Record<Screen["name"], TKey>> = {
 function ScreenLoading() {
   return (
     <div className="flex min-h-[60dvh] items-center justify-center" role="status" aria-live="polite">
-      <span
-        className="h-8 w-8 animate-spin rounded-full border-[3px] border-line border-t-teal"
-        aria-hidden="true"
-      />
+      <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-line border-t-teal" aria-hidden="true" />
       <span className="sr-only">Loading… · جارٍ التحميل…</span>
     </div>
   );
@@ -105,9 +94,7 @@ export default function App() {
   const lang = profile?.language ?? langFromSearch(window.location.search) ?? "en";
 
   // Corrupt-blob recovery notice (M21) — flagged by the persist storage guard.
-  const [showRecovery, setShowRecovery] = useState(
-    () => localStorage.getItem(RECOVERY_NOTICE_KEY) === "1",
-  );
+  const [showRecovery, setShowRecovery] = useState(() => localStorage.getItem(RECOVERY_NOTICE_KEY) === "1");
   const dismissRecovery = () => {
     localStorage.removeItem(RECOVERY_NOTICE_KEY);
     setShowRecovery(false);
@@ -149,46 +136,44 @@ export default function App() {
         {/* One boundary for the lazy camera screens (M13); the eager screens
             below never suspend, so it only ever shows while a camera chunk loads. */}
         <Suspense fallback={<ScreenLoading />}>
-        {screen.name === "home" && <Home />}
-        {/* Camera screens get their own boundary (H12): the MediaPipe/camera
+          {screen.name === "home" && <Home />}
+          {/* Camera screens get their own boundary (H12): the MediaPipe/camera
             stack is the riskiest subtree, and "try again" just re-mounts it. */}
-        {screen.name === "camera" && (
-          <ErrorBoundary scope="section">
-            <CameraPractice
-              key={screen.targetSignId ?? "free"}
-              initialSignId={screen.targetSignId}
-              autoStart={screen.autoStart}
-            />
-          </ErrorBoundary>
-        )}
-        {screen.name === "firstSign" && (
-          <ErrorBoundary scope="section">
-            <FirstSign />
-          </ErrorBoundary>
-        )}
-        {screen.name === "lesson" && (
-          <ErrorBoundary scope="section">
-            <LessonPlayer key={screen.lessonId} lessonId={screen.lessonId} />
-          </ErrorBoundary>
-        )}
-        {screen.name === "family" && <Family />}
-        {screen.name === "flagPicker" && <FlagPicker />}
-        {screen.name === "progress" && <Progress />}
-        {screen.name === "allSigns" && (
-          <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />
-        )}
-        {screen.name === "practiseChooser" && <PractiseChooser />}
-        {/* Fingerspell drives the camera in practise-along — same risky subtree
+          {screen.name === "camera" && (
+            <ErrorBoundary scope="section">
+              <CameraPractice
+                key={screen.targetSignId ?? "free"}
+                initialSignId={screen.targetSignId}
+                autoStart={screen.autoStart}
+              />
+            </ErrorBoundary>
+          )}
+          {screen.name === "firstSign" && (
+            <ErrorBoundary scope="section">
+              <FirstSign />
+            </ErrorBoundary>
+          )}
+          {screen.name === "lesson" && (
+            <ErrorBoundary scope="section">
+              <LessonPlayer key={screen.lessonId} lessonId={screen.lessonId} />
+            </ErrorBoundary>
+          )}
+          {screen.name === "family" && <Family />}
+          {screen.name === "flagPicker" && <FlagPicker />}
+          {screen.name === "progress" && <Progress />}
+          {screen.name === "allSigns" && <AllSigns key={screen.signId ?? "browse"} initialSignId={screen.signId} />}
+          {screen.name === "practiseChooser" && <PractiseChooser />}
+          {/* Fingerspell drives the camera in practise-along — same risky subtree
             treatment as the other camera screens (H12). */}
-        {screen.name === "fingerspell" && (
-          <ErrorBoundary scope="section">
-            <Fingerspell />
-          </ErrorBoundary>
-        )}
-        {screen.name === "settings" && <Settings />}
-        {screen.name === "aiTransparency" && <AiTransparency />}
-        {screen.name === "privacy" && <Privacy />}
-        {screen.name === "devMetrics" && <DevMetrics />}
+          {screen.name === "fingerspell" && (
+            <ErrorBoundary scope="section">
+              <Fingerspell />
+            </ErrorBoundary>
+          )}
+          {screen.name === "settings" && <Settings />}
+          {screen.name === "aiTransparency" && <AiTransparency />}
+          {screen.name === "privacy" && <Privacy />}
+          {screen.name === "devMetrics" && <DevMetrics />}
         </Suspense>
       </main>
     </>

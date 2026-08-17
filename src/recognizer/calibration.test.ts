@@ -20,7 +20,7 @@ describe("evaluate", () => {
   it("rejects negative samples (vec belongs to a different class than the target)", () => {
     const test = [
       { targetId: "alpha-alif", vec: o(1.005), positive: false }, // signing ba, graded as alif
-      { targetId: "alpha-ba", vec: z(0.005), positive: false },   // signing alif, graded as ba
+      { targetId: "alpha-ba", vec: z(0.005), positive: false }, // signing alif, graded as ba
     ];
     const r = evaluate({ train, test, distanceGate: 0.55, tau: 0.78, margin: 0.15 });
     expect(r.falseAccept).toBe(0);

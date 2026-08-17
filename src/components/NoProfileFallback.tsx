@@ -18,10 +18,7 @@ export function NoProfileFallback() {
   const lang = useApp((s) => s.profiles[0]?.language ?? "en");
 
   return (
-    <div
-      dir={lang === "ar" ? "rtl" : "ltr"}
-      className="flex min-h-dvh w-full flex-col bg-sand"
-    >
+    <div dir={lang === "ar" ? "rtl" : "ltr"} className="flex min-h-dvh w-full flex-col bg-sand">
       {/* brand anchor */}
       <div className="flex-none pt-8 text-center">
         <Wordmark className="font-display text-xl text-teal" />

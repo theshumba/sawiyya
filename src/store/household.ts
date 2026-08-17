@@ -31,8 +31,7 @@ export function buildHouseholdExport(appVersion: string): string | null {
       schema: HOUSEHOLD_SCHEMA,
       exportedAt: new Date().toISOString(),
       appVersion,
-      persistVersion:
-        typeof parsed.version === "number" ? parsed.version : PERSIST_VERSION,
+      persistVersion: typeof parsed.version === "number" ? parsed.version : PERSIST_VERSION,
       state: parsed.state,
     };
     return JSON.stringify(doc, null, 2);
@@ -49,8 +48,7 @@ export function parseHouseholdImport(
     const doc = JSON.parse(text) as Partial<HouseholdExport> | null;
     if (doc === null || typeof doc !== "object") return { ok: false };
     if (doc.schema !== HOUSEHOLD_SCHEMA) return { ok: false };
-    if (doc.state === null || typeof doc.state !== "object" || Array.isArray(doc.state))
-      return { ok: false };
+    if (doc.state === null || typeof doc.state !== "object" || Array.isArray(doc.state)) return { ok: false };
     return {
       ok: true,
       state: doc.state,

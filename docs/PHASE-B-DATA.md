@@ -12,13 +12,15 @@ unseen-dataset signers; blended model = **93.6%** there and **99.3%** on
 Zenodo, tau=0.5 (TA 96.3% / FA 0.12%). AASL remains license-blocked (below).
 
 ## Why
+
 The shipped seeds come from a **single** dataset (Zenodo ArSL landmark CSV, CC-BY-4.0).
 Our held-out accuracy (~98.7%) is **within-dataset** — it does not measure how well the
-model generalises to *new people* whose hands the dataset never saw. Adding a second,
+model generalises to _new people_ whose hands the dataset never saw. Adding a second,
 independent set of signers is the single biggest lever on real-world (cross-person)
 accuracy. The engine work (MLP, calibration, visuals) is done; this is the data step.
 
 ## What's blocking it (honest)
+
 1. **Neither candidate dataset is on disk**, and the brief forbids pulling multi-GB
    image sets into this environment. Both need a manual download by the owner.
 2. **AASL license is disputed.** The brief assumed CC BY-SA 4.0, but the live Kaggle
@@ -28,15 +30,17 @@ accuracy. The engine work (MLP, calibration, visuals) is done; this is the data 
    real license with the dataset owner / Kaggle (logged in) BEFORE using AASL.**
 
 ## Recommended path: ArSL21L first (clean license)
-| Dataset | Host | Size | License | Verdict |
-|---|---|---|---|---|
-| **ArSL21L** | Mendeley `data.mendeley.com/datasets/8hrn3bvdvk/1` (the GitHub MoyoG/ArSL21L repo is **code only, no images**) | 14,202 imgs, 32 classes, 50 signers, bbox-annotated | **CC BY 4.0 (confirmed)** | ✅ use — attribution required |
-| **AASL** | Kaggle `muhammadalbrham/rgb-arabic-alphabets-sign-language-dataset` | 7,857 imgs, 200+ signers, ~31 classes | **DISPUTED — possibly CC BY-NC-SA** | ⚠️ confirm license first |
-| KArSL / JUMLA / ArabSign | — | — | NC / research-only | ❌ reference only, never shipped |
+
+| Dataset                  | Host                                                                                                           | Size                                                | License                             | Verdict                          |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------- | -------------------------------- |
+| **ArSL21L**              | Mendeley `data.mendeley.com/datasets/8hrn3bvdvk/1` (the GitHub MoyoG/ArSL21L repo is **code only, no images**) | 14,202 imgs, 32 classes, 50 signers, bbox-annotated | **CC BY 4.0 (confirmed)**           | ✅ use — attribution required    |
+| **AASL**                 | Kaggle `muhammadalbrham/rgb-arabic-alphabets-sign-language-dataset`                                            | 7,857 imgs, 200+ signers, ~31 classes               | **DISPUTED — possibly CC BY-NC-SA** | ⚠️ confirm license first         |
+| KArSL / JUMLA / ArabSign | —                                                                                                              | —                                                   | NC / research-only                  | ❌ reference only, never shipped |
 
 The MLP/normalise pipeline avoids GPL; keep all NC datasets reference-only.
 
 ## Runbook (owner's machine — a real-world step)
+
 ```bash
 # 0. (AASL only) CONFIRM license is NOT NonCommercial. If NC -> skip AASL entirely.
 
@@ -71,11 +75,13 @@ npx tsx tools/extract-seeds/train.ts       # retrain MLP + recalibrate model tau
 ```
 
 ## What "good" looks like after this
+
 - `train.ts` held-out accuracy stays high **and** the calibration is now across two
   signer populations (the within-dataset caveat in SOURCES.md weakens).
 - `calibrate.ts` FA stays ≤ the budget on the mixed split.
 - No images committed; SOURCES.md credits both datasets with their licenses.
 
 ## Files
+
 - `tools/extract-seeds/landmarks_from_images.py` — the offline MediaPipe extractor (built, ready).
 - `tools/extract-seeds/extract.ts` / `calibrate.ts` / `train.ts` / `handshapes.ts` — reused unchanged.

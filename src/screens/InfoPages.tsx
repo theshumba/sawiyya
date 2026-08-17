@@ -13,19 +13,12 @@ import { ScreenShell } from "../components/ScreenShell";
  * How the AI works — storybook cards, illustration-led (stitch v2). *
  * ----------------------------------------------------------------- */
 
-function AiCard({
-  img,
-  title,
-  subtitle,
-  body,
-}: {
-  img: string;
-  title: string;
-  subtitle: string;
-  body: string;
-}) {
+function AiCard({ img, title, subtitle, body }: { img: string; title: string; subtitle: string; body: string }) {
   return (
-    <ScreenCard variant="elevated" className="flex h-full flex-col items-center p-6 text-center motion-safe:animate-pop-in">
+    <ScreenCard
+      variant="elevated"
+      className="flex h-full flex-col items-center p-6 text-center motion-safe:animate-pop-in"
+    >
       <div className="mb-5 flex h-40 w-40 items-center justify-center md:h-44 md:w-44">
         <img src={img} alt="" className="h-full w-full object-contain" loading="lazy" />
       </div>
@@ -53,7 +46,7 @@ export function AiTransparency() {
       subtitle: T("كل شي يتم على جهازك", "Everything runs on your device"),
       body: T(
         "It tracks the 21 joints of one hand in real time and recognises static handshapes — all on this phone. No camera frame, hand landmark, or recording is ever uploaded. The only network use is a one-time download of the AI model and fonts on first open; after that it works offline.",
-        "تتبّع ٢١ مفصلًا في يد واحدة لحظيًا وتتعرف على أشكال اليد الثابتة — كل ذلك على هذا الجهاز. لا تُرفع أي لقطة كاميرا أو نقطة يد أو تسجيل. الاستخدام الوحيد للشبكة هو تنزيل نموذج الذكاء الاصطناعي والخطوط لمرة واحدة عند أول فتح؛ بعدها يعمل دون اتصال."
+        "تتبّع ٢١ مفصلًا في يد واحدة لحظيًا وتتعرف على أشكال اليد الثابتة — كل ذلك على هذا الجهاز. لا تُرفع أي لقطة كاميرا أو نقطة يد أو تسجيل. الاستخدام الوحيد للشبكة هو تنزيل نموذج الذكاء الاصطناعي والخطوط لمرة واحدة عند أول فتح؛ بعدها يعمل دون اتصال.",
       ),
     },
     {
@@ -62,7 +55,7 @@ export function AiTransparency() {
       subtitle: T("أنت تعلّم التطبيق يدينك", "You teach it YOUR hands"),
       body: T(
         "The camera learns your hands, any skin tone, any lighting, because you give it samples on your own device. It recognises the unique way you sign.",
-        "تتعلم الكاميرا يديك أنت، بأي لون بشرة، وفي أي إضاءة، لأنك تعطيها عيّنات على جهازك. وتتعرف على طريقتك الخاصة في الإشارة."
+        "تتعلم الكاميرا يديك أنت، بأي لون بشرة، وفي أي إضاءة، لأنك تعطيها عيّنات على جهازك. وتتعرف على طريقتك الخاصة في الإشارة.",
       ),
     },
     {
@@ -71,7 +64,7 @@ export function AiTransparency() {
       subtitle: T("التقييم بلطف", "It grades with kindness"),
       body: T(
         "Recognition is scaffolding to encourage you, not an exam. The AI looks for progress, not perfection — and if it's unsure, you are never blocked.",
-        "التعرف وسيلة تشجيع وليس امتحانًا. تبحث الكاميرا عن التقدم لا الكمال — وإن لم تتأكد، لن تُحجَب أبدًا."
+        "التعرف وسيلة تشجيع وليس امتحانًا. تبحث الكاميرا عن التقدم لا الكمال — وإن لم تتأكد، لن تُحجَب أبدًا.",
       ),
     },
     {
@@ -80,7 +73,7 @@ export function AiTransparency() {
       subtitle: T("يعرف حدوده", "It knows its limits"),
       body: T(
         "It cannot grade moving signs, full sentences, or facial grammar — those are open research problems. Sawiyya is built for the Arabic alphabet and individual signs: the building blocks of language.",
-        "لا تستطيع تقييم الإشارات المتحركة أو الجمل الكاملة أو تعابير الوجه النحوية — تلك مسائل بحثية مفتوحة. سويّة مبنية للحروف العربية والإشارات المفردة: لبنات اللغة."
+        "لا تستطيع تقييم الإشارات المتحركة أو الجمل الكاملة أو تعابير الوجه النحوية — تلك مسائل بحثية مفتوحة. سويّة مبنية للحروف العربية والإشارات المفردة: لبنات اللغة.",
       ),
     },
   ];
@@ -93,7 +86,7 @@ export function AiTransparency() {
     subtitle: T("أنت أبخص بيدك", "You're always right about your hands"),
     body: T(
       "You know your hands best. Signs with motion are taught by watching and self-marking — if you think you signed it right, you can always mark it correct.",
-      "أنت أعرف بيديك. الإشارات المتحركة تُتعلم بالمشاهدة والتقييم الذاتي — وإن رأيت أنك أديتها صح، يمكنك دائمًا تقييمها صحيحة."
+      "أنت أعرف بيديك. الإشارات المتحركة تُتعلم بالمشاهدة والتقييم الذاتي — وإن رأيت أنك أديتها صح، يمكنك دائمًا تقييمها صحيحة.",
     ),
   };
 
@@ -120,7 +113,7 @@ export function AiTransparency() {
           <p className="mx-auto max-w-2xl text-base text-ink/70 md:text-lg" dir="auto">
             {T(
               "Privacy, kindness, and togetherness — safe, supportive, and focused on your family connection.",
-              "خصوصية ولطف وترابط — آمن وداعم ومركّز على ترابط عائلتكم."
+              "خصوصية ولطف وترابط — آمن وداعم ومركّز على ترابط عائلتكم.",
             )}
           </p>
         </section>
@@ -130,11 +123,11 @@ export function AiTransparency() {
           {/* Three-step flow strip. Camera-square glyph + arrows never mirror as
               shapes; arrow direction follows reading flow. */}
           <div className="flex items-center justify-between rounded-[18px] border border-line bg-paper px-3 py-4 shadow-[0_2px_0_#EDE3D2] md:mx-auto md:max-w-lg">
-            {([
+            {[
               { bg: "bg-ink", round: "rounded-[4px]", label: t("aiFlowCamera", lang) },
               { bg: "bg-teal", round: "rounded-full", label: t("aiFlowModel", lang) },
               { bg: "bg-gold", round: "rounded-full", label: t("aiFlowGrade", lang) },
-            ]).map((s, i) => (
+            ].map((s, i) => (
               <Fragment key={i}>
                 <div className="flex flex-1 flex-col items-center gap-1.5">
                   <div className={`flex h-11 w-11 items-center justify-center rounded-[13px] ${s.bg}`}>
@@ -262,7 +255,17 @@ function PrivacyCard({
 }
 
 /** A labelled storage row inside the "what we keep on your device" card. */
-function StorageRow({ index, label, detail, tone }: { index: number; label: string; detail: string; tone: "gold" | "teal" }) {
+function StorageRow({
+  index,
+  label,
+  detail,
+  tone,
+}: {
+  index: number;
+  label: string;
+  detail: string;
+  tone: "gold" | "teal";
+}) {
   return (
     <li className="flex items-center gap-4 rounded-2xl border-2 border-teal/5 bg-sand/60 p-4">
       <span
@@ -295,8 +298,8 @@ export function Privacy() {
     const ok = window.confirm(
       T(
         "Delete all profiles, progress and learned handshapes from this device? This cannot be undone.",
-        "حذف كل الملفات والتقدم وأشكال اليد المتعلمة من هذا الجهاز؟ لا يمكن التراجع."
-      )
+        "حذف كل الملفات والتقدم وأشكال اليد المتعلمة من هذا الجهاز؟ لا يمكن التراجع.",
+      ),
     );
     if (!ok) return;
     try {
@@ -344,7 +347,7 @@ export function Privacy() {
             <p className="text-[15px] leading-relaxed text-ink/80">
               {T(
                 "All hand tracking and recognition runs 100% on this device. Your camera images and hand-landmark data never leave your phone — no video is ever uploaded. The app only reaches the network once, on first open, to download the AI model and fonts; then it runs offline.",
-                "كل تتبّع اليد والتعرف يعمل ١٠٠٪ على هذا الجهاز. صور الكاميرا وبيانات نقاط اليد لا تغادر هاتفك أبدًا — ولا يُرفع أي فيديو. يتصل التطبيق بالشبكة مرة واحدة فقط عند أول فتح لتنزيل نموذج الذكاء الاصطناعي والخطوط؛ ثم يعمل دون اتصال."
+                "كل تتبّع اليد والتعرف يعمل ١٠٠٪ على هذا الجهاز. صور الكاميرا وبيانات نقاط اليد لا تغادر هاتفك أبدًا — ولا يُرفع أي فيديو. يتصل التطبيق بالشبكة مرة واحدة فقط عند أول فتح لتنزيل نموذج الذكاء الاصطناعي والخطوط؛ ثم يعمل دون اتصال.",
               )}
             </p>
           </PrivacyCard>
@@ -356,13 +359,16 @@ export function Privacy() {
             <p className="text-[15px] leading-relaxed text-ink/80">
               {T(
                 "Sawiyya collects no personal data and uses no analytics. Profiles, progress and the camera's learned handshapes live only in this browser's local storage. Delete the app data and they're gone.",
-                "سويّة لا تجمع أي بيانات شخصية ولا تستخدم أدوات تحليل. الملفات والتقدم وأشكال اليد المتعلمة تبقى في التخزين المحلي لهذا المتصفح فقط. احذف بيانات التطبيق وستختفي."
+                "سويّة لا تجمع أي بيانات شخصية ولا تستخدم أدوات تحليل. الملفات والتقدم وأشكال اليد المتعلمة تبقى في التخزين المحلي لهذا المتصفح فقط. احذف بيانات التطبيق وستختفي.",
               )}
             </p>
           </PrivacyCard>
 
           {/* What we keep on your device — itemised storage detail. */}
-          <ScreenCard variant="elevated" className="flex flex-col gap-6 p-6 md:col-span-2 md:flex-row md:items-center md:gap-12">
+          <ScreenCard
+            variant="elevated"
+            className="flex flex-col gap-6 p-6 md:col-span-2 md:flex-row md:items-center md:gap-12"
+          >
             <div className="flex-1 space-y-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-teal/10 bg-sand text-teal">
@@ -375,7 +381,7 @@ export function Privacy() {
               <p className="text-[15px] leading-relaxed text-ink/70">
                 {T(
                   "Because households include children, on-device-only is a design rule, not a setting. We store a tiny amount of data strictly on this device:",
-                  "لأن الأسر تضم أطفالًا، العمل على الجهاز فقط قاعدة تصميم لا خيارًا. نحفظ قدرًا صغيرًا جدًا من البيانات على هذا الجهاز فقط:"
+                  "لأن الأسر تضم أطفالًا، العمل على الجهاز فقط قاعدة تصميم لا خيارًا. نحفظ قدرًا صغيرًا جدًا من البيانات على هذا الجهاز فقط:",
                 )}
               </p>
               <ul className="space-y-4">
@@ -391,7 +397,7 @@ export function Privacy() {
                   label={T("Local Cache", "الذاكرة المؤقتة")}
                   detail={T(
                     "Learned handshape samples and temporary files that make the app run faster.",
-                    "عيّنات أشكال اليد المتعلمة وملفات مؤقتة تجعل التطبيق أسرع."
+                    "عيّنات أشكال اليد المتعلمة وملفات مؤقتة تجعل التطبيق أسرع.",
                   )}
                 />
               </ul>
@@ -399,13 +405,16 @@ export function Privacy() {
           </ScreenCard>
 
           {/* Erase everything — the ONE clearly-destructive control. */}
-          <ScreenCard variant="flat" className="flex flex-col items-center gap-5 border-4 border-coral/20 p-6 text-center md:col-span-2 md:flex-row md:justify-between md:text-start">
+          <ScreenCard
+            variant="flat"
+            className="flex flex-col items-center gap-5 border-4 border-coral/20 p-6 text-center md:col-span-2 md:flex-row md:justify-between md:text-start"
+          >
             <div>
               <h3 className="font-display text-xl font-bold text-ink">{T("Erase everything", "امسح كل شيء")}</h3>
               <p className="mt-1 text-[15px] text-ink/60">
                 {T(
                   "One tap to wipe all progress and local data forever.",
-                  "ضغطة واحدة لمحو كل التقدم والبيانات المحلية إلى الأبد."
+                  "ضغطة واحدة لمحو كل التقدم والبيانات المحلية إلى الأبد.",
                 )}
               </p>
             </div>

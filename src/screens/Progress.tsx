@@ -68,9 +68,7 @@ const OASIS_KEYFRAMES = `
 
 /** Section heading — every block on this screen names itself. */
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="font-display text-[19px] font-extrabold leading-[1.15] text-ink">{children}</h2>
-  );
+  return <h2 className="font-display text-[19px] font-extrabold leading-[1.15] text-ink">{children}</h2>;
 }
 
 export function Progress() {
@@ -98,14 +96,14 @@ export function Progress() {
           today: back === 0,
         };
       }),
-    [activeSet, todayDow]
+    [activeSet, todayDow],
   );
 
   // Month heatmap: last 35 days from the real activeDays set (binary intensity —
   // the app has no per-day volume source yet; flag for a future data hook).
   const heat = useMemo(
     () => Array.from({ length: 35 }, (_, i) => (activeSet.has(dayKey(34 - i)) ? 3 : 0)),
-    [activeSet]
+    [activeSet],
   );
 
   // Read-time streak: a lapsed learner sees 0, not their stale pre-lapse count (M26).
@@ -132,9 +130,7 @@ export function Progress() {
   // brand-new user; rendering that as progress is a C6-class fabrication).
   // SEEDED_ALPHABET, not ALPHABET: the three reference-only edge forms (ة، لا، ال)
   // must never count towards a 28-letter target.
-  const alphaLit = new Set(
-    SEEDED_ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id),
-  );
+  const alphaLit = new Set(SEEDED_ALPHABET.filter((s) => (prog[s.id]?.masteryLevel ?? 0) >= 1).map((s) => s.id));
   const alphaTaught = alphaLit.size;
   const due = dueSignIds(app, profile.id);
   const upcoming = Object.entries(app.srs[profile.id] ?? {})
@@ -169,12 +165,7 @@ export function Progress() {
     // The title is navProgress — the same word as the menu row that opens this
     // screen. It used to be the active tab's label, so the header renamed itself
     // four times inside one screen.
-    <ScreenShell
-      lang={lang}
-      chrome="takeover"
-      title={t("navProgress", lang)}
-      onClose={() => go({ name: "home" })}
-    >
+    <ScreenShell lang={lang} chrome="takeover" title={t("navProgress", lang)} onClose={() => go({ name: "home" })}>
       <style>{OASIS_KEYFRAMES}</style>
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-4 md:px-6">
         <p className="text-[13px] leading-[1.35] text-muted">{t("prReadoutSub", lang)}</p>
@@ -200,7 +191,10 @@ export function Progress() {
             <div className="h-[9px] overflow-hidden rounded-full" style={{ background: "#EDE3D2" }}>
               <div
                 className="h-full rounded-full"
-                style={{ width: `${Math.min(100, Math.max(0, growth))}%`, background: "linear-gradient(90deg,#F0C879,#E6B24C)" }}
+                style={{
+                  width: `${Math.min(100, Math.max(0, growth))}%`,
+                  background: "linear-gradient(90deg,#F0C879,#E6B24C)",
+                }}
               />
             </div>
           </div>
@@ -231,7 +225,9 @@ export function Progress() {
                         style={{ background: "#E6B24C", boxShadow: d.today ? "0 3px 0 #C89A3D" : "none" }}
                       >
                         <Icon name="check" fill className="text-[16px]" />
-                        {d.today && <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />}
+                        {d.today && (
+                          <span className="absolute -end-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-coral" />
+                        )}
                       </span>
                       <span className="text-[11px] font-bold text-teal">{label}</span>
                     </div>
@@ -433,14 +429,50 @@ function OasisScene({ alphaTaught, mastered }: { alphaTaught: number; mastered: 
               animation: `pr-sway ${(4 + (i % 4) * 0.3).toFixed(1)}s ease-in-out infinite`,
             }}
           >
-            <div style={{ width: big ? 9 : 8, height: big ? 64 : 50, background: "#C89A3D", borderRadius: 5, margin: "0 auto" }} />
+            <div
+              style={{
+                width: big ? 9 : 8,
+                height: big ? 64 : 50,
+                background: "#C89A3D",
+                borderRadius: 5,
+                margin: "0 auto",
+              }}
+            />
             <div
               className="absolute left-1/2"
               style={{ top: big ? -6 : -5, transform: "translateX(-50%)", width: big ? 70 : 60, height: big ? 34 : 30 }}
             >
-              <div className="absolute left-1/2 top-0" style={{ width: big ? 38 : 32, height: big ? 15 : 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-90%) rotate(-24deg)" }} />
-              <div className="absolute left-1/2 top-0" style={{ width: big ? 38 : 32, height: big ? 15 : 13, background: "#0F6E6A", borderRadius: "50%", transform: "translateX(-10%) rotate(24deg)" }} />
-              <div className="absolute left-1/2" style={{ top: big ? -4 : -3, width: big ? 34 : 28, height: big ? 14 : 12, background: "#0A4F4C", borderRadius: "50%", transform: "translateX(-50%)" }} />
+              <div
+                className="absolute left-1/2 top-0"
+                style={{
+                  width: big ? 38 : 32,
+                  height: big ? 15 : 13,
+                  background: "#0F6E6A",
+                  borderRadius: "50%",
+                  transform: "translateX(-90%) rotate(-24deg)",
+                }}
+              />
+              <div
+                className="absolute left-1/2 top-0"
+                style={{
+                  width: big ? 38 : 32,
+                  height: big ? 15 : 13,
+                  background: "#0F6E6A",
+                  borderRadius: "50%",
+                  transform: "translateX(-10%) rotate(24deg)",
+                }}
+              />
+              <div
+                className="absolute left-1/2"
+                style={{
+                  top: big ? -4 : -3,
+                  width: big ? 34 : 28,
+                  height: big ? 14 : 12,
+                  background: "#0A4F4C",
+                  borderRadius: "50%",
+                  transform: "translateX(-50%)",
+                }}
+              />
             </div>
           </div>
         );
@@ -455,12 +487,23 @@ function OasisScene({ alphaTaught, mastered }: { alphaTaught: number; mastered: 
             style={{ bottom: 28 + (i % 3) * 5, insetInlineStart: `${15 + i * 9}%` }}
           >
             <div style={{ width: 5, height: stem, background: "#0F6E6A", borderRadius: 3, margin: "0 auto" }} />
-            <div style={{ width: 12 + (i % 2) * 3, height: 8, background: "#1F8A5B", borderRadius: "50%", marginTop: -(stem - 2) }} />
+            <div
+              style={{
+                width: 12 + (i % 2) * 3,
+                height: 8,
+                background: "#1F8A5B",
+                borderRadius: "50%",
+                marginTop: -(stem - 2),
+              }}
+            />
           </div>
         );
       })}
       {/* Fanan — pose cheer, never mirrors; sits at the logical end edge. */}
-      <div className="absolute" style={{ bottom: 8, insetInlineEnd: 14, animation: "pr-float 3s ease-in-out infinite" }}>
+      <div
+        className="absolute"
+        style={{ bottom: 8, insetInlineEnd: 14, animation: "pr-float 3s ease-in-out infinite" }}
+      >
         <Fanan pose="cheer" scale={0.5} />
       </div>
     </div>
@@ -741,7 +784,9 @@ function ForecastRow({
         </span>
       </span>
       <span className="flex-grow">
-        <span className="block text-base font-bold leading-tight text-ink">{pick(lang, sign.glossEn, sign.glossAr)}</span>
+        <span className="block text-base font-bold leading-tight text-ink">
+          {pick(lang, sign.glossEn, sign.glossAr)}
+        </span>
         <span className="block text-xs font-semibold text-teal">
           {sign.type === "alphabet" ? pick(lang, "Alphabet", "الحروف") : pick(lang, "Sign review", "مراجعة إشارة")}
         </span>
@@ -751,7 +796,11 @@ function ForecastRow({
           tone === "due" ? "bg-gold/10 text-gold-deep" : "bg-teal/5 text-teal"
         }`}
       >
-        <Icon name={tone === "due" ? "hourglass_top" : "hourglass_empty"} fill={tone === "due"} className="text-[14px]" />
+        <Icon
+          name={tone === "due" ? "hourglass_top" : "hourglass_empty"}
+          fill={tone === "due"}
+          className="text-[14px]"
+        />
         <span className="text-[10px] font-black uppercase">{badge}</span>
       </span>
     </button>
@@ -791,7 +840,7 @@ function StreakCelebration({
   const headline = pick(
     lang,
     `${n} ${n === 1 ? "day" : "days"} of showing up`,
-    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة`
+    `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"} من المواظبة`,
   );
   const arNumber = pick(lang, `${n} ${n === 1 ? "day" : "days"}`, `${num(n, lang)} ${n === 1 ? "يوم" : "أيام"}`);
   void goalXp;
@@ -830,7 +879,10 @@ function StreakCelebration({
       {/* my-auto centres the block on tall screens; pb-32 clears the fixed footer
           so the last card is never trapped underneath it. */}
       <div className="relative z-10 my-auto flex w-full max-w-lg flex-col items-center pb-32">
-        <div className="relative mb-8 h-64 w-64 motion-safe:animate-rise md:h-72 md:w-72" style={{ filter: "drop-shadow(0 0 20px rgba(230,178,76,.4))" }}>
+        <div
+          className="relative mb-8 h-64 w-64 motion-safe:animate-rise md:h-72 md:w-72"
+          style={{ filter: "drop-shadow(0 0 20px rgba(230,178,76,.4))" }}
+        >
           {/* Relative path: the app ships to a sub-path, so a leading slash 404s. */}
           <img alt="" aria-hidden="true" src="brand/stitch-46.png" className="h-full w-full object-contain" />
         </div>
@@ -859,7 +911,7 @@ function StreakCelebration({
               >
                 {(rtl ? DAY_LABELS_AR : DAY_LABELS_EN)[i]}
               </span>
-            )
+            ),
           )}
         </div>
 
@@ -881,7 +933,10 @@ function StreakCelebration({
           className="extruded-gold group flex w-full items-center justify-center gap-2 rounded-3xl bg-gold py-5 font-display text-xl uppercase tracking-widest text-ink transition active:translate-y-1"
         >
           {t("obContinue", lang)}
-          <Icon name="arrow_forward" className={`transition-transform group-hover:translate-x-1 ${rtl ? "rotate-180" : ""}`} />
+          <Icon
+            name="arrow_forward"
+            className={`transition-transform group-hover:translate-x-1 ${rtl ? "rotate-180" : ""}`}
+          />
         </button>
       </footer>
     </div>

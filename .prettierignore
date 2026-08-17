@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.agents/
+package-lock.json
+public/mediapipe/
+src/recognizer/fixtures/reference-landmarks.json
+src/recognizer/seeds/*.json
+public/handshapes/*.json
+docs/**/*.json
+tools/**/*.json

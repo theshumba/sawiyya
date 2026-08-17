@@ -2,12 +2,7 @@
 // 21 landmarks per frame, fully on-device; the landmarker is a module
 // singleton so screens share one model download (then SW-cached offline).
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  DrawingUtils,
-  FilesetResolver,
-  HandLandmarker,
-  type HandLandmarkerResult,
-} from "@mediapipe/tasks-vision";
+import { DrawingUtils, FilesetResolver, HandLandmarker, type HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import type { LM } from "./normalize";
 
 // Self-hosted MediaPipe (H10). The wasm runtime + the float16 hand_landmarker
@@ -188,8 +183,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
       // the camera, the lid closes, the user revokes permission mid-session. Both
       // events land as "unreadable" so the UI stops claiming it can still see a hand.
       const track = media.getVideoTracks()[0];
-      const onTrackLost = () =>
-        failLoop(new Error("camera track ended"), "unreadable");
+      const onTrackLost = () => failLoop(new Error("camera track ended"), "unreadable");
       track?.addEventListener("ended", onTrackLost);
       track?.addEventListener("mute", onTrackLost);
 
@@ -220,8 +214,7 @@ export function useHandTracker(onFrame: (frame: FrameInfo | null) => void) {
                 radius: 5,
                 lineWidth: 1,
               });
-              const detectedHand =
-                (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
+              const detectedHand = (res.handednesses?.[0]?.[0]?.categoryName as "Left" | "Right") ?? "Right";
               onFrameRef.current({ landmarks: lm as LM[], detectedHand, timeMs: t });
             } else {
               setHandVisibleIfChanged(false);

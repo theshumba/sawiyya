@@ -158,7 +158,7 @@ Storage recovery notice (M21):
 ### App (`src/i18n.ts`)
 
 - `camMatchOwn` (NEW — M2 honest disclosure when a match was confirmed only by the learner's OWN taught samples, not the dataset model) · "Matched your own recording" → **طابَق تسجيلك الخاص**
-  - *Proofread note:* conveys "this matched what YOU recorded", distinct from the celebratory `camMatch` ("✓ وصلت!"). Confirm phrasing / whether **طابَق تسجيلك** (shorter) reads more naturally.
+  - _Proofread note:_ conveys "this matched what YOU recorded", distinct from the celebratory `camMatch` ("✓ وصلت!"). Confirm phrasing / whether **طابَق تسجيلك** (shorter) reads more naturally.
 
 ### App (`src/components/CameraTrainer.tsx` — removed literal)
 
@@ -194,11 +194,11 @@ Storage recovery notice (M21):
 
 - `setImportFailed` (NEW — import write failed, e.g. storage quota) · "Couldn't save the import on this device — nothing was replaced." → **تعذّر حفظ الملف المستورد على هذا الجهاز — لم يُستبدل أي شيء.**
 - `prAch5Words` (RELABELLED for honesty — the first 5 mastered signs are letters, not words) · "5 signs" → **٥ إشارات** (was "5 words" / ٥ كلمات)
-- `prPalmsGrown` (FIXED grammar — the old **نخلتان** is the dual "two palms" under a dynamic count) · "palms grown" → **نخلات نمت** — *please confirm the most natural count-neutral phrasing*
+- `prPalmsGrown` (FIXED grammar — the old **نخلتان** is the dual "two palms" under a dynamic count) · "palms grown" → **نخلات نمت** — _please confirm the most natural count-neutral phrasing_
 - `homeGreetSub` (gender consistency — was feminine مستعدة amid an otherwise masculine register) · "Ready to sign today?" → **مستعد للإشارة اليوم؟**
 - `prOasisTitle` (same) · "The world you're building" → **العالم الذي تبنيه** (was تبنينه)
 - `prOasisBody` (same) · "Every sign you learn plants something new." → **كل إشارة تتعلّمها تزرع شيئًا جديدًا.** (was تتعلّمينها)
-  - *Proofread note for the three gender fixes:* the codebase's dominant second-person register is masculine; if you'd rather make the whole app gender-neutral (or offer both), flag it and we'll sweep every string in one pass.
+  - _Proofread note for the three gender fixes:_ the codebase's dominant second-person register is masculine; if you'd rather make the whole app gender-neutral (or offer both), flag it and we'll sweep every string in one pass.
 - `camConfidence` now labels the match-overlay stat tile (was mislabelled `accuracy` on a saturated number) — the string itself is unchanged and already listed.
 
 ---
@@ -216,7 +216,7 @@ Storage recovery notice (M21):
 
 ### App (`src/i18n.ts`)
 
-One short imperative line shown while the camera sees a hand that is NOT matching a letter — it names the one finger to fix. *Proofread notes:* (a) finger names chosen: إبهام / سبابة / وسطى / بنصر / خنصر — confirm these read naturally for a Gulf audience; (b) وسطى treated as feminine ("إصبعك الوسطى") — confirm; (c) imperatives مُدَّ / اثنِ — confirm the register matches the app's existing masculine imperative (اتبع، قارن).
+One short imperative line shown while the camera sees a hand that is NOT matching a letter — it names the one finger to fix. _Proofread notes:_ (a) finger names chosen: إبهام / سبابة / وسطى / بنصر / خنصر — confirm these read naturally for a Gulf audience; (b) وسطى treated as feminine ("إصبعك الوسطى") — confirm; (c) imperatives مُدَّ / اثنِ — confirm the register matches the app's existing masculine imperative (اتبع، قارن).
 
 - `coachExtendThumb` · "Extend your thumb" → **مُدَّ إبهامك**
 - `coachCurlThumb` · "Curl your thumb in" → **اثنِ إبهامك**
@@ -276,9 +276,9 @@ Copy fixes and new keys from the coherence audit (`docs/AUDIT-2026-08-01-COHEREN
 
 ### Changed
 
-- `homeGoldStat` (Home app-bar stat chip; renders `profile.xp`, which every other screen labels "XP", and no gold currency exists) · "gold" → **نقطة** *(was ذهب)*
-- `pathDoneMeta` (path node sheet; a done node only needs mastery 2, "practised", not mastery 3) · "Practised · tap to review" → **تمرّنت عليها · انقر للمراجعة** *(was مُتقَن · انقر للمراجعة)*
-- `obHandSub` (onboarding signing-hand step; nothing reads `dominantHand`, the recognizer canonicalises both hands per frame, so the old line promised a camera effect that does not exist) · "Either hand works: the camera reads both the same way." → **أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها.** *(was حتى تقرأ الكاميرا يديك بإنصاف.)*
+- `homeGoldStat` (Home app-bar stat chip; renders `profile.xp`, which every other screen labels "XP", and no gold currency exists) · "gold" → **نقطة** _(was ذهب)_
+- `pathDoneMeta` (path node sheet; a done node only needs mastery 2, "practised", not mastery 3) · "Practised · tap to review" → **تمرّنت عليها · انقر للمراجعة** _(was مُتقَن · انقر للمراجعة)_
+- `obHandSub` (onboarding signing-hand step; nothing reads `dominantHand`, the recognizer canonicalises both hands per frame, so the old line promised a camera effect that does not exist) · "Either hand works: the camera reads both the same way." → **أي يد تصلح: الكاميرا تقرأ كلتيهما بالطريقة نفسها.** _(was حتى تقرأ الكاميرا يديك بإنصاف.)_
 
 ### New
 
@@ -305,7 +305,7 @@ Copy fixes and new keys from the coherence audit (`docs/AUDIT-2026-08-01-COHEREN
 - `signMarkPractised` (self-mark CTA on those signs) · "I practised this" → **تمرّنت على هذه**
 - `signMarkedPractised` (confirmation after self-marking) · "Marked as practised. It will come back in review." → **سجّلناها كتمرين. ستعود في المراجعة.**
 
-*Proofread note:* `famRemoveTitle`/`famRemoveBody` use plural verb forms for the removed member (تقدّمهم، إشاراتهم) to stay gender-neutral. Confirm that reads naturally, or supply a singular alternative.
+_Proofread note:_ `famRemoveTitle`/`famRemoveBody` use plural verb forms for the removed member (تقدّمهم، إشاراتهم) to stay gender-neutral. Confirm that reads naturally, or supply a singular alternative.
 
 ---
 
@@ -314,7 +314,7 @@ Copy fixes and new keys from the coherence audit (`docs/AUDIT-2026-08-01-COHEREN
 **This list is complete.** Every machine-written Arabic string that was added or changed across the entire overhaul (Batches 1–8, the 2026-07-04 post-ship fix, the 2026-07-07 Sign Coach strings, the 2026-07-31 photos/Words/fingerspell batch, and the 2026-08-01 coherence batch) is logged above. Nothing else in the app's Arabic changed — strings not listed here predate the overhaul.
 
 1. Strings live in `src/i18n.ts` (app) and `index.html` `data-ar` attributes (landing repo). Each entry gives the key/location, the English pair, and the shipped Arabic in bold.
-2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English *meaning* (not word-for-word). Watch especially the entries with a *proofread note* (e.g. `camMatchOwn`).
+2. For each entry: confirm the Arabic is natural, correctly inflected, and matches the English _meaning_ (not word-for-word). Watch especially the entries with a _proofread note_ (e.g. `camMatchOwn`).
 3. Digits: UI numerals render as Eastern Arabic (٣، ٢٨…) via `toLocaleDigits`; placeholders like `{n}` are substituted at runtime.
 4. RTL: arrows in copy (←) are pre-mirrored; the app mirrors layout automatically. Flag anything that reads backwards in context.
 5. Reply with corrections as `key · current → suggested`; they can be applied in one pass.

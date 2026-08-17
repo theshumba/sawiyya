@@ -10,22 +10,22 @@ This package is a set of **hi-fi design references** built as self-contained HTM
 
 ### Color
 
-| Token | Hex | Use |
-|---|---|---|
-| `teal/primary` | `#0F6E6A` | Primary actions, path nodes, brand |
-| `teal/deep` | `#16302E` | Text on light, dark surfaces, device bezel |
-| `teal/ink-900` | `#0A1F1D` | Button drop-shadow (`box-shadow` bottom) |
-| `paper/0` | `#FBF7EF` | Cards, elevated surfaces |
-| `paper/1` | `#F6EFE3` | App background (light) |
-| `paper/2` | `#F1E7D6` | Canvas / behind-app background |
-| `gold/light` | `#F0C879` | Highlights, streak accents on dark |
-| `gold/mid` | `#E6B24C` | Progress fill, reward accents |
-| `coral` | `#E8654C` | Badges, "your turn", tertiary accent |
-| `success` | `#1F8A5B` | Correct states, completed nodes |
-| `danger` | `#C0492F` | Errors, "never mirrors" |
-| `text/sub` | `#5C726F` | Secondary text on light |
-| `text/mute` | `#94A5A2` | Tertiary / captions on light |
-| `line` | `#EDE3D2` | Hairline borders on paper |
+| Token          | Hex       | Use                                        |
+| -------------- | --------- | ------------------------------------------ |
+| `teal/primary` | `#0F6E6A` | Primary actions, path nodes, brand         |
+| `teal/deep`    | `#16302E` | Text on light, dark surfaces, device bezel |
+| `teal/ink-900` | `#0A1F1D` | Button drop-shadow (`box-shadow` bottom)   |
+| `paper/0`      | `#FBF7EF` | Cards, elevated surfaces                   |
+| `paper/1`      | `#F6EFE3` | App background (light)                     |
+| `paper/2`      | `#F1E7D6` | Canvas / behind-app background             |
+| `gold/light`   | `#F0C879` | Highlights, streak accents on dark         |
+| `gold/mid`     | `#E6B24C` | Progress fill, reward accents              |
+| `coral`        | `#E8654C` | Badges, "your turn", tertiary accent       |
+| `success`      | `#1F8A5B` | Correct states, completed nodes            |
+| `danger`       | `#C0492F` | Errors, "never mirrors"                    |
+| `text/sub`     | `#5C726F` | Secondary text on light                    |
+| `text/mute`    | `#94A5A2` | Tertiary / captions on light               |
+| `line`         | `#EDE3D2` | Hairline borders on paper                  |
 
 **Dark theme** (see `Sawiyya Dark Mode.dc.html` for the full map): app bg `#0E1B1A`, surface `#12211F`/`#1D3D3A`, line `#274744`, primary brightens to `#1E9E96`, success to a lighter green, gold/coral unchanged, text `#F6EFE3` / sub `#9DB0AD` / mute `#7E938F`.
 
@@ -37,13 +37,13 @@ This package is a set of **hi-fi design references** built as self-contained HTM
 - **Arabic:** Readex Pro (300–700). Display/UI. Pairs optically with Rubik.
 - Arabic gets **+0.15 line-height** over Latin at every step.
 
-| Role | Size (px) | Weight |
-|---|---|---|
-| Display | 30–46 | 800 |
-| Title | 20–24 | 800 |
-| Body | 15–17 | 400–600 |
-| Caption | 12–13 | 400–700 |
-| Mono label | 11 | 600–700, letter-spacing .12em, uppercase (ui-monospace/Menlo) |
+| Role       | Size (px) | Weight                                                        |
+| ---------- | --------- | ------------------------------------------------------------- |
+| Display    | 30–46     | 800                                                           |
+| Title      | 20–24     | 800                                                           |
+| Body       | 15–17     | 400–600                                                       |
+| Caption    | 12–13     | 400–700                                                       |
+| Mono label | 11        | 600–700, letter-spacing .12em, uppercase (ui-monospace/Menlo) |
 
 Mobile min font 15px; hit targets ≥ 44px.
 
@@ -57,13 +57,13 @@ Mobile min font 15px; hit targets ≥ 44px.
 
 See `Sawiyya Motion.dc.html` for plotted curves. Core values:
 
-| Name | cubic-bezier | Duration | Use |
-|---|---|---|---|
-| Spring out | `.34,1.56,.64,1` | 260ms | Button press release, pop-in |
-| Ease standard | `.4,0,.2,1` | 220ms | Most transitions |
-| Ease-in (exit) | `.4,0,1,1` | 180ms | Screen pop / dismiss |
-| Ease-out (enter) | `0,0,.2,1` | 240ms | Screen push |
-| Confetti | linear fall + spin | 1.4s | Celebration |
+| Name             | cubic-bezier       | Duration | Use                          |
+| ---------------- | ------------------ | -------- | ---------------------------- |
+| Spring out       | `.34,1.56,.64,1`   | 260ms    | Button press release, pop-in |
+| Ease standard    | `.4,0,.2,1`        | 220ms    | Most transitions             |
+| Ease-in (exit)   | `.4,0,1,1`         | 180ms    | Screen pop / dismiss         |
+| Ease-out (enter) | `0,0,.2,1`         | 240ms    | Screen push                  |
+| Confetti         | linear fall + spin | 1.4s     | Celebration                  |
 
 Reduce-motion: freeze pulse/float/confetti; keep instant state change. RTL: push/pop enters from the leading (left) edge.
 
@@ -98,6 +98,7 @@ Sound/haptic pairing for every event: `Sawiyya Sound & Haptics.dc.html`.
 ## 4 · File map
 
 **Core journey**
+
 - `Sawiyya Boot.dc.html` — splash / loading / update / brand
 - `Sawiyya Onboarding.dc.html` — first-run flow + privacy moment
 - `Sawiyya First Sign.dc.html` — live camera-graded quick win
@@ -108,6 +109,7 @@ Sound/haptic pairing for every event: `Sawiyya Sound & Haptics.dc.html`.
 - `Sawiyya Prototype.dc.html` — clickable Boot→Onboarding→First Sign→Home→Practice
 
 **Reference, people & system**
+
 - `Sawiyya Signs.dc.html` — dictionary: browse / alphabet grid / detail / search
 - `Sawiyya Family.dc.html` — profile switcher / hub / feed
 - `Sawiyya Progress.dc.html` — oasis / dashboard + heatmap / achievements / league
@@ -117,6 +119,7 @@ Sound/haptic pairing for every event: `Sawiyya Sound & Haptics.dc.html`.
 - `Sawiyya Notifications.dc.html` — re-engagement nudge ladder + rules
 
 **Specs & assets**
+
 - `Sawiyya Style Sheet.dc.html` — one-page foundation (poses, type, buttons, motion, spacing)
 - `Sawiyya Motion.dc.html` — easing curves, transitions, confetti timing
 - `Sawiyya Sound & Haptics.dc.html` — audio/vibration language (interactive)

@@ -17,6 +17,7 @@ All identifiers below are live in the current `Home.tsx`. The reskin is presenta
 none of these may be removed or renamed.
 
 **Store / data hooks**
+
 - `const app = useApp();` — root app store.
 - `const { go } = useUi();` — navigation dispatcher.
 - `const profile = activeProfile(app);` + early `if (!profile) return <NoProfileFallback />;` — keep the no-profile guard.
@@ -34,6 +35,7 @@ none of these may be removed or renamed.
 - Local helper `lessonCameraTarget(lesson)` — first `cameraGradable` sign id in a lesson; keep it and its practice-first gate semantics.
 
 **Navigation calls (exact shapes — do not change)**
+
 - Current node START: `const target = lessonCameraTarget(lesson); if (target) go({ name: "camera", targetSignId: target }); else go({ name: "lesson", lessonId: lesson.id });`
 - Done / locked node tap: `go({ name: "camera", targetSignId: nodeTarget })` where `nodeTarget = lessonCameraTarget(lesson)`.
 - Slim practise link + empty-state + goal + milestone cards: `go({ name: "camera" })`.
@@ -45,11 +47,13 @@ none of these may be removed or renamed.
 `t("homeUnit", lang)`, `t("homeStreak", lang)`, `t("xp", lang)`, `t("homeToday", lang)` (section aria-label), `t("practiceCamera", lang)` (node aria-labels), `t("camPractice", lang)`, `t("camPrivacy", lang)`, `t("homeFlagged", lang)`, `t("homeNeeds", lang)`, `t("homeReviewDue", lang)`, `t("homeReviewCta", lang)`, `t("homeDailyGoal", lang)`, `t("homeAllDone", lang)`.
 
 **`pick()` / `num()` calls**
+
 - `pick(lang, UNIT_A1_U1.titleEn, UNIT_A1_U1.titleAr)` — unit title.
 - Greeting literal `pick(lang, "Ahlan, ", "أهلًا، ")` + `<bdi>{profile.displayName}</bdi>` — reskin updates the literal to Marhaba (see §3) but the `<bdi>{profile.displayName}</bdi>` dynamic name binding must stay.
 - `num(profile.streak, lang)`, `num(profile.xp, lang)`, `num(xpToday, lang)`, `num(goalXp, lang)`, `num(goalPct, lang)`, `num(slice.length, lang)`, `num(due.length, lang)` — all localized numerals; keep, and keep the `lang === "ar" ? "٪" : "%"` percent-sign switch.
 
 **Components / props to keep**
+
 - `<ScreenShell lang={lang} chrome="tabs">` wrapper.
 - `<Card variant="elevated" onClick=…>`, `<Icon name=… />`, `<Eyebrow lang=…>`, `<Title>` from `../components/ui`.
 - `<FlagCard sign requestedBy lang compact onClick />` — all five props.
@@ -65,6 +69,7 @@ Fonts: Latin = **Rubik**, Arabic = **Readex Pro**. Mono labels = `ui-monospace, 
 Screen surface bg `#FBF7EF`. (Device bezel `#16302E` r48 + status bar = ScreenShell chrome.)
 
 ### Block A — App bar (teal header) `flex:none`
+
 - Container: bg `#0F6E6A`; padding `8px 20px 18px`; `border-radius: 0 0 24px 24px`; `box-shadow: 0 6px 16px rgba(15,110,106,.25)`; z above scroll.
 - Row 1 (space-between, gap 12px):
   - Left column:
@@ -77,11 +82,13 @@ Screen surface bg `#FBF7EF`. (Device bezel `#16302E` r48 + status bar = ScreenSh
   3. **Family** — leading marker 18×18 **rounded square r6** bg `#F08A75`; value = family count (`num`); label "family" / "العائلة" (new key `homeFamilyStat`).
 
 ### Block B — Scrollable node trail `flex:1; overflow-y:auto; padding:16px 20px 24px; min-height:0`
+
 Scrollbar hidden (`::-webkit-scrollbar{width:0;height:0}`). On mount, auto-scroll ~210px down so the current node is centered (see §5). Trailing 8px spacer at bottom.
 
 Sequence (bind to derived `nodes` + `ms`, not to design ITEMS; the design order is: unit banner → its nodes → unit-reward milestone node → next unit banner → its nodes):
 
 **B1 · Unit banner** (one per unit) — `display:flex; align-items:center; justify-content:space-between; gap:10px; border-radius:18px; padding:13px 16px; margin:14px 0 6px`.
+
 - Teal unit banner: bg `#0F6E6A`; `box-shadow: 0 4px 0 #0A4F4C`; unit label color `#F0C879`.
 - Alternate (coral) unit banner: bg `#E8654C`; `box-shadow: 0 4px 0 #C54F3A`; unit label color `#F6EFE3`. (Design tones the 2nd unit coral.)
 - Left text:
@@ -90,6 +97,7 @@ Sequence (bind to derived `nodes` + `ms`, not to design ITEMS; the design order 
 - Right icon tile: 38×38, `border-radius:12px`, bg `rgba(255,255,255,.18)`; inner open-book glyph 16×13, `border:2.5px solid #FBF7EF; border-radius:2px; border-left-width:5px`.
 
 **B2 · Node** — column, center, `padding:9px 0`. Row wrapper `transform: translateX({off}px)` to wind the trail (design offsets in px: 0, 50, -6, -52, 0, then 0, 54, 40 — reproduce alternating horizontal offsets; existing code used `ms-28/me-16/ms-20/-ms-10` — either approach OK as long as it winds).
+
 - **Circle button** `<button onClick={open(node)}>`: `border-radius:50%` (milestone = `20px`); `border:none; cursor:pointer; transition: transform .08s`; sizes/colors by status:
   | status | size | bg | box-shadow |
   |---|---|---|---|
@@ -106,6 +114,7 @@ Sequence (bind to derived `nodes` + `ms`, not to design ITEMS; the design order 
 - **Label** (below circle): `margin-top:9px; text-align:center`; current `font: 700 13px/1.2 Rubik`, else `font: 500 12px/1.2 Readex Pro`; color locked `#A9B8B5`, current `#16302E`, else `#5C726F`. Text = `pick(lang, lesson.titleEn, lesson.titleAr)` (mock: Hello/مرحبًا, Thank you/شكرًا, I love you/أحبّك, More/المزيد, Unit reward/مكافأة الوحدة, Alif/ألف, Baa/باء, Taa/تاء).
 
 ### Block C — Node popover (bottom sheet), conditional on a node tap
+
 - Overlay `<div onClick={close}>`: absolute `inset:0; background: rgba(22,48,46,.5); z-index:20; display:flex; align-items:flex-end; border-radius:41px` (matches inner screen radius).
 - Sheet: `width:100%; background:#FBF7EF; border-radius:26px 26px 41px 41px; padding:22px 22px 26px; box-shadow: 0 -10px 40px rgba(0,0,0,.2); animation: rise .28s ease both`. Stop click propagation so taps inside don't close.
 - Grabber: 42×5 r99 bg `#EDE3D2`; `margin:0 auto 16px`.
@@ -123,9 +132,11 @@ Sequence (bind to derived `nodes` + `ms`, not to design ITEMS; the design order 
   | locked (milestone chest) | "Clear Unit 1 to open the reward chest." / "أكمل الوحدة ١ لفتح الصندوق." | "Locked" / "مقفل" |
 
 ### Block D — Secondary cards (below the trail, KEEP from current Home.tsx)
+
 The design's phone only shows the trail, but the existing secondary stack is part of the
 functional contract and must remain (they can render below the scroll trail or as trailing
 scroll content). Re-skin them to the token palette but keep structure + routes:
+
 - **Slim Practise link** `Card` → `go({name:"camera"})`: coral chip (`bg-coral/10`, `Icon videocam` coral) + `t("camPractice")` title + `t("camPrivacy")` sub + forward chevron (`rtl:rotate-180`).
 - **Flags** section (when `flags.length>0`): coral `Eyebrow` = `t("homeFlagged")`; count deep-link "{n} family requests" / "{n} طلبات العائلة" → `go({name:"family"})`; `<FlagCard … compact />`.
 - **Review-due** `Card` (when `due.length>0`): gold chip (`Icon history`), `t("homeReviewDue")`, `{n} {t("homeReviewCta")}`.
@@ -134,34 +145,35 @@ scroll content). Re-skin them to the token palette but keep structure + routes:
 - **Milestone** `Card` (when `ms`): gold `Icon emoji_events`, `ms.label`, gold progress bar `width: max(4, ms.progress*100)%`.
 
 ### Fanan poses used on this screen
+
 - Current node: **`cheer`** (bobbing beside the active node). That is the only Fanan instance on the path itself. No other pose appears in this reference.
 
 ---
 
 ## 3 · COPY — every visible string
 
-| Key (reuse / NEW) | English | Arabic |
-|---|---|---|
-| inline literal (update existing `pick(lang,"Ahlan, ","أهلًا، ")`) | `Marhaba, ` + name | `مرحبًا يا ` + name |
-| `homeGreetSub` (NEW) | Ready to sign today? | مستعدة للإشارة اليوم؟ |
-| `homeStreak` (exists) | day streak | أيام متتالية |
-| `homeGoldStat` (NEW) | gold | ذهب |
-| `homeFamilyStat` (NEW) | family | العائلة |
-| `homeUnit` (exists) + numeral | Unit 1 / Unit 2 | الوحدة ١ / الوحدة ٢ |
-| content `UNIT_A1_U1.titleEn/Ar` via `pick` | First Words | كلمات أولى |
-| content (unit 2 title) | The Alphabet | الحروف الأبجدية |
-| `homeStartBadge` (NEW) / existing inline `startLabel` | START | ابدأ |
-| node labels — content `lesson.titleEn/Ar` | Hello / Thank you / I love you / More / Unit reward / Alif / Baa / Taa | مرحبًا / شكرًا / أحبّك / المزيد / مكافأة الوحدة / ألف / باء / تاء |
-| `pathStartCta` (NEW) | Start → | ابدأ ← |
-| `pathReview` (NEW) | Review → | مراجعة ← |
-| `pathLocked` (NEW) | Locked | مقفل |
-| `pathNewSign` (NEW) | New sign · camera-graded | إشارة جديدة · تقييم بالكاميرا |
-| `pathDoneMeta` (NEW) | Mastered · tap to review | مُتقَن · انقر للمراجعة |
-| `pathLockedMeta` (NEW) | Finish the sign before this to unlock. | أكمل الإشارة السابقة لفتحها. |
-| `pathChestMeta` (NEW) | Clear Unit 1 to open the reward chest. | أكمل الوحدة ١ لفتح الصندوق. |
-| Bottom nav (owned by ScreenShell — reference only): `navHome`/`navPractise`/`navDictionary`/`navFamily`/`navProgress` | Home / Practise / Signs / Family / Progress | الرئيسية / تمرين / الإشارات / العائلة / التقدّم |
-| Status bar "9:41" | — (chrome, never localized time per §6) | — |
-| Secondary cards | see §2 Block D + existing keys | as existing |
+| Key (reuse / NEW)                                                                                                     | English                                                                | Arabic                                                            |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| inline literal (update existing `pick(lang,"Ahlan, ","أهلًا، ")`)                                                     | `Marhaba, ` + name                                                     | `مرحبًا يا ` + name                                               |
+| `homeGreetSub` (NEW)                                                                                                  | Ready to sign today?                                                   | مستعدة للإشارة اليوم؟                                             |
+| `homeStreak` (exists)                                                                                                 | day streak                                                             | أيام متتالية                                                      |
+| `homeGoldStat` (NEW)                                                                                                  | gold                                                                   | ذهب                                                               |
+| `homeFamilyStat` (NEW)                                                                                                | family                                                                 | العائلة                                                           |
+| `homeUnit` (exists) + numeral                                                                                         | Unit 1 / Unit 2                                                        | الوحدة ١ / الوحدة ٢                                               |
+| content `UNIT_A1_U1.titleEn/Ar` via `pick`                                                                            | First Words                                                            | كلمات أولى                                                        |
+| content (unit 2 title)                                                                                                | The Alphabet                                                           | الحروف الأبجدية                                                   |
+| `homeStartBadge` (NEW) / existing inline `startLabel`                                                                 | START                                                                  | ابدأ                                                              |
+| node labels — content `lesson.titleEn/Ar`                                                                             | Hello / Thank you / I love you / More / Unit reward / Alif / Baa / Taa | مرحبًا / شكرًا / أحبّك / المزيد / مكافأة الوحدة / ألف / باء / تاء |
+| `pathStartCta` (NEW)                                                                                                  | Start →                                                                | ابدأ ←                                                            |
+| `pathReview` (NEW)                                                                                                    | Review →                                                               | مراجعة ←                                                          |
+| `pathLocked` (NEW)                                                                                                    | Locked                                                                 | مقفل                                                              |
+| `pathNewSign` (NEW)                                                                                                   | New sign · camera-graded                                               | إشارة جديدة · تقييم بالكاميرا                                     |
+| `pathDoneMeta` (NEW)                                                                                                  | Mastered · tap to review                                               | مُتقَن · انقر للمراجعة                                            |
+| `pathLockedMeta` (NEW)                                                                                                | Finish the sign before this to unlock.                                 | أكمل الإشارة السابقة لفتحها.                                      |
+| `pathChestMeta` (NEW)                                                                                                 | Clear Unit 1 to open the reward chest.                                 | أكمل الوحدة ١ لفتح الصندوق.                                       |
+| Bottom nav (owned by ScreenShell — reference only): `navHome`/`navPractise`/`navDictionary`/`navFamily`/`navProgress` | Home / Practise / Signs / Family / Progress                            | الرئيسية / تمرين / الإشارات / العائلة / التقدّم                   |
+| Status bar "9:41"                                                                                                     | — (chrome, never localized time per §6)                                | —                                                                 |
+| Secondary cards                                                                                                       | see §2 Block D + existing keys                                         | as existing                                                       |
 
 > Note: the design's bottom-nav Arabic for Signs is "الإشارات" whereas existing `navDictionary.ar` = "القاموس". Nav is owned by `ScreenShell`/`AppNav`, so do NOT change it in this screen. Flag the mismatch to the nav owner if AR "الإشارات" is desired — out of scope here.
 
@@ -191,6 +203,7 @@ scroll content). Re-skin them to the token palette but keep structure + routes:
 ## 5 · MOTION / STATES
 
 **Keyframes (from design `<style>` — copy literally):**
+
 - `@keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(232,101,76,.5)} 70%{box-shadow:0 0 0 16px rgba(232,101,76,0)} 100%{box-shadow:0 0 0 0 rgba(232,101,76,0)} }` — current node, `pulseRing 1.8s ease-out infinite`.
 - `@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }` — Fanan beside current node, `bob 2.4s ease-in-out infinite`.
 - `@keyframes rise { 0%{transform:translateY(14px);opacity:0} 100%{transform:translateY(0);opacity:1} }` — popover sheet enters `rise .28s ease both`.
@@ -198,6 +211,7 @@ scroll content). Re-skin them to the token palette but keep structure + routes:
 - Node press: circle `transition: transform .08s` → spring/scale-down on tap (design "nodes spring on tap"; existing code used `active:scale-95`).
 
 **States:**
+
 - **current** — coral 72px node, pulse-ring, floating START badge, Fanan cheering, bold teal-ink label. Exactly ONE current node (the dominant action).
 - **done** — teal 62px node, white check, 3D bottom edge (`0 5px 0 #0A4F4C`), sub-grey label.
 - **locked** — sand `#EDE3D2` 62px node, muted padlock (or dimmed alphabet letter at opacity 0.4 + grayscale for alphabet nodes), grey `#A9B8B5` label; button inert.
@@ -215,6 +229,7 @@ scroll content). Re-skin them to the token palette but keep structure + routes:
 Design the AR panel first; anchor with `dir="rtl"` + logical props.
 
 **Mirrors (flip in AR):**
+
 - Reading flow / column alignment — app bar text right-aligned, greeting + subtitle start-anchored.
 - Node horizontal offsets (`translateX`) — the winding direction flips (use `inset-inline`/logical or negate offsets).
 - Fanan's position relative to the current node — it sits on the leading side; in AR it moves to the mirrored side (position anchor mirrors, but the artwork itself does NOT flip — see below).
@@ -224,6 +239,7 @@ Design the AR panel first; anchor with `dir="rtl"` + logical props.
 - Numerals → Eastern-Arabic glyphs `٠١٢٣٤٥٦٧٨٩`; percent `٪` trails.
 
 **Never mirrors:**
+
 - **Fanan** (the fox artwork) — same character both directions; only its container position mirrors.
 - The **checkmark** glyph on done nodes.
 - Status-bar time "9:41" (chrome).

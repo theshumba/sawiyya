@@ -8,50 +8,50 @@
  * Normalise: Sawiyya normalizeLandmarks(lms, mirror=false) — same pipeline as live camera
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-import { normalizeLandmarks, type LM } from '../../src/recognizer/normalize.js';
+import { readFileSync, writeFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+import { normalizeLandmarks, type LM } from "../../src/recognizer/normalize.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const ROOT = resolve(__dirname, '../../');
+const ROOT = resolve(__dirname, "../../");
 
 // ---------------------------------------------------------------------------
 // Label → class-id mapping (verbatim from task brief; null = control, skip)
 // ---------------------------------------------------------------------------
 const LABEL_MAP: Record<string, string | null> = {
-  '3ayn':   'alpha-ain',
-  '7a2':    'alpha-haa',
-  '9af':    'alpha-qaf',
-  'Alef':   'alpha-alif',
-  'Ba2':    'alpha-ba',
-  'Chin':   'alpha-sheen',
-  'Dal':    'alpha-dal',
-  'DDad':   'alpha-dad',
-  'Delete': null,          // control — skip
-  'Fa2':    'alpha-fa',
-  'Finish': null,          // control — skip
-  'Ghayn':  'alpha-ghain',
-  'Ha2':    'alpha-ha',
-  'Jim':    'alpha-jeem',
-  'Kaf':    'alpha-kaf',
-  'Kha2':   'alpha-kha',
-  'Lam':    'alpha-lam',
-  'Mim':    'alpha-meem',
-  'Noon':   'alpha-noon',
-  'Ra2':    'alpha-ra',
-  'Sin':    'alpha-seen',
-  'Space':  null,          // control — skip
-  'SSad':   'alpha-sad',
-  'Ta2':    'alpha-ta',
-  'Tha2':   'alpha-tha',
-  'Thal':   'alpha-thal',
-  'TTa2':   'alpha-tah',
-  'TTha2':  'alpha-zah',
-  'Waw':    'alpha-waw',
-  'Ya2':    'alpha-ya',
-  'Zayn':   'alpha-zay',
+  "3ayn": "alpha-ain",
+  "7a2": "alpha-haa",
+  "9af": "alpha-qaf",
+  Alef: "alpha-alif",
+  Ba2: "alpha-ba",
+  Chin: "alpha-sheen",
+  Dal: "alpha-dal",
+  DDad: "alpha-dad",
+  Delete: null, // control — skip
+  Fa2: "alpha-fa",
+  Finish: null, // control — skip
+  Ghayn: "alpha-ghain",
+  Ha2: "alpha-ha",
+  Jim: "alpha-jeem",
+  Kaf: "alpha-kaf",
+  Kha2: "alpha-kha",
+  Lam: "alpha-lam",
+  Mim: "alpha-meem",
+  Noon: "alpha-noon",
+  Ra2: "alpha-ra",
+  Sin: "alpha-seen",
+  Space: null, // control — skip
+  SSad: "alpha-sad",
+  Ta2: "alpha-ta",
+  Tha2: "alpha-tha",
+  Thal: "alpha-thal",
+  TTa2: "alpha-tah",
+  TTha2: "alpha-zah",
+  Waw: "alpha-waw",
+  Ya2: "alpha-ya",
+  Zayn: "alpha-zay",
 };
 
 const MAX_PER_CLASS = 40;
@@ -59,9 +59,9 @@ const MAX_PER_CLASS = 40;
 // ---------------------------------------------------------------------------
 // Read and parse CSV
 // ---------------------------------------------------------------------------
-const csvPath = resolve(__dirname, 'dataset/ArSL_dataset.csv');
-const lines = readFileSync(csvPath, 'utf-8').split('\n');
-const header = lines[0].split(';');
+const csvPath = resolve(__dirname, "dataset/ArSL_dataset.csv");
+const lines = readFileSync(csvPath, "utf-8").split("\n");
+const header = lines[0].split(";");
 
 // Verify the first 42 value columns (after Sign) are x0,y0,...,x20,y20
 const expectedCols = [];
@@ -71,10 +71,10 @@ for (let i = 0; i <= 20; i++) {
 const actualCols = header.slice(1, 43);
 for (let i = 0; i < expectedCols.length; i++) {
   if (actualCols[i] !== expectedCols[i]) {
-    throw new Error(`Column mismatch at index ${i+1}: expected "${expectedCols[i]}", got "${actualCols[i]}"`);
+    throw new Error(`Column mismatch at index ${i + 1}: expected "${expectedCols[i]}", got "${actualCols[i]}"`);
   }
 }
-console.log('CSV header verified: x0,y0,...,x20,y20 in columns 1-42');
+console.log("CSV header verified: x0,y0,...,x20,y20 in columns 1-42");
 
 // ---------------------------------------------------------------------------
 // Accumulate samples per class (raw, not yet subsampled)
@@ -88,7 +88,7 @@ for (let li = 1; li < lines.length; li++) {
   const line = lines[li].trim();
   if (!line) continue;
 
-  const cols = line.split(';');
+  const cols = line.split(";");
   const label = cols[0];
 
   if (!(label in LABEL_MAP)) {
@@ -146,7 +146,7 @@ console.log(`\nRows processed: ${rowsRead} used, ${rowsSkipped} skipped`);
 // ---------------------------------------------------------------------------
 const TARGET_IDS = new Set(Object.values(LABEL_MAP).filter((v): v is string => v !== null));
 const rawSamples2: Map<string, number[][]> = new Map();
-const csv2Path = resolve(__dirname, 'dataset/arsl21l_landmarks.csv');
+const csv2Path = resolve(__dirname, "dataset/arsl21l_landmarks.csv");
 let hasSecond = false;
 
 // Zenodo per-class centroids — the canonical chirality reference. ArSL21L is
@@ -165,18 +165,21 @@ for (const [cls, vecs] of rawSamples) {
 }
 const dist2 = (a: number[], b: number[]) => {
   let s = 0;
-  for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; }
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i] - b[i];
+    s += d * d;
+  }
   return s;
 };
 
 try {
-  const lines2 = readFileSync(csv2Path, 'utf-8').split('\n');
+  const lines2 = readFileSync(csv2Path, "utf-8").split("\n");
   let used2 = 0;
   let flipped = 0;
   for (let li = 1; li < lines2.length; li++) {
     const line = lines2[li].trim();
     if (!line) continue;
-    const cols = line.split(';');
+    const cols = line.split(";");
     const classId = cols[0];
     if (!TARGET_IDS.has(classId)) continue;
     const lms: LM[] = [];
@@ -200,7 +203,7 @@ try {
   hasSecond = used2 > 0;
   console.log(`ArSL21L rows used: ${used2} across ${rawSamples2.size} classes (${flipped} chirality-snapped)`);
 } catch {
-  console.log('No ArSL21L CSV (dataset/arsl21l_landmarks.csv) — Zenodo-only seeds.');
+  console.log("No ArSL21L CSV (dataset/arsl21l_landmarks.csv) — Zenodo-only seeds.");
 }
 
 // ---------------------------------------------------------------------------
@@ -231,8 +234,10 @@ for (const classId of classIds) {
       ? [...evenSubsample(raw, MAX_PER_CLASS / 2), ...evenSubsample(raw2, MAX_PER_CLASS / 2)]
       : evenSubsample(raw, MAX_PER_CLASS);
   seeds[classId] = sampled;
-  const mark = sampled.length < 8 ? ' *** BELOW THRESHOLD ***' : '';
-  console.log(`  ${classId}: ${sampled.length} samples (zenodo raw: ${raw.length}, arsl21l raw: ${raw2.length})${mark}`);
+  const mark = sampled.length < 8 ? " *** BELOW THRESHOLD ***" : "";
+  console.log(
+    `  ${classId}: ${sampled.length} samples (zenodo raw: ${raw.length}, arsl21l raw: ${raw2.length})${mark}`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -241,14 +246,12 @@ for (const classId of classIds) {
 const expectedClasses = Object.values(LABEL_MAP).filter((v) => v !== null) as string[];
 const missingClasses = expectedClasses.filter((c) => !seeds[c]);
 if (missingClasses.length > 0) {
-  throw new Error(`Missing classes in output: ${missingClasses.join(', ')}`);
+  throw new Error(`Missing classes in output: ${missingClasses.join(", ")}`);
 }
 
-const badClasses = Object.entries(seeds).filter(
-  ([, vecs]) => vecs.length < 8 || vecs.some((v) => v.length !== 42)
-);
+const badClasses = Object.entries(seeds).filter(([, vecs]) => vecs.length < 8 || vecs.some((v) => v.length !== 42));
 if (badClasses.length > 0) {
-  throw new Error(`Classes below threshold or wrong dims: ${badClasses.map(([k]) => k).join(', ')}`);
+  throw new Error(`Classes below threshold or wrong dims: ${badClasses.map(([k]) => k).join(", ")}`);
 }
 
 console.log(`\nValidation: ${Object.keys(seeds).length} classes, all ≥8 samples, all 42-dim — OK`);
@@ -256,7 +259,7 @@ console.log(`\nValidation: ${Object.keys(seeds).length} classes, all ≥8 sample
 // ---------------------------------------------------------------------------
 // Write output
 // ---------------------------------------------------------------------------
-const outPath = resolve(ROOT, 'src/recognizer/seeds/alphabet.json');
+const outPath = resolve(ROOT, "src/recognizer/seeds/alphabet.json");
 writeFileSync(outPath, JSON.stringify(seeds, null, 2));
 console.log(`\nWrote ${outPath}`);
 
@@ -273,7 +276,7 @@ if (hasSecond) {
     zenodo: capAll(rawSamples),
     arsl21l: capAll(rawSamples2),
   };
-  const corpusPath = resolve(__dirname, 'dataset/corpus.json');
+  const corpusPath = resolve(__dirname, "dataset/corpus.json");
   writeFileSync(corpusPath, JSON.stringify(corpus));
   console.log(`Wrote ${corpusPath}`);
 }

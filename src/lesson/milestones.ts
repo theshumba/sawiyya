@@ -36,9 +36,7 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
   // can still reach mastery 3 through the teach-and-match path, and letting
   // them substitute for real letters would fire "whole alphabet mastered"
   // while seeded letters are unlearned (H22).
-  const alphaMastered = ALPHABET.filter(
-    (s2) => s2.cameraGradable && (prog[s2.id]?.masteryLevel ?? 0) >= 3,
-  ).length;
+  const alphaMastered = ALPHABET.filter((s2) => s2.cameraGradable && (prog[s2.id]?.masteryLevel ?? 0) >= 3).length;
   const familyCanDo = signsAllCanDo(s).length;
   // H6 made signsAllCanDo() hearing-only, so a zero-hearing household (the
   // "I'm Deaf — setting up my family" solo persona) has familyCanDo pinned at
@@ -48,8 +46,22 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
 
   const familyRungs: Rung[] = hasHearing
     ? [
-        { at: 5, value: familyCanDo, kind: "family", emoji: "👪", en: "5 signs your whole family can do", ar: "٥ إشارات تتقنها كل العائلة" },
-        { at: 10, value: familyCanDo, kind: "family", emoji: "🏠", en: "10 signs your whole family can do", ar: "١٠ إشارات تتقنها كل العائلة" },
+        {
+          at: 5,
+          value: familyCanDo,
+          kind: "family",
+          emoji: "👪",
+          en: "5 signs your whole family can do",
+          ar: "٥ إشارات تتقنها كل العائلة",
+        },
+        {
+          at: 10,
+          value: familyCanDo,
+          kind: "family",
+          emoji: "🏠",
+          en: "10 signs your whole family can do",
+          ar: "١٠ إشارات تتقنها كل العائلة",
+        },
       ]
     : [];
 
@@ -61,7 +73,14 @@ export function nextMilestone(s: AppState, profileId: string, lang: Lang): Miles
     // The last rung on the ladder since the word unit went (2026-08-05). A rung
     // keyed to an empty set would read 0/0 and fire instantly, so it was removed
     // rather than left to divide by zero.
-    { at: 28, value: alphaMastered, kind: "alphabet", emoji: "🔤", en: "Whole alphabet mastered", ar: "الأبجدية كاملة متقنة" },
+    {
+      at: 28,
+      value: alphaMastered,
+      kind: "alphabet",
+      emoji: "🔤",
+      en: "Whole alphabet mastered",
+      ar: "الأبجدية كاملة متقنة",
+    },
   ];
 
   const next = ladder.find((l) => l.value < l.at);

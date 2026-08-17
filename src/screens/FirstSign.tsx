@@ -47,10 +47,7 @@ function ProgressHeader({ step, lang }: { step: Step; lang: "en" | "ar" }) {
         aria-valuemax={4}
         aria-valuenow={num}
       >
-        <div
-          className="h-full rounded-full bg-gold-mid transition-[width] duration-500 ease-out"
-          style={{ width }}
-        />
+        <div className="h-full rounded-full bg-gold-mid transition-[width] duration-500 ease-out" style={{ width }} />
       </div>
       <span className="font-display text-[11px] font-bold text-muted">
         {toLocaleDigits(num, lang)}/{toLocaleDigits(4, lang)}
@@ -133,10 +130,16 @@ export function FirstSign() {
         `}</style>
 
         {/* decorative arabic glyphs (md+) */}
-        <span className="pointer-events-none absolute start-8 top-10 hidden select-none font-display text-9xl font-black text-white/10 md:block" aria-hidden="true">
+        <span
+          className="pointer-events-none absolute start-8 top-10 hidden select-none font-display text-9xl font-black text-white/10 md:block"
+          aria-hidden="true"
+        >
           س
         </span>
-        <span className="pointer-events-none absolute end-8 bottom-10 hidden select-none font-display text-9xl font-black text-white/10 md:block" aria-hidden="true">
+        <span
+          className="pointer-events-none absolute end-8 bottom-10 hidden select-none font-display text-9xl font-black text-white/10 md:block"
+          aria-hidden="true"
+        >
           و
         </span>
 
@@ -151,9 +154,7 @@ export function FirstSign() {
               <span className="font-display text-xl font-bold text-teal-deep">
                 +{toLocaleDigits(result === "match" ? 10 : 4, lang)}
               </span>
-              <span className="font-display text-[10px] font-bold tracking-tight text-teal-deep">
-                {t("xp", lang)}
-              </span>
+              <span className="font-display text-[10px] font-bold tracking-tight text-teal-deep">{t("xp", lang)}</span>
             </div>
             {/* Day 1 streak badge */}
             <div className="animate-rise absolute -bottom-4 -start-8 flex w-20 -rotate-12 flex-col items-center justify-center gap-1 rounded-2xl border-4 border-gold bg-paper p-2 shadow-lift">
@@ -176,20 +177,18 @@ export function FirstSign() {
             style={{ textShadow: "0 0 20px rgba(230,178,76,.6)" }}
             lang={lang}
           >
-            <span dir="rtl" lang="ar">وصلت!</span>
-            <br />
-            <span className="text-white opacity-95">
-              {t("fsCelebrate", lang).replace(/^\s*وصلت!\s*/, "")}
+            <span dir="rtl" lang="ar">
+              وصلت!
             </span>
+            <br />
+            <span className="text-white opacity-95">{t("fsCelebrate", lang).replace(/^\s*وصلت!\s*/, "")}</span>
           </h1>
 
           {/* accuracy pill — real, camera-graded outcome only (no fabricated %) */}
           {result === "match" && (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-paper px-4 py-2">
               <Icon name="check_circle" fill className="text-lg leading-none text-success" />
-              <span className="font-display text-[15px] font-bold text-teal">
-                {t("fsDoneBadgeMatch", lang)}
-              </span>
+              <span className="font-display text-[15px] font-bold text-teal">{t("fsDoneBadgeMatch", lang)}</span>
             </div>
           )}
 

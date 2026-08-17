@@ -8,15 +8,7 @@
 // progress, Fanan poses per screen, teal/coral selection chips and the signature
 // hard-shadow footer CTA. Bilingual EN(LTR)/AR(RTL) via logical properties.
 import { useEffect, useState } from "react";
-import {
-  pick,
-  t,
-  applyDir,
-  langFromSearch,
-  weekdayName,
-  weekdayIcsCode,
-  WEEKDAY_COUNT,
-} from "../i18n";
+import { pick, t, applyDir, langFromSearch, weekdayName, weekdayIcsCode, WEEKDAY_COUNT } from "../i18n";
 import { PERSONA_TAGLINE } from "../content/signs";
 import { useApp } from "../store/app";
 import { useUi } from "../store/ui";
@@ -42,17 +34,7 @@ import { SpringButton, MonoLabel } from "../components/dc";
 // The camera explainer moved to the END, immediately before FirstSign asks the
 // browser for the permission. It used to sit six screens early, so the sentence
 // explaining the camera had been forgotten by the time the prompt appeared.
-type Step =
-  | "splash"
-  | "meet"
-  | "lang"
-  | "why"
-  | "know"
-  | "plan"
-  | "reminders"
-  | "recap"
-  | "name"
-  | "camera";
+type Step = "splash" | "meet" | "lang" | "why" | "know" | "plan" | "reminders" | "recap" | "name" | "camera";
 
 // Persona choices (PRESERVE §1 data table — values/keys/ar/icon stay intact).
 const PERSONAS: {
@@ -104,13 +86,19 @@ function downloadReminderIcs(lang: Lang, practiseDays: number[]) {
   const start = new Date();
   start.setDate(start.getDate() + 1); // first occurrence: tomorrow
   const dtStart = `${start.getFullYear()}${pad(start.getMonth() + 1)}${pad(start.getDate())}T180000`;
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const stamp = new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
   // The days the learner just picked ARE the recurrence. Answering "Mondays and
   // Thursdays" and then being handed a daily reminder is the app not listening.
   // No days picked (or all seven) stays a plain daily rule.
   const byDay =
     practiseDays.length > 0 && practiseDays.length < WEEKDAY_COUNT
-      ? `;BYDAY=${[...practiseDays].sort((a, b) => a - b).map(weekdayIcsCode).join(",")}`
+      ? `;BYDAY=${[...practiseDays]
+          .sort((a, b) => a - b)
+          .map(weekdayIcsCode)
+          .join(",")}`
       : "";
   const ics = [
     "BEGIN:VCALENDAR",
@@ -209,18 +197,7 @@ export function Onboarding() {
       ? t("obPlanEveryDay", lang)
       : days.map((d) => weekdayName(d, lang)).join(pick(lang, ", ", "، "));
 
-  const STEP_ORDER: Step[] = [
-    "splash",
-    "meet",
-    "lang",
-    "why",
-    "know",
-    "plan",
-    "reminders",
-    "recap",
-    "name",
-    "camera",
-  ];
+  const STEP_ORDER: Step[] = ["splash", "meet", "lang", "why", "know", "plan", "reminders", "recap", "name", "camera"];
   const stepIndex = STEP_ORDER.indexOf(step);
   const total = STEP_ORDER.length;
   const back = () => {
@@ -270,7 +247,13 @@ export function Onboarding() {
                 aria-hidden="true"
                 className="rtl:-scale-x-100"
               >
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M15 18l-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           ) : (
@@ -335,7 +318,9 @@ export function Onboarding() {
               <div className="animate-float">
                 <Fanan pose="cheer" scale={1.2} />
               </div>
-              <MonoLabel lang={lang} className="mt-3 text-coral">{t("obFananEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="mt-3 text-coral">
+                {t("obFananEyebrow", lang)}
+              </MonoLabel>
               <h1 className="mt-1.5 animate-rise font-display text-[32px] font-extrabold leading-[1.05] text-ink">
                 {t("obFananTitle", lang)}
               </h1>
@@ -445,9 +430,7 @@ export function Onboarding() {
                 <button
                   type="button"
                   aria-pressed={everyDay}
-                  onClick={() =>
-                    setDays(everyDay ? [] : Array.from({ length: WEEKDAY_COUNT }, (_, i) => i))
-                  }
+                  onClick={() => setDays(everyDay ? [] : Array.from({ length: WEEKDAY_COUNT }, (_, i) => i))}
                   className={`min-w-0 rounded-2xl px-1 py-3 text-center font-display text-[13px] font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${everyDay ? chipSel : chipIdle}`}
                 >
                   <span className="block truncate">{t("obPlanEveryDay", lang)}</span>
@@ -495,7 +478,10 @@ export function Onboarding() {
 
               <dl className={`${cardBase} mt-5 flex-col gap-3 p-4`}>
                 {[
-                  { label: t("obRecapLearningFor", lang), value: t(PERSONAS.find((p) => p.value === persona)!.key, lang) },
+                  {
+                    label: t("obRecapLearningFor", lang),
+                    value: t(PERSONAS.find((p) => p.value === persona)!.key, lang),
+                  },
                   { label: t("obRecapStartingFrom", lang), value: t(PRIORS.find((p) => p.value === prior)!.key, lang) },
                   {
                     label: t("obRecapPractising", lang),
@@ -551,11 +537,7 @@ export function Onboarding() {
                       aria-pressed={selected}
                       onClick={() => setPersona(p.value)}
                       className={`relative flex w-full items-center gap-3 rounded-[15px] px-4 py-3.5 text-start text-[15px] font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 ${
-                        selected
-                          ? isDeaf
-                            ? "bg-gold text-ink shadow-[0_4px_0_#C89A3D]"
-                            : chipSel
-                          : chipIdle
+                        selected ? (isDeaf ? "bg-gold text-ink shadow-[0_4px_0_#C89A3D]" : chipSel) : chipIdle
                       }`}
                     >
                       <span
@@ -598,7 +580,9 @@ export function Onboarding() {
           {/* s4 · How it works · camera + on-device privacy (merged — L20) */}
           {step === "camera" && (
             <div className="flex flex-1 flex-col">
-              <MonoLabel lang={lang} className="text-teal">{t("obCamEyebrow", lang)}</MonoLabel>
+              <MonoLabel lang={lang} className="text-teal">
+                {t("obCamEyebrow", lang)}
+              </MonoLabel>
               <h1 className="mt-1.5 font-display text-[26px] font-extrabold leading-[1.1] text-ink">
                 {t("obCamTitle", lang)}
               </h1>
@@ -663,9 +647,7 @@ export function Onboarding() {
                 {/* App-icon tile — never mirrors (HANDOFF §2). */}
                 <div className="h-[38px] w-[38px] shrink-0 rounded-[11px] bg-gold" />
                 <div className="min-w-0 flex-1">
-                  <div className="font-display text-[12px] font-bold text-ink">
-                    {t("obRemindEventTitle", lang)}
-                  </div>
+                  <div className="font-display text-[12px] font-bold text-ink">{t("obRemindEventTitle", lang)}</div>
                   <p className="mt-0.5 text-[12px] leading-[1.35] text-muted">
                     {t("obRemindEventWhen", lang).replace("{days}", daysLabel)}
                   </p>
@@ -692,7 +674,9 @@ export function Onboarding() {
               to the camera explainer, which is what creates the profile. */}
           {step === "name" && (
             <div className="flex flex-1 flex-col">
-              <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">{t("obNameTitle", lang)}</h1>
+              <h1 className="font-display text-[26px] font-extrabold leading-[1.1] text-ink">
+                {t("obNameTitle", lang)}
+              </h1>
               <p className="mt-1.5 text-[14px] leading-[1.4] text-muted">
                 {PERSONA_TAGLINE[persona] ? pick(lang, PERSONA_TAGLINE[persona].en, PERSONA_TAGLINE[persona].ar) : ""}
               </p>

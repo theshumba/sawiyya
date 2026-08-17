@@ -55,12 +55,7 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
         ) : sign.photo ? (
           // REAL signer photo (ArSL21L, CC BY 4.0) — an actual hand making this
           // letter. The Arabic letter rides along as a small gold label.
-          <div
-            key={replayKey}
-            role="img"
-            aria-label={gloss}
-            className="animate-pop-in relative z-10 h-full w-full"
-          >
+          <div key={replayKey} role="img" aria-label={gloss} className="animate-pop-in relative z-10 h-full w-full">
             <img src={sign.photo} alt="" className="h-full w-full rounded-2xl object-cover" />
             <span
               className="absolute bottom-2 end-2 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-gold/40 bg-white/80 font-display text-xl font-black text-teal backdrop-blur-sm"
@@ -115,7 +110,9 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-teal">
               {t("wdHowTo", lang)}
             </p>
-            <p className={`max-w-[280px] font-display font-bold leading-snug text-ink ${compact ? "text-[13px]" : "text-[17px]"}`}>
+            <p
+              className={`max-w-[280px] font-display font-bold leading-snug text-ink ${compact ? "text-[13px]" : "text-[17px]"}`}
+            >
               {pick(lang, sign.hintEn, sign.hintAr)}
             </p>
             {sign.type === "dynamic" && (
@@ -197,9 +194,7 @@ export function SignDemo({ sign, lang, compact = false }: { sign: Sign; lang: La
                 {pick(lang, "Demo placeholder", "عرض مؤقت")}
               </span>
             </span>
-            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">
-              {t("lsDemoPlaceholder", lang)}
-            </p>
+            <p className="max-w-[260px] text-xs italic leading-snug text-ink/70">{t("lsDemoPlaceholder", lang)}</p>
           </div>
         )
       ) : (

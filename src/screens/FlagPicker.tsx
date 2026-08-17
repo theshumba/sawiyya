@@ -46,17 +46,12 @@ export function FlagPicker() {
       // a letter's glossAr IS its code, so typing "ب" or "ba" has to find Ba.
       const raw = query.trim();
       list = ALL_SIGNS.filter(
-        (s) =>
-          s.glossEn.toLowerCase().includes(q) ||
-          s.glossAr.includes(raw) ||
-          (s.code ?? "").includes(raw),
+        (s) => s.glossEn.toLowerCase().includes(q) || s.glossAr.includes(raw) || (s.code ?? "").includes(raw),
       );
     }
     if (mostNeeded) {
       // "Most needed" = flagged signs first, preserving content order otherwise.
-      list = [...list].sort(
-        (a, b) => Number(flaggedIds.has(b.id)) - Number(flaggedIds.has(a.id)),
-      );
+      list = [...list].sort((a, b) => Number(flaggedIds.has(b.id)) - Number(flaggedIds.has(a.id)));
     }
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,9 +72,7 @@ export function FlagPicker() {
 
   // Flagged signs, in flag order, for the summary rail. Resolve via signById,
   // the single source of truth.
-  const flaggedSigns = flags
-    .map((f) => signById(f.signId))
-    .filter((s): s is Sign => Boolean(s));
+  const flaggedSigns = flags.map((f) => signById(f.signId)).filter((s): s is Sign => Boolean(s));
 
   // H7: clearing is scoped to the CALLER's own raised flags — tapping this can
   // never wipe the Deaf member's curriculum.
@@ -93,12 +86,7 @@ export function FlagPicker() {
   const heroRequestor = requestors.find((p) => p.id !== profile.id);
 
   return (
-    <ScreenShell
-      lang={lang}
-      chrome="takeover"
-      title={t("famFlagTitle", lang)}
-      onClose={() => go({ name: "family" })}
-    >
+    <ScreenShell lang={lang} chrome="takeover" title={t("famFlagTitle", lang)} onClose={() => go({ name: "family" })}>
       <div className="pb-28">
         {/* ── Hero (STATE C · warm "a flag for you" language) ──────────── */}
         <header className="relative mx-auto max-w-3xl px-6 pb-2 pt-4 text-center">
@@ -138,7 +126,10 @@ export function FlagPicker() {
           <div className="space-y-4 rounded-3xl bg-paper p-5 shadow-lift">
             <div className="flex items-center gap-3">
               <div className="relative flex flex-1 items-center">
-                <span className="pointer-events-none absolute left-4 text-teal rtl:left-auto rtl:right-4" aria-hidden="true">
+                <span
+                  className="pointer-events-none absolute left-4 text-teal rtl:left-auto rtl:right-4"
+                  aria-hidden="true"
+                >
                   <Icon name="search" />
                 </span>
                 <input
@@ -163,16 +154,13 @@ export function FlagPicker() {
                   aria-pressed={mostNeeded}
                   onClick={() => setMostNeeded((v) => !v)}
                   className={`shrink-0 whitespace-nowrap rounded-2xl border-2 px-4 py-3.5 font-display font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/40 ${
-                    mostNeeded
-                      ? "border-teal bg-teal/5 text-teal"
-                      : "border-line bg-paper text-teal hover:border-teal"
+                    mostNeeded ? "border-teal bg-teal/5 text-teal" : "border-line bg-paper text-teal hover:border-teal"
                   }`}
                 >
                   {pick(lang, "Most Needed", "الأكثر طلبًا")}
                 </button>
               )}
             </div>
-
           </div>
 
           {/* Sign grid */}
@@ -207,9 +195,7 @@ export function FlagPicker() {
                     >
                       {/* pin = the one selection affordance (ring + filled pin) */}
                       <span
-                        className={`absolute end-4 top-4 text-2xl ${
-                          flagged ? "text-coral" : "text-ink/20"
-                        }`}
+                        className={`absolute end-4 top-4 text-2xl ${flagged ? "text-coral" : "text-ink/20"}`}
                         aria-hidden="true"
                       >
                         <Icon name="push_pin" fill={flagged} />
@@ -247,9 +233,7 @@ export function FlagPicker() {
                               `famFlagged` is the predicate "needs this" and only
                               reads as English after a name (Family.tsx), so the
                               tile carries a plain state word instead. */}
-                          {iSupport
-                            ? t("famCoRequested", lang)
-                            : pick(lang, "Flagged", "محدّدة")}
+                          {iSupport ? t("famCoRequested", lang) : pick(lang, "Flagged", "محدّدة")}
                         </span>
                       )}
                     </button>
@@ -264,7 +248,10 @@ export function FlagPicker() {
             <span className="absolute left-0 top-0 h-2 w-full bg-coral" aria-hidden="true" />
             <div className="relative z-10">
               <div className="mb-5 flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-coral/10 text-coral" aria-hidden="true">
+                <span
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-coral/10 text-coral"
+                  aria-hidden="true"
+                >
                   <Icon name="push_pin" fill className="text-2xl" />
                 </span>
                 <h3 className="font-display text-xl font-bold leading-tight text-teal">
@@ -296,10 +283,7 @@ export function FlagPicker() {
                         {/* the icon has to follow the branch above it: a camera
                             glyph on a watch-only sign promises a camera the
                             content cannot open. */}
-                        <Icon
-                          name={s.cameraGradable ? "videocam" : "visibility"}
-                          className="text-xl text-coral"
-                        />
+                        <Icon name={s.cameraGradable ? "videocam" : "visibility"} className="text-xl text-coral" />
                       </button>
                     </li>
                   ))}
@@ -334,11 +318,7 @@ export function FlagPicker() {
                     )}
                   </div>
                   <p className="mt-3 text-xs text-teal">
-                    {pick(
-                      lang,
-                      "Family members waiting for these signs",
-                      "أفراد العائلة في انتظار هذه الإشارات",
-                    )}
+                    {pick(lang, "Family members waiting for these signs", "أفراد العائلة في انتظار هذه الإشارات")}
                   </p>
                 </div>
               )}
@@ -377,7 +357,10 @@ export function FlagPicker() {
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-sand/95 px-6 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-coral/10 text-coral" aria-hidden="true">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-coral/10 text-coral"
+              aria-hidden="true"
+            >
               <Icon name="push_pin" fill />
             </span>
             <p className="truncate text-sm font-bold text-teal">

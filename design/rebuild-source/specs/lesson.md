@@ -13,6 +13,7 @@ Branch: `feat/design-rebuild`.
 These identifiers in `LessonPlayer.tsx` MUST remain wired after the reskin. Reskin changes markup/classes ONLY.
 
 ### Store / hooks
+
 - `const app = useApp();` — Zustand app store (root of everything below).
 - `const { go } = useUi();` — navigation. Every screen change goes through `go({...})`.
 - `activeProfile(app)` → `profile`; guard `if (!profile) return <NoProfileFallback />;` must stay.
@@ -25,29 +26,35 @@ These identifiers in `LessonPlayer.tsx` MUST remain wired after the reskin. Resk
 - `app.recordLessonComplete()` — fired once when `next >= queue.length` in `advance()`. Keep.
 
 ### Content / engine
+
 - `lessonById(lessonId)`, `signById(id)`, `A1_SIGNS`, `ALPHABET` (choice pools), `buildDrillQueue(...)`, `buildChoices(sign.id, pool)`.
 - `queue` computed via `useMemo(..., [lessonId, profileId])`; `index`/`setIndex`, `xpEarned`/`scored`/`correctCount` refs, `burst`/`setBurst` — the whole scoring/advance state machine (`advance`, `DrillOutcome`) must remain intact.
 - `drill.type` switch in `<Drill>`: `"watch" | "camera" | "recognise" | "review" | "recall"`. Preserve the routing.
 - `CameraDrill` returns `<CameraTrainer sign={sign} lang={lang} onResult={handleResult} allowSkip autoStart />` — keep as-is (its result mapping `"skip" | "match" | "selfMark"` feeds `onDone`).
 
 ### Components to keep mounted
+
 - `<ScreenShell lang={lang} chrome="takeover" onClose={...}>` wraps every state. `onClose` → `go({ name: "home" })`. Results state uses `chrome="takeover"` with **no** onClose (intentional — no escape hatch mid-celebration; CTA drives navigation).
 - `<MeetingBar progress={index / queue.length} />` — the progress indicator. (Reskin may restyle to the pill bar in §2 block B, but keep a progress element driven by `index / queue.length`.)
 - `<Confetti burst={burst} />` and `celebrate()` (fired in `advance`).
 - `<SignDemo sign={sign} lang={lang} />` (WatchDrill body), `<SignGlyph sign={sign} lang={lang} .../>` (miss card + results rail), `<Button>`, `<Card>`, `<Icon>`, `<NoProfileFallback>`.
 
 ### Navigation calls (exact)
+
 - `go({ name: "home" })` — empty-state back, results Continue.
 - `go({ name: "camera" })` — empty-state practice CTA.
 - `go({ name: "camera", targetSignId })` — results `onPractice(targetSignId)` (pre-targets a just-learned gradable sign; `firstGradable?.id`).
 
 ### i18n `t()` calls currently in the file (keep every key wired)
+
 `t("practiceCamera", lang)`, `t("lsBackHome", lang)`, `t("lsWatchTitle", lang)`, `t("lsContinue", lang)`, `t("lsReviewTitle", lang)`, `t("lsRecogniseTitle", lang)`, `t("lsRecallTitle", lang)`, `t("lsCorrect", lang)`, `t("lsSoftMiss", lang)`, `t("lsCheck", lang)`, `t("lsLessonDone", lang)`, `t("lsXpEarned", lang)`, `t("accuracy", lang)`, `t("homeStreak", lang)`, `t("lsWhatsNext", lang)`.
 
 ### Inline `pick(lang, en, ar)` calls (keep or migrate to new keys — see §4)
+
 Empty state: `pick(lang, "Nothing due right now", "لا شيء مستحق الآن")`, `pick(lang, "You're ahead — keep your hands warm with some camera practice.", "أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا.")`. DemoFace replay chip: `pick(lang, "Watch again", "شاهد مرة أخرى")`. Recall card + gloss: `pick(lang, sign.glossEn, sign.glossAr)`. Results Continue: `pick(lang, "Continue", "متابعة")`.
 
 ### Props
+
 - Component signature `LessonPlayer({ lessonId }: { lessonId: string })` — unchanged.
 - Sub-component prop shapes (`Drill`, `ChoiceDrill`, `ChoiceRow`, `ChoiceTile`, `DemoFace`, `ResultsCard`, `StatCard`, `BilingualGloss`) may be restyled but their inputs (sign, lang, state enum `"idle"|"correct"|"wrong"|"dim"`, onDone/onClick, xp/accuracy/streak) must stay.
 
@@ -58,9 +65,11 @@ Empty state: `pick(lang, "Nothing due right now", "لا شيء مستحق الآ
 Global: canvas behind app `#F1E7D6`; app/screen surface `#FBF7EF` (watch) or `#F6EFE3` (quiz/results sand). Ink text `#16302E`. Latin = **Rubik**, Arabic + body = **Readex Pro** (Arabic +0.15 line-height). Signature spring button = solid fill + hard bottom shadow `box-shadow: 0 5px 0 <deep>`; on press `translateY(4px)` and shadow → `0 1px 0 <deep>`.
 
 ### Block A — Takeover shell (all states)
+
 - Full-bleed `ScreenShell chrome="takeover"`, surface `#FBF7EF`. Close affordance = back glyph, start-edge. Back glyph chip: 34×34px circle, bg `#F6EFE3`, glyph `‹` (EN) / `›` (AR), font 700 18px Rubik, color `#16302E`. Fires `go({ name: "home" })`.
 
 ### Block B — Header + step progress (drill states)
+
 - Row: `[back chip] [step block flex:1] [streak pill]`, padding `6px 18px 10px`.
 - Step label: `font 600 12px Readex`, color `#5C726F`. Text = "Watch the sign" (watch) / "Sign it back" (camera step). New keys `lsWatchStep` / `lsSignBack`.
 - Step dots (below label, gap 5px): active dot `20×6px radius 99px bg #0F6E6A`; inactive dot `6×6px radius 99px bg #EDE3D2`. Step 1 = watch/demo, step 2 = camera.
@@ -68,7 +77,9 @@ Global: canvas behind app `#F1E7D6`; app/screen surface `#FBF7EF` (watch) or `#F
 - **Quiz/choice variant** (from Practise.dc.html): thin progress bar in place of dots — track `height 8px, flex:1, radius 99px, bg #EDE3D2`; fill `bg #E6B24C, radius 99px` width = `index/queue.length`; trailing counter `font 700 12px Rubik #5C726F` e.g. `3/5` (localise numerals). This is where `<MeetingBar>` maps; restyle to this pill.
 
 ### Block C — WatchDrill (drill.type "watch")
+
 Question heading centered above a signer-demo card + hint card + spring CTA.
+
 - **Heading** (`DrillTitle`): `font 800 26px/1.05 Rubik`, color `#16302E`, letter-spacing -.01em. Copy = sign name (`sign.glossEn`/`glossAr`, active lang). Sub-line under it: `font 500 13px/1.35 Readex #5C726F` = sign kind label (e.g. "Arabic letter · static handshape"). Enter with `rise` animation.
 - **Signer demo card** (holds `<SignDemo>`): radius 24px, height ~196px, overflow hidden. Background diagonal signer texture `repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)`. Centered glyph medallion: 126×126px circle, bg `#FBF7EF`, font-size 66px, `box-shadow 0 12px 30px rgba(0,0,0,.24)`.
   - Signer badge top-start: text `● SIGNER DEMO` (new key `lsSignerDemo`), `font 700 9px ui-monospace/Menlo`, letter-spacing .1em, color `rgba(255,255,255,.85)`, bg `rgba(0,0,0,.28)`, padding `5px 9px`, radius 8px.
@@ -80,7 +91,9 @@ Question heading centered above a signer-demo card + hint card + spring CTA.
 - **Footer CTA** (`DrillFooter` + `Button`): full-width spring button, height 54px, radius 17px, `font 700 16px Rubik`. WATCH tone = **coral**: bg `#E8654C`, text `#FBF7EF`, shadow `0 5px 0 #C54F3A`. Label `t("lsContinue")` + ` →` (design copy "I'll try it →"; keep `lsContinue`, or add trailing arrow). Fires `recordDrillResult(...,"good",{watch:true})` then `onDone({xp:5,...})`.
 
 ### Block D — ChoiceDrill · recognise / review (drill.type "recognise" | "review")
+
 Maps to Practise.dc.html MCQ.
+
 - **Heading**: `t("lsRecogniseTitle")` ("What does this sign mean?") — review appends `⏳` via `t("lsReviewTitle")`. Style as Block C heading (Rubik 800, teal `#0F6E6A` in current impl — keep teal `#0F6E6A` for drill titles).
 - **Question medallion card** (`Card variant="elevated"`, holds `DemoFace` without gloss): radius 20px, height ~150px, bg diagonal teal texture `repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)`. Centered medallion 104×104px circle bg `#FBF7EF`, glyph font-size 56px, `box-shadow 0 10px 26px rgba(0,0,0,.22)`. Watch-again replay chip bottom-end (frosted): bg `#F6EFE3` @ 85%, border `2px #0F6E6A`@10%, radius 99px, `play_circle` teal + label "Watch again"/"شاهد مرة أخرى" `font 700 11px Rubik uppercase teal`.
 - **Answer rows** (`ChoiceRow`, one column mobile / 2-col desktop, gap 10–12px). Each row `padding 15px 16px`, radius 15px, `font 700 15px/1.1 Rubik`, flex gap 11px, text-align start. State palette:
@@ -92,22 +105,28 @@ Maps to Practise.dc.html MCQ.
 - **Numbered badge** in current impl (`n`) may be replaced by the design's leading check/x mark circle; keep the `n` for a11y aria if desired but the design uses the state mark, not a number.
 
 ### Block E — ChoiceDrill · recall (drill.type "recall")
+
 - **Heading**: `t("lsRecallTitle")` ("Which sign means…").
 - **Prompt card** (`Card variant="elevated"`, bg `#0F6E6A`@5%): centered gloss — primary `font 800 30px/1 Rubik #0F6E6A`, secondary script under it `font 500 18px Readex #5C726F` (opposite-lang, `dir` flipped).
 - **Answer tiles** (`ChoiceTile`, 2-col grid, gap 12px): each tile `height ~58–72px`, radius 15px, centered. State palette mirrors Block D (idle inset hairline / correct teal+`0 3px 0 #0A4F4C` / wrong coral / dim sand). Big glyph `font-size 26–40px` (alphabet code or emoji), tiny hint caption `font 12px Readex #5C726F` (truncate >38 chars). Corner number badge top-start (`start-3 top-3`).
 
 ### Block F — Soft-feedback band (choice drills, after pick)
+
 `aria-live="polite"`, `animate-rise`, max-w-md.
+
 - Banner pill: radius 16px, padding `4px 12px`-ish `font 600–700`. Correct tone: bg `gold #E6B24C`@20%, text ink, icon `check_circle` filled. Miss tone: bg `teal #0F6E6A`@10%, text teal, icon `favorite` filled. Copy `t("lsCorrect")` / `t("lsSoftMiss")`. **Never a hard fail.**
 - On miss only, reveal card below: `Card` flex, `SignGlyph` 48px + correct gloss `font 800 Rubik`. (This is the design's "here it is" reveal.)
 
 ### Block G — DrillFooter CTA (choice drills)
+
 - Full-width spring `Button variant="primary"`, height 54px, radius 17px, `font 700 16px Rubik`.
 - Before pick: **disabled/idle** — design uses muted fill bg `#C7D0CE`, shadow `#aab6b3`, label `lsPickAnswer` ("Pick an answer" / "اختر إجابة") — NEW key (current impl uses `t("lsCheck")`; you may keep `lsCheck` or switch to `lsPickAnswer` to match design copy).
 - After pick: **active** — bg teal `#0F6E6A`, shadow `0 3px 0 #0A4F4C`, label `lsNext` ("Next →" / "التالي ←") — NEW key (current impl uses `lsContinue`+`→`; either works). Fires `onDone({ xp: correct ? 10 : 4, scored:true, correct })`.
 
 ### Block H — ResultsCard (state `done`)
+
 Maps to Practise.dc.html results screen. Sand-ish takeover, centered column, `<Confetti burst={burst}>` overlaid (radius clip). Order:
+
 1. **Fanan celebrate**: mascot `pose="celebrate"` scale ~0.85, `float` idle animation. (Replaces the 🎉 gold medallion.) Fanan **never mirrors**.
 2. **Title**: `font 800 27px/1.1 Rubik #16302E`, `pop` animation. Copy = `lsSessionTitle` ("Great session!" / "جلسة رائعة!") — NEW (current impl uses `t("lsLessonDone")`="Lesson complete!"; keep either, design says "Great session!"). Optional sub-body `font 400 14px Readex #5C726F` = lesson title (`pick(lang, lesson.titleEn, lesson.titleAr)`), or `lsSessionBody`.
 3. **Stat trio** (grid 3-col, gap 10px). Each: bg `#FBF7EF`, border `1px #EDE3D2`, radius 15px, padding `13px 6px`, centered. Value `font 800 22px Rubik` (colored), label `font 600 10px Readex #5C726F`. Three cards, in order:
@@ -118,7 +137,9 @@ Maps to Practise.dc.html results screen. Sand-ish takeover, centered column, `<C
 5. **Actions** (mt-auto): primary spring CTA `Button variant="primary"` — design coral bg `#E8654C`, shadow `0 5px 0 #C54F3A`, height 54px, radius 17px, label = camera-first `t("practiceCamera")` with `videocam` icon → `onPractice(firstGradable?.id)`. Secondary `Button variant="secondary"` → `onContinue` (`go home`), label `lsBackToPractise` ("Back to practise") OR keep `pick(lang,"Continue","متابعة")`+`→`. **Keep the practice-first ordering: camera dominant, continue secondary.**
 
 ### Block I — Empty state (`empty` queue)
+
 Keep close-to-home chrome (has `onClose`). Centered column:
+
 - Icon medallion 64×64px circle, bg teal `#0F6E6A`@10%, `task_alt` filled teal 36px.
 - Title `font 800 24px Rubik #0F6E6A` = `pick(lang,"Nothing due right now","لا شيء مستحق الآن")`.
 - Body `#5C726F` = `pick(lang,"You're ahead — keep your hands warm with some camera practice.", …)`.
@@ -129,37 +150,37 @@ Keep close-to-home chrome (has `onClose`). Centered column:
 
 ## 3 · COPY — every visible string
 
-| Key (existing unless "NEW") | English | Arabic (verbatim from RTL panel) |
-|---|---|---|
-| `lsWatchStep` **NEW** | Watch the sign | شاهد الإشارة |
-| `lsSignBack` **NEW** (camera step, CameraTrainer) | Sign it back | أعد الإشارة |
-| `lsSignerDemo` **NEW** | SIGNER DEMO | عرض المُشِير |
-| `lsHint` **NEW** | Hint | تلميح |
-| (inline) DemoFace chip | Watch again | شاهد مرة أخرى |
-| `lsWatchTitle` (existing) | A new sign | إشارة جديدة |
-| `lsContinue` (existing) | Continue | متابعة |
-| `lsRecogniseTitle` (existing) | What does this sign mean? | ما معنى هذه الإشارة؟ |
-| `lsRecallTitle` (existing) | Which sign means… | أي إشارة تعني… |
-| `lsReviewTitle` (existing) | Quick review | مراجعة سريعة |
-| `lsCorrect` (existing) | Beautiful — that's it! | ممتاز — هذه هي! |
-| `lsSoftMiss` (existing) | Not quite — here it is. You'll get it next time. | ليست هذه — ها هي الإجابة. ستصيبها المرة القادمة. |
-| `lsPickAnswer` **NEW** (idle CTA) | Pick an answer | اختر إجابة |
-| `lsNext` **NEW** (active CTA) | Next | التالي |
-| `lsCheck` (existing, alt idle CTA) | Check | تحقق |
-| `lsSessionTitle` **NEW** (results) | Great session! | جلسة رائعة! |
-| `lsLessonDone` (existing, alt) | Lesson complete! | اكتمل الدرس! |
-| `accuracy` (existing) | Accuracy | الدقة |
-| `lsXpEarned` (existing) | XP earned | نقاط الخبرة |
-| `lsSigns` **NEW** (stat) | Signs | إشارات |
-| `homeStreak` (existing, alt stat) | day streak | أيام متتالية |
-| `lsReviewNext` **NEW** | Review next | راجع تاليًا |
-| `lsWhatsNext` (existing, alt heading) | What's next | ما التالي |
-| `lsBackToPractise` **NEW** (secondary CTA) | Back to practise | العودة للتمرّن |
-| `practiceCamera` (existing) | Practise with camera | تدرّب بالكاميرا |
-| (inline) results Continue | Continue | متابعة |
-| `lsBackHome` (existing) | Back home | العودة للرئيسية |
-| (inline) empty title | Nothing due right now | لا شيء مستحق الآن |
-| (inline) empty body | You're ahead — keep your hands warm with some camera practice. | أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا. |
+| Key (existing unless "NEW")                       | English                                                        | Arabic (verbatim from RTL panel)                    |
+| ------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------- |
+| `lsWatchStep` **NEW**                             | Watch the sign                                                 | شاهد الإشارة                                        |
+| `lsSignBack` **NEW** (camera step, CameraTrainer) | Sign it back                                                   | أعد الإشارة                                         |
+| `lsSignerDemo` **NEW**                            | SIGNER DEMO                                                    | عرض المُشِير                                        |
+| `lsHint` **NEW**                                  | Hint                                                           | تلميح                                               |
+| (inline) DemoFace chip                            | Watch again                                                    | شاهد مرة أخرى                                       |
+| `lsWatchTitle` (existing)                         | A new sign                                                     | إشارة جديدة                                         |
+| `lsContinue` (existing)                           | Continue                                                       | متابعة                                              |
+| `lsRecogniseTitle` (existing)                     | What does this sign mean?                                      | ما معنى هذه الإشارة؟                                |
+| `lsRecallTitle` (existing)                        | Which sign means…                                              | أي إشارة تعني…                                      |
+| `lsReviewTitle` (existing)                        | Quick review                                                   | مراجعة سريعة                                        |
+| `lsCorrect` (existing)                            | Beautiful — that's it!                                         | ممتاز — هذه هي!                                     |
+| `lsSoftMiss` (existing)                           | Not quite — here it is. You'll get it next time.               | ليست هذه — ها هي الإجابة. ستصيبها المرة القادمة.    |
+| `lsPickAnswer` **NEW** (idle CTA)                 | Pick an answer                                                 | اختر إجابة                                          |
+| `lsNext` **NEW** (active CTA)                     | Next                                                           | التالي                                              |
+| `lsCheck` (existing, alt idle CTA)                | Check                                                          | تحقق                                                |
+| `lsSessionTitle` **NEW** (results)                | Great session!                                                 | جلسة رائعة!                                         |
+| `lsLessonDone` (existing, alt)                    | Lesson complete!                                               | اكتمل الدرس!                                        |
+| `accuracy` (existing)                             | Accuracy                                                       | الدقة                                               |
+| `lsXpEarned` (existing)                           | XP earned                                                      | نقاط الخبرة                                         |
+| `lsSigns` **NEW** (stat)                          | Signs                                                          | إشارات                                              |
+| `homeStreak` (existing, alt stat)                 | day streak                                                     | أيام متتالية                                        |
+| `lsReviewNext` **NEW**                            | Review next                                                    | راجع تاليًا                                         |
+| `lsWhatsNext` (existing, alt heading)             | What's next                                                    | ما التالي                                           |
+| `lsBackToPractise` **NEW** (secondary CTA)        | Back to practise                                               | العودة للتمرّن                                      |
+| `practiceCamera` (existing)                       | Practise with camera                                           | تدرّب بالكاميرا                                     |
+| (inline) results Continue                         | Continue                                                       | متابعة                                              |
+| `lsBackHome` (existing)                           | Back home                                                      | العودة للرئيسية                                     |
+| (inline) empty title                              | Nothing due right now                                          | لا شيء مستحق الآن                                   |
+| (inline) empty body                               | You're ahead — keep your hands warm with some camera practice. | أنت متقدّم — أبقِ يديك جاهزتين بتدريب على الكاميرا. |
 
 **Fanan speech-bubble lines** (Practice Loop; owned by `CameraTrainer`, listed for completeness — do NOT add to LessonPlayer): watch "Watch me first!" / "شاهدني أولًا!"; looking "Show me your hand" / "أرني يدك"; detecting "Ooh, nice…" / "جميل…"; correct "That's it!" / "أحسنت!"; notquite "So close — again!" / "اقتربت — مجددًا!"; demo "Wave with me!" / "لوّح معي!". Privacy line "100% on your device · nothing leaves your phone" already exists as `camPrivacy`.
 
@@ -188,6 +209,7 @@ All other copy reuses existing keys (§3). `lsWatchStep`/`lsSignBack` are header
 ## 5 · MOTION / STATES
 
 Keyframes (lift literal from design):
+
 - `float`: `0%,100%{translateY(0)} 50%{translateY(-6/-7px)}` — Fanan idle, demo medallion (2.4–3.4s ease-in-out infinite).
 - `rise`: `translateY(12–14px)+opacity0 → 0` — titles/hint cards enter (`.3–.4s ease both`). Matches current `animate-rise`.
 - `pop`: `scale(.5/.6)+op0 → scale(1.1/1.12) → scale(1)` — results title, medallions (`.4–.5s cubic-bezier(.2,1.4,.5,1)`). Matches current `animate-pop-in`.
@@ -196,6 +218,7 @@ Keyframes (lift literal from design):
 - Spring button press: `transition all .08s`; active → `translateY(4px)` + shadow collapses `0 5px 0 → 0 1px 0`.
 
 Interactive states:
+
 - **Choice pick**: disabled after first pick (`if (picked) return`). Correct springs teal+check, wrong turns coral+✕, others dim to sand/`#94A5A2`. Soft-feedback band `rise`-enters; miss reveals the answer card. Footer CTA flips idle→active.
 - **Watch**: play/replay chip re-triggers `pop-in` on the demo glyph (`replayKey`).
 - **Quiz CTA idle→active**: muted `#C7D0CE`/`#aab6b3` → teal `#0F6E6A`/`#0A4F4C`.
@@ -216,4 +239,5 @@ Interactive states:
 ---
 
 ### Summary
+
 9 layout blocks (A shell, B header/progress, C watch, D recognise, E recall, F soft-feedback, G choice-CTA, H results, I empty). 10 new i18n keys.

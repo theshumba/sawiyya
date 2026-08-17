@@ -7,13 +7,7 @@ export function Logo({ size = 36 }: { size?: number }) {
   // "The Seen (س)" — three signing fingers rising from the meeting bowl,
   // gold spark = the moment of connection. Finish 3A (Brand Identity §1).
   return (
-    <svg
-      width={size}
-      height={(size * 120) / 150}
-      viewBox="0 0 150 120"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg width={size} height={(size * 120) / 150} viewBox="0 0 150 120" aria-hidden="true" focusable="false">
       <path d="M40 84 V58" stroke="#0F6E6A" strokeWidth="12" strokeLinecap="round" />
       <path d="M62 84 V44" stroke="#0F6E6A" strokeWidth="12" strokeLinecap="round" />
       <path d="M84 84 V54" stroke="#0F6E6A" strokeWidth="12" strokeLinecap="round" />
@@ -38,17 +32,12 @@ export function Wordmark({ className = "" }: { className?: string }) {
 }
 
 /** Material Symbols icon (loaded in index.html). `fill` renders the solid variant. */
-export function Icon({
-  name,
-  fill = false,
-  className = "",
-}: {
-  name: string;
-  fill?: boolean;
-  className?: string;
-}) {
+export function Icon({ name, fill = false, className = "" }: { name: string; fill?: boolean; className?: string }) {
   return (
-    <span className={`material-symbols-outlined select-none ${fill ? "material-fill" : ""} ${className}`} aria-hidden="true">
+    <span
+      className={`material-symbols-outlined select-none ${fill ? "material-fill" : ""} ${className}`}
+      aria-hidden="true"
+    >
       {name}
     </span>
   );
@@ -183,7 +172,15 @@ export function ProgressRing({
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#0F6E6A" strokeOpacity="0.12" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="#0F6E6A"
+          strokeOpacity="0.12"
+          strokeWidth={stroke}
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -262,7 +259,9 @@ export function Title({
    *  no other <h1> (e.g. AllSigns) can promote its page title to h1. */
   as?: "h1" | "h2";
 }) {
-  return <As className={`font-display text-2xl font-bold leading-tight text-ink md:text-3xl ${className}`}>{children}</As>;
+  return (
+    <As className={`font-display text-2xl font-bold leading-tight text-ink md:text-3xl ${className}`}>{children}</As>
+  );
 }
 export function Eyebrow({
   children,

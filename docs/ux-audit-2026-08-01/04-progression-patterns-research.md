@@ -39,7 +39,7 @@ Two operational rules worth stealing verbatim: "**Stop at 2 levels.** Each addit
 multiplies clicks and halves discoverability", and a target split where "**80%** of tasks land on
 level 1, 20% on level 2".
 
-**Transferable idea:** the split is a *task-frequency* decision, not a taste decision. Count how
+**Transferable idea:** the split is a _task-frequency_ decision, not a taste decision. Count how
 often each screen is genuinely needed, put the 80% on level 1, and stop at two levels.
 
 ### A2. Staged disclosure (the wizard)
@@ -59,7 +59,7 @@ https://dl.acm.org/doi/abs/10.1145/957205.957206 · PDF at
 https://www.cs.umd.edu/users/ben/ACM-CUU2003.pdf (the PDF fetch returned raw binary, so the content
 summary below is **[U]**, drawn from the search abstract, not my own reading of the paper).
 
-The claim: ship the *same* application at several deliberately designed complexity layers. Layer 1
+The claim: ship the _same_ application at several deliberately designed complexity layers. Layer 1
 is a genuinely usable, genuinely limited product. Users may stay at layer 1 forever, or step up when
 they want more. The paper works two examples, a word processor with 8 layers and an interactive map
 with 3.
@@ -80,7 +80,7 @@ training-wheels build learned the basic task faster and scored better on a compr
 the control group "burned almost 1/4 of its time recovering from exactly the error states the
 training interface had walled off."
 
-The mechanism matters: advanced menu items were **not hidden**. They were present and *blocked*,
+The mechanism matters: advanced menu items were **not hidden**. They were present and _blocked_,
 producing a polite "not available" message instead of a rabbit hole.
 
 **Transferable idea:** visible-but-locked beats invisible. The locked item teaches that the app has
@@ -100,7 +100,7 @@ altogether. Proficiency also **decays**, and the UI reverts.
 carries the same quote and hosts the sceptical counter-argument in its comments (an interface that
 keeps quietly reducing can end up harming the very users it claims to serve).
 
-**Transferable idea:** the *affordance* can shrink even when the feature does not move. Label →
+**Transferable idea:** the _affordance_ can shrink even when the feature does not move. Label →
 icon+label → icon is a three-state ladder you can drive off a per-feature usage counter, and it is
 far cheaper than restructuring navigation.
 
@@ -126,7 +126,7 @@ tasks as **harder**. Conclusion quoted: "Tutorials take time and effort to desig
 those would be better spent on making the UI easy to use and thus alleviating the need for a tutorial
 in the first place."
 
-**Transferable idea:** an up-front tour is measurably not the answer, and can make an app *feel*
+**Transferable idea:** an up-front tour is measurably not the answer, and can make an app _feel_
 more complicated than it is. The budget belongs in contextual, one-thing-at-a-time teaching.
 
 ### A7. Coach marks / instructional overlays
@@ -151,7 +151,7 @@ https://atlassian.design/components/onboarding/ (both live; bodies did not rende
 Guidance from search excerpts of those pages: a spotlight focuses attention on one piece of UI and
 can guide multi-step tasks; "Only a single spotlight should be used on the screen at one time";
 messages restricted to three lines showing a single change, focused on the user benefit; always allow
-skip or dismiss; when using a stepper with multiple cards, communicate multiple *benefits*, not the
+skip or dismiss; when using a stepper with multiple cards, communicate multiple _benefits_, not the
 literal steps of a task. Atlassian names the second use case **change-boarding**: introducing new
 features to existing users.
 
@@ -199,7 +199,7 @@ not "You don't have any data assets".
 
 **Transferable idea:** the empty state is the only teaching surface that costs the user nothing,
 because they were going to look at that screen anyway. Every screen that can be empty should have a
-written first-use empty state, and the *primary* screen's empty state earns a heavier treatment than
+written first-use empty state, and the _primary_ screen's empty state earns a heavier treatment than
 the secondary ones.
 
 ### A11. Starter content / sample data
@@ -234,7 +234,7 @@ Example entry from the docs:
 **Source [V]:** SkillTree "Learning Path" · https://skilltreeplatform.dev/dashboard/user-guide/learning-path.html
 Same idea in a gamification platform: create "Skill A -> Skill B" and "Skill A will serve as a
 prerequisite to Skill B and no points will be awarded toward Skill B until Skill A is fully
-accomplished." Both ends of an edge can be a skill *or* a badge. The tool "will discover circular
+accomplished." Both ends of an edge can be a skill _or_ a badge. The tool "will discover circular
 learning paths at the time of from and to selection and prevent administrators from adding an
 erroneous learning path route."
 
@@ -324,7 +324,7 @@ can increase appreciably." The manual notes 20 new cards a day typically settles
 reviews a day, and advises lowering the new-card intake when reviews become overwhelming. A separate
 "Maximum reviews/day" cap smooths spikes.
 
-**Transferable idea:** introduce at most N *new things* per session, where "new thing" includes new
+**Transferable idea:** introduce at most N _new things_ per session, where "new thing" includes new
 features, not just new content. It is a single number in a store, and it is the cheapest possible
 throttle on the whole teaching system.
 
@@ -369,12 +369,12 @@ Star counts read from `api.github.com` on 2026-08-01.
 
 ### B1. Best structural fits for a React + Zustand + Vite PWA, no backend
 
-| Repo | Stars | Licence | What it demonstrates |
-|---|---|---|---|
-| https://github.com/Somafet/onboardjs | 74 | MIT | Headless onboarding engine (`@onboardjs/core`) plus React bindings (`@onboardjs/react`). Steps are declarative data with `id`, `component`, `nextStep`; `useOnboarding()` exposes `state.currentStep`, `isCompleted`, `canGoNext`, `canGoPrevious`, `next()`, `previous()`, `updateContext()`. Ships a `localStoragePersistence` option and pluggable persistence handlers. **No backend required.** |
-| https://github.com/statelyai/xstate | 29,949 | MIT | Statecharts: hierarchy, parallel regions, guards, actors. |
-| https://github.com/pmndrs/zustand | 58,510 | MIT | The store. Its `persist` middleware is the whole storage layer for a no-backend progression model. |
-| https://github.com/open-spaced-repetition/ts-fsrs | 732 | MIT | Scheduling algorithm in TypeScript, ESM/CJS/UMD, runs entirely client-side. |
+| Repo                                              | Stars  | Licence | What it demonstrates                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------------------------------- | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| https://github.com/Somafet/onboardjs              | 74     | MIT     | Headless onboarding engine (`@onboardjs/core`) plus React bindings (`@onboardjs/react`). Steps are declarative data with `id`, `component`, `nextStep`; `useOnboarding()` exposes `state.currentStep`, `isCompleted`, `canGoNext`, `canGoPrevious`, `next()`, `previous()`, `updateContext()`. Ships a `localStoragePersistence` option and pluggable persistence handlers. **No backend required.** |
+| https://github.com/statelyai/xstate               | 29,949 | MIT     | Statecharts: hierarchy, parallel regions, guards, actors.                                                                                                                                                                                                                                                                                                                                            |
+| https://github.com/pmndrs/zustand                 | 58,510 | MIT     | The store. Its `persist` middleware is the whole storage layer for a no-backend progression model.                                                                                                                                                                                                                                                                                                   |
+| https://github.com/open-spaced-repetition/ts-fsrs | 732    | MIT     | Scheduling algorithm in TypeScript, ESM/CJS/UMD, runs entirely client-side.                                                                                                                                                                                                                                                                                                                          |
 
 **The one idea:** OnboardJS proves the separation you want, a headless engine holding the progression
 state and a dumb renderer. You can copy the shape (steps as data, one hook, pluggable persistence)
@@ -382,20 +382,20 @@ into a Zustand store in an afternoon without taking the dependency.
 
 ### B2. Readable progression logic in learning apps
 
-| Repo | Stars | What it demonstrates |
-|---|---|---|
-| https://github.com/sanidhyy/duolingo-clone | 611 | Courses → units → lessons → challenges, plus `userProgress` (`activeCourseId`, `hearts`, `points`) and `challengeProgress.completed`. In `db/queries.ts`, `getUnits` marks a lesson complete when `lesson.challenges.every(...)` has completed progress, and `getCourseProgress` finds the **first uncompleted lesson** across the flattened unit list to decide where the user resumes. |
-| https://github.com/exercism/website | 543 | The concept-graph unlocking model (see A12). The readable part is the docs and track `config.json`, not the Rails app. |
-| https://github.com/exercism/docs | (docs repo) | `building/tracks/config-json.md` is the spec for `concepts` / `prerequisites` / `status`. |
-| https://github.com/NationalSecurityAgency/skills-service | 619 | SkillTree: micro-learning gamification with subjects, skills, levels, badges, self-reporting, and a prerequisite **Learning Path** with cycle detection. Groovy/Vue, so read the docs rather than the code. |
-| https://github.com/HabitRPG/habitica | 14,026 | Whole-subsystem level gating (classes at level 10). |
-| https://github.com/ankitects/anki | 29,435 | Daily new-card throttling and scheduler state per item. |
-| https://github.com/oppia/oppia | 6,748 | Topics / stories / skills with mastery. Python + Angular. **[U]** — I verified the repo, not its progression code. |
-| https://github.com/learningequality/kolibri | 1,089 | Offline-first learning platform with mastery models. **[U]** as above. |
-| https://github.com/freeCodeCamp/freeCodeCamp | 453,285 | Superblock → block → challenge curriculum with completion state. Huge; useful only as a shape reference. |
-| https://github.com/st3v3nmw/obsidian-spaced-repetition | 2,494 | TypeScript, client-only spaced repetition over notes. |
-| https://github.com/nuclear-unicorn/kittensgame | 93 | Incremental game whose entire design is progressive feature unlocking: the UI grows tab by tab as prerequisites are met. Low stars, but the purest example of "the app reveals itself over hours of play". |
-| https://github.com/ActiDoo/gamification-engine | 471 | Rule-based achievements/goals engine (Python). Useful as a vocabulary for achievement rules. |
+| Repo                                                     | Stars       | What it demonstrates                                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| https://github.com/sanidhyy/duolingo-clone               | 611         | Courses → units → lessons → challenges, plus `userProgress` (`activeCourseId`, `hearts`, `points`) and `challengeProgress.completed`. In `db/queries.ts`, `getUnits` marks a lesson complete when `lesson.challenges.every(...)` has completed progress, and `getCourseProgress` finds the **first uncompleted lesson** across the flattened unit list to decide where the user resumes. |
+| https://github.com/exercism/website                      | 543         | The concept-graph unlocking model (see A12). The readable part is the docs and track `config.json`, not the Rails app.                                                                                                                                                                                                                                                                   |
+| https://github.com/exercism/docs                         | (docs repo) | `building/tracks/config-json.md` is the spec for `concepts` / `prerequisites` / `status`.                                                                                                                                                                                                                                                                                                |
+| https://github.com/NationalSecurityAgency/skills-service | 619         | SkillTree: micro-learning gamification with subjects, skills, levels, badges, self-reporting, and a prerequisite **Learning Path** with cycle detection. Groovy/Vue, so read the docs rather than the code.                                                                                                                                                                              |
+| https://github.com/HabitRPG/habitica                     | 14,026      | Whole-subsystem level gating (classes at level 10).                                                                                                                                                                                                                                                                                                                                      |
+| https://github.com/ankitects/anki                        | 29,435      | Daily new-card throttling and scheduler state per item.                                                                                                                                                                                                                                                                                                                                  |
+| https://github.com/oppia/oppia                           | 6,748       | Topics / stories / skills with mastery. Python + Angular. **[U]** — I verified the repo, not its progression code.                                                                                                                                                                                                                                                                       |
+| https://github.com/learningequality/kolibri              | 1,089       | Offline-first learning platform with mastery models. **[U]** as above.                                                                                                                                                                                                                                                                                                                   |
+| https://github.com/freeCodeCamp/freeCodeCamp             | 453,285     | Superblock → block → challenge curriculum with completion state. Huge; useful only as a shape reference.                                                                                                                                                                                                                                                                                 |
+| https://github.com/st3v3nmw/obsidian-spaced-repetition   | 2,494       | TypeScript, client-only spaced repetition over notes.                                                                                                                                                                                                                                                                                                                                    |
+| https://github.com/nuclear-unicorn/kittensgame           | 93          | Incremental game whose entire design is progressive feature unlocking: the UI grows tab by tab as prerequisites are met. Low stars, but the purest example of "the app reveals itself over hours of play".                                                                                                                                                                               |
+| https://github.com/ActiDoo/gamification-engine           | 471         | Rule-based achievements/goals engine (Python). Useful as a vocabulary for achievement rules.                                                                                                                                                                                                                                                                                             |
 
 **The one idea from this block:** Duolingo-clone's `getCourseProgress` is the cheapest possible
 "what next" resolver, scan the ordered content, return the first incomplete item. You almost never
@@ -403,20 +403,20 @@ need more than that plus a prerequisite check.
 
 ### B3. Product-tour and checklist platforms
 
-| Repo | Stars | Notes |
-|---|---|---|
-| https://github.com/usertour/usertour | 2,131 | Open-source onboarding platform: tours, **checklists**, surveys, with flow targeting rules. TypeScript, but NestJS + database, so it is a reference for the *flow model*, not a dependency for a no-backend PWA. |
-| https://github.com/FrigadeHQ/javascript | 74 | Frigade Engage: React product tours, getting-started checklists, banners. |
-| https://github.com/nilbuild/driver.js | 26,502 | (Formerly `kamranahmedse/driver.js`; that URL now redirects.) Dependency-free highlight/focus driver with multi-step tours. |
-| https://github.com/usablica/intro.js | 23,478 | Long-standing tour library. Licence is non-standard, check before use. |
-| https://github.com/shipshapecode/shepherd | 13,772 | Tour library, framework-agnostic. |
-| https://github.com/gilbarbara/react-joyride | 7,825 | MIT. React tours with a controlled `stepIndex`, which is the one thing that lets you drive a tour from your own state machine rather than its internal one. |
-| https://github.com/elrumordelaluz/reactour | 4,088 | MIT. |
-| https://github.com/uixmat/onborda | 1,396 | Next.js + Framer Motion tour. No licence declared, which matters. |
+| Repo                                        | Stars  | Notes                                                                                                                                                                                                            |
+| ------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| https://github.com/usertour/usertour        | 2,131  | Open-source onboarding platform: tours, **checklists**, surveys, with flow targeting rules. TypeScript, but NestJS + database, so it is a reference for the _flow model_, not a dependency for a no-backend PWA. |
+| https://github.com/FrigadeHQ/javascript     | 74     | Frigade Engage: React product tours, getting-started checklists, banners.                                                                                                                                        |
+| https://github.com/nilbuild/driver.js       | 26,502 | (Formerly `kamranahmedse/driver.js`; that URL now redirects.) Dependency-free highlight/focus driver with multi-step tours.                                                                                      |
+| https://github.com/usablica/intro.js        | 23,478 | Long-standing tour library. Licence is non-standard, check before use.                                                                                                                                           |
+| https://github.com/shipshapecode/shepherd   | 13,772 | Tour library, framework-agnostic.                                                                                                                                                                                |
+| https://github.com/gilbarbara/react-joyride | 7,825  | MIT. React tours with a controlled `stepIndex`, which is the one thing that lets you drive a tour from your own state machine rather than its internal one.                                                      |
+| https://github.com/elrumordelaluz/reactour  | 4,088  | MIT.                                                                                                                                                                                                             |
+| https://github.com/uixmat/onborda           | 1,396  | Next.js + Framer Motion tour. No licence declared, which matters.                                                                                                                                                |
 
 **The one idea:** of this whole group, only `react-joyride`'s controlled `stepIndex` and Usertour's
 checklist model add anything to a progression system. The rest are presentation. Do not let a tour
-library own the question of *what the user has learned*.
+library own the question of _what the user has learned_.
 
 ### B4. Feature gating
 
@@ -440,14 +440,14 @@ shape, not the dependency.
 
 ## Part C · Design-system references
 
-| System | Page | Verified | What it encodes |
-|---|---|---|---|
-| Apple HIG | https://developer.apple.com/design/human-interface-guidelines/onboarding | **[P]** page live, body did not render | Onboarding should be "fast, fun, and optional"; ideally people understand the app by using it; teach through interactivity rather than instruction screens; **consider a collection of context-specific tips instead of a single onboarding flow**; onboarding occurs *after* launch, it is not part of the launch experience. |
-| Material Design 1 | https://m1.material.io/growth-communications/feature-discovery.html | **[V]** | Feature discovery prompts, one per session maximum, never at launch, back off after dismissal. See A9. |
-| Shopify Polaris | https://polaris-react.shopify.com/components/layout-and-structure/empty-state | **[V]** | Empty state as the teaching surface; one primary CTA; encouraging tone; explain activation steps. See A10. Note `polaris.shopify.com` now 301s to `polaris-react.shopify.com`. |
-| IBM Carbon | https://v10.carbondesignsystem.com/patterns/empty-states-pattern/ (current: https://carbondesignsystem.com/patterns/empty-states-pattern/) | **[V]** on v10 | Three empty-state families; three escalations beyond basic (in-line docs, contextual onboarding, starter content); calibrate depth to whether the resource is primary or secondary. See A10/A11. |
-| Atlassian | https://atlassian.design/patterns/spotlight/ · https://atlassian.design/components/onboarding/ | **[P]** for guidance, **[V]** that the older Onboarding component is deprecated in favour of `@atlaskit/spotlight` | One spotlight on screen at a time; three-line messages; always dismissible; "change-boarding" as a named sibling of onboarding. See A8. |
-| NN/g | see Part A | **[V]** | Progressive disclosure (2006, 2022 video), mobile-app onboarding components (2020), the tutorial study (2020), coach marks (2014). |
+| System            | Page                                                                                                                                       | Verified                                                                                                           | What it encodes                                                                                                                                                                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Apple HIG         | https://developer.apple.com/design/human-interface-guidelines/onboarding                                                                   | **[P]** page live, body did not render                                                                             | Onboarding should be "fast, fun, and optional"; ideally people understand the app by using it; teach through interactivity rather than instruction screens; **consider a collection of context-specific tips instead of a single onboarding flow**; onboarding occurs _after_ launch, it is not part of the launch experience. |
+| Material Design 1 | https://m1.material.io/growth-communications/feature-discovery.html                                                                        | **[V]**                                                                                                            | Feature discovery prompts, one per session maximum, never at launch, back off after dismissal. See A9.                                                                                                                                                                                                                         |
+| Shopify Polaris   | https://polaris-react.shopify.com/components/layout-and-structure/empty-state                                                              | **[V]**                                                                                                            | Empty state as the teaching surface; one primary CTA; encouraging tone; explain activation steps. See A10. Note `polaris.shopify.com` now 301s to `polaris-react.shopify.com`.                                                                                                                                                 |
+| IBM Carbon        | https://v10.carbondesignsystem.com/patterns/empty-states-pattern/ (current: https://carbondesignsystem.com/patterns/empty-states-pattern/) | **[V]** on v10                                                                                                     | Three empty-state families; three escalations beyond basic (in-line docs, contextual onboarding, starter content); calibrate depth to whether the resource is primary or secondary. See A10/A11.                                                                                                                               |
+| Atlassian         | https://atlassian.design/patterns/spotlight/ · https://atlassian.design/components/onboarding/                                             | **[P]** for guidance, **[V]** that the older Onboarding component is deprecated in favour of `@atlaskit/spotlight` | One spotlight on screen at a time; three-line messages; always dismissible; "change-boarding" as a named sibling of onboarding. See A8.                                                                                                                                                                                        |
+| NN/g              | see Part A                                                                                                                                 | **[V]**                                                                                                            | Progressive disclosure (2006, 2022 video), mobile-app onboarding components (2020), the tutorial study (2020), coach marks (2014).                                                                                                                                                                                             |
 
 ---
 

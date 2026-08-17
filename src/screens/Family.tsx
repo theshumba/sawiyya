@@ -126,9 +126,7 @@ export function Family() {
 
   // Arabic can't be uppercased/letter-spaced without breaking joins — mono eyebrow
   // styling is EN-only; Arabic keeps its natural glyph shaping.
-  const eyebrowCls = `text-[11px] font-bold text-teal ${
-    lang === "ar" ? "" : "font-mono uppercase tracking-[0.14em]"
-  }`;
+  const eyebrowCls = `text-[11px] font-bold text-teal ${lang === "ar" ? "" : "font-mono uppercase tracking-[0.14em]"}`;
 
   return (
     <ScreenShell lang={lang} chrome="tabs">
@@ -185,13 +183,16 @@ export function Family() {
                   </span>
                   <span className="mt-[7px] block truncate font-display text-xs font-bold text-ink">
                     <bdi>{p.displayName}</bdi>
-                    {signedToday && <span className="text-success" aria-hidden="true"> ✓</span>}
+                    {signedToday && (
+                      <span className="text-success" aria-hidden="true">
+                        {" "}
+                        ✓
+                      </span>
+                    )}
                   </span>
                   <span className="mt-[5px] flex items-center justify-center gap-[3px]">
                     <span className="h-[9px] w-[9px] rounded-full bg-coral" aria-hidden="true" />
-                    <span className="font-display text-[11px] font-bold text-muted">
-                      {num(streakFor(p), lang)}
-                    </span>
+                    <span className="font-display text-[11px] font-bold text-muted">{num(streakFor(p), lang)}</span>
                   </span>
                 </button>
                 {app.profiles.length > 1 && (
@@ -220,9 +221,7 @@ export function Family() {
               </span>
               {/* the 74px tile truncated "Add a family member" to "Add a f…" —
                   short label on the tile, full label stays as the aria-label */}
-              <span className="mt-[7px] block truncate text-xs font-bold text-muted">
-                {t("famAddShort", lang)}
-              </span>
+              <span className="mt-[7px] block truncate text-xs font-bold text-muted">{t("famAddShort", lang)}</span>
             </button>
           )}
         </div>
@@ -312,9 +311,7 @@ export function Family() {
                   : pick(lang, "Flagged for your family", "مطلوبة لعائلتك");
                 // M8: the assigner sees each learner's mastery on the flagged
                 // sign — one dot (0–3) per non-raiser hearing member.
-                const learners = app.profiles.filter(
-                  (p) => p.id !== f.raisedByProfileId && p.role !== "deaf",
-                );
+                const learners = app.profiles.filter((p) => p.id !== f.raisedByProfileId && p.role !== "deaf");
                 const dotColor = (lvl: number) =>
                   lvl >= 3 ? "#0F6E6A" : lvl === 2 ? "#E6B24C" : lvl === 1 ? "#F0C879" : "#EDE3D2";
                 // The dots are the assigner's only read on who has learned the
@@ -346,11 +343,7 @@ export function Family() {
                     className="flex items-center gap-[11px] rounded-[15px] border border-line bg-paper p-3 text-start transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-[13px] bg-sand">
-                      <SignGlyph
-                        sign={sign}
-                        lang={lang}
-                        className="text-2xl"
-                      />
+                      <SignGlyph sign={sign} lang={lang} className="text-2xl" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-display text-[15px] font-bold leading-tight text-ink">
@@ -414,14 +407,10 @@ export function Family() {
           </SpringButton>
 
           {/* B10 · League note — warm, no-rankings tone. */}
-          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-muted">
-            {t("famLeagueNote", lang)}
-          </p>
+          <p className="mt-3 text-center font-sans text-[11px] leading-[1.4] text-muted">{t("famLeagueNote", lang)}</p>
           {/* H8 · honest single-device disclosure — the whole household lives in
               this browser's storage; export (Settings) is the only backup. */}
-          <p className="mt-2 text-center font-sans text-[11px] leading-[1.4] text-muted">
-            {t("famDataLocal", lang)}
-          </p>
+          <p className="mt-2 text-center font-sans text-[11px] leading-[1.4] text-muted">{t("famDataLocal", lang)}</p>
         </section>
 
         {/* Demoted celebratory secondary — "Signs we can all do" honeycomb + milestone.
@@ -505,15 +494,10 @@ export function Family() {
                   </span>
                   <span className="text-start">
                     <span className="block font-display text-sm font-bold text-teal">
-                      {pick(
-                        lang,
-                        `${milestoneTarget} Combined Signs!`,
-                        `${num(milestoneTarget, lang)} إشارة مشتركة!`,
-                      )}
+                      {pick(lang, `${milestoneTarget} Combined Signs!`, `${num(milestoneTarget, lang)} إشارة مشتركة!`)}
                     </span>
                     <span className="block font-sans text-xs text-muted">
-                      {formatPercent(Math.round(boardPct * 100), lang)}{" "}
-                      {pick(lang, "there", "من الطريق")}
+                      {formatPercent(Math.round(boardPct * 100), lang)} {pick(lang, "there", "من الطريق")}
                     </span>
                   </span>
                 </span>

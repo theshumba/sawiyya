@@ -43,8 +43,7 @@ const COACH_KEYS: Record<FingerName, { curl: TKey; extend: TKey }> = {
 
 // Opt-in grading diagnostics (?debug in the URL) — surfaces the KNN decision
 // internals on-screen so a single screenshot tells us WHY a sign won't confirm.
-const DEBUG =
-  typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
+const DEBUG = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
 
 export function CameraTrainer({
   sign,
@@ -161,8 +160,7 @@ export function CameraTrainer({
   const coachShownKey = useRef("");
   const coachCandidate = useRef<{ key: string; advice: CoachAdvice; since: number } | null>(null);
   const pushCoach = (advice: CoachAdvice | null, ts: number) => {
-    const key =
-      advice === null ? "" : advice.kind === "finger" ? `${advice.finger}:${advice.direction}` : "ref";
+    const key = advice === null ? "" : advice.kind === "finger" ? `${advice.finger}:${advice.direction}` : "ref";
     if (key === coachShownKey.current) {
       coachCandidate.current = null;
       return;
@@ -305,7 +303,10 @@ export function CameraTrainer({
       }
       if (DEBUG) {
         dbg += ` ${matched ? "MATCH✓" : "✗"}`;
-        if (dbg !== lastDbg.current) { lastDbg.current = dbg; setDbg(dbg); }
+        if (dbg !== lastDbg.current) {
+          lastDbg.current = dbg;
+          setDbg(dbg);
+        }
       }
     } else {
       const r = classifyAgainst(vec, sign.id);
@@ -314,7 +315,10 @@ export function CameraTrainer({
       if (DEBUG && r.debug) {
         const d = r.debug;
         const s = `KNN n=${d.targetSamples} best=${d.bestClass ?? "—"} share=${Math.round(d.targetShare * 100)}% meanD=${d.meanTopD.toFixed(2)} ${d.gated ? "gate✓" : "GATE✗"}`;
-        if (s !== lastDbg.current) { lastDbg.current = s; setDbg(s); }
+        if (s !== lastDbg.current) {
+          lastDbg.current = s;
+          setDbg(s);
+        }
       }
     }
     pushConfidence(confidence);
@@ -345,8 +349,7 @@ export function CameraTrainer({
         // to contrast with (they're taught-only by design), so they're not flagged.
         // …and only when the KNN vote that carried it came from the learner's own
         // samples, not from a bundled seed the same call also reads.
-        const ownRecording =
-          knowsModel && !modelMatchedInHold.current && userKnnMatchedInHold.current;
+        const ownRecording = knowsModel && !modelMatchedInHold.current && userKnnMatchedInHold.current;
         setOwnRecordingMatch(ownRecording);
         setMatched(true);
         setTimeout(() => onResult("match", { ownRecording }), 900);
@@ -443,15 +446,7 @@ export function CameraTrainer({
   // camera is scoring the learner hangs off this, so a reference-only sign or a
   // failed seed load can never show a meter, a hold ring or "Ooh, nice…".
   const gradingLive = gradable && !seedsFailed;
-  const pose: FananPose = matched
-    ? "celebrate"
-    : showUnsure
-      ? "sad"
-      : isDemo
-        ? "wave"
-        : running
-          ? "idle"
-          : "think";
+  const pose: FananPose = matched ? "celebrate" : showUnsure ? "sad" : isDemo ? "wave" : running ? "idle" : "think";
   const mascotLine = matched
     ? t("loopLineCorrect", lang)
     : showUnsure
@@ -501,12 +496,12 @@ export function CameraTrainer({
     ) : sign.type === "alphabet" && knowsModel ? (
       <span className="relative flex h-full w-full items-center justify-center" role="img" aria-label={gloss}>
         {/* Sign Coach: the finger to fix glows gold on the reference itself */}
-        <HandSkeleton
-          signId={sign.id}
-          className="h-[88%] w-[88%] text-white"
-          coachFinger={coachFingerIdx}
-        />
-        <span className="absolute bottom-0 end-0 font-display text-sm font-black text-gold" dir="rtl" aria-hidden="true">
+        <HandSkeleton signId={sign.id} className="h-[88%] w-[88%] text-white" coachFinger={coachFingerIdx} />
+        <span
+          className="absolute bottom-0 end-0 font-display text-sm font-black text-gold"
+          dir="rtl"
+          aria-hidden="true"
+        >
           {sign.code}
         </span>
       </span>
@@ -522,11 +517,7 @@ export function CameraTrainer({
   // "Sign the target" is the visual hero: big goal title + gold reference chip.
   // No i18n key exists for these strings yet — documented bilingual literals.
   const goalEyebrow = pick(lang, "Current Goal", "هدفك الآن");
-  const referenceHelper = pick(
-    lang,
-    "Follow the reference and copy the handshape.",
-    "اتبع المرجع وقلّد شكل اليد.",
-  );
+  const referenceHelper = pick(lang, "Follow the reference and copy the handshape.", "اتبع المرجع وقلّد شكل اليد.");
   const promptBanner = (
     <div className="animate-rise space-y-3">
       {/* Block C · title — big goal name + kind label (Rubik 800 ink). */}
@@ -548,8 +539,7 @@ export function CameraTrainer({
       <div
         className="relative flex h-48 items-center justify-center overflow-hidden rounded-3xl"
         style={{
-          background:
-            "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)",
+          background: "repeating-linear-gradient(135deg,#0F6E6A,#0F6E6A 15px,#12817b 15px,#12817b 30px)",
         }}
       >
         <span className="absolute start-3 top-3 rounded-lg bg-black/30 px-2.5 py-1.5 font-mono text-[9px] font-bold uppercase leading-none tracking-[0.1em] text-white/85">
@@ -562,9 +552,7 @@ export function CameraTrainer({
 
       {/* Block D-hint · gold-badge hint card (or the lesson exercise label). */}
       {exerciseLabel ? (
-        <p className="font-display text-sm font-bold uppercase tracking-widest text-teal">
-          {exerciseLabel}
-        </p>
+        <p className="font-display text-sm font-bold uppercase tracking-widest text-teal">{exerciseLabel}</p>
       ) : (
         <div className="flex items-start gap-2.5 rounded-2xl border border-line bg-sand p-3">
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-[13px] font-extrabold leading-none text-ink">
@@ -672,9 +660,7 @@ export function CameraTrainer({
           {/* The seed chunk never arrived, so grading is genuinely paused (M13b). */}
           {gradable && seedsFailed && (
             <div className="animate-rise w-full rounded-2xl border border-dashed border-coral-soft bg-paper p-3.5">
-              <p className="font-sans text-[13px] font-medium leading-[1.45] text-ink">
-                {t("camGradingPaused", lang)}
-              </p>
+              <p className="font-sans text-[13px] font-medium leading-[1.45] text-ink">{t("camGradingPaused", lang)}</p>
               <button
                 type="button"
                 onClick={() => setSeedsAttempt((n) => n + 1)}
@@ -689,9 +675,7 @@ export function CameraTrainer({
               <p className="font-mono text-[10px] font-bold uppercase leading-none tracking-[0.08em] text-coral-deep">
                 {t("loopHintLbl", lang)}
               </p>
-              <p className="mt-1.5 font-sans text-[13px] font-medium leading-[1.45] text-ink">
-                {t("camUnsure", lang)}
-              </p>
+              <p className="mt-1.5 font-sans text-[13px] font-medium leading-[1.45] text-ink">{t("camUnsure", lang)}</p>
             </div>
           )}
           <Button variant="ghost" full onClick={() => finishResult("selfMark")} className="!py-3">
@@ -704,7 +688,12 @@ export function CameraTrainer({
             </span>
           </Button>
           {allowSkip && (
-            <Button variant="ghost" full onClick={() => finishResult("skip")} className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal">
+            <Button
+              variant="ghost"
+              full
+              onClick={() => finishResult("skip")}
+              className="!border-0 !min-h-0 !py-2 text-sm uppercase tracking-[0.2em] !text-teal"
+            >
               {t("camSkip", lang)}
             </Button>
           )}
@@ -785,10 +774,7 @@ export function CameraTrainer({
           muted
           className="absolute inset-0 h-full w-full -scale-x-100 object-cover"
         />
-        <canvas
-          ref={tracker.canvasRef}
-          className="absolute inset-0 h-full w-full -scale-x-100 object-cover"
-        />
+        <canvas ref={tracker.canvasRef} className="absolute inset-0 h-full w-full -scale-x-100 object-cover" />
         {/* feed vignette */}
         <div
           className="pointer-events-none absolute inset-0 z-[5] bg-gradient-to-t from-teal-ink/80 via-transparent to-transparent"
@@ -863,9 +849,7 @@ export function CameraTrainer({
             <div className="max-w-[15rem] space-y-1">
               <p className="font-display text-lg font-extrabold text-white">{t(errTitleKey, lang)}</p>
               <p className="text-sm leading-snug text-white/70">{t(errBodyKey, lang)}</p>
-              {errDenied && (
-                <p className="text-xs leading-snug text-white/55">{t("camErrDeniedHint", lang)}</p>
-              )}
+              {errDenied && <p className="text-xs leading-snug text-white/55">{t("camErrDeniedHint", lang)}</p>}
             </div>
             <Button variant="gold" onClick={() => go({ name: "allSigns", signId: sign.id })}>
               {t("stBrowseSigns", lang)}
@@ -894,7 +878,10 @@ export function CameraTrainer({
         {/* looking frame + scan line (Block D-looking) — shown while the camera runs
             but no hand is seen yet. Pointer-none decoration; never mirrors. */}
         {mode === "grade" && tracker.status === "running" && !matched && !tracker.handVisible && (
-          <div className="pointer-events-none absolute inset-0 z-[6] flex items-center justify-center" aria-hidden="true">
+          <div
+            className="pointer-events-none absolute inset-0 z-[6] flex items-center justify-center"
+            aria-hidden="true"
+          >
             <style>{"@keyframes loopScan{0%{top:10%}100%{top:80%}}"}</style>
             <div className="relative h-3/5 w-1/2">
               <div
@@ -1035,9 +1022,7 @@ export function CameraTrainer({
             <div className="animate-pop-in flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-gold bg-white/20 p-2 backdrop-blur-md">
               {referenceChip("text-7xl")}
             </div>
-            <p className="animate-rise font-display text-xl font-extrabold text-paper">
-              {t("camStillTricky", lang)}
-            </p>
+            <p className="animate-rise font-display text-xl font-extrabold text-paper">{t("camStillTricky", lang)}</p>
           </div>
         )}
 
@@ -1049,10 +1034,7 @@ export function CameraTrainer({
               className="animate-pop-in relative flex h-24 w-24 items-center justify-center rounded-full bg-teal"
               style={{ boxShadow: "0 10px 26px rgba(15,110,106,.35)" }}
             >
-              <span
-                className="animate-pulse-ring absolute inset-0 rounded-full"
-                aria-hidden="true"
-              />
+              <span className="animate-pulse-ring absolute inset-0 rounded-full" aria-hidden="true" />
               <span
                 aria-hidden="true"
                 style={{
@@ -1066,9 +1048,7 @@ export function CameraTrainer({
                 }}
               />
             </span>
-            <p className="animate-rise font-display text-2xl font-extrabold text-paper">
-              {t("camMatch", lang)}
-            </p>
+            <p className="animate-rise font-display text-2xl font-extrabold text-paper">{t("camMatch", lang)}</p>
             {/* M2: honest sub-line — the dataset model didn't confirm this; the
                 learner's own recording did. Kept celebratory (never-hard-fail). */}
             {ownRecordingMatch && (

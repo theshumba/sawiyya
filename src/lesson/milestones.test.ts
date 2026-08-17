@@ -8,10 +8,7 @@ import type { AppState } from "../store/app";
 const SEEDED = ALPHABET.filter((l) => l.cameraGradable); // the 28
 const EDGE = ALPHABET.filter((l) => !l.cameraGradable); // ة / لا / ال
 
-function fakeState(opts: {
-  roles: ("deaf" | "parent")[];
-  masteredIds: string[];
-}): { s: AppState; pid: string } {
+function fakeState(opts: { roles: ("deaf" | "parent")[]; masteredIds: string[] }): { s: AppState; pid: string } {
   const profiles = opts.roles.map((role, i) => ({
     id: `p${i}`,
     displayName: `P${i}`,
@@ -73,10 +70,7 @@ describe("milestone ladder (Step-6 fleet findings)", () => {
     // must NOT fire: three real letters are still unlearned.
     const { s, pid } = fakeState({
       roles: ["deaf"],
-      masteredIds: [
-        ...SEEDED.slice(0, 25).map((l) => l.id),
-        ...EDGE.map((l) => l.id),
-      ],
+      masteredIds: [...SEEDED.slice(0, 25).map((l) => l.id), ...EDGE.map((l) => l.id)],
     });
     const ms = nextMilestone(s, pid, "en");
     expect(ms!.label).toMatch(/alphabet/i);

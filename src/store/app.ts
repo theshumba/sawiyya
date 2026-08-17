@@ -275,8 +275,11 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           // import with role "boss" / language "xx" used to NaN the goal ring
           // and blank every t() label.
           role:
-            pr.role === "parent" || pr.role === "sibling" || pr.role === "teacher" ||
-            pr.role === "friend" || pr.role === "deaf"
+            pr.role === "parent" ||
+            pr.role === "sibling" ||
+            pr.role === "teacher" ||
+            pr.role === "friend" ||
+            pr.role === "deaf"
               ? pr.role
               : "parent",
           emoji: typeof pr.emoji === "string" ? pr.emoji : AVATARS[0],
@@ -295,14 +298,12 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
           activeDays: Array.isArray(pr.activeDays)
             ? pr.activeDays.filter((d): d is string => typeof d === "string")
             : [],
-          dailyGoal:
-            pr.dailyGoal === "casual" || pr.dailyGoal === "serious" ? pr.dailyGoal : "regular",
+          dailyGoal: pr.dailyGoal === "casual" || pr.dailyGoal === "serious" ? pr.dailyGoal : "regular",
           // Added in Phase 2. A blob written before these existed answered
           // neither question, so it backfills to "no answer" — an empty
           // practiseDays makes Home stay silent rather than claim a commitment
           // the learner never made.
-          priorSigning:
-            pr.priorSigning === "some" || pr.priorSigning === "fluent" ? pr.priorSigning : "none",
+          priorSigning: pr.priorSigning === "some" || pr.priorSigning === "fluent" ? pr.priorSigning : "none",
           practiseDays: Array.isArray(pr.practiseDays)
             ? [...new Set(pr.practiseDays.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))]
             : [],
@@ -336,10 +337,8 @@ function normalizePersisted(persisted: unknown, current: AppState): AppState {
   // silently corrupts the honesty counters forever after.
   const m = isRecord(p.metrics) ? (p.metrics as Partial<Metrics>) : {};
   const metrics: Metrics = {
-    appFirstOpenAt:
-      typeof m.appFirstOpenAt === "string" ? m.appFirstOpenAt : current.metrics.appFirstOpenAt,
-    firstSignMs:
-      typeof m.firstSignMs === "number" && Number.isFinite(m.firstSignMs) ? m.firstSignMs : null,
+    appFirstOpenAt: typeof m.appFirstOpenAt === "string" ? m.appFirstOpenAt : current.metrics.appFirstOpenAt,
+    firstSignMs: typeof m.firstSignMs === "number" && Number.isFinite(m.firstSignMs) ? m.firstSignMs : null,
     drillsCompleted: finiteOr(m.drillsCompleted, 0),
     cameraAttempts: finiteOr(m.cameraAttempts, 0),
     cameraMatches: finiteOr(m.cameraMatches, 0),
@@ -422,9 +421,7 @@ function normalizeJourney(
   let out = emptyJourney;
   if (evidence.metrics.cameraAttempts > 0) out = withStep(out, "first-sign");
   if (evidence.metrics.lessonsCompleted > 0) out = withStep(out, "first-lesson");
-  const reviewed = Object.values(evidence.srs).some((cards) =>
-    Object.values(cards).some((c) => c.reps >= 2),
-  );
+  const reviewed = Object.values(evidence.srs).some((cards) => Object.values(cards).some((c) => c.reps >= 2));
   if (reviewed) out = withStep(out, "first-review");
   if (evidence.flags.length > 0) out = withStep(out, "first-flag");
   if (anyUnitFinished(evidence.progress)) out = withStep(out, "first-unit");
@@ -447,15 +444,7 @@ export const useApp = create<AppState>()(
       // only just opened (plan point 9). Hints are NOT seeded — see coldStartSeen.
       journey: { ...emptyJourney, seen: coldStartSeen() },
 
-      createProfile: ({
-        displayName,
-        role,
-        dominantHand,
-        language,
-        dailyGoal,
-        priorSigning,
-        practiseDays,
-      }) => {
+      createProfile: ({ displayName, role, dominantHand, language, dailyGoal, priorSigning, practiseDays }) => {
         const id = uid("p");
         const emoji = AVATARS[get().profiles.length % AVATARS.length];
         const profile: Profile = {
@@ -505,18 +494,13 @@ export const useApp = create<AppState>()(
           delete srs[id];
           const flags = s.flags
             .filter((f) => f.raisedByProfileId !== id)
-            .map((f) =>
-              f.supporters.includes(id)
-                ? { ...f, supporters: f.supporters.filter((x) => x !== id) }
-                : f,
-            );
+            .map((f) => (f.supporters.includes(id) ? { ...f, supporters: f.supporters.filter((x) => x !== id) } : f));
           return {
             profiles,
             progress,
             srs,
             flags,
-            activeProfileId:
-              s.activeProfileId === id ? (profiles[0]?.id ?? null) : s.activeProfileId,
+            activeProfileId: s.activeProfileId === id ? (profiles[0]?.id ?? null) : s.activeProfileId,
           };
         }),
 
@@ -548,16 +532,8 @@ export const useApp = create<AppState>()(
           const prev = prevP?.masteryLevel ?? 0;
           const cameraHits = (prevP?.cameraHits ?? 0) + (opts.camera && opts.matched ? 1 : 0);
           const mastered =
-            ratedCard !== null &&
-            ratedCard.state === FSRS_STATE_REVIEW &&
-            ratedCard.stability >= 2 &&
-            cameraHits >= 2;
-          const mastery =
-            opts.watch || outcome === "again"
-              ? Math.max(prev, 1)
-              : mastered
-                ? 3
-                : Math.max(prev, 2);
+            ratedCard !== null && ratedCard.state === FSRS_STATE_REVIEW && ratedCard.stability >= 2 && cameraHits >= 2;
+          const mastery = opts.watch || outcome === "again" ? Math.max(prev, 1) : mastered ? 3 : Math.max(prev, 2);
           profileProg[signId] = {
             masteryLevel: mastery,
             lastSeen: new Date().toISOString(),
@@ -570,14 +546,8 @@ export const useApp = create<AppState>()(
           const profiles = s.profiles.map((p) => {
             if (p.id !== activeProfileId) return p;
             const newDay = p.lastActiveDay !== today;
-            const streak = newDay
-              ? p.lastActiveDay === yesterday
-                ? p.streak + 1
-                : 1
-              : p.streak;
-            const activeDays = newDay
-              ? [...p.activeDays, today].slice(-90)
-              : p.activeDays;
+            const streak = newDay ? (p.lastActiveDay === yesterday ? p.streak + 1 : 1) : p.streak;
+            const activeDays = newDay ? [...p.activeDays, today].slice(-90) : p.activeDays;
             return {
               ...p,
               xp: p.xp + xpGain,
@@ -625,16 +595,11 @@ export const useApp = create<AppState>()(
           //    in state as history, out of the queues and Home pins.
           const flags = s.flags.map((f) => {
             if (f.signId !== signId || !f.active || f.archived) return f;
-            const learners = s.profiles.filter(
-              (p) => p.id !== f.raisedByProfileId && p.role !== "deaf",
-            );
+            const learners = s.profiles.filter((p) => p.id !== f.raisedByProfileId && p.role !== "deaf");
             const done =
               learners.length > 0 &&
               learners.every((p) => {
-                const lvl =
-                  p.id === activeProfileId
-                    ? mastery
-                    : (s.progress[p.id]?.[signId]?.masteryLevel ?? 0);
+                const lvl = p.id === activeProfileId ? mastery : (s.progress[p.id]?.[signId]?.masteryLevel ?? 0);
                 return lvl >= 2;
               });
             return done ? { ...f, archived: true } : f;
@@ -690,21 +655,16 @@ export const useApp = create<AppState>()(
             // Anyone else tapping an already-flagged sign is a CO-REQUEST —
             // added to supporters, never a silent toggle-off of the Deaf
             // member's curriculum.
-            const canDeactivate =
-              existing.raisedByProfileId === byProfileId || by?.role === "deaf";
+            const canDeactivate = existing.raisedByProfileId === byProfileId || by?.role === "deaf";
             if (canDeactivate) {
               return {
-                flags: s.flags.map((f) =>
-                  f.id === existing.id ? { ...f, active: false } : f,
-                ),
+                flags: s.flags.map((f) => (f.id === existing.id ? { ...f, active: false } : f)),
               };
             }
             if (existing.supporters.includes(byProfileId)) return s;
             return {
               flags: s.flags.map((f) =>
-                f.id === existing.id
-                  ? { ...f, supporters: [...f.supporters, byProfileId] }
-                  : f,
+                f.id === existing.id ? { ...f, supporters: [...f.supporters, byProfileId] } : f,
               ),
             };
           }
@@ -713,14 +673,9 @@ export const useApp = create<AppState>()(
           // the flag archives (and celebrates into the honeycomb) immediately —
           // the drill-completion check alone would leave such a flag pinned
           // forever, since nobody needs to re-drill a mastered sign.
-          const learners = s.profiles.filter(
-            (p) => p.id !== byProfileId && p.role !== "deaf",
-          );
+          const learners = s.profiles.filter((p) => p.id !== byProfileId && p.role !== "deaf");
           const alreadyDone =
-            learners.length > 0 &&
-            learners.every(
-              (p) => (s.progress[p.id]?.[signId]?.masteryLevel ?? 0) >= 2,
-            );
+            learners.length > 0 && learners.every((p) => (s.progress[p.id]?.[signId]?.masteryLevel ?? 0) >= 2);
 
           const flag: Flag = {
             id: uid("flag"),
@@ -789,9 +744,7 @@ export const useApp = create<AppState>()(
       clearFlags: (byProfileId) =>
         set((s) => ({
           flags: s.flags.map((f) =>
-            f.active && !f.archived && f.raisedByProfileId === byProfileId
-              ? { ...f, active: false }
-              : f,
+            f.active && !f.archived && f.raisedByProfileId === byProfileId ? { ...f, active: false } : f,
           ),
         })),
 
@@ -815,9 +768,7 @@ export const useApp = create<AppState>()(
 
       ackHint: (id, rev) =>
         set((s) =>
-          s.journey.seen[id] === rev
-            ? s
-            : { journey: { ...s.journey, seen: { ...s.journey.seen, [id]: rev } } },
+          s.journey.seen[id] === rev ? s : { journey: { ...s.journey, seen: { ...s.journey.seen, [id]: rev } } },
         ),
     }),
     {
@@ -827,8 +778,7 @@ export const useApp = create<AppState>()(
       // persisted shape changes; identity for now so today's blobs are v1.
       version: 1,
       migrate: (persistedState) => persistedState as AppState,
-      merge: (persistedState, currentState) =>
-        normalizePersisted(persistedState, currentState),
+      merge: (persistedState, currentState) => normalizePersisted(persistedState, currentState),
     },
   ),
 );
@@ -878,9 +828,7 @@ export function xpTodayFor(p: Profile): number {
  * profile was active today or yesterday.
  */
 export function streakFor(p: Profile): number {
-  return p.lastActiveDay === todayKey() || p.lastActiveDay === yesterdayKey()
-    ? p.streak
-    : 0;
+  return p.lastActiveDay === todayKey() || p.lastActiveDay === yesterdayKey() ? p.streak : 0;
 }
 
 /**
@@ -905,7 +853,10 @@ export function nextNewLetterId(s: AppState, profileId: string): string | null {
 
 /** Live flags, newest first (PRD §6.7) — archived flags are history, not queue. */
 export function activeFlags(s: AppState): Flag[] {
-  return s.flags.filter((f) => f.active && !f.archived).slice().reverse();
+  return s.flags
+    .filter((f) => f.active && !f.archived)
+    .slice()
+    .reverse();
 }
 
 /** Due SRS cards for a profile — flagged signs jump the queue (PRD §6.6). */
@@ -936,12 +887,13 @@ export function pinnedFlagSigns(s: AppState, profileId: string): Flag[] {
 export function signsAllCanDo(s: AppState): string[] {
   const hearing = s.profiles.filter((p) => p.role !== "deaf");
   if (hearing.length === 0) return [];
-  const sets = hearing.map((p) =>
-    new Set(
-      Object.entries(s.progress[p.id] ?? {})
-        .filter(([, pr]) => pr.masteryLevel >= 3)
-        .map(([signId]) => signId),
-    ),
+  const sets = hearing.map(
+    (p) =>
+      new Set(
+        Object.entries(s.progress[p.id] ?? {})
+          .filter(([, pr]) => pr.masteryLevel >= 3)
+          .map(([signId]) => signId),
+      ),
   );
   const [first, ...rest] = sets;
   const mastered = [...first].filter((id) => rest.every((set) => set.has(id)));

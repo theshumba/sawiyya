@@ -11,14 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DrillSpec, Sign } from "../types";
 
 // Content-only imports (no store) — safe at module scope.
-import {
-  ALPHABET,
-  LESSONS,
-  UNITS,
-  UNIT_ALPHA,
-  fingerspellSequence,
-  signById,
-} from "../content/signs";
+import { ALPHABET, LESSONS, UNITS, UNIT_ALPHA, fingerspellSequence, signById } from "../content/signs";
 
 const SEEDED = ALPHABET.filter((l) => l.cameraGradable); // the 28
 const ALPHA_LESSONS = LESSONS.filter((l) => l.unitId === "alpha-u1");
@@ -48,8 +41,7 @@ function doDrill(S: Sim, d: DrillSpec) {
   else rec(d.signId, "good");
 }
 
-const masteryOf = (S: Sim, id: string) =>
-  S.useApp.getState().progress[S.pid]?.[id]?.masteryLevel ?? 0;
+const masteryOf = (S: Sim, id: string) => S.useApp.getState().progress[S.pid]?.[id]?.masteryLevel ?? 0;
 
 /** Run one full queue pass of a lesson; returns the queue that was played. */
 function playPass(S: Sim, lessonId: string): DrillSpec[] {
@@ -153,19 +145,12 @@ describe("fingerspellSequence (M6)", () => {
       { kind: "letter", char: "ا", signId: "alpha-alif" },
       { kind: "letter", char: "م", signId: "alpha-meem" },
     ]);
-    for (const s of steps)
-      expect(signById((s as { signId: string }).signId)?.cameraGradable).toBe(true);
+    for (const s of steps) expect(signById((s as { signId: string }).signId)?.cameraGradable).toBe(true);
   });
 
   it("folds hamza/final variants onto their base handshape", () => {
-    const ids = fingerspellSequence("أإآٱؤئى").map((s) =>
-      s.kind === "letter" ? s.signId : s.char,
-    );
-    expect(ids).toEqual([
-      "alpha-alif", "alpha-alif", "alpha-alif", "alpha-alif",
-      "alpha-waw",
-      "alpha-ya", "alpha-ya",
-    ]);
+    const ids = fingerspellSequence("أإآٱؤئى").map((s) => (s.kind === "letter" ? s.signId : s.char));
+    expect(ids).toEqual(["alpha-alif", "alpha-alif", "alpha-alif", "alpha-alif", "alpha-waw", "alpha-ya", "alpha-ya"]);
   });
 
   it("ة is a reference-only letter step — mapped, but not gradable", () => {
@@ -200,8 +185,16 @@ describe("visual-gated recognise (H23)", () => {
     // A1 words were the only ones and they were removed. The gate still has to
     // work, because it is what will hold the line when words come back.
     const unsourced: Sign = {
-      id: "not-shipped", tier: "A1", glossEn: "x", glossAr: "س", emoji: "🤟",
-      hintEn: "x", hintAr: "س", type: "dynamic", cameraGradable: false, hands: 1,
+      id: "not-shipped",
+      tier: "A1",
+      glossEn: "x",
+      glossAr: "س",
+      emoji: "🤟",
+      hintEn: "x",
+      hintAr: "س",
+      type: "dynamic",
+      cameraGradable: false,
+      hands: 1,
     };
     expect(S.hasVisual(unsourced)).toBe(false);
     const filmed: Sign = { ...unsourced, media: { type: "video", src: "signs/x.webm" } };

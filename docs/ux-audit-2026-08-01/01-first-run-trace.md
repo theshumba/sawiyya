@@ -61,6 +61,7 @@ outcome. It is on screen for well under a second.
 ### Step 1 · Splash (`step === "splash"`, `Onboarding.tsx:272-284`)
 
 **Sees**, exact strings:
+
 - `obWelcomeTitle`: `"Teach the world to sign."` / `"علّم العالم الإشارة."` (`i18n.ts:244`)
 - `obWelcomeBody`: `"Learn to sign and connect with someone who can’t hear you — as equals."` (`i18n.ts:245`)
 - CTA `obWelcomeCta`: `"Get started"` / `"لنبدأ"` (`i18n.ts:246`, wired `Onboarding.tsx:192`)
@@ -82,6 +83,7 @@ alphabet first, or how long anything takes.
 ### Step 2 · Meet Fanan (`Onboarding.tsx:287-298`)
 
 **Sees**:
+
 - `obFananEyebrow`: `"Meet your guide"` (`i18n.ts:247`)
 - `obFananTitle`: `"Hi, I’m Fanan!"` (`i18n.ts:248`)
 - `obFananBody`: `"I’ll cheer you on, catch your signs, and never let you learn alone."` (`i18n.ts:249`)
@@ -102,6 +104,7 @@ state), so the mascot is doing real work later, but nothing connects the two.
 ### Step 3 · Language (`Onboarding.tsx:301-335`)
 
 **Sees**:
+
 - `obLangTitle`: `"Choose your language"` (`i18n.ts:251`)
 - `obLangBody`: `"You can switch anytime in settings."` (`i18n.ts:252`)
 - Two chips: `"English" / "Left-to-right"` (`i18n.ts:253-254`), `"العربية" / "من اليمين لليسار"` (`i18n.ts:255-256`)
@@ -129,6 +132,7 @@ string to an Arabic reader.
 
 **Sees**, and note these are **hardcoded `pick()` literals, not i18n keys**
 (`Onboarding.tsx:341`, `344-348`, `371`, `374`, `378`, `397`, `400`, `404`, `420`, `423`):
+
 - Title: `"What do you want to learn?"` / `"ماذا تريد أن تتعلّم؟"`
 - Sub: `"Qatari Sign Language, start here on your device."`
 - Card 1: `"Arabic Alphabet"` + badge `"Ready"` + `"28 core letters, camera-graded"`
@@ -144,6 +148,7 @@ and the Continue button does something different from both.
 lands you in a dictionary rather than a lesson, or that Continue gives you a guided first sign.
 
 **Silently assumed, all unexplained**:
+
 - `"camera-graded"` (`Onboarding.tsx:378`). First appearance of the core mechanic, as a four-word
   sub-label on a card. Never defined.
 - `"Teach & practise"` (`Onboarding.tsx:404`). "Teach" here means teach-mode, the flow where you
@@ -157,6 +162,7 @@ lands you in a dictionary rather than a lesson, or that Continue gives you a gui
 **Exact moment a first-timer is lost, and what they do wrong**: **here**. Most people tap the
 big teal "Arabic Alphabet · Ready" card, because it is the only element with a positive-state
 badge. That single tap:
+
 1. discards the camera explainer they were about to be shown (step 6 below),
 2. discards the on-device privacy statement,
 3. discards the daily-goal question, leaving the hardcoded default `"regular"`
@@ -268,6 +274,7 @@ with `autoStart={cameraLive}` where `cameraLive` initialises to `autoStart`
 in-app sentence preceding it, because the screen that would have explained it (step 6) was skipped.
 
 **What is on screen behind that dialog** (`CameraPractice.tsx:113-192`):
+
 - A back arrow that goes to `practiseChooser` (`CameraPractice.tsx:122`), a screen the user has
   never seen
 - Title `camPractice`: `"Practise the alphabet"` (`i18n.ts:89`)
@@ -278,6 +285,7 @@ in-app sentence preceding it, because the screen that would have explained it (s
   `AppNav.tsx:26-40`)
 
 **And inside `CameraTrainer` (`CameraTrainer.tsx:533-752`)**:
+
 - Eyebrow `"Current Goal"` / `"هدفك الآن"` (hardcoded, `CameraTrainer.tsx:527`)
 - `camSign` + target: `"Sign: ا"` (`i18n.ts:54`, `CameraTrainer.tsx:540-542`)
 - `loopKindLetter`: `"Arabic letter · static handshape"` (`i18n.ts:288`)
@@ -327,6 +335,7 @@ route there. It routes to the dictionary. The user asked for a practice room and
 `App.tsx:161-165`, `FirstSign.tsx:62-292`.
 
 **Phase "watch" (2/4)** (`FirstSign.tsx:242-259`):
+
 - `fsIntro`: `"Let's learn the first thing you'll say:"` (`i18n.ts:43`)
 - `fsDemoTitle`: `"Watch it once"` (`i18n.ts:209`)
 - `fsDemoSub`: `"A real signer's hand (ArSL21L dataset)"` (`i18n.ts:210`)
@@ -343,12 +352,14 @@ first-timer expecting to learn "hello" or "I love you" gets the letter A.
 unreadable.
 
 **Phase "try" (3/4)** (`FirstSign.tsx:260-272`):
+
 - `fsLiveTitle`: `"Now make the sign"` (`i18n.ts:213`)
 - `fsLiveSub`: `"The camera is grading you live"` (`i18n.ts:214`)
 - Then the same `CameraTrainer` described in 10-A, with `autoStart` (`FirstSign.tsx:269`), so the
   permission prompt fires here too, but at least after a sentence that named the camera.
 
 **Phase "celebrate" (4/4)** (`FirstSign.tsx:120-228`):
+
 - `"وصلت!"` on its own line plus `fsCelebrate` `"Connection made!"` (`i18n.ts:46`,
   `FirstSign.tsx:179-183`)
 - A gold chip `"+10 XP"` on a real camera match, `"+4 XP"` on a self-mark
@@ -373,6 +384,7 @@ All three tracks converge here eventually (`Home.tsx:58-768`, `ScreenShell chrom
 `Home.tsx:328`).
 
 **Sees, top to bottom**:
+
 1. Teal bar: `"Marhaba, {name}"` (`Home.tsx:341-343`), `homeGreetSub` `"Ready to sign today?"`
    (`i18n.ts:218`)
 2. **Three unlabelled coloured dots with numbers** (`Home.tsx:177-199`): a coral dot with
@@ -443,7 +455,7 @@ App.tsx's <main>"`).
 So on every track the tab bar appears for the first time, fully formed, with zero introduction, on
 the screen immediately after the name step.
 
-**Worse for the alphabet track**: the tab bar's first appearance is *simultaneous with* the browser
+**Worse for the alphabet track**: the tab bar's first appearance is _simultaneous with_ the browser
 camera permission dialog (`CameraPractice.tsx:48` → `CameraTrainer.tsx:374-377` →
 `useHandTracker.ts:131`).
 
@@ -476,19 +488,19 @@ not an introduction.
 Everything is present from launch. Concretely, the following are all reachable within one or two
 taps of the first landing and none is ever introduced:
 
-| Concept | Where it first appears | Ever explained? |
-|---|---|---|
-| XP | `FirstSign.tsx:150-157`, `Home.tsx:186-190` | No. `i18n.ts:161` defines `xp` as the string `"XP"`. |
-| Streak | `FirstSign.tsx:159-164`, `Home.tsx:179-184` | No. |
-| Mastery levels 1/2/3 | `app.ts:424-443`; surfaced as `pathDoneMeta` `"Practised · tap to review"` vs `prMastered` `"signs mastered"` | No. `i18n.ts:230-232` comment shows the team knew these two words collide. |
-| SRS review | `homeReviewDue` `"Review due"` (`i18n.ts:117`), `practiseReview` (`i18n.ts:316`) | No. Never says items come back on a schedule. |
-| Daily review cap of 30 | `reviewCapDone` (`i18n.ts:80`) | Only when you hit it. |
-| Camera grading | `obCamBody` (`i18n.ts:259`), **skipped on the fast path** | Once, on a screen many users never see. |
-| Teach mode | `camTeach` `"Teach Sawiyya this sign"` (`i18n.ts:83`), `camResetClass` `"Re-teach"` (`i18n.ts:94`) | `camTeachSub` (`i18n.ts:84`) explains the mechanic but not why a learner would want it. |
-| Fingerspell | `fspHomeCard` `"Spell your name"` (`i18n.ts:410`) on Home from the first visit | `fspSubtitle` (`i18n.ts:395`) explains it only after you tap in. |
-| Flag a sign | `homeFlagged` `"Flagged for your family"` (`i18n.ts:116`), `famFlagTitle` `"Flag signs we need"` (`i18n.ts:129`) | No. "Flag" is never defined. `famOnlyDeafFlags` (`i18n.ts:135`) assumes you already know. |
-| Dialect | `"Other Gulf dialects … coming soon"` (`Onboarding.tsx:420-424`), `PractiseChooser.tsx:172-184` | No. Never says which dialect you are currently learning beyond "Qatari". |
-| Milestone / treasure chest | `Home.tsx:399`, `Home.tsx:603-619` | `pathChestMeta` `"Clear Unit 1 to open the reward chest."` (`i18n.ts:234`) is the only line, and `Home.tsx:154-157` overrides the sheet meta with a bare `"0 / 1"`. |
+| Concept                    | Where it first appears                                                                                           | Ever explained?                                                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| XP                         | `FirstSign.tsx:150-157`, `Home.tsx:186-190`                                                                      | No. `i18n.ts:161` defines `xp` as the string `"XP"`.                                                                                                                |
+| Streak                     | `FirstSign.tsx:159-164`, `Home.tsx:179-184`                                                                      | No.                                                                                                                                                                 |
+| Mastery levels 1/2/3       | `app.ts:424-443`; surfaced as `pathDoneMeta` `"Practised · tap to review"` vs `prMastered` `"signs mastered"`    | No. `i18n.ts:230-232` comment shows the team knew these two words collide.                                                                                          |
+| SRS review                 | `homeReviewDue` `"Review due"` (`i18n.ts:117`), `practiseReview` (`i18n.ts:316`)                                 | No. Never says items come back on a schedule.                                                                                                                       |
+| Daily review cap of 30     | `reviewCapDone` (`i18n.ts:80`)                                                                                   | Only when you hit it.                                                                                                                                               |
+| Camera grading             | `obCamBody` (`i18n.ts:259`), **skipped on the fast path**                                                        | Once, on a screen many users never see.                                                                                                                             |
+| Teach mode                 | `camTeach` `"Teach Sawiyya this sign"` (`i18n.ts:83`), `camResetClass` `"Re-teach"` (`i18n.ts:94`)               | `camTeachSub` (`i18n.ts:84`) explains the mechanic but not why a learner would want it.                                                                             |
+| Fingerspell                | `fspHomeCard` `"Spell your name"` (`i18n.ts:410`) on Home from the first visit                                   | `fspSubtitle` (`i18n.ts:395`) explains it only after you tap in.                                                                                                    |
+| Flag a sign                | `homeFlagged` `"Flagged for your family"` (`i18n.ts:116`), `famFlagTitle` `"Flag signs we need"` (`i18n.ts:129`) | No. "Flag" is never defined. `famOnlyDeafFlags` (`i18n.ts:135`) assumes you already know.                                                                           |
+| Dialect                    | `"Other Gulf dialects … coming soon"` (`Onboarding.tsx:420-424`), `PractiseChooser.tsx:172-184`                  | No. Never says which dialect you are currently learning beyond "Qatari".                                                                                            |
+| Milestone / treasure chest | `Home.tsx:399`, `Home.tsx:603-619`                                                                               | `pathChestMeta` `"Clear Unit 1 to open the reward chest."` (`i18n.ts:234`) is the only line, and `Home.tsx:154-157` overrides the sheet meta with a bare `"0 / 1"`. |
 
 ### Q4. What is the "aha moment", and how far away is it?
 
@@ -499,11 +511,11 @@ that moment is proof.
 
 **Distance to it, by track:**
 
-| Track | Taps to aha | Confusion in between |
-|---|---|---|
-| Alphabet (fast path) | 6: `Get started`, `Nice to meet you`, language chip, Alphabet card, name Continue, browser `Allow`. Then hold the shape for ~1.2s (`holdGate.ts` `HOLD_MS`, referenced `CameraTrainer.tsx:24`, `336`). | Highest. The permission prompt arrives with no preceding sentence. On arrival: 31 letter chips, a 4-tab bar, a "Camera confidence" percentage in the largest type on screen, a "Re-teach" link, and a self-mark button, all unexplained. |
-| Continue-through | 11: 9 onboarding taps, `Now you try`, browser `Allow`. | Lowest. `fsDemoTitle` → `fsNowYou` is a real two-beat tutorial, and step 6 primed the camera. But `"Let's learn the first thing you'll say"` then teaches the letter Alif. |
-| Everyday signs | Never reaches it. All 19 A1 word signs are `cameraGradable: false` (`signs.ts:94-159`). `CameraTrainer` renders `signRefOnlyNote` `"Reference only, no camera grading"` (`i18n.ts:504`) instead of a meter (`CameraTrainer.tsx:671-680`, gate at `CameraTrainer.tsx:443`). The only completion available is `camSelfMark` `"I signed it right"`. | Total. The user picked the friendlier-sounding card and got the one path where the app's core proof never fires. |
+| Track                | Taps to aha                                                                                                                                                                                                                                                                                                                                      | Confusion in between                                                                                                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alphabet (fast path) | 6: `Get started`, `Nice to meet you`, language chip, Alphabet card, name Continue, browser `Allow`. Then hold the shape for ~1.2s (`holdGate.ts` `HOLD_MS`, referenced `CameraTrainer.tsx:24`, `336`).                                                                                                                                           | Highest. The permission prompt arrives with no preceding sentence. On arrival: 31 letter chips, a 4-tab bar, a "Camera confidence" percentage in the largest type on screen, a "Re-teach" link, and a self-mark button, all unexplained. |
+| Continue-through     | 11: 9 onboarding taps, `Now you try`, browser `Allow`.                                                                                                                                                                                                                                                                                           | Lowest. `fsDemoTitle` → `fsNowYou` is a real two-beat tutorial, and step 6 primed the camera. But `"Let's learn the first thing you'll say"` then teaches the letter Alif.                                                               |
+| Everyday signs       | Never reaches it. All 19 A1 word signs are `cameraGradable: false` (`signs.ts:94-159`). `CameraTrainer` renders `signRefOnlyNote` `"Reference only, no camera grading"` (`i18n.ts:504`) instead of a meter (`CameraTrainer.tsx:671-680`, gate at `CameraTrainer.tsx:443`). The only completion available is `camSelfMark` `"I signed it right"`. | Total. The user picked the friendlier-sounding card and got the one path where the app's core proof never fires.                                                                                                                         |
 
 **The core learnability failure in one sentence**: the app's proof-of-value is a camera confirming
 your hand, and the fastest route to it removes every sentence that would have told you a camera was

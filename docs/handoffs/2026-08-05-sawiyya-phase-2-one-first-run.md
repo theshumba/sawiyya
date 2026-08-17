@@ -34,6 +34,7 @@ the priority, stage derived and never stored, and hints in empty states rather t
 120 lines, no new dependency. It is unblocked by every open question below.
 
 **Open questions:**
+
 - **The 19 A1 word signs are `cameraGradable: false`** — watchable, never practisable, no
   real-signer footage. Phase 2 deleted the route that pretended they were a track but did not solve
   them. Now the oldest open question in the project. Either shrink the promise to an honest Arabic
@@ -51,6 +52,7 @@ the priority, stage derived and never stored, and hints in empty states rather t
 ## Reasoning trail
 
 **Decisions made:**
+
 - **All four Phase 1 smoke failures were harness faults, not app faults** — each surface was
   verified working by hand in the same run. The first sign is Alif not "I love you" (Phase 1 put the
   alphabet at the head of `LESSONS`); the locked deep-link step failed on its SECOND wait because
@@ -64,7 +66,7 @@ the priority, stage derived and never stored, and hints in empty states rather t
   will recur: compare lowercased whenever an assertion touches an eyebrow, badge, or chip.
 - **A green harness on this repo means nothing until proven against the previous build.** Done for
   both phases via `git worktree add --detach <scratch> <sha>`, symlink `node_modules`, `npx vite
-  build`, serve, run. Every Phase 1 check failed on `72abafe` and every Phase 2 check failed on
+build`, serve, run. Every Phase 1 check failed on `72abafe` and every Phase 2 check failed on
   `c8b8d66`, while the steps that are not phase gates still passed.
 - **Phase 2's three questions replace the branching, they do not add to it.** The daily goal folded
   onto the days screen because both answer the same commitment question, so the run gained a
@@ -83,6 +85,7 @@ the priority, stage derived and never stored, and hints in empty states rather t
   exactly one flag.
 
 **Tried and rejected:**
+
 - **A second throwaway script to verify the singular renders.** The smoke test already stands on
   that exact screen with exactly one flag, so the assertion belongs there. The standalone script was
   also flaky and was deleted.
@@ -123,18 +126,20 @@ the priority, stage derived and never stored, and hints in empty states rather t
 - The reminder `.ics` was downloaded and read rather than inferred from the code:
   `RRULE:FREQ=WEEKLY;BYDAY=MO,TH` after picking Monday and Thursday.
 - Serving a build: `cd dist && python3 -m http.server 4173`. `vite preview --outDir <absolute path
-  outside root>` serves nothing.
+outside root>` serves nothing.
 
 ## Git state snapshot
 
 **Branch:** `feat/phase-2-one-first-run`
 
 **Status:**
+
 ```
 (clean)
 ```
 
 **Recent commits:**
+
 ```
 9ab4347 feat(onboarding): Phase 2 — one first run
 c8b8d66 fix(smoke): close Phase 1's gate — the four failing steps were the harness
@@ -149,6 +154,7 @@ c27bbc8 fix: 130-defect coherence pass, the seams between screens
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes)
 ```

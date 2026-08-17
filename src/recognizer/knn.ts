@@ -277,8 +277,7 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
   const gated = meanTopD <= DISTANCE_GATE;
   const targetShare = (weights.get(targetId) ?? 0) / total;
   const margin = (bestW - secondW) / total;
-  const matched =
-    gated && bestClass === targetId && targetShare >= TAU && margin >= MARGIN_GATE;
+  const matched = gated && bestClass === targetId && targetShare >= TAU && margin >= MARGIN_GATE;
 
   // Surface the target's share (zeroed when not credible) so the meter tracks the
   // learner's progress toward *this* sign, never a competing class.
@@ -301,4 +300,4 @@ export function classifyAgainst(vec: number[], targetId: string): TargetClassifi
 // Lowered from 0.85 — with tilt no longer inflating distances, a correctly-shaped
 // hand earns a clear vote share, so the floor can favour the learner without
 // raising false-accepts (winner + 0.15 margin gates still apply).
-export const TAU = 0.70;
+export const TAU = 0.7;

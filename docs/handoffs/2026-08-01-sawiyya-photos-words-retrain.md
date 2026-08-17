@@ -26,6 +26,7 @@ status: in-progress
 **Exact next step:** Owner-gated — nothing code-side is in flight. When Melusi delivers the 19 word clips (kit: `docs/RECORD-WORD-SIGNS.md`), drop them in `public/signs/<id>.webm` and add `media: { type: "video", src: "signs/<id>.webm", signer: "reference" }` per sign in `src/content/signs.ts` (recognise drills upgrade automatically via `hasVisual`).
 
 **Open questions:**
+
 - Does the LANDING repo (`~/Desktop/Projects/sawiyya-landing`, separate from this app repo) still quote pre-retrain accuracy claims (~97-99%)? Not checked this session — worth a grep before anyone cites numbers.
 - Old owner ledger still open: wife's Arabic proofread (docs/ARABIC-PROOFREAD.md grew three sections this session), live phone `?debug` camera test, H17 mirror decision.
 
@@ -35,7 +36,7 @@ status: in-progress
 
 **Decisions made** (commit bodies carry the rest — these are the ones you'd otherwise re-derive):
 
-- **Photo selection scored against the model's own mean shapes** (normalize.ts frame, min over both mirrors) — guarantees the displayed photo and the camera grader agree, and it *empirically settled the dataset label trap*: ArSL21L's `yaa` = ي (d 0.17), its `ya` is NOT (d 1.05, nearest lam); `taa`=ط, `dha`=ظ, `toot`=ة, `haa`=ح, `ha`=ه. Map lives in `tools/extract-seeds/arsl21l_labels.json`.
+- **Photo selection scored against the model's own mean shapes** (normalize.ts frame, min over both mirrors) — guarantees the displayed photo and the camera grader agree, and it _empirically settled the dataset label trap_: ArSL21L's `yaa` = ي (d 0.17), its `ya` is NOT (d 1.05, nearest lam); `taa`=ط, `dha`=ظ, `toot`=ة, `haa`=ح, `ha`=ه. Map lives in `tools/extract-seeds/arsl21l_labels.json`.
 - **Chirality snap before any cross-dataset number** — 3,532/4,480 ArSL21L samples are mirror captures (no handedness column); each sample keeps the reflection nearer its Zenodo class centroid. Without it the cross-dataset baseline reads a fake 21% instead of the true 67%.
 - **Coach FINGER_MIN 0.24, not 0.26** — 0.26 (p92) was tried first and is too deaf: a fully-curled-finger miss produces ~0.25. 0.24 = correct-hand p90 AND catches the canonical miss; the direction gate (0.17) is the second filter.
 - **Single blended coach mean, not per-population variants** — measured: own-population worst-finger p90 is still 0.206 (ArSL21L is inherently noisy), so variants don't restore old precision; not worth the schema change.
@@ -43,11 +44,13 @@ status: in-progress
 - **Words self-mark rates `'hard'`** (H2: nothing confirmed it) — words cap at mastery 2 by design; the M4 camera gate is untouched.
 
 **Tried and rejected:**
+
 - **Any shippable word-sign video source** — KArSL / Jumla / research corpora are all research-only or NC; recording is the only legal path. Do not re-propose dataset video for words.
 - **AI-generated hand illustrations for words** — fails the honesty bar (app previously retired an AI "signer" photo); text-instruction stage instead.
 - **Centering the Words dialog with `-translate-x/y-1/2`** — `animate-rise` keyframes pin `transform` (fill both) and silently cancel translate utilities; flex-centred wrapper is the pattern.
 
 **Session gotchas a fresh agent will hit (not in commit messages):**
+
 - **Vite tree-shakes unused JSON fields** — `sourceAccs`/`testAcc` never reach bundles; to verify a live model, grep a weight's digit run (e.g. from `alphabet-model.json` W1[0][0]) in the served chunk.
 - **Icon font is SUBSETTED** (public/fonts/SOURCES.md) — a new `Icon name` renders as raw text; reuse existing glyph names.
 - **CI runs FRESH tsc** — `node:fs` imports in test files pass locally (incremental cache) but fail CI; use `import.meta.glob`.
@@ -70,11 +73,13 @@ status: in-progress
 **Branch:** `main`
 
 **Status:**
+
 ```
 (clean)
 ```
 
 **Recent commits:**
+
 ```
 46f0cee fix(words): the demo stage now TEACHES footage-less word signs
 fbf8afa feat: coach re-derivation for the blended corpus + practice-flow polish
@@ -89,6 +94,7 @@ cd9b180 fix(words): desktop sheet hung half off-screen — flex-centred dialog w
 ```
 
 **Diff stat:**
+
 ```
 (no unstaged changes)
 ```

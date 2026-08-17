@@ -67,9 +67,7 @@ describe("ErrorBoundary (H12)", () => {
         </ErrorBoundary>,
       );
     });
-    const retry = [...container.querySelectorAll("button")].find((b) =>
-      b.textContent?.includes("Try again"),
-    );
+    const retry = [...container.querySelectorAll("button")].find((b) => b.textContent?.includes("Try again"));
     expect(retry).toBeDefined();
     shouldThrow = false;
     act(() => retry!.click());

@@ -1,12 +1,5 @@
 // FSRS wrapper (PRD §6.6) — ts-fsrs with Date↔ISO serialisation for localStorage.
-import {
-  createEmptyCard,
-  fsrs,
-  generatorParameters,
-  Rating,
-  type Card,
-  type Grade,
-} from "ts-fsrs";
+import { createEmptyCard, fsrs, generatorParameters, Rating, type Card, type Grade } from "ts-fsrs";
 import type { StoredCard } from "../types";
 
 const f = fsrs(generatorParameters({ enable_fuzz: true }));

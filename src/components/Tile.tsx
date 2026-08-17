@@ -41,9 +41,7 @@ export function Chip({
       className={`relative inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl border-2 px-4 py-2.5 font-display font-bold transition active:scale-[.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${tone} ${className}`}
     >
       {children}
-      {state === "trained" && !selected && (
-        <Icon name="star" fill className="text-sm text-gold" />
-      )}
+      {state === "trained" && !selected && <Icon name="star" fill className="text-sm text-gold" />}
     </button>
   );
 }

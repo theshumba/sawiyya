@@ -4,8 +4,7 @@
 // returned ref to the dialog's outer panel (not the backdrop).
 import { useEffect, useRef } from "react";
 
-const FOCUSABLE =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => void) {
   const ref = useRef<T | null>(null);
@@ -22,11 +21,7 @@ export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => v
     const node = ref.current;
 
     const focusables = () =>
-      node
-        ? Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-            (el) => el.offsetParent !== null,
-          )
-        : [];
+      node ? Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null) : [];
     (focusables()[0] ?? node)?.focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
