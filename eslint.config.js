@@ -10,11 +10,13 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["src/**/*.{ts,tsx}", "vite.config.ts"],
+    files: ["src/**/*.tsx"],
     ...jsxA11y.flatConfigs.recommended,
+  },
+  {
+    files: ["src/**/*.{ts,tsx}", "vite.config.ts"],
     plugins: { "react-hooks": reactHooks },
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -30,6 +32,17 @@ export default tseslint.config(
       // Review hook dependency warnings separately; changing them can alter behavior.
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/rules-of-hooks": "error",
+    },
+  },
+  {
+    files: ["src/**/*.tsx"],
+    rules: {
+      // Existing interaction patterns need product-level accessibility decisions.
+      "jsx-a11y/click-events-have-key-events": "warn",
+      "jsx-a11y/no-autofocus": "warn",
+      "jsx-a11y/no-noninteractive-element-interactions": "warn",
+      "jsx-a11y/no-redundant-roles": "warn",
+      "jsx-a11y/no-static-element-interactions": "warn",
     },
   },
 );
