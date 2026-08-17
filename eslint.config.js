@@ -11,19 +11,25 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ["src/**/*.{ts,tsx}", "vite.config.ts"],
-    plugins: {
-      "jsx-a11y": jsxA11y,
-      "react-hooks": reactHooks,
-    },
+    ...jsxA11y.flatConfigs.recommended,
+    plugins: { "react-hooks": reactHooks },
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      // The TypeScript-aware rule replaces the base rule for typed files.
       "no-unused-vars": "off",
+      // This regex intentionally groups combining marks for Arabic text.
       "no-misleading-character-class": "off",
+      // Review hook dependency warnings separately; changing them can alter behavior.
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/rules-of-hooks": "error",
-      "jsx-a11y/alt-text": "error",
-      "jsx-a11y/anchor-is-valid": "off",
     },
   },
 );

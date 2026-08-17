@@ -26,18 +26,22 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
       - run: npx playwright install --with-deps chromium
       - run: npm run verify
       - run: npm run lint
       - run: npm run format:check
-      - name: Serve the production build
+      - name: Serve the production build and run smoke checks
         run: |
-          npm run serve -- --host 127.0.0.1 --port 5173 > /tmp/sawiyya-preview.log 2>&1 &
+          npm run serve -- --host localhost --port 5173 > /tmp/sawiyya-preview.log 2>&1 &
           for attempt in $(seq 1 30); do
-            curl --fail --silent http://127.0.0.1:5173/ > /dev/null && exit 0
+            curl --fail --silent http://localhost:5173/ > /dev/null && break
             sleep 1
           done
-          cat /tmp/sawiyya-preview.log
-          exit 1
-      - run: npm run smoke
+          if ! curl --fail --silent http://localhost:5173/ > /dev/null; then
+            cat /tmp/sawiyya-preview.log
+            exit 1
+          fi
+          npm run smoke
       - run: npm run verify:grading

@@ -70,10 +70,7 @@ await step("there is no track to choose: language leads straight to the question
   const txt = await bodyText();
   assert(!txt.includes("What do you want to learn"), "the track chooser is back");
   assert(!txt.includes("Everyday signs"), "the words track is back");
-  assert(
-    !txt.includes("signs that matter most"),
-    "the persona step still promises a curriculum it does not branch",
-  );
+  assert(!txt.includes("signs that matter most"), "the persona step still promises a curriculum it does not branch");
   // The Deaf option's badge said "Special Path". No path is special now — what
   // it really carries is the directing role, which is what it must say.
   // The badge is CSS-uppercased, and innerText reports RENDERED text — compare
@@ -122,10 +119,7 @@ await step("name → the camera is explained, THEN the browser is asked", async 
   await page.fill("input", "Noora");
   await primary().click(); // name → camera explainer (terminal step)
   await page.waitForSelector("text=Sign it to the camera", { timeout: 10000 });
-  assert(
-    (await bodyText()).includes("never leaves your phone"),
-    "the camera step lost its on-device sentence",
-  );
+  assert((await bodyText()).includes("never leaves your phone"), "the camera step lost its on-device sentence");
 });
 
 await step("everyone lands on the same first sign", async () => {
@@ -135,10 +129,7 @@ await step("everyone lands on the same first sign", async () => {
   // Anchor on the demo step's own title and on the fact that the caption
   // resolved a gloss at all, so reordering content cannot disarm the step.
   await page.waitForSelector("text=Watch it once", { timeout: 10000 });
-  assert(
-    (await bodyText()).includes("This sign means"),
-    "the demo caption never resolved a gloss",
-  );
+  assert((await bodyText()).includes("This sign means"), "the demo caption never resolved a gloss");
 });
 
 await step("first sign: camera UI degrades gracefully with no camera", async () => {
@@ -161,10 +152,7 @@ await step("the practise-days answer is written back onto Home", async () => {
   // Today was picked during setup, so the greeting has to say so instead of
   // falling back to the generic line. This is the whole point of asking.
   const txt = await bodyText();
-  assert(
-    txt.includes("Today is one of your practice days"),
-    "Home ignored the days the learner picked during setup",
-  );
+  assert(txt.includes("Today is one of your practice days"), "Home ignored the days the learner picked during setup");
   assert(!txt.includes("Ready to sign today?"), "Home fell back to the generic greeting");
 });
 
@@ -251,11 +239,9 @@ await step("deep-linking a locked lesson is refused, with a way forward", async 
   await page.click("text=Go to your lesson");
   // It lands on the CURRENT lesson, whichever that is. Naming the id here would
   // re-couple the harness to content order — the thing that rotted it last time.
-  await page.waitForFunction(
-    () => location.hash.startsWith("#/lesson/") && !location.hash.includes("a1-u1-l1"),
-    null,
-    { timeout: 10000 },
-  );
+  await page.waitForFunction(() => location.hash.startsWith("#/lesson/") && !location.hash.includes("a1-u1-l1"), null, {
+    timeout: 10000,
+  });
   // "Player is running" = one of its drill affordances is on screen. Which one
   // depends on the drill type: the alphabet opens on a camera drill, not a
   // watch card, so waiting for "A new sign" only ever passed by luck.
@@ -315,10 +301,7 @@ await step("lesson end card → home", async () => {
   // part-done card says "Back home", the completed one says "Continue". Both
   // route to Home. Naming only one of them is what made this step pass only for
   // the ending the loop happened to stop on.
-  await page
-    .locator("button:has-text('Back home'), button:has-text('Continue')")
-    .last()
-    .click();
+  await page.locator("button:has-text('Back home'), button:has-text('Continue')").last().click();
   await page.waitForSelector("text=Marhaba");
 });
 
@@ -329,10 +312,7 @@ await step("the empty family board carries this session's one hint", async () =>
   // Phase 1 regression that had not happened.
   await tab("Family").click();
   await page.waitForSelector("text=Your household");
-  assert(
-    (await bodyText()).includes("camera-checked twice"),
-    "the empty family board carries no hint",
-  );
+  assert((await bodyText()).includes("camera-checked twice"), "the empty family board carries no hint");
 });
 
 // ── Phase 1: the family request is the one card, and it sits on top ──────────
@@ -401,10 +381,7 @@ await step("settings: the permission status is a status, and rows are unique", a
   await page.goto(`${BASE}#/settings`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("text=Camera permission");
   const txt = await bodyText();
-  assert(
-    (txt.match(/Manage profiles/g) ?? []).length === 1,
-    "the duplicate Manage profiles row is back",
-  );
+  assert((txt.match(/Manage profiles/g) ?? []).length === 1, "the duplicate Manage profiles row is back");
   assert(!txt.includes("Privacy policy"), "the duplicate Privacy row is back");
   const statusButton = page.locator("button", { hasText: "Not granted yet" });
   assert((await statusButton.count()) === 0, "the permission STATUS is still a button");
@@ -435,15 +412,11 @@ await step("the getting-started ladder reports what actually happened", async ()
   }
   // Two steps this run really did, and the row state has to say so — sr-only
   // text is what carries done/next/later to anyone not looking at the tick.
-  const rowState = async (label) =>
-    (await page.locator("li", { hasText: label }).first().innerText()).toLowerCase();
+  const rowState = async (label) => (await page.locator("li", { hasText: label }).first().innerText()).toLowerCase();
   assert((await rowState("Sign your first letter")).includes("done"), "the first sign is not ticked");
   assert((await rowState("Ask for a sign")).includes("done"), "the raised flag is not ticked");
   // …and one it did not. Nothing installed this browser, so nothing may claim it.
-  assert(
-    !(await rowState("Keep your progress")).includes("done"),
-    "the ladder claims an install that never happened",
-  );
+  assert(!(await rowState("Keep your progress")).includes("done"), "the ladder claims an install that never happened");
 });
 
 await step("install offers written steps when the browser has no install prompt", async () => {
@@ -475,10 +448,7 @@ await step("a hint the learner has already met does not come back", async () => 
   await tab("Family").click(); // in-app, so the launch-screen rule is not what's acting
   await page.waitForSelector("text=Your household");
   const txt = await bodyText();
-  assert(
-    txt.includes("it appears here"),
-    "the shared board is no longer empty, so this step proves nothing",
-  );
+  assert(txt.includes("it appears here"), "the shared board is no longer empty, so this step proves nothing");
   assert(!txt.includes("camera-checked twice"), "a hint the learner already met came back");
 });
 
@@ -489,10 +459,7 @@ await step("Home names the trail out loud, not just to screen readers", async ()
   const title = page.locator("#trail-title");
   assert((await title.count()) === 1, "the trail has no visible heading");
   assert((await title.innerText()).trim() === "Learn", "the trail's heading is not the tab's own word");
-  assert(
-    (await bodyText()).includes("Your road, one lesson at a time"),
-    "the trail does not say what it is",
-  );
+  assert((await bodyText()).includes("Your road, one lesson at a time"), "the trail does not say what it is");
 });
 
 await step("Progress has a door that is not hidden behind the avatar", async () => {
@@ -536,10 +503,7 @@ await step("the dictionary answers to ONE name", async () => {
   assert((await tab("Dictionary").count()) === 1, "the tab does not carry the screen's own name");
   // The instruction used to live in a `hidden md:block` aside, so on a phone —
   // the only shape this app really ships in — nothing said what a card does.
-  assert(
-    txt.includes("Tap a sign to see how it's made"),
-    "the dictionary gives a phone no instruction",
-  );
+  assert(txt.includes("Tap a sign to see how it's made"), "the dictionary gives a phone no instruction");
 });
 
 // 2026-08-05 · the 19 word signs were ASL-adapted and never verified as Qatari,

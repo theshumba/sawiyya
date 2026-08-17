@@ -33,15 +33,28 @@ const FIXTURE = join(ROOT, "src/recognizer/fixtures/reference-landmarks.json");
  *  well under the worst of them so normal model drift doesn't cry wolf. */
 const MIN_CONFIDENCE = 0.4;
 
-const TYPES = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json", ".wasm": "application/wasm", ".webp": "image/webp", ".task": "application/octet-stream" };
+const TYPES = {
+  ".html": "text/html",
+  ".mjs": "text/javascript",
+  ".js": "text/javascript",
+  ".json": "application/json",
+  ".wasm": "application/wasm",
+  ".webp": "image/webp",
+  ".task": "application/octet-stream",
+};
 
 const server = createServer(async (req, res) => {
   const path = join(ROOT, decodeURIComponent(req.url.split("?")[0]));
-  if (!path.startsWith(ROOT) || !existsSync(path)) { res.writeHead(404).end("no"); return; }
+  if (!path.startsWith(ROOT) || !existsSync(path)) {
+    res.writeHead(404).end("no");
+    return;
+  }
   try {
     res.writeHead(200, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" });
     res.end(await readFile(path));
-  } catch { res.writeHead(500).end("err"); }
+  } catch {
+    res.writeHead(500).end("err");
+  }
 });
 await new Promise((r) => server.listen(0, r));
 const PORT = server.address().port;
@@ -107,14 +120,22 @@ await page.route("**/__run.html", (r) => r.fulfill({ contentType: "text/html", b
 const fatal = [];
 page.on("pageerror", (e) => fatal.push(String(e).split("\n")[0]));
 await page.goto(`http://localhost:${PORT}/__run.html`, { waitUntil: "domcontentloaded" });
-await page.waitForFunction(() => document.title === "DONE", null, { timeout: 180000 }).catch(() => fatal.push("the grading run never finished"));
+await page
+  .waitForFunction(() => document.title === "DONE", null, { timeout: 180000 })
+  .catch(() => fatal.push("the grading run never finished"));
 
 const results = JSON.parse((await page.evaluate(() => window.__RESULTS)) ?? "[]");
 await browser.close();
 server.close();
 
-if (fatal.length) { for (const f of fatal) console.error("FATAL:", f); process.exit(1); }
-if (!results.length) { console.error("FATAL: no letters were graded at all"); process.exit(1); }
+if (fatal.length) {
+  for (const f of fatal) console.error("FATAL:", f);
+  process.exit(1);
+}
+if (!results.length) {
+  console.error("FATAL: no letters were graded at all");
+  process.exit(1);
+}
 
 const bad = results.filter((r) => r.error || !r.matched || r.confidence < MIN_CONFIDENCE);
 console.log(`Grading the app's own ${results.length} reference photos through the live pipeline:\n`);
@@ -122,7 +143,9 @@ for (const r of results) {
   const ok = !r.error && r.matched && r.confidence >= MIN_CONFIDENCE;
   console.log(
     `  ${ok ? "ok  " : "FAIL"}  ${r.id.replace("alpha-", "").padEnd(7)}`,
-    r.error ? r.error : `${(r.confidence * 100).toFixed(0).padStart(3)}%  seedD ${r.seedD.toFixed(3)}  (MediaPipe said ${r.hand})`,
+    r.error
+      ? r.error
+      : `${(r.confidence * 100).toFixed(0).padStart(3)}%  seedD ${r.seedD.toFixed(3)}  (MediaPipe said ${r.hand})`,
   );
 }
 
