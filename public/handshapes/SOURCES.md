@@ -12,9 +12,10 @@ One real signer photo per Arabic letter (28 seeded letters + the 3 edge forms
 - **Normalisation:** the photos are landmark-framed, background-removed cutouts
   on transparent 384×384 canvases at a uniform hand scale. Orientation is never
   altered because direction is part of the sign. `alpha-laa.webp` remains the
-  original photo because no hand was detected in the source; `alpha-meem.webp`
-  remains the original photo because the hand could not be reliably detected
-  after masking.
+  original photo because no hand was detected in the source, and
+  `alpha-meem.webp` remains the original photo because the hand could not be
+  reliably detected after masking. `alpha-ra.webp` also remains the original
+  photo because the in-app grading guard could not recognise its cutout.
 - **Selection:** for each letter, candidates were scored by (a) distance of
   their MediaPipe landmarks — normalised exactly like `src/recognizer/
 normalize.ts` — to that letter's mean shape in `src/recognizer/seeds/
