@@ -41,6 +41,7 @@ import { toLocaleDigits, formatPercent } from "../components/dc";
 import { SignGlyph } from "../components/SignGlyph";
 import { HintNote, JourneyLadder } from "../components/Journey";
 import { useHint } from "../journey/hints";
+import { stageOf } from "../journey/journey";
 import { useDialog } from "../components/useDialog";
 import type { Lang, Metrics, Sign } from "../types";
 
@@ -157,6 +158,7 @@ export function Progress() {
 
   const reviewCount = due.length;
   const reviewCapped = reviewsTodayFor(profile) >= REVIEW_DAILY_CAP;
+  const hasJourney = stageOf(new Set(app.journey.steps), new Set(app.journey.dismissed)) !== "settled";
   // Review opens the real 10-card session (H3) — mixed drills, daily cap, and a
   // drain path for non-gradable due signs — not a single camera sign.
   const startReview = () => go({ name: "lesson", lessonId: "review" });
@@ -170,7 +172,13 @@ export function Progress() {
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-4 md:px-6 lg:max-w-5xl">
         <p className="text-[13px] leading-[1.35] text-muted">{t("prReadoutSub", lang)}</p>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-x-10">
+        <div
+          className={
+            hasJourney
+              ? "grid gap-6 lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-x-10"
+              : "space-y-6"
+          }
+        >
           {/* Phase 3 · the full ladder as a readout. Home shows at most one row of
               it; this is where "how far along am I" is a fair question to answer.
               Renders nothing once every step is behind the learner. */}
