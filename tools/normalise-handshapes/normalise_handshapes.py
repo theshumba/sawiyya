@@ -70,17 +70,20 @@ ALPHA_FLOOR, ALPHA_CEIL = 110, 190  # partial alpha below/above these becomes fu
 
 DEFAULT_MATTING = "u2net"
 # The grading guard settles these per-letter choices, rather than aesthetic review alone.
-# This table records the model tried for letters with a selected variant or an intentional
-# original-photo fallback; unlisted letters use the default u2net model.
+# This table records only letters that ship with a non-default matting model.
 MATTING_BY_STEM = {
-    "alpha-laa": "u2net",
-    "alpha-meem": "u2net",
     "alpha-dad": "isnet-general-use",
-    "alpha-dal": "u2net",
-    "alpha-ghain": "u2net",
-    "alpha-ra": "isnet-general-use",
     "alpha-sad": "isnet-general-use",
     "alpha-waw": "isnet-general-use",
+}
+# These source photos are protected from replacement on every rerun:
+# alpha-laa has no hand in the source, alpha-meem has no hand after masking,
+# and alpha-ra's cutout was rejected by the in-app grading guard.
+KEEPS_ORIGINAL = frozenset({"alpha-laa", "alpha-meem", "alpha-ra"})
+ORIGINAL_REASONS = {
+    "alpha-laa": "no hand found in the source photo",
+    "alpha-meem": "the landmarker cannot find the hand after masking",
+    "alpha-ra": "the cutout was rejected by the in-app grading guard",
 }
 
 
@@ -221,6 +224,11 @@ def main() -> None:
 
     report: dict[str, dict] = {}
     for path in sorted(args.src.glob("*.webp")):
+        if path.stem in KEEPS_ORIGINAL:
+            detail = {"status": "original", "reason": ORIGINAL_REASONS[path.stem]}
+            report[path.name] = detail
+            print(f"{path.name:20} {detail['status']:8} {detail['reason']}")
+            continue
         matting = args.matting_model or MATTING_BY_STEM.get(path.stem, DEFAULT_MATTING)
         session = sessions.setdefault(matting, new_session(matting))
         image, detail = normalise(path, landmarker, session)
@@ -231,8 +239,13 @@ def main() -> None:
         report[path.name] = detail
         print(f"{path.name:20} {detail['status']:6} {detail.get('reason', '')}")
 
-    failed = [name for name, d in report.items() if d["status"] != "ok"]
-    print(f"\n{len(report) - len(failed)}/{len(report)} normalised; failed: {failed or 'none'}")
+    kept = [name for name, d in report.items() if d["status"] == "original"]
+    failed = [name for name, d in report.items() if d["status"] == "failed"]
+    normalised = sum(d["status"] == "ok" for d in report.values())
+    print(
+        f"\n{normalised}/{len(report)} normalised; "
+        f"kept original: {kept or 'none'}; failed: {failed or 'none'}"
+    )
     if args.report:
         args.report.write_text(json.dumps(report, indent=2) + "\n")
 

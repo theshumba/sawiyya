@@ -12,14 +12,27 @@ python3 -m venv .venv-signs
 .venv-signs/bin/pip install mediapipe rembg onnxruntime pillow numpy opencv-python
 ```
 
-From the repository root, regenerate the assets with:
+The pipeline consumes the **original ArSL21L dataset crops**, not the already
+normalised files currently in `public/handshapes`. The repository's
+pre-normalisation commit is `2c836fbb5cc6ae698c874ac9ab6df67d706352a1`.
+Extract its original WebP crops into a scratch directory, then run the
+pipeline from the repository root:
 
 ```bash
+ORIGINAL_COMMIT=2c836fbb5cc6ae698c874ac9ab6df67d706352a1
+ORIGINAL_DIR=/tmp/sawiyya-original-handshapes
+mkdir -p "$ORIGINAL_DIR"
+git ls-tree -r --name-only "$ORIGINAL_COMMIT" public/handshapes/ |
+  grep '\.webp$' |
+  while read -r path; do
+    git show "$ORIGINAL_COMMIT:$path" > "$ORIGINAL_DIR/${path##*/}"
+  done
+
 .venv-signs/bin/python tools/normalise-handshapes/normalise_handshapes.py \
-  --src public/handshapes \
+  --src "$ORIGINAL_DIR" \
   --out public/handshapes \
   --model public/mediapipe/hand_landmarker.task \
-  --report normfinal-report.json
+  --report /tmp/normalise-handshapes-report.json
 ```
 
 The normalisation report intentionally leaves `alpha-laa.webp`,
