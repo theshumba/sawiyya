@@ -703,7 +703,7 @@ export function CameraTrainer({
       {/* Block E · mascot strip — Fanan reacts per phase (never mirrors). The tail
           corner mirrors in RTL (14 14 14 3 → 14 14 3 14). */}
       <div className="flex items-end gap-3 pt-1">
-        <div className="h-16 w-16 shrink-0">
+        <div className="h-[65px] w-[66px] shrink-0">
           <Fanan pose={pose} scale={0.55} />
         </div>
         <div
@@ -763,10 +763,10 @@ export function CameraTrainer({
       </span>
 
       {/* ONE reflowing prompt banner — top on mobile, top of the panel on desktop. */}
-      <div className="md:order-2">{promptBanner}</div>
+      <div className="order-2 md:order-2">{promptBanner}</div>
 
       {/* camera viewport — dark teal-ink rounded stage (left column on desktop) */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[620px] md:rounded-3xl">
+      <div className="order-1 relative aspect-[4/5] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[620px] md:rounded-3xl">
         <video
           ref={tracker.videoRef}
           autoPlay

@@ -79,42 +79,42 @@ export function AppNav({ lang }: { lang: Lang }) {
           between items and useDialog only handles Tab and Escape. This is the
           same L11 call the codebase already made in AllSigns and Progress —
           announce the pattern the keyboard actually implements. */}
-        <div
-          ref={menuRef}
-          role="dialog"
-          aria-label={t("navProfile", lang)}
-          tabIndex={-1}
-          className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
-        >
-          {profile && (
-            <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-              <Avatar emoji={profile.emoji} />
-              <span className="min-w-0">
-                <span className="block truncate font-display text-[15px] font-extrabold text-ink">
-                  <bdi>{profile.displayName}</bdi>
-                </span>
-                <span className="block text-xs font-medium text-muted">{t("navProfile", lang)}</span>
+      <div
+        ref={menuRef}
+        role="dialog"
+        aria-label={t("navProfile", lang)}
+        tabIndex={-1}
+        className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-0 lg:start-full lg:top-auto lg:mb-0 lg:ms-3"
+      >
+        {profile && (
+          <div className="flex items-center gap-3 border-b border-line px-4 py-3">
+            <Avatar emoji={profile.emoji} />
+            <span className="min-w-0">
+              <span className="block truncate font-display text-[15px] font-extrabold text-ink">
+                <bdi>{profile.displayName}</bdi>
               </span>
-            </div>
-          )}
-          {[
-            { name: "progress" as const, icon: "monitoring", label: t("navProgress", lang) },
-            { name: "settings" as const, icon: "settings", label: t("setTitle", lang) },
-          ].map((it) => (
-            <button
-              key={it.name}
-              type="button"
-              onClick={() => {
-                go({ name: it.name });
-                setMenuOpen(false);
-              }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-start font-display text-[15px] font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
-            >
-              <Icon name={it.icon} className="text-xl text-teal" />
-              {it.label}
-            </button>
-          ))}
-        </div>
+              <span className="block text-xs font-medium text-muted">{t("navProfile", lang)}</span>
+            </span>
+          </div>
+        )}
+        {[
+          { name: "progress" as const, icon: "monitoring", label: t("navProgress", lang) },
+          { name: "settings" as const, icon: "settings", label: t("setTitle", lang) },
+        ].map((it) => (
+          <button
+            key={it.name}
+            type="button"
+            onClick={() => {
+              go({ name: it.name });
+              setMenuOpen(false);
+            }}
+            className="flex w-full items-center gap-3 px-4 py-3 text-start font-display text-[15px] font-semibold text-ink transition hover:bg-teal/5 focus-visible:outline-none focus-visible:bg-teal/5"
+          >
+            <Icon name={it.icon} className="text-xl text-teal" />
+            {it.label}
+          </button>
+        ))}
+      </div>
       </>
     );
 

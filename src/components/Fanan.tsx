@@ -31,15 +31,21 @@ export function Fanan({ pose = "idle", scale = 1, className = "" }: FananProps) 
   const raisePaw = pose === "wave" || pose === "celebrate";
 
   const wrapStyle: CSSProperties = {
-    transform: `scale(${scale})`,
-    transformOrigin: "center bottom",
-    width: "120px",
-    height: "118px",
+    width: `${120 * scale}px`,
+    height: `${118 * scale}px`,
   };
 
   return (
     <div className={className} style={wrapStyle}>
-      <div style={{ position: "relative", width: "120px", height: "118px" }}>
+      <div
+        style={{
+          position: "relative",
+          width: "120px",
+          height: "118px",
+          transform: `scale(${scale})`,
+          transformOrigin: "center bottom",
+        }}
+      >
         {/* ears */}
         <div
           style={{
