@@ -22,7 +22,8 @@ From the repository root, regenerate the assets with:
   --report normfinal-report.json
 ```
 
-The normalisation report intentionally leaves `alpha-laa.webp` and
-`alpha-meem.webp` as their original source photos: the first has no detectable
-hand in the source, and the second could not be reliably detected after
-masking.
+The normalisation report intentionally leaves `alpha-laa.webp`,
+`alpha-meem.webp`, and `alpha-ra.webp` as their original source photos. The
+first has no detectable hand in the source, the second could not be reliably
+detected after masking, and the third's cutout was not recognised by the
+in-app grading guard.

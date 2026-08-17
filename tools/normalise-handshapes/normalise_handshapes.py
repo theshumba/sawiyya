@@ -69,14 +69,17 @@ ALPHA_FLOOR, ALPHA_CEIL = 110, 190  # partial alpha below/above these becomes fu
 #                                     which reads as grey haze once the card shows through
 
 DEFAULT_MATTING = "u2net"
-# Neither matting model wins everywhere and the difference is only visible to the eye, so
-# the exceptions are recorded per letter rather than guessed at: isnet cuts a cuff or a
-# blurred wrist away more cleanly, but on some photos it swallows the handshape itself
-# (noon collapses into a featureless blob), which would teach the wrong sign.
+# The grading guard settles these per-letter choices, rather than aesthetic review alone.
+# This table records the model tried for letters with a selected variant or an intentional
+# original-photo fallback; unlisted letters use the default u2net model.
 MATTING_BY_STEM = {
+    "alpha-laa": "u2net",
+    "alpha-meem": "u2net",
     "alpha-dad": "isnet-general-use",
-    "alpha-dal": "isnet-general-use",
-    "alpha-ghain": "isnet-general-use",
+    "alpha-dal": "u2net",
+    "alpha-ghain": "u2net",
+    "alpha-ra": "isnet-general-use",
+    "alpha-sad": "isnet-general-use",
     "alpha-waw": "isnet-general-use",
 }
 
