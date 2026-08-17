@@ -9,6 +9,12 @@ One real signer photo per Arabic letter (28 seeded letters + the 3 edge forms
 - **License:** CC BY 4.0 (verified on the Mendeley dataset page, 2026-07-31).
   Attribution is shown in-app on the AI transparency page; images are modified
   (cropped square to the labelled hand bounding box, resized to 384px, WebP).
+- **Normalisation:** the photos are landmark-framed, background-removed cutouts
+  on transparent 384×384 canvases at a uniform hand scale. Orientation is never
+  altered because direction is part of the sign. `alpha-laa.webp` remains the
+  original photo because no hand was detected in the source; `alpha-meem.webp`
+  remains the original photo because the hand could not be reliably detected
+  after masking.
 - **Selection:** for each letter, candidates were scored by (a) distance of
   their MediaPipe landmarks — normalised exactly like `src/recognizer/
 normalize.ts` — to that letter's mean shape in `src/recognizer/seeds/
