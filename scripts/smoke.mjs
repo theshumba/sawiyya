@@ -312,7 +312,15 @@ await step("the empty family board carries this session's one hint", async () =>
   // Phase 1 regression that had not happened.
   await tab("Family").click();
   await page.waitForSelector("text=Your household");
-  assert((await bodyText()).includes("camera-checked twice"), "the empty family board carries no hint");
+  // Hint copy arrives one commit after mount: useHint claims in an effect and
+  // sets the text after "Your household" has painted, so an instant body read
+  // races the paint. Wait for the copy, but keep a bounded failure when it
+  // genuinely never arrives.
+  try {
+    await page.getByText("camera-checked twice", { exact: false }).first().waitFor({ state: "visible", timeout: 3000 });
+  } catch {
+    throw new Error("the empty family board hint did not appear within 3000ms");
+  }
 });
 
 // ── Phase 1: the family request is the one card, and it sits on top ──────────
@@ -447,6 +455,9 @@ await step("a hint the learner has already met does not come back", async () => 
   await page.waitForSelector("text=Marhaba");
   await tab("Family").click(); // in-app, so the launch-screen rule is not what's acting
   await page.waitForSelector("text=Your household");
+  // The same one-commit effect applies here; let the mounted screen settle
+  // before proving that the already-acknowledged hint stayed away.
+  await page.waitForTimeout(600);
   const txt = await bodyText();
   assert(txt.includes("it appears here"), "the shared board is no longer empty, so this step proves nothing");
   assert(!txt.includes("camera-checked twice"), "a hint the learner already met came back");
