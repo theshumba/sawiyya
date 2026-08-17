@@ -19,11 +19,10 @@
 // normaliser change, and pass --write-fixture to refresh the frozen copy.
 //
 // Usage:  node scripts/verify-grading.mjs [--write-fixture]
-import { chromium } from "playwright-core";
+import { chromium, executablePath } from "./browser.mjs";
 import { createServer } from "http";
 import { readFile, writeFile } from "fs/promises";
-import { readdirSync, existsSync } from "fs";
-import { homedir } from "os";
+import { existsSync } from "fs";
 import { join, extname } from "path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
@@ -102,9 +101,7 @@ window.__RESULTS = JSON.stringify(results);
 document.title = "DONE";
 </script>`;
 
-const cacheDir = join(homedir(), "Library/Caches/ms-playwright");
-const shellDir = readdirSync(cacheDir).filter((d) => d.startsWith("chromium_headless_shell-")).sort().at(-1);
-const browser = await chromium.launch({ executablePath: join(cacheDir, shellDir, "chrome-headless-shell-mac-arm64/chrome-headless-shell") });
+const browser = await chromium.launch({ executablePath });
 const page = await browser.newPage();
 await page.route("**/__run.html", (r) => r.fulfill({ contentType: "text/html", body: PAGE }));
 const fatal = [];

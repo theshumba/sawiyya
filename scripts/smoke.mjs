@@ -14,22 +14,9 @@
 // itself. Whether a real phone hands back a usable stream is the one genuinely
 // on-device part. Grading is covered by `npm run verify:grading` (real MediaPipe
 // over the 28 reference photos) and by normalize.test.ts in CI.
-import { chromium } from "playwright-core";
-import { homedir } from "os";
-import { readdirSync } from "fs";
-import { join } from "path";
+import { chromium, executablePath } from "./browser.mjs";
 
 const BASE = process.env.SMOKE_URL ?? "http://localhost:5173/";
-const cacheDir = join(homedir(), "Library/Caches/ms-playwright");
-const shell = readdirSync(cacheDir)
-  .filter((d) => d.startsWith("chromium_headless_shell-"))
-  .sort()
-  .at(-1);
-const executablePath = join(
-  cacheDir,
-  shell,
-  "chrome-headless-shell-mac-arm64/chrome-headless-shell",
-);
 
 const browser = await chromium.launch({ executablePath });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
