@@ -703,7 +703,7 @@ export function CameraTrainer({
       {/* Block E · mascot strip — Fanan reacts per phase (never mirrors). The tail
           corner mirrors in RTL (14 14 14 3 → 14 14 3 14). */}
       <div className="flex items-end gap-3 pt-1">
-        <div className="h-[65px] w-[66px] shrink-0">
+        <div className="shrink-0">
           <Fanan pose={pose} scale={0.55} />
         </div>
         <div
@@ -762,11 +762,11 @@ export function CameraTrainer({
         {liveMessage}
       </span>
 
-      {/* ONE reflowing prompt banner — top on mobile, top of the panel on desktop. */}
-      <div className="order-2 md:order-2">{promptBanner}</div>
+      {/* ONE reflowing prompt banner — beneath the viewport on mobile; top of the panel on desktop. */}
+      <div className="order-2">{promptBanner}</div>
 
       {/* camera viewport — dark teal-ink rounded stage (left column on desktop) */}
-      <div className="order-1 relative aspect-[4/5] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:order-1 md:row-span-2 md:aspect-auto md:min-h-[620px] md:rounded-3xl">
+      <div className="order-1 relative aspect-[4/5] w-full overflow-hidden rounded-bowl border-4 border-white/10 bg-teal-ink shadow-chunky md:row-span-2 md:aspect-auto md:min-h-[620px] md:rounded-3xl">
         <video
           ref={tracker.videoRef}
           autoPlay
@@ -1073,11 +1073,9 @@ export function CameraTrainer({
         )}
       </div>
 
-      {/* Controls — one block, no twin. Flows under the viewport on mobile;
-          sits beneath the banner in the right column on desktop. The `contents`
-          wrapper keeps the children flat in the mobile flex column; at md+ it
-          becomes a real panel pinned to grid row 2 / col 2. */}
-      <div className="contents md:order-3 md:flex md:flex-col md:gap-5 md:rounded-3xl md:bg-paper/60 md:p-6 md:shadow-soft">
+      {/* Controls — one block, no twin. They follow the banner on mobile;
+          on desktop they sit beneath it in the right column. */}
+      <div className="order-3 flex flex-col gap-5 md:flex md:rounded-3xl md:bg-paper/60 md:p-6 md:shadow-soft">
         {controls}
       </div>
     </div>
