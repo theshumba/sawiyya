@@ -6,6 +6,5 @@ public/mediapipe/
 src/recognizer/fixtures/reference-landmarks.json
 src/recognizer/seeds/*.json
 public/handshapes/*.json
-docs/test-plan-pr1-visual-fixes.md
 docs/**/*.json
 tools/**/*.json
