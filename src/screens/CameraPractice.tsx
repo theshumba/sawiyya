@@ -118,7 +118,7 @@ export function CameraPractice({ initialSignId, autoStart = false }: { initialSi
           >
             <Icon name="arrow_back" className="text-xl leading-none rtl:rotate-180" />
           </button>
-          <Title className="min-w-0 flex-1 truncate">{t("camPractice", lang)}</Title>
+          <Title className="min-w-0 flex-1 whitespace-normal">{t("camPractice", lang)}</Title>
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sand px-2.5 py-1.5">
             <span className="h-3.5 w-3.5 rounded-full bg-coral" aria-hidden="true" />
             <span className="font-display text-[13px] font-bold leading-none text-ink">
@@ -163,11 +163,15 @@ export function CameraPractice({ initialSignId, autoStart = false }: { initialSi
           </div>
           {/* scroll-edge fades */}
           <span
-            className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-sand to-transparent md:hidden"
+            className={`pointer-events-none absolute inset-y-0 start-0 z-10 w-8 md:hidden ${
+              lang === "ar" ? "bg-gradient-to-l" : "bg-gradient-to-r"
+            } from-sand to-transparent`}
             aria-hidden="true"
           />
           <span
-            className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-sand to-transparent md:hidden"
+            className={`pointer-events-none absolute inset-y-0 end-0 z-10 w-8 md:hidden ${
+              lang === "ar" ? "bg-gradient-to-r" : "bg-gradient-to-l"
+            } from-sand to-transparent`}
             aria-hidden="true"
           />
         </div>

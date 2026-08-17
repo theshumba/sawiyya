@@ -12,7 +12,7 @@ export type FananPose = "idle" | "think" | "cheer" | "sad" | "celebrate" | "wave
 
 export interface FananProps {
   pose?: FananPose;
-  /** Uniform scale about the bottom-centre anchor. Default 1. */
+  /** Uniform scale from the top-left anchor. Default 1. */
   scale?: number;
   className?: string;
 }
@@ -31,15 +31,23 @@ export function Fanan({ pose = "idle", scale = 1, className = "" }: FananProps) 
   const raisePaw = pose === "wave" || pose === "celebrate";
 
   const wrapStyle: CSSProperties = {
-    transform: `scale(${scale})`,
-    transformOrigin: "center bottom",
-    width: "120px",
-    height: "118px",
+    width: `${120 * scale}px`,
+    height: `${118 * scale}px`,
   };
 
   return (
-    <div className={className} style={wrapStyle}>
-      <div style={{ position: "relative", width: "120px", height: "118px" }}>
+    <div className={className} style={{ ...wrapStyle, position: "relative" }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "120px",
+          height: "118px",
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+      >
         {/* ears */}
         <div
           style={{

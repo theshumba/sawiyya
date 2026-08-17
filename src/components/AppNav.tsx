@@ -84,7 +84,7 @@ export function AppNav({ lang }: { lang: Lang }) {
           role="dialog"
           aria-label={t("navProfile", lang)}
           tabIndex={-1}
-          className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-auto lg:start-full lg:top-0 lg:mb-0 lg:ms-3"
+          className="absolute bottom-full end-0 z-50 mb-3 w-52 overflow-hidden rounded-3xl border border-line bg-paper shadow-lift focus:outline-none lg:bottom-0 lg:start-full lg:top-auto lg:mb-0 lg:ms-3"
         >
           {profile && (
             <div className="flex items-center gap-3 border-b border-line px-4 py-3">

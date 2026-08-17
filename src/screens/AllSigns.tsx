@@ -573,10 +573,10 @@ function SignCard({
       <p className={`font-display font-bold ${selected ? "text-teal" : "text-ink"} md:text-lg`}>
         {label}
         {secondary !== label && (
-          <span className="text-ink/70" dir={lang === "ar" ? "ltr" : "rtl"}>
+          <>
             {" · "}
-            {secondary}
-          </span>
+            <bdi className="text-ink/70">{secondary}</bdi>
+          </>
         )}
       </p>
       <p className={`text-[11px] font-bold uppercase tracking-widest md:text-xs ${meta.tone}`}>
@@ -699,10 +699,10 @@ function DetailPanel({
           <h2 className="font-display text-2xl font-black text-ink md:text-3xl">
             {title}
             {secondary !== title && (
-              <span className="text-ink/70" dir={lang === "ar" ? "ltr" : "rtl"}>
+              <>
                 {" · "}
-                {secondary}
-              </span>
+                <bdi className="text-ink/70">{secondary}</bdi>
+              </>
             )}
           </h2>
           <span className="mt-1 shrink-0 md:mt-0">
